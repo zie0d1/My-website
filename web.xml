@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>زيد حامد علي عبد الله - طالب طب بيطري</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 50%, #68a085 100%);
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 2rem;
+            background: linear-gradient(45deg, #2c5530, #4a7c59);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            animation: pulse 2s infinite;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .profile-image::before {
+            content: '🐾';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* About Section */
+        .about {
+            padding: 5rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .about h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .about-text h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .about-text p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+        }
+
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .skill-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .skill-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .skill-item h4 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .skill-item p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Education Section */
+        .education {
+            padding: 5rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .education h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .education-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .university-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .university-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .university-logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .university-card h3 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .university-card h4 {
+            color: #68a085;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .degree {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .duration {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .subject-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .subject-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .subject-item h4 {
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .subject-item p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .social-media {
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+
+        .social-media h2 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .social-link:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .facebook { background: #1877f2; }
+        .twitter { background: #1da1f2; }
+        .instagram { background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d); }
+        .linkedin { background: #0077b5; }
+        .youtube { background: #ff0000; }
+        .github { background: #333; }
+
+        /* Blog Section */
+        .blog {
+            padding: 5rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .blog h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .blog-posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .blog-post {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .blog-post h3 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .blog-post p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+        }
+
+        .blog-post .date {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .social-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+<head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">زيد حامد علي - طالب طب بيطري</div>
+            <ul class="nav-links">
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="#about">نبذة عني</a></li>
+                <li><a href="#education">التعليم</a></li>
+                <li><a href="#social">التواصل</a></li>
+                <li><a href="#blog">المدونة</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="profile-image">
+                <!-- أيقونة طبيب بيطري -->
+                🩺
+            </div>
+            <h1>زيد حامد علي عبد الله</h1>
+            <p>طالب طب بيطري في جامعة الموصل | شغوف بصحة الحيوانات وحمايتها | أسعى لتحقيق التميز الأكاديمي والمهني في مجال الطب البيطري</p>
+            <a href="#about" class="cta-button">تعرف على مسيرتي</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <h2>نبذة عني</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>مرحباً، أنا زيد حامد علي عبد الله</h3>
+                    <p>طالب طب بيطري متحمس في جامعة الموصل العريقة، أسعى لتحقيق التميز الأكاديمي والمهني في مجال الطب البيطري. أؤمن بأن حماية صحة الحيوانات ورعايتها مسؤولية إنسانية عظيمة تتطلب المعرفة العلمية والتفاني في العمل.</p>
+                    <p>خلال دراستي الجامعية، اكتسبت معرفة عميقة في علوم الطب البيطري، بدءاً من التشريح وعلم وظائف الأعضاء، مروراً بالأمراض وطرق التشخيص، ووصولاً إلى أحدث تقنيات العلاج والوقاية. أحب مشاركة المعرفة مع زملائي والتعلم من خبرات الأطباء البيطريين المختصين.</p>
+                    <p>أهدف إلى التخصص في مجال الطب البيطري الوقائي وصحة الحيوان، مع التركيز على تطوير برامج الوقاية من الأمراض وتحسين معايير الرعاية الصحية للحيوانات في منطقتنا.</p>
+                </div>
+                <div class="skills">
+                    <div class="skill-item">
+                        <h4>التشخيص السريري 🔬</h4>
+                        <p>خبرة متنامية في فحص الحيوانات وتشخيص الأمراض</p>
+                    </div>
+                    <div class="skill-item">
+                        <h4>الجراحة البيطرية ⚕️</h4>
+                        <p>معرفة نظرية وتطبيق عملي في العمليات الجراحية</p>
+                    </div>
+                    <div class="skill-item">
+                        <h4>علم الأدوية 💊</h4>
+                        <p>فهم عميق للعقاقير البيطرية وتأثيراتها</p>
+                    </div>
+                    <div class="skill-item">
+                        <h4>الطب الوقائي 🛡️</h4>
+                        <p>التخصص في برامج الوقاية والتحصين</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section class="education" id="education">
+        <div class="container">
+            <h2>مسيرتي التعليمية</h2>
+            <div class="education-content">
+                <div class="university-info">
+                    <div class="university-card">
+                        <div class="university-logo">🏛️</div>
+                        <h3>جامعة الموصل</h3>
+                        <h4>كلية الطب البيطري</h4>
+                        <p class="degree">بكالوريوس طب بيطري</p>
+                        <p class="duration">2020 - 2025 (متوقع)</p>
+                        <p class="description">أدرس في إحدى أعرق الجامعات العراقية وأقدم كليات الطب البيطري في المنطقة، حيث أحصل على تعليم أكاديمي متميز يجمع بين النظرية والتطبيق العملي.</p>
+                    </div>
+                </div>
+                <div class="subjects-grid">
+                    <div class="subject-item">
+                        <h4>التشريح البيطري 🦴</h4>
+                        <p>دراسة مفصلة لتشريح الحيوانات الأليفة والمزرعة</p>
+                    </div>
+                    <div class="subject-item">
+                        <h4>علم وظائف الأعضاء 💗</h4>
+                        <p>فهم كيفية عمل أجهزة الجسم المختلفة</p>
+                    </div>
+                    <div class="subject-item">
+                        <h4>علم الأمراض 🔬</h4>
+                        <p>تشخيص وعلاج الأمراض البيطرية</p>
+                    </div>
+                    <div class="subject-item">
+                        <h4>الطب الباطني 🩺</h4>
+                        <p>التشخيص والعلاج الداخلي للحيوانات</p>
+                    </div>
+                    <div class="subject-item">
+                        <h4>الجراحة البيطرية ⚕️</h4>
+                        <p>تقنيات وإجراءات الجراحة الحديثة</p>
+                    </div>
+                    <div class="subject-item">
+                        <h4>الصحة العامة 🛡️</h4>
+                        <p>الوقاية من الأمراض وصحة المجتمع</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="social-media" id="social">
+        <div class="container">
+            <h2>تواصل معي</h2>
+            <div class="social-links">
+                <a href="#" class="social-link">
+                    <div class="social-icon facebook">f</div>
+                    <span>Facebook</span>
+                </a>
+                <a href="#" class="social-link">
+                    <div class="social-icon twitter">t</div>
+                    <span>Twitter</span>
+                </a>
+                <a href="#" class="social-link">
+                    <div class="social-icon instagram">i</div>
+                    <span>Instagram</span>
+                </a>
+                <a href="#" class="social-link">
+                    <div class="social-icon linkedin">in</div>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="#" class="social-link">
+                    <div class="social-icon youtube">y</div>
+                    <span>YouTube</span>
+                </a>
+       <a href="#" class="social-link">
+                    <div class="social-icon github">g</div>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section class="blog" id="blog">
+        <div class="container">
+            <h2>آخر المقالات</h2>
+            <div class="blog-posts">
+                <div class="blog-post">
+                    <h3>عنوان المقالة الأولى</h3>
+                    <p>هذا نص تجريبي لمقالة من مدونتك. يمكنك استبدال هذا النص بالمحتوى الفعلي للمقالة.</p>
+                    <div class="date">تاريخ النشر: 1 يوليو 2025</div>
+                </div>
+                <div class="blog-post">
+                    <h3>عنوان المقالة الثانية</h3>
+                    <p>هذا نص تجريبي آخر لمقالة من مدونتك. يمكنك إضافة المزيد من المقالات حسب الحاجة.</p>
+                    <div class="date">تاريخ النشر: 25 يونيو 2025</div>
+                </div>
+                <div class="blog-post">
+                    <h3>عنوان المقالة الثالثة</h3>
+                    <p>هذا نص تجريبي ثالث لمقالة من مدونتك. يمكنك تخصيص كل مقالة بالمحتوى الذي تريده.</p>
+                    <div class="date">تاريخ النشر: 20 يونيو 2025</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#home">الرئيسية</a>
+                <a href="#about">نبذة عني</a>
+                <a href="#social">التواصل</a>
+                <a href="#blog">المدونة</a>
+            </div>
+            <p>&copy; 2025 موقعي الشخصي. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll effect to header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(0, 0, 0, 0.8)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
+        });
+
+        // Add animation to elements when they come into view
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(50px)';
+            section.style.transition = 'all 0.6s ease';
+            observer.observe(section);
+        });
+
+        // Add click animation to social links
+        document.querySelectorAll('.social-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'translateY(-5px)';
+                }, 150);
+                
+                // Here you would typically open the actual social media link
+                // For now, we'll just show an alert
+                const platform = this.querySelector('span').textContent;
+                alert(`سيتم فتح حسابك على ${platform} في علامة تبويب جديدة`);
+            });
+        });
+    </script>
+</body>
+</html>
