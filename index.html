@@ -3,418 +3,637 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>زيد حامد علي - طالب طب بيطري</title>
+    <title>زيد حامد - طبيب بيطري</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #7c3aed;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --background-light: #f8fafc;
+            --background-dark: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --white: #ffffff;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
             line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--background-light);
+            overflow-x: hidden;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
+        
+        /* Loading Screen */
+        .loading-screen {
             position: fixed;
-            width: 100%;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-content {
-            max-width: 1200px;
-            margin: 0 auto;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            padding: 0 20px;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
         }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #667eea;
-            text-decoration: none;
+        
+        .loading-name {
+            font-size: 4rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 30px rgba(255,255,255,0.6);
+            animation: pulse 2s infinite;
         }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            cursor: pointer;
+        
+        /* Main Content */
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.8s ease;
         }
-
-        .nav-links a:hover, .nav-links a.active {
-            color: #667eea;
+        
+        .main-content.show {
+            opacity: 1;
         }
-
-        .page {
-            display: none;
-            padding-top: 100px;
+        
+        /* Hero Section */
+        .hero-section {
             min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
         }
-
-        .page.active {
-            display: block;
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="25" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="75" cy="25" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
-
-        .hero {
+        
+        .hero-content {
             text-align: center;
-            padding: 4rem 0;
+            color: white;
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
         }
-
+        
         .profile-image {
             width: 200px;
             height: 200px;
             border-radius: 50%;
-            object-fit: cover;
             border: 6px solid white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 2rem;
-            transition: transform 0.3s ease;
+            margin: 0 auto 2rem;
+            object-fit: cover;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.5s ease;
+            animation: float 3s ease-in-out infinite;
         }
-
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
         .profile-image:hover {
             transform: scale(1.05);
         }
-
-        .hero-content {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 3rem;
-            margin: 2rem 0;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .hero h1 {
-            font-size: 3rem;
+        
+        .hero-name {
+            font-size: 4rem;
+            font-weight: 700;
             margin-bottom: 1rem;
-            color: #333;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+            animation: slideInUp 1s ease-out;
         }
-
-        .hero p {
+        
+        .hero-title {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            animation: slideInUp 1s ease-out 0.2s both;
+        }
+        
+        .hero-description {
             font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            animation: slideInUp 1s ease-out 0.4s both;
         }
-
-        .contact-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            animation: bounce 2s infinite;
         }
-
-        .contact-card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Social Media Section */
+        .social-section {
+            padding: 6rem 2rem;
+            background: var(--background-light);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
             text-align: center;
-        }
-
-        .contact-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        .contact-card i {
-            font-size: 2.5rem;
-            color: #667eea;
+            font-size: 3rem;
+            font-weight: 700;
             margin-bottom: 1rem;
+            color: var(--text-primary);
+            position: relative;
         }
-
-        .contact-card h3 {
-            color: #333;
-            margin-bottom: 0.5rem;
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        .contact-card p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
+        
         .social-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
             margin-top: 2rem;
         }
-
+        
         .social-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--white);
             padding: 2.5rem;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
+            border: 2px solid transparent;
         }
-
+        
         .social-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
+            width: 100%;
             height: 4px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
         }
-
+        
+        .social-card:hover::before {
+            transform: translateX(100%);
+        }
+        
         .social-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-lg);
         }
-
+        
+        .social-card.phone {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        }
+        
+        .social-card.email {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+        }
+        
+        .social-card.instagram {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+        }
+        
+        .social-card.telegram {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        }
+        
         .social-icon {
-            font-size: 4rem;
+            font-size: 3.5rem;
             margin-bottom: 1.5rem;
-            color: #667eea;
+            display: block;
+            position: relative;
+            z-index: 1;
         }
-
-        .social-card h3 {
+        
+        .social-card.phone .social-icon {
+            color: var(--success-color);
+        }
+        
+        .social-card.email .social-icon {
+            color: var(--accent-color);
+        }
+        
+        .social-card.instagram .social-icon {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .social-card.telegram .social-icon {
+            color: var(--primary-color);
+        }
+        
+        .social-title {
             font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
         }
-
-        .social-card p {
-            color: #666;
-            margin-bottom: 1.5rem;
-        }
-
-        .social-link {
-            display: inline-block;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 0.8rem 2rem;
-            border-radius: 25px;
-            text-decoration: none;
+        
+        .social-info {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
             font-weight: 500;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
-        .social-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
+        
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--text-primary);
             color: white;
-            margin-bottom: 3rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
         }
-
+        
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .social-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .social-btn.phone {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+        }
+        
+        .social-btn.email {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #d97706 100%);
+        }
+        
+        .social-btn.instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+        
+        .social-btn.telegram {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--background-dark);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 2rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-text {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .nav-links {
-                gap: 1rem;
+            .loading-name {
+                font-size: 2.5rem;
             }
-
-            .hero h1 {
-                font-size: 2rem;
+            
+            .hero-name {
+                font-size: 2.5rem;
             }
-
-            .hero p {
+            
+            .hero-title {
+                font-size: 1.2rem;
+            }
+            
+            .hero-description {
                 font-size: 1rem;
             }
-
-            .contact-info {
-                grid-template-columns: 1fr;
+            
+            .section-title {
+                font-size: 2rem;
             }
-
+            
             .social-grid {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .profile-image {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .social-card {
+                padding: 2rem;
             }
         }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+        
+        /* Animation delays for cards */
+        .social-card:nth-child(1) { animation: fadeInUp 0.8s ease 0.1s both; }
+        .social-card:nth-child(2) { animation: fadeInUp 0.8s ease 0.2s both; }
+        .social-card:nth-child(3) { animation: fadeInUp 0.8s ease 0.3s both; }
+        .social-card:nth-child(4) { animation: fadeInUp 0.8s ease 0.4s both; }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="#" class="logo">زيد حامد علي</a>
-            <ul class="nav-links">
-                <li><a href="#" onclick="showPage('home')" class="active">الرئيسية</a></li>
-                <li><a href="#" onclick="showPage('social')">التواصل الاجتماعي</a></li>
-            </ul>
-        </div>
-    </nav>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-name">زيد حامد</div>
+    </div>
 
-    <div class="container">
-        <!-- الصفحة الرئيسية -->
-        <div id="home" class="page active">
-            <div class="hero">
-                <img src="https://i.ibb.co/FL5pvgx/your-image.jpg" alt="زيد حامد علي" class="profile-image fade-in">
-                <div class="hero-content fade-in">
-                    <h1>زيد حامد علي</h1>
-                    <p>طالب طب بيطري - السنة الثالثة</p>
-                    <p>جامعة الموصل</p>
-                    <p>مرحباً بكم في موقعي الشخصي، أنا طالب مهتم بالطب البيطري وأسعى لتقديم أفضل الخدمات في هذا المجال</p>
-                </div>
-                
-                <div class="contact-info">
-                    <div class="contact-card fade-in">
-                        <i class="fas fa-phone"></i>
-                        <h3>رقم الهاتف</h3>
-                        <p>009647736308670</p>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <img src="https://iili.io/F0u3eql.md.jpg" alt="زيد حامد" class="profile-image">
+                <h1 class="hero-name">زيد حامد</h1>
+                <p class="hero-title">طبيب بيطري متخصص</p>
+                <p class="hero-description">
+                    مرحباً بك في صفحتي الشخصية. أنا طبيب بيطري متخصص في العناية بصحة الحيوانات وتقديم أفضل الخدمات الطبية لأصدقائنا ذوي الأربع أرجل. أسعى دائماً لتقديم الرعاية الطبية المتميزة والمتطورة.
+                </p>
+                 <a href="cv.html" style="color: white; font-size: 1.0rem; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+  <i class="fas fa-file-alt"></i>
+  <span>عرض السيرة الذاتية</span>
+</a>
+
+        
+
+            </div>
+            <div class="scroll-indicator">
+                <i class="fas fa-chevron-down fa-2x"></i>
+            </div>
+        </section>
+
+        <!-- Social Media Section -->
+        <section class="social-section">
+            <div class="container">
+                <h2 class="section-title">تواصل معي</h2>
+                <p class="section-subtitle">يمكنك التواصل معي من خلال أي من وسائل التواصل التالية للاستفسار أو الحصول على المساعدة</p>
+           
+
+              
+                <div class="social-grid">
+                    <!-- Phone -->
+                    <div class="social-card phone">
+                        <i class="fas fa-phone social-icon"></i>
+                        <h3 class="social-title">الهاتف</h3>
+                        <p class="social-info">+964 7736308680</p>
+                        <button class="social-btn phone" onclick="saveContact()">
+                            <i class="fas fa-download"></i>
+                            <span>حفظ الرقم</span>
+                        </button>
                     </div>
-                    <div class="contact-card fade-in">
-                        <i class="fas fa-envelope"></i>
-                        <h3>البريد الإلكتروني</h3>
-                        <p>zy0aid@gmail.com</p>
+
+                    <!-- Email -->
+                    <div class="social-card email">
+                        <i class="fas fa-envelope social-icon"></i>
+                        <h3 class="social-title">البريد الإلكتروني</h3>
+                        <p class="social-info">zy0aid@gmail.com</p>
+                        <a href="mailto:zy0aid@gmail.com" class="social-btn email">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>إرسال رسالة</span>
+                        </a>
                     </div>
-                    <div class="contact-card fade-in">
-                        <i class="fas fa-graduation-cap"></i>
-                        <h3>التخصص</h3>
-                        <p>طب بيطري - السنة الثالثة</p>
+
+                    <!-- Instagram -->
+                    <div class="social-card instagram">
+                        <i class="fab fa-instagram social-icon"></i>
+                        <h3 class="social-title">إنستغرام</h3>
+                        <p class="social-info">@Zie0d</p>
+                        <a href="https://instagram.com/zie0d" target="_blank" class="social-btn instagram">
+                            <i class="fab fa-instagram"></i>
+                            <span>تابعني</span>
+                        </a>
                     </div>
-                    <div class="contact-card fade-in">
-                        <i class="fas fa-university"></i>
-                        <h3>الجامعة</h3>
-                        <p>جامعة الموصل</p>
+
+                    <!-- Telegram -->
+                    <div class="social-card telegram">
+                        <i class="fab fa-telegram social-icon"></i>
+                        <h3 class="social-title">تلجرام</h3>
+                        <p class="social-info">@zie0d1</p>
+                        <a href="https://t.me/zie0d1" target="_blank" class="social-btn telegram">
+                            <i class="fab fa-telegram"></i>
+                            <span>تواصل معي</span>
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- صفحة التواصل الاجتماعي -->
-        <div id="social" class="page">
-            <h2 class="section-title">تواصل معي</h2>
-            <div class="social-grid">
-                <div class="social-card fade-in">
-                    <div class="social-icon">
-                        <i class="fab fa-instagram"></i>
-                    </div>
-                    <h3>انستجرام</h3>
-                    <p>تابعني على انستجرام لمشاهدة آخر الأخبار والمحتوى المرئي</p>
-                    <a href="https://instagram.com/zie0d" class="social-link" target="_blank">
-                        <i class="fab fa-instagram"></i> Zie0d
-                    </a>
-                </div>
-
-                <div class="social-card fade-in">
-                    <div class="social-icon">
-                        <i class="fab fa-telegram"></i>
-                    </div>
-                    <h3>تليجرام</h3>
-                    <p>راسلني على تليجرام للتواصل المباشر والسريع</p>
-                    <a href="https://t.me/zie0d1" class="social-link" target="_blank">
-                        <i class="fab fa-telegram"></i> @zie0d1
-                    </a>
-                </div>
-
-                <div class="social-card fade-in">
-                    <div class="social-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <h3>البريد الإلكتروني</h3>
-                    <p>تواصل معي عبر البريد الإلكتروني للاستفسارات الرسمية</p>
-                    <a href="mailto:zy0aid@gmail.com" class="social-link">
-                        <i class="fas fa-envelope"></i> zy0aid@gmail.com
-                    </a>
-                </div>
-
-                <div class="social-card fade-in">
-                    <div class="social-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <h3>الهاتف</h3>
-                    <p>اتصل بي مباشرة للحصول على استشارة أو معلومات</p>
-                    <a href="tel:009647736308670" class="social-link">
-                        <i class="fas fa-phone"></i> 009647736308670
-                    </a>
-                </div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p class="footer-text">&copy; 2025 زيد حامد - جميع الحقوق محفوظة</p>
             </div>
-        </div>
+        </footer>
     </div>
 
     <script>
-        function showPage(pageId) {
-            // إخفاء جميع الصفحات
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.classList.remove('active'));
-            
-            // إظهار الصفحة المطلوبة
-            document.getElementById(pageId).classList.add('active');
-            
-            // تحديث الروابط النشطة
-            const navLinks = document.querySelectorAll('.nav-links a');
-            navLinks.forEach(link => link.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // إعادة تشغيل الحركات
+        // Loading screen functionality
+        window.addEventListener('load', function() {
             setTimeout(() => {
-                const elements = document.querySelectorAll('.fade-in');
-                elements.forEach(el => {
-                    el.classList.remove('visible');
-                    setTimeout(() => el.classList.add('visible'), 100);
-                });
-            }, 100);
+                document.getElementById('loadingScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('mainContent').classList.add('show');
+                }, 800);
+            }, 2500);
+        });
+
+        // Save contact function
+        function saveContact() {
+            const contact = {
+                name: "زيد حامد",
+                phone: "+964 7736308680",
+                email: "zy0aid@gmail.com",
+                title: "طبيب بيطري"
+            };
+            
+            // Create vCard format
+            const vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${contact.name}
+TEL:${contact.phone}
+EMAIL:${contact.email}
+TITLE:${contact.title}
+END:VCARD`;
+            
+            // Create blob and download
+            const blob = new Blob([vcard], { type: 'text/vcard' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'زيد_حامد.vcf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            // Show success message
+            showNotification('تم حفظ معلومات الاتصال بنجاح!');
         }
 
-        // تشغيل الحركات عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            const elements = document.querySelectorAll('.fade-in');
-            elements.forEach((el, index) => {
+        // Notification function
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--success-color);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 10px;
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                font-weight: 600;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
                 setTimeout(() => {
-                    el.classList.add('visible');
-                }, index * 200);
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    // Smooth scrolling for scroll indicator
+        document.querySelector('.scroll-indicator').addEventListener('click', function() {
+            document.querySelector('.social-section').scrollIntoView({
+                behavior: 'smooth'
             });
         });
 
-        // تشغيل الحركات عند التمرير
-        window.addEventListener('scroll', function() {
-            const elements = document.querySelectorAll('.fade-in');
-            elements.forEach(el => {
-                const elementTop = el.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                
-                if (elementTop < windowHeight * 0.8) {
-                    el.classList.add('visible');
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
                 }
             });
+        }, observerOptions);
+
+        // Observe social cards
+        document.querySelectorAll('.social-card').forEach(card => {
+            observer.observe(card);
         });
     </script>
 </body>
