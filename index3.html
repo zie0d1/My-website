@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>زيد حامد - Zaid Hamid</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* صفحة الترحيب */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #000000 0%, #DA2C38 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeOut 0.5s ease-in-out 2.5s forwards;
+        }
+
+        .welcome-screen h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            opacity: 0;
+            animation: slideUp 0.8s ease-out 0.3s forwards;
+        }
+
+        .welcome-screen h2 {
+            font-size: 2.5rem;
+            font-weight: 400;
+            opacity: 0;
+            animation: slideUp 0.8s ease-out 0.6s forwards;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+
+        /* الصفحة الرئيسية */
+        .main-content {
+            opacity: 0;
+            animation: fadeIn 0.8s ease-in-out 3s forwards;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(218, 44, 56, 0.3);
+            padding: 15px 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(218, 44, 56, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .header:hover::before {
+            opacity: 1;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header nav li {
+            position: relative;
+        }
+
+        .header nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(218, 44, 56, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .header nav a:hover::before {
+            left: 100%;
+        }
+
+        .header nav a:hover {
+            color: #DA2C38;
+            background: rgba(218, 44, 56, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(218, 44, 56, 0.3);
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 20px 50px;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #DA2C38;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(218, 44, 56, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #DA2C38, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .bio {
+            max-width: 600px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin-bottom: 50px;
+        }
+
+        .social-section {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(26,26,26,0.9) 100%);
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(218, 44, 56, 0.2);
+        }
+
+        .social-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            background: linear-gradient(45deg, #DA2C38, #ffffff, #DA2C38);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .social-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #DA2C38, transparent);
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .phone-section {
+            grid-column: 1 / -1;
+            margin-bottom: 30px;
+        }
+
+        .social-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .social-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(218, 44, 56, 0.3);
+            border-color: #DA2C38;
+        }
+
+        .social-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(218, 44, 56, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .social-card:hover::before {
+            left: 100%;
+        }
+
+        .social-icon {
+            font-size: 3rem;
+            color: #DA2C38;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .social-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .social-handle {
+            color: #cccccc;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(45deg, #DA2C38, #ff4757);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .social-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(218, 44, 56, 0.4);
+        }
+
+        .phone-card {
+            background: linear-gradient(145deg, rgba(218, 44, 56, 0.2), rgba(218, 44, 56, 0.1));
+            border: 2px solid #DA2C38;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .phone-card .social-icon {
+            font-size: 4rem;
+            color: #DA2C38;
+            margin-bottom: 25px;
+        }
+
+        .phone-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #DA2C38;
+            margin-bottom: 20px;
+            font-family: 'IBM Plex Sans', monospace;
+            letter-spacing: 1px;
+        }
+
+        .save-contact-btn {
+            background: linear-gradient(45deg, #DA2C38, #ff4757);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .save-contact-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(218, 44, 56, 0.5);
+        }
+
+        /* الرسوم المتحركة */
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 968px) {
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header nav ul {
+                gap: 30px;
+            }
+            
+            .header nav a {
+                font-size: 1rem;
+                padding: 8px 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .welcome-screen h1 { font-size: 2.5rem; }
+            .welcome-screen h2 { font-size: 1.8rem; }
+            .hero-title { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1.2rem; }
+            .profile-image { width: 150px; height: 150px; }
+            .social-title { font-size: 2.2rem; }
+            .phone-number { font-size: 1.5rem; }
+            .social-section { padding: 40px 15px; }
+            
+            .header nav ul {
+                gap: 20px;
+            }
+            
+            .header nav a {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحة الترحيب -->
+    <div class="welcome-screen">
+        <h1>زيد حامد</h1>
+        <h2>Zaid Hamid</h2>
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <!-- الشريط العلوي -->
+        <header class="header" id="header">
+            <div class="nav-container">
+                <nav>
+                    <ul>
+                        <li><a href="#home"><i class="fas fa-home"></i> الرئيسية</a></li>
+                        <li><a href="#about"><i class="fas fa-user"></i> عني</a></li>
+                        <li><a href="#contact"><i class="fas fa-envelope"></i> التواصل</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- القسم الرئيسي -->
+        <section class="hero-section" id="home">
+            <img src="https://iili.io/F0u3eql.md.jpg" alt="زيد حامد" class="profile-image">
+            <h1 class="hero-title">زيد حامد</h1>
+            <p class="hero-subtitle">طبيب بيطري</p>
+            <div class="bio">
+                <p>أهلاً وسهلاً بكم في موقعي الشخصي. أنا زيد حامد، طبيب بيطري متخصص في رعاية الحيوانات وصحتها. أسعى دائماً لتقديم أفضل الخدمات البيطرية والمساهمة في رفاهية الحيوانات في مجتمعنا.</p>
+            </div>
+        </section>
+
+        <!-- قسم التواصل الاجتماعي -->
+        <section class="social-section" id="contact">
+            <h2 class="social-title">تواصل معي</h2>
+            
+            <!-- قسم الهاتف -->
+            <div class="phone-section">
+                <div class="social-card phone-card">
+                    <i class="fas fa-phone-alt social-icon"></i>
+                    <h3 class="social-name">رقم الهاتف</h3>
+                    <p class="phone-number">+964 773 630 8670</p>
+                    <button class="save-contact-btn" onclick="saveContact()">
+                        <i class="fas fa-download"></i>
+                        حفظ الرقم
+                    </button>
+                </div>
+            </div>
+
+            <div class="social-grid">
+                <!-- البريد الإلكتروني -->
+                <div class="social-card">
+                    <i class="fas fa-envelope social-icon"></i>
+                    <h3 class="social-name">البريد الإلكتروني</h3>
+                    <p class="social-handle">zy0aid@gmail.com</p>
+                    <a href="mailto:zy0aid@gmail.com" class="social-link">
+                        <i class="fas fa-paper-plane"></i>
+                        إرسال رسالة
+                    </a>
+                </div>
+
+                <!-- إنستغرام -->
+                <div class="social-card">
+                    <i class="fab fa-instagram social-icon"></i>
+                    <h3 class="social-name">إنستغرام</h3>
+                    <p class="social-handle">@Zie0d</p>
+                    <a href="https://instagram.com/zie0d" target="_blank" class="social-link">
+                        <i class="fas fa-external-link-alt"></i>
+                        متابعة
+                    </a>
+                </div>
+
+                <!-- تلجرام -->
+                <div class="social-card">
+                    <i class="fab fa-telegram social-icon"></i>
+                    <h3 class="social-name">تلجرام</h3>
+                    <p class="social-handle">@zie0d1</p>
+                    <a href="https://t.me/zie0d1" target="_blank" class="social-link">
+                        <i class="fas fa-comments"></i>
+                        محادثة
+                    </a>
+                </div>
+
+                <!-- واتساب -->
+                <div class="social-card">
+                    <i class="fab fa-whatsapp social-icon"></i>
+                    <h3 class="social-name">واتساب</h3>
+                    <p class="social-handle">+964 773 630 8670</p>
+                    <a href="https://wa.me/9647736308670" target="_blank" class="social-link">
+                        <i class="fas fa-comment-dots"></i>
+                        مراسلة
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // إخفاء الشريط العلوي عند التمرير
+        let lastScrollTop = 0;
+        const header = document.getElementById('header');
+
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+
+        // وظيفة حفظ جهة الاتصال
+        function saveContact() {
+            // إنشاء ملف vCard
+            const vCardData = `BEGIN:VCARD
+VERSION:3.0
+FN:زيد حامد - Zaid Hamid
+N:حامد;زيد;;;
+ORG:طبيب بيطري
+TEL;TYPE=CELL:+9647736308670
+EMAIL:zy0aid@gmail.com
+URL:https://instagram.com/zie0d
+NOTE:طبيب بيطري متخصص في رعاية الحيوانات
+END:VCARD`;
+
+            // إنشاء رابط التحميل
+            const blob = new Blob([vCardData], { type: 'text/vcard' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'زيد_حامد_Zaid_Hamid.vcf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // تأثيرات التمرير السلس
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
