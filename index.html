@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>زيد حامد علي - طالب طب بيطري</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #667eea;
+        }
+
+        .page {
+            display: none;
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 6px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
+        }
+
+        .hero-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #333;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .contact-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .contact-card h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-card p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .social-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .social-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .social-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #667eea;
+        }
+
+        .social-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .social-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .social-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">زيد حامد علي</a>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('home')" class="active">الرئيسية</a></li>
+                <li><a href="#" onclick="showPage('social')">التواصل الاجتماعي</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- الصفحة الرئيسية -->
+        <div id="home" class="page active">
+            <div class="hero">
+                <img src="https://i.ibb.co/FL5pvgx/your-image.jpg" alt="زيد حامد علي" class="profile-image fade-in">
+                <div class="hero-content fade-in">
+                    <h1>زيد حامد علي</h1>
+                    <p>طالب طب بيطري - السنة الثالثة</p>
+                    <p>جامعة الموصل</p>
+                    <p>مرحباً بكم في موقعي الشخصي، أنا طالب مهتم بالطب البيطري وأسعى لتقديم أفضل الخدمات في هذا المجال</p>
+                </div>
+                
+                <div class="contact-info">
+                    <div class="contact-card fade-in">
+                        <i class="fas fa-phone"></i>
+                        <h3>رقم الهاتف</h3>
+                        <p>009647736308670</p>
+                    </div>
+                    <div class="contact-card fade-in">
+                        <i class="fas fa-envelope"></i>
+                        <h3>البريد الإلكتروني</h3>
+                        <p>zy0aid@gmail.com</p>
+                    </div>
+                    <div class="contact-card fade-in">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>التخصص</h3>
+                        <p>طب بيطري - السنة الثالثة</p>
+                    </div>
+                    <div class="contact-card fade-in">
+                        <i class="fas fa-university"></i>
+                        <h3>الجامعة</h3>
+                        <p>جامعة الموصل</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة التواصل الاجتماعي -->
+        <div id="social" class="page">
+            <h2 class="section-title">تواصل معي</h2>
+            <div class="social-grid">
+                <div class="social-card fade-in">
+                    <div class="social-icon">
+                        <i class="fab fa-instagram"></i>
+                    </div>
+                    <h3>انستجرام</h3>
+                    <p>تابعني على انستجرام لمشاهدة آخر الأخبار والمحتوى المرئي</p>
+                    <a href="https://instagram.com/zie0d" class="social-link" target="_blank">
+                        <i class="fab fa-instagram"></i> Zie0d
+                    </a>
+                </div>
+
+                <div class="social-card fade-in">
+                    <div class="social-icon">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <h3>تليجرام</h3>
+                    <p>راسلني على تليجرام للتواصل المباشر والسريع</p>
+                    <a href="https://t.me/zie0d1" class="social-link" target="_blank">
+                        <i class="fab fa-telegram"></i> @zie0d1
+                    </a>
+                </div>
+
+                <div class="social-card fade-in">
+                    <div class="social-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3>البريد الإلكتروني</h3>
+                    <p>تواصل معي عبر البريد الإلكتروني للاستفسارات الرسمية</p>
+                    <a href="mailto:zy0aid@gmail.com" class="social-link">
+                        <i class="fas fa-envelope"></i> zy0aid@gmail.com
+                    </a>
+                </div>
+
+                <div class="social-card fade-in">
+                    <div class="social-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h3>الهاتف</h3>
+                    <p>اتصل بي مباشرة للحصول على استشارة أو معلومات</p>
+                    <a href="tel:009647736308670" class="social-link">
+                        <i class="fas fa-phone"></i> 009647736308670
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            // إخفاء جميع الصفحات
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // إظهار الصفحة المطلوبة
+            document.getElementById(pageId).classList.add('active');
+            
+            // تحديث الروابط النشطة
+            const navLinks = document.querySelectorAll('.nav-links a');
+            navLinks.forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // إعادة تشغيل الحركات
+            setTimeout(() => {
+                const elements = document.querySelectorAll('.fade-in');
+                elements.forEach(el => {
+                    el.classList.remove('visible');
+                    setTimeout(() => el.classList.add('visible'), 100);
+                });
+            }, 100);
+        }
+
+        // تشغيل الحركات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add('visible');
+                }, index * 200);
+            });
+        });
+
+        // تشغيل الحركات عند التمرير
+        window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight * 0.8) {
+                    el.classList.add('visible');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
