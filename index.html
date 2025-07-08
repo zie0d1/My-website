@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Blaka&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>زيد حامد - طبيب بيطري</title>
@@ -34,7 +37,12 @@
             background: var(--background-light);
             overflow-x: hidden;
         }
-        
+        .blaka-regular {
+  font-family: "Blaka", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
         /* Loading Screen */
         .loading-screen {
             position: fixed;
@@ -51,16 +59,17 @@
         }
         
         .loading-name {
-            font-size: 4rem;
-            font-weight: 700;
+            font-family: Blaka;
+            font-size: 500px;
+            font-weight: 400;
             color: white;
-            text-shadow: 0 0 30px rgba(255,255,255,0.6);
+            text-shadow: 0 0 50px rgba(255,255,255,0.6);
             animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+            0%, 100% { transform: scale(4); opacity: 1; }
+            50% { transform: scale(3.05); opacity: 0.8; }
         }
         
         /* Main Content */
@@ -105,10 +114,10 @@
         }
         
         .profile-image {
-            width: 200px;
-            height: 200px;
+            width: 450px;
+            height: 450px;
             border-radius: 50%;
-            border: 6px solid white;
+            border: 2px solid white;
             margin: 0 auto 2rem;
             object-fit: cover;
             box-shadow: var(--shadow-lg);
@@ -442,7 +451,7 @@
 <body>
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
-        <div class="loading-name">زيد حامد</div>
+        <div class="loading-name">زيد.</div>
     </div>
 
     <!-- Main Content -->
