@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>To‑Do List with Top Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724; /* dark navy */
+      --card:#0b1220;
+      --muted:#9aa8bd;
+      --accent:#7c5cff; /* purple */
+      --accent-2:#42d392; /* green */
+      --glass: rgba(255,255,255,0.04);
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg,#071022 0%, #081126 50%, #071021 100%);
+      color:#e6eef8; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      padding:32px; display:flex; align-items:center; justify-content:center;
+    }
+
+    .app {
+      width:100%; max-width:980px; border-radius:16px; overflow:hidden; box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    header{
+      padding:20px 28px; display:flex; align-items:center; gap:20px; justify-content:space-between;
+      background: linear-gradient(90deg, rgba(124,92,255,0.08), rgba(66,211,146,0.02));
+      border-bottom:1px solid rgba(255,255,255,0.02);
+    }
+
+    .timer {
+      display:flex; gap:16px; align-items:center;
+    }
+    .timer-display{font-variant-numeric: tabular-nums; font-weight:700; font-size:22px; letter-spacing:0.6px}
+    .small {font-size:13px; color:var(--muted)}
+
+    .controls{display:flex; gap:8px}
+    button.btn{background:var(--glass); border:1px solid rgba(255,255,255,0.03); color:inherit; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:600}
+    button.btn:hover{transform:translateY(-2px)}
+    button.primary{background:linear-gradient(90deg,var(--accent),#6a4bff); color:white; border:none}
+    button.ghost{background:transparent; border:1px dashed rgba(255,255,255,0.03)}
+
+    main{display:grid; grid-template-columns: 1fr 360px; gap:18px; padding:20px}
+    @media (max-width:900px){ main{grid-template-columns:1fr; padding:12px} .sidebar{order:2} }
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.02)}
+
+    .add-row{display:flex; gap:10px}
+    .add-row input[type=text]{flex:1; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:inherit}
+    .add-row input[type=date]{padding:10px 12px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.03); color:inherit}
+
+    .tasks{margin-top:14px; display:flex; flex-direction:column; gap:8px; max-height:520px; overflow:auto; padding-right:6px}
+    .task{display:flex; gap:12px; align-items:center; padding:10px; border-radius:10px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02)}
+    .task .title{flex:1}
+    .task .meta{font-size:12px; color:var(--muted)}
+    .task.done{opacity:0.6; text-decoration:line-through}
+    .task .actions{display:flex; gap:6px}
+
+    .sidebar{display:flex; flex-direction:column; gap:12px}
+    .stats{display:flex; gap:10px; align-items:center; justify-content:space-between}
+    .stat{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01)); padding:12px; border-radius:10px; text-align:center; min-width:0}
+    .stat .num{font-weight:700; font-size:18px}
+
+    footer{padding:12px 20px; font-size:13px; color:var(--muted); display:flex; justify-content:space-between; align-items:center}
+
+    /* tiny nice scroll */
+    .tasks::-webkit-scrollbar{width:8px}
+    .tasks::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.03); border-radius:8px}
+
+    .hint{color:var(--muted); font-size:13px}
+
+    .search{display:flex; gap:8px; align-items:center}
+    .search input{padding:10px 12px; border-radius:10px; background:transparent; border:1px solid rgba(255,255,255,0.04); color:inherit}
+
+    /* responsive tiny touches */
+    @media (max-width:420px){ header{padding:14px} .timer-display{font-size:18px} }
+  </style>
+</head>
+<body>
+  <div class="app" role="application">
+    <header>
+      <div style="display:flex; gap:14px; align-items:center">
+        <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#5b7bff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px">TD</div>
+        <div>
+          <div style="font-weight:700">To‑Do with Timer</div>
+          <div class="small">Stay productive — start the timer when you begin working</div>
+        </div>
+      </div>
+
+      <div class="timer">
+        <div style="text-align:right">
+          <div class="timer-display" id="timerDisplay">00:00:00</div>
+          <div class="small" id="timerState">stopped</div>
+        </div>
+        <div class="controls">
+          <button class="btn primary" id="startBtn">Start</button>
+          <button class="btn" id="pauseBtn" disabled>Pause</button>
+          <button class="btn ghost" id="resetBtn">Reset</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px">
+            <div style="font-weight:700">Tasks</div>
+            <div class="search">
+              <input id="search" placeholder="Search tasks..." />
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="add-row">
+            <input id="taskInput" type="text" placeholder="Add a task and press Enter" />
+            <input id="dueInput" type="date" />
+            <button class="btn primary" id="addBtn">Add</button>
+          </div>
+
+          <div class="tasks" id="tasks"></div>
+
+          <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end; align-items:center">
+            <button class="btn" id="clearDone">Clear done</button>
+            <button class="btn ghost" id="exportBtn">Export</button>
+            <button class="btn ghost" id="importBtn">Import</button>
+            <input id="importFile" type="file" accept="application/json" style="display:none" />
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <div class="card">
+          <div style="font-weight:700">Today</div>
+          <div style="margin-top:8px" class="hint">Focus timer runs at the top — it persists if you reload. Use it to measure a session.</div>
+
+          <div style="margin-top:12px" class="stats">
+            <div class="stat">
+              <div class="small">Total</div>
+              <div class="num" id="totalCount">0</div>
+            </div>
+            <div class="stat">
+              <div class="small">Done</div>
+              <div class="num" id="doneCount">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700">Session</div>
+          <div style="margin-top:8px" class="small">Time spent this session</div>
+          <div style="margin-top:12px; font-weight:700; font-size:20px" id="sessionTime">00:00:00</div>
+          <div style="margin-top:10px" class="hint">When you press Start the session time begins counting. Pausing stops it. Reset clears the session.</div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700">Tips</div>
+          <ul style="margin:10px 0 0 18px; color:var(--muted)">
+            <li>Press Enter to add task quickly.</li>
+            <li>Mark tasks done and use Clear done to tidy up.</li>
+            <li>Export JSON to backup tasks.</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div class="small">Made for you — productive sessions start with one click.</div>
+      <div class="small">Local data in your browser • No server</div>
+    </footer>
+  </div>
+
+  <script>
+    /* ------------------ Storage & Helper ------------------ */
+    const LS_KEY = 'td_timer_tasks_v1';
+    const LS_TIMER = 'td_timer_state_v1';
+
+    function niceTime(ms){
+      const s = Math.floor(ms/1000)%60;
+      const m = Math.floor(ms/60000)%60;
+      const h = Math.floor(ms/3600000);
+      return [h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
+    }
+
+    /* ------------------ Timer logic (persistent) ------------------ */
+    let timerState = { running:false, startAt:null, accumulated:0 }; // accumulated in ms
+    let timerInterval = null;
+
+    function loadTimer(){
+      try{ const raw = localStorage.getItem(LS_TIMER); if(raw) timerState = JSON.parse(raw); }
+      catch(e){ console.warn('failed load timer',e) }
+      refreshTimerUI();
+      if(timerState.running){ startClockInterval(); }
+    }
+
+    function saveTimer(){ localStorage.setItem(LS_TIMER, JSON.stringify(timerState)); }
+
+    function startClockInterval(){ if(timerInterval) return; timerInterval = setInterval(()=>{
+      refreshTimerUI();
+    },250); }
+    function stopClockInterval(){ if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } }
+
+    function refreshTimerUI(){
+      const display = document.getElementById('timerDisplay');
+      const state = document.getElementById('timerState');
+      const session = document.getElementById('sessionTime');
+      let elapsed = timerState.accumulated;
+      if(timerState.running && timerState.startAt) elapsed += Date.now() - timerState.startAt;
+      display.textContent = niceTime(elapsed);
+      session.textContent = niceTime(timerState.accumulated + (timerState.running && timerState.startAt ? (Date.now()-timerState.startAt) : 0));
+      state.textContent = timerState.running ? 'running' : 'paused';
+
+      document.getElementById('startBtn').disabled = timerState.running;
+      document.getElementById('pauseBtn').disabled = !timerState.running;
+    }
+
+    function startTimer(){ if(timerState.running) return; timerState.running = true; timerState.startAt = Date.now(); saveTimer(); startClockInterval(); refreshTimerUI(); }
+    function pauseTimer(){ if(!timerState.running) return; timerState.running = false; if(timerState.startAt) timerState.accumulated += Date.now()-timerState.startAt; timerState.startAt = null; saveTimer(); stopClockInterval(); refreshTimerUI(); }
+    function resetTimer(){ timerState = { running:false, startAt:null, accumulated:0 }; saveTimer(); stopClockInterval(); refreshTimerUI(); }
+
+    /* ------------------ Tasks ------------------ */
+    let tasks = []; // {id, title, due, done, created}
+    const tasksEl = document.getElementById('tasks');
+
+    function uid(){ return Math.random().toString(36).slice(2,9); }
+
+    function loadTasks(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(raw) tasks = JSON.parse(raw);
+      }catch(e){ console.warn('load tasks failed', e) }
+      renderTasks();
+    }
+    function saveTasks(){ localStorage.setItem(LS_KEY, JSON.stringify(tasks)); }
+
+    function addTask(title, due=null){ if(!title) return; tasks.unshift({id:uid(), title:title.trim(), due: due||null, done:false, created: Date.now()}); saveTasks(); renderTasks(); }
+
+    function toggleDone(id){ const t = tasks.find(x=>x.id===id); if(!t) return; t.done = !t.done; saveTasks(); renderTasks(); }
+    function deleteTask(id){ tasks = tasks.filter(x=>x.id!==id); saveTasks(); renderTasks(); }
+    function editTask(id, newTitle){ const t = tasks.find(x=>x.id===id); if(!t) return; t.title = newTitle; saveTasks(); renderTasks(); }
+
+    function clearDone(){ tasks = tasks.filter(x=>!x.done); saveTasks(); renderTasks(); }
+
+    function exportTasks(){ const blob = new Blob([JSON.stringify(tasks, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download = 'tasks.json'; a.click(); URL.revokeObjectURL(url); }
+    function importTasks(file){ const reader = new FileReader(); reader.onload = e=>{ try{ const arr = JSON.parse(e.target.result); if(Array.isArray(arr)){ tasks = arr.concat(tasks); saveTasks(); renderTasks(); alert('Imported '+arr.length+' tasks'); }else alert('Invalid file'); }catch(err){ alert('Import failed: invalid json'); } }; reader.readAsText(file); }
+
+    function renderTasks(){
+      const q = document.getElementById('search').value.toLowerCase().trim();
+      tasksEl.innerHTML='';
+      const filtered = tasks.filter(t=> t.title.toLowerCase().includes(q));
+      filtered.forEach(t=>{
+        const div = document.createElement('div'); div.className='task'+(t.done? ' done':'');
+        const left = document.createElement('div'); left.style.display='flex'; left.style.alignItems='center'; left.style.gap='10px';
+
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = t.done; cb.addEventListener('change', ()=> toggleDone(t.id));
+        left.appendChild(cb);
+
+        const title = document.createElement('div'); title.className='title';
+        const titleText = document.createElement('div'); titleText.textContent = t.title; title.appendChild(titleText);
+        const meta = document.createElement('div'); meta.className='meta'; meta.textContent = t.due ? ('Due ' + t.due) : '';
+        title.appendChild(meta);
+
+        left.appendChild(title);
+
+        div.appendChild(left);
+
+        const actions = document.createElement('div'); actions.className='actions';
+        const edit = document.createElement('button'); edit.className='btn'; edit.textContent='✏️'; edit.title='Edit'; edit.addEventListener('click', ()=>{
+          const newT = prompt('Edit task', t.title);
+          if(newT!=null){ editTask(t.id, newT); }
+        });
+        const del = document.createElement('button'); del.className='btn'; del.textContent='🗑'; del.title='Delete'; del.addEventListener('click', ()=>{ if(confirm('Delete this task?')) deleteTask(t.id); });
+        actions.appendChild(edit); actions.appendChild(del);
+
+        div.appendChild(actions);
+        tasksEl.appendChild(div);
+      });
+
+      document.getElementById('totalCount').textContent = tasks.length;
+      document.getElementById('doneCount').textContent = tasks.filter(t=>t.done).length;
+    }
+
+    /* ------------------ Wiring ------------------ */
+    document.getElementById('addBtn').addEventListener('click', ()=>{
+      const input = document.getElementById('taskInput'); const due = document.getElementById('dueInput').value || null; addTask(input.value, due); input.value=''; document.getElementById('dueInput').value='';
+    });
+    document.getElementById('taskInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ document.getElementById('addBtn').click(); } });
+
+    document.getElementById('search').addEventListener('input', ()=> renderTasks());
+
+    document.getElementById('clearDone').addEventListener('click', ()=>{ if(confirm('Clear all completed tasks?')) clearDone(); });
+    document.getElementById('exportBtn').addEventListener('click', exportTasks);
+    document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
+    document.getElementById('importFile').addEventListener('change', (e)=>{ if(e.target.files && e.target.files[0]) importTasks(e.target.files[0]); e.target.value=''; });
+
+    document.getElementById('startBtn').addEventListener('click', ()=> startTimer());
+    document.getElementById('pauseBtn').addEventListener('click', ()=> pauseTimer());
+    document.getElementById('resetBtn').addEventListener('click', ()=>{ if(confirm('Reset session timer?')) resetTimer(); });
+
+    // quick keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(e.ctrlKey && e.key.toLowerCase()==='m'){ // ctrl+m to toggle start/pause
+        e.preventDefault(); if(timerState.running) pauseTimer(); else startTimer();
+      }
+      if(e.key==='/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){ e.preventDefault(); document.getElementById('search').focus(); }
+    });
+
+    /* init */
+    loadTimer(); loadTasks();
+  </script>
+</body>
+</html>
