@@ -1,0 +1,454 @@
+<!-- قسم إحصائيات الزوار - visitor-stats.html -->
+<div id="visitor-stats-container">
+    <section class="visitor-info-section" id="visitor-info">
+        <h2 class="section-title">📊 إحصائيات الزوار المتقدمة</h2>
+        
+        <div class="visitor-stats-grid">
+            <!-- بطاقة الزيارات الكلية -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-title">الزيارات الكلية</h3>
+                    <p class="stat-number" id="totalVisits">0</p>
+                    <p class="stat-desc">مجموع زيارات الصفحة</p>
+                </div>
+            </div>
+            
+            <!-- بطاقة الزوار اليوم -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-title">زوار اليوم</h3>
+                    <p class="stat-number" id="todayVisits">0</p>
+                    <p class="stat-desc" id="todayDate"></p>
+                </div>
+            </div>
+            
+            <!-- بطاقة الزيارات الفريدة -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-title">زوار فريدون</h3>
+                    <p class="stat-number" id="uniqueVisitors">0</p>
+                    <p class="stat-desc">زيارات من أجهزة مختلفة</p>
+                </div>
+            </div>
+            
+            <!-- بطاقة آخر زيارة -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-title">آخر زيارة</h3>
+                    <p class="stat-text" id="lastVisitTime">--</p>
+                    <p class="stat-desc" id="lastVisitDate">--</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- معلومات المتصفح -->
+        <div class="browser-info">
+            <h3><i class="fas fa-desktop"></i> معلومات الجهاز والمتصفح</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">المتصفح:</span>
+                    <span class="info-value" id="browserName">--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">نظام التشغيل:</span>
+                    <span class="info-value" id="osName">--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">دقة الشاشة:</span>
+                    <span class="info-value" id="screenRes">--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">لغة المتصفح:</span>
+                    <span class="info-value" id="browserLang">--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">الوقت الحالي:</span>
+                    <span class="info-value" id="currentTime">--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">مدة الزيارة:</span>
+                    <span class="info-value" id="visitDuration">--</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- سجل الزيارات -->
+        <div class="visits-history">
+            <h3><i class="fas fa-history"></i> سجل الزيارات الحديثة</h3>
+            <div class="table-container">
+                <table id="visitsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>التاريخ والوقت</th>
+                            <th>المتصفح</th>
+                            <th>نظام التشغيل</th>
+                            <th>دقة الشاشة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitsTableBody">
+                        <!-- البيانات ستضاف بواسطة JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="history-controls">
+                <button class="export-btn" onclick="exportVisitorData()">
+                    <i class="fas fa-download"></i> تصدير البيانات
+                </button>
+                <button class="analyze-btn" onclick="analyzeVisitorPatterns()">
+                    <i class="fas fa-chart-pie"></i> تحليل الأنماط
+                </button>
+                <button class="clear-btn" onclick="clearVisitsHistory()">
+                    <i class="fas fa-trash"></i> مسح السجل
+                </button>
+            </div>
+        </div>
+        
+        <!-- قسم المعلومات السرية -->
+        <div class="secret-section" id="secret-section">
+            <h3><i class="fas fa-user-secret"></i> معلومات سرية إضافية</h3>
+            <div class="secret-grid">
+                <div class="secret-item">
+                    <span class="secret-label">عنوان IP:</span>
+                    <span class="secret-value" id="ipAddress">جاري الكشف...</span>
+                </div>
+                <div class="secret-item">
+                    <span class="secret-label">المتصفح الدقيق:</span>
+                    <span class="secret-value" id="detailedBrowser">--</span>
+                </div>
+                <div class="secret-item">
+                    <span class="secret-label">الجهاز:</span>
+                    <span class="secret-value" id="deviceInfo">--</span>
+                </div>
+                <div class="secret-item">
+                    <span class="secret-label">الموقع:</span>
+                    <span class="secret-value" id="locationInfo">غير متاح</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- نافذة التحليل -->
+    <div class="analysis-modal" id="analysisModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAnalysisModal()">&times;</span>
+            <h2><i class="fas fa-chart-bar"></i> تحليل متقدم لأنماط الزوار</h2>
+            <div class="analysis-results" id="analysisResults">
+                <!-- سيتم ملؤها بالبيانات -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* أنماط قسم إحصائيات الزوار */
+    .visitor-info-section {
+        max-width: 1200px;
+        margin: 80px auto 50px;
+        padding: 50px 20px;
+        background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(26,26,26,0.95) 100%);
+        border-radius: 30px;
+        border: 2px solid rgba(218, 44, 56, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .visitor-info-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #DA2C38, #ff4757, #DA2C38);
+    }
+    
+    .section-title {
+        text-align: center;
+        font-size: 2.8rem;
+        margin-bottom: 60px;
+        background: linear-gradient(45deg, #DA2C38, #ffffff, #DA2C38);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .visitor-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+    
+    .stat-card {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
+        border-radius: 25px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.4s ease;
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-8px);
+        border-color: #DA2C38;
+        box-shadow: 0 15px 40px rgba(218, 44, 56, 0.2);
+    }
+    
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(45deg, #DA2C38, #ff4757);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        flex-shrink: 0;
+    }
+    
+    .stat-content {
+        flex: 1;
+        text-align: right;
+    }
+    
+    .stat-title {
+        font-size: 1.2rem;
+        color: #cccccc;
+        margin-bottom: 8px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #DA2C38;
+        margin-bottom: 5px;
+        font-family: 'IBM Plex Sans', monospace;
+    }
+    
+    .stat-text {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 5px;
+    }
+    
+    .stat-desc {
+        font-size: 0.95rem;
+        color: #888888;
+    }
+    
+    .browser-info, .visits-history, .secret-section {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 25px;
+        padding: 35px;
+        margin-bottom: 40px;
+        border: 1px solid rgba(218, 44, 56, 0.15);
+    }
+    
+    .browser-info h3, .visits-history h3, .secret-section h3 {
+        color: #ffffff;
+        margin-bottom: 30px;
+        font-size: 1.7rem;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .info-item:hover {
+        background: rgba(218, 44, 56, 0.1);
+        transform: translateX(-5px);
+    }
+    
+    .info-label {
+        color: #cccccc;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+    
+    .info-value {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1.2rem;
+        direction: ltr;
+        font-family: 'IBM Plex Sans', monospace;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        margin-bottom: 30px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    #visitsTable {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+    }
+    
+    #visitsTable th {
+        padding: 18px 20px;
+        text-align: right;
+        color: #ffffff;
+        font-weight: 700;
+        border-bottom: 3px solid #DA2C38;
+    }
+    
+    #visitsTable td {
+        padding: 16px 20px;
+        text-align: right;
+        color: #e0e0e0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    #visitsTable tbody tr:hover {
+        background: rgba(218, 44, 56, 0.1);
+    }
+    
+    .history-controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .export-btn, .analyze-btn, .clear-btn {
+        background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+        color: #ffffff;
+        border: 2px solid #DA2C38;
+        padding: 15px 30px;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+    }
+    
+    .export-btn:hover {
+        background: linear-gradient(45deg, #DA2C38, #ff4757);
+        transform: translateY(-3px);
+    }
+    
+    .analyze-btn:hover {
+        background: linear-gradient(45deg, #4a4a4a, #5a5a5a);
+        transform: translateY(-3px);
+    }
+    
+    .clear-btn:hover {
+        background: linear-gradient(45deg, #ff4757, #ff3838);
+        transform: translateY(-3px);
+    }
+    
+    .secret-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .secret-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background: rgba(218, 44, 56, 0.1);
+        border-radius: 10px;
+        border: 1px solid rgba(218, 44, 56, 0.3);
+    }
+    
+    .secret-label {
+        color: #cccccc;
+        font-size: 0.9rem;
+    }
+    
+    .secret-value {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 1.1rem;
+        direction: ltr;
+        font-family: 'IBM Plex Sans', monospace;
+    }
+    
+    .analysis-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 2000;
+        backdrop-filter: blur(15px);
+    }
+    
+    .modal-content {
+        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        width: 90%;
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 40px;
+        border-radius: 25px;
+        border: 3px solid #DA2C38;
+        position: relative;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        left: 25px;
+        color: #DA2C38;
+        font-size: 2.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .close-modal:hover {
+        color: #ffffff;
+        transform: scale(1.2);
+    }
+    
+    @media (max-width: 768px) {
+        .section-title { font-size: 2.2rem; }
+        .visitor-stats-grid { grid-template-columns: 1fr; }
+        .info-grid { grid-template-columns: 1fr; }
+        .secret-grid { grid-template-columns: 1fr; }
+        .history-controls { flex-direction: column; }
+        .modal-content { padding: 30px 20px; }
+    }
+</style>
