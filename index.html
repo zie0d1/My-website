@@ -3,742 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>د. زيد حامد - طبيب بيطري متخصص</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>زيد حامد | الهوية والأدب</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Arabic:wght@400;700&family=Tajawal:wght@200;500;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0f1012;
+            --text: #e2e2e2;
+            --accent-dev: #3b82f6;
+            --accent-vet: #10b981;
+            --accent-chess: #f59e0b;
+            --accent-lit: #ec4899;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.05);
         }
 
-        :root {
-            --primary-color: #DA2C38;
-            --primary-dark: #B0232E;
-            --secondary-color: #1a1a1a;
-            --text-color: #ffffff;
-            --text-secondary: #cccccc;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', sans-serif;
-            background: linear-gradient(135deg, #000000 0%, var(--secondary-color) 100%);
-            color: var(--text-color);
-            overflow-x: hidden;
-            min-height: 100vh;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Tajawal', sans-serif;
+            display: flex; justify-content: center;
+            padding: 40px 20px;
+            background-image: radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.03) 0%, transparent 20%),
+                              radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.03) 0%, transparent 20%);
         }
 
-        /* صفحة الترحيب */
-        .welcome-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(135deg, #000000 0%, var(--primary-color) 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            animation: fadeOut 0.5s ease-in-out 2.5s forwards;
-        }
+        .container { width: 100%; max-width: 440px; }
 
-        .welcome-screen h1 {
-            font-size: 4rem;
-            font-weight: 700;
+        /* الكارت الرئيسي */
+        .profile-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
             margin-bottom: 20px;
-            text-align: center;
-            opacity: 0;
-            animation: slideUp 0.8s ease-out 0.3s forwards;
         }
 
-        .welcome-screen h2 {
-            font-size: 2.5rem;
-            font-weight: 400;
-            opacity: 0;
-            animation: slideUp 0.8s ease-out 0.6s forwards;
-        }
-
-        .loading-dots {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: white;
-            animation: pulse 1.5s infinite;
-        }
-
-        .dot:nth-child(2) { animation-delay: 0.3s; }
-        .dot:nth-child(3) { animation-delay: 0.6s; }
-
-        /* المحتوى الرئيسي */
-        .main-content {
-            opacity: 0;
-            animation: fadeIn 0.8s ease-in-out 3s forwards;
-        }
-
-        /* الشريط العلوي */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(218, 44, 56, 0.3);
-            padding: 15px 0;
-            z-index: 100;
-            transition: all 0.3s ease;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header nav ul {
-            list-style: none;
-            display: flex;
-            gap: 30px;
-            margin: 0;
-            padding: 0;
-        }
-
-        .header nav a {
-            color: var(--text-color);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1rem;
-            padding: 10px 20px;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-        }
-
-        .header nav a:hover {
-            color: var(--primary-color);
-            background: rgba(218, 44, 56, 0.1);
-        }
-
-        /* القسم الرئيسي */
-        .hero-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 120px 20px 50px;
-        }
-
-        .profile-image {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
+        .img-container { width: 110px; height: 110px; margin: 0 auto 25px; }
+        .profile-img {
+            width: 100%; height: 100%;
+            border-radius: 35% 65% 60% 40% / 45% 45% 55% 55%;
             object-fit: cover;
-            border: 4px solid var(--primary-color);
-            margin-bottom: 30px;
-            box-shadow: 0 15px 40px rgba(218, 44, 56, 0.3);
-            animation: float 3s ease-in-out infinite;
+            border: 1px solid var(--border);
         }
 
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            background: linear-gradient(45deg, var(--primary-color), #ffffff, var(--primary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .name { font-family: 'Noto Serif Arabic', serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+        .sub-name { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 4px; }
+
+        /* الروابط */
+        .links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .link-item {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 20px; border-radius: 18px; text-decoration: none;
+            color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 10px;
+            transition: 0.3s;
+        }
+        .link-item:hover { background: rgba(255, 255, 255, 0.05); transform: translateY(-3px); }
+
+        /* الاهتمامات */
+        .interests-bar {
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 20px; padding: 25px; margin-bottom: 20px;
+        }
+        .interest-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .icon-box { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .dev { background: rgba(59, 130, 246, 0.1); color: var(--accent-dev); }
+        .vet { background: rgba(16, 185, 129, 0.1); color: var(--accent-vet); }
+        .chess { background: rgba(245, 158, 11, 0.1); color: var(--accent-chess); }
+        .lit { background: rgba(236, 72, 153, 0.1); color: var(--accent-lit); }
+        .interest-label { font-size: 0.9rem; font-weight: 500; color: #aaa; }
+
+        /* مساحة الشعر (القسم الجديد) */
+        .poetry-space {
+            background: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.03) 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px 25px;
+            position: relative;
         }
 
-        .hero-subtitle {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
+        .poetry-space::before {
+            content: "\f10d"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; top: 20px; left: 20px; font-size: 1.5rem; color: rgba(236, 72, 153, 0.1);
         }
 
-        .bio {
-            max-width: 700px;
-            font-size: 1.2rem;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-            padding: 0 20px;
+        .poetry-title {
+            font-family: 'Noto Serif Arabic', serif;
+            font-size: 1.2rem; color: var(--accent-lit);
+            margin-bottom: 25px; text-align: center;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
-        /* قسم التواصل الاجتماعي */
-        .social-section {
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 60px 20px;
-            background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(26,26,26,0.95) 100%);
-            border-radius: 30px;
-            border: 1px solid rgba(218, 44, 56, 0.2);
+        .poetry-content {
+            font-family: 'Noto Serif Arabic', serif;
+            font-size: 1.05rem; line-height: 2.2;
+            text-align: center; color: #ccc;
         }
 
-        .social-title {
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 60px;
-            background: linear-gradient(45deg, var(--primary-color), #ffffff, var(--primary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .poem-verse { margin-bottom: 20px; position: relative; }
+        .poem-verse:last-child { margin-bottom: 0; }
+        
+        /* تأثير فصل الأبيات */
+        .verse-separator {
+            display: block; width: 30px; height: 1px;
+            background: rgba(236, 72, 153, 0.3);
+            margin: 15px auto;
         }
 
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .phone-section {
-            grid-column: 1 / -1;
-            margin-bottom: 40px;
-        }
-
-        .social-card {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
-            border-radius: 25px;
-            padding: 35px;
-            transition: all 0.4s ease;
-            text-align: center;
-        }
-
-        .social-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 60px rgba(218, 44, 56, 0.3);
-        }
-
-        .social-icon {
-            font-size: 3.5rem;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-        }
-
-        .social-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: var(--text-color);
-        }
-
-        .social-handle {
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            margin-bottom: 25px;
-        }
-
-        .social-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            padding: 14px 30px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .social-link:hover {
-            transform: scale(1.08);
-        }
-
-        .phone-card {
-            background: linear-gradient(145deg, rgba(218, 44, 56, 0.25), rgba(218, 44, 56, 0.15));
-            border: 2px solid var(--primary-color);
-            text-align: center;
-            padding: 50px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .phone-number {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            font-family: 'IBM Plex Sans', monospace;
-        }
-
-        .save-contact-btn {
-            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 30px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .save-contact-btn:hover {
-            transform: scale(1.08);
-        }
-
-        /* زر التحكم المخفي */
-        .admin-controls {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            z-index: 999;
-        }
-
-        .admin-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(218, 44, 56, 0.2);
-            border: 2px solid #DA2C38;
-            color: #DA2C38;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .admin-btn:hover {
-            background: rgba(218, 44, 56, 0.3);
-            transform: scale(1.1);
-        }
-
-        /* إشعارات */
-        .notification {
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
-            font-family: 'IBM Plex Sans Arabic';
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        /* الرسوم المتحركة */
-        @keyframes fadeOut {
-            to { opacity: 0; visibility: hidden; }
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-
-        /* تصميم متجاوب */
-        @media (max-width: 768px) {
-            .welcome-screen h1 { font-size: 3rem; }
-            .welcome-screen h2 { font-size: 1.8rem; }
-            .hero-title { font-size: 2.5rem; }
-            .hero-subtitle { font-size: 1.3rem; }
-            .profile-image { width: 180px; height: 180px; }
-            .social-title { font-size: 2.2rem; }
-            .social-grid { grid-template-columns: 1fr; }
-            .phone-number { font-size: 1.8rem; }
-            .header nav ul { gap: 15px; }
-            .header nav a { font-size: 1rem; padding: 8px 15px; }
-        }
     </style>
 </head>
 <body>
-    <!-- صفحة الترحيب -->
-    <div class="welcome-screen">
-        <h1>زيد حامد</h1>
-        <h2>طالب طبيب بيطري</h2>
-        <div class="loading-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-        </div>
-    </div>
 
-    <!-- زر التحكم المخفي -->
-    <div class="admin-controls">
-        <button class="admin-btn" id="adminBtn" title="انقر بزر الماوس الأيمن للدخول كمدير">
-            <i class="fas fa-user-shield"></i>
-        </button>
-    </div>
-
-    <!-- المحتوى الرئيسي -->
-    <div class="main-content">
-        <!-- الشريط العلوي -->
-        <header class="header" id="header">
-            <div class="nav-container">
-                <a href="#home" class="logo">
-                    
-                    <span> زيد حامد</span>
-                </a>
-                <nav>
-                    <ul>
-                        <li><a href="#home">الرئيسية</a></li>
-                        <li><a href="#contact">التواصل</a></li>
-                    </ul>
-                </nav>
+    <div class="container">
+        <header class="profile-card">
+            <div class="img-container">
+                <img src="https://iili.io/F0u3eql.md.jpg" alt="زيد" class="profile-img">
             </div>
+            <h1 class="name">زيد حامد</h1>
+            <div class="sub-name">@zie0d1</div>
         </header>
 
-        <!-- القسم الرئيسي -->
-        <section class="hero-section" id="home">
-            <img src="https://iili.io/F0u3eql.md.jpg" alt="د. زيد حامد - طبيب بيطري" class="profile-image">
-            <h1 class="hero-title"> زيد حامد</h1>
-            <p class="hero-subtitle">طالب طبيب بيطري </p>
-            
+        <nav class="links-grid">
+            <a href="https://t.me/zie0d1" class="link-item"><i class="fa-brands fa-telegram"></i><span>تليجرام</span></a>
+            <a href="https://instagram.com/zie0d1" class="link-item"><i class="fa-brands fa-instagram"></i><span>إنستغرام</span></a>
+            <a href="https://wa.me/9647736308680" class="link-item"><i class="fa-brands fa-whatsapp"></i><span>واتساب</span></a>
+            <a href="mailto:zy0aid@gmail.com" class="link-item"><i class="fa-regular fa-envelope"></i><span>البريد</span></a>
+        </nav>
+
+        <section class="interests-bar">
+            <div class="interest-row"><div class="icon-box dev"><i class="fa-solid fa-code"></i></div><span class="interest-label">تطوير البرمجيات والتطبيقات</span></div>
+            <div class="interest-row"><div class="icon-box vet"><i class="fa-solid fa-microscope"></i></div><span class="interest-label">علوم الطب البيطري</span></div>
+            <div class="interest-row"><div class="icon-box chess"><i class="fa-solid fa-chess-knight"></i></div><span class="interest-label">تكتيكات الشطرنج</span></div>
+            <div class="interest-row"><div class="icon-box lit"><i class="fa-solid fa-feather-pointed"></i></div><span class="interest-label">الأدب والشعر العربي</span></div>
         </section>
 
-        <!-- قسم التواصل الاجتماعي -->
-        <section class="social-section" id="contact">
-            <h2 class="social-title">تواصل معي</h2>
-
-            <!-- قسم الهاتف -->
-            <div class="phone-section">
-                <div class="social-card phone-card">
-                    <i class="fas fa-phone-alt social-icon"></i>
-                    <h3 class="social-name">رقم الهاتف</h3>
-                    <p class="phone-number">+964 773 630 8680</p>
-                    <button class="save-contact-btn" onclick="saveContact()">
-                        <i class="fas fa-download"></i>
-                        حفظ الرقم في جهات الاتصال
-                    </button>
-                </div>
+        <section class="poetry-space">
+            <div class="poetry-title">
+                <i class="fa-solid fa-ink-pen" style="font-size: 0.9rem;"></i>
+                رواق الأدب
             </div>
+            
+            <div class="poetry-content">
+                <div class="poem-verse">
+                    إِذا غامَرتَ في شَرَفٍ مَرومٍ <br> 
+                    فَلا تَقنَع بِما دونَ النُجومِ
+                </div>
+                
+                <span class="verse-separator"></span>
 
-            <div class="social-grid">
-                <!-- البريد الإلكتروني -->
-                <div class="social-card">
-                    <i class="fas fa-envelope social-icon"></i>
-                    <h3 class="social-name">البريد الإلكتروني</h3>
-                    <p class="social-handle">zy0aid@gmail.com</p>
-                    <a href="mailto:zy0aid@gmail.com?subject=رسالة من موقع الدكتور زيد حامد" class="social-link">
-                        <i class="fas fa-paper-plane"></i>
-                        إرسال رسالة
-                    </a>
+                <div class="poem-verse">
+                    فَطَعمُ المَوتِ في أَمرٍ صَغيرٍ <br> 
+                    كَطَعمِ المَوتِ في أَمرٍ عَظيمِ
                 </div>
 
-                <!-- إنستغرام -->
-                <div class="social-card">
-                    <i class="fab fa-instagram social-icon"></i>
-                    <h3 class="social-name">إنستغرام</h3>
-                    <p class="social-handle">@Zie0d1</p>
-                    <a href="https://instagram.com/zie0d1" target="_blank" rel="noopener noreferrer" class="social-link">
-                        <i class="fas fa-external-link-alt"></i>
-                        زيارة الإنستغرام
-                    </a>
-                </div>
+                <span class="verse-separator"></span>
 
-                <!-- تلجرام -->
-                <div class="social-card">
-                    <i class="fab fa-telegram social-icon"></i>
-                    <h3 class="social-name">تلجرام</h3>
-                    <p class="social-handle">@zie0d1</p>
-                    <a href="https://t.me/zie0d1" target="_blank" rel="noopener noreferrer" class="social-link">
-                        <i class="fas fa-comments"></i>
-                        محادثة على تلجرام
-                    </a>
-                </div>
-
-                <!-- واتساب -->
-                <div class="social-card">
-                    <i class="fab fa-whatsapp social-icon"></i>
-                    <h3 class="social-name">واتساب</h3>
-                    <p class="social-handle">+964 773 630 8680</p>
-                    <a href="https://wa.me/9647736308680?text=مرحباً%20دكتور%20زيد%20حامد،%20أريد%20الاستفسار%20عن..." target="_blank" rel="noopener noreferrer" class="social-link">
-                        <i class="fas fa-comment-dots"></i>
-                        مراسلة على واتساب
-                    </a>
+                <div class="poem-verse">
+                    وَمَنْ يَهْيَبْ صُعُودَ الجِبَالِ <br> 
+                    يَعِشْ أَبَدَ الدَّهْرِ بَيْنَ الحُفَرِ
                 </div>
             </div>
         </section>
     </div>
 
-    <script>
-        // نظام التحكم المخفي
-        const AdminSystem = {
-            isAdmin: false,
-            adminPassword: "ZaidAdmin123", // غيّر هذه كلمة المرور
-            
-            init() {
-                this.setupAdminButton();
-                this.checkURLParameter();
-                this.setupKeyboardShortcuts();
-            },
-            
-            setupAdminButton() {
-                const adminBtn = document.getElementById('adminBtn');
-                if (adminBtn) {
-                    // انقر بزر الماوس الأيمن للدخول
-                    adminBtn.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        this.promptAdminLogin();
-                    });
-                    
-                    // انقر عادي لتفعيل/تعطيل إذا كان مسؤولاً
-                    adminBtn.addEventListener('click', () => {
-                        if (this.isAdmin) {
-                            this.toggleAdminMode();
-                        }
-                    });
-                }
-            },
-            
-            setupKeyboardShortcuts() {
-                document.addEventListener('keydown', (e) => {
-                    // Ctrl+Alt+A لتفعيل وضع المدير
-                    if (e.ctrlKey && e.altKey && e.key === 'A') {
-                        this.promptAdminLogin();
-                    }
-                });
-            },
-            
-            checkURLParameter() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const secretCode = urlParams.get('admin');
-                
-                // الرمز السري للرابط (غيّره)
-                const URL_SECRET = "showstats2024";
-                
-                if (secretCode === URL_SECRET) {
-                    this.activateAdminMode(true);
-                    // إزالة المعلمة من الرابط
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            },
-            
-            promptAdminLogin() {
-                if (this.isAdmin) {
-                    if (confirm("هل تريد تعطيل وضع المدير؟")) {
-                        this.deactivateAdminMode();
-                    }
-                    return;
-                }
-                
-                const password = prompt("🔐 أدخل كلمة مرور المدير:");
-                if (password === this.adminPassword) {
-                    this.activateAdminMode();
-                    this.showNotification('✅ تم تفعيل وضع المدير', 'success');
-                } else if (password) {
-                    alert("❌ كلمة المرور غير صحيحة!");
-                }
-            },
-            
-            activateAdminMode(silent = false) {
-                this.isAdmin = true;
-                
-                // تحميل قسم إحصائيات الزوار
-                this.loadVisitorStatsSection();
-                
-                // تحديث زر التحكم
-                this.updateAdminButton(true);
-                
-                if (!silent) {
-                    this.showNotification('وضع المدير مفعل', 'success');
-                }
-            },
-            
-            deactivateAdminMode() {
-                this.isAdmin = false;
-                this.removeVisitorStatsSection();
-                this.updateAdminButton(false);
-                this.showNotification('وضع المدير معطل', 'info');
-            },
-            
-            toggleAdminMode() {
-                if (this.isAdmin) {
-                    this.removeVisitorStatsSection();
-                } else {
-                    this.loadVisitorStatsSection();
-                }
-            },
-            
-            async loadVisitorStatsSection() {
-                try {
-                    // تحميل قسم إحصائيات الزوار من ملف خارجي
-                    const response = await fetch('visitor-stats.html');
-                    const html = await response.text();
-                    
-                    // إضافة القسم إلى الصفحة
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = html;
-                    const statsSection = tempDiv.querySelector('#visitor-stats-container');
-                    
-                    if (statsSection) {
-                        // إضافة قبل قسم التواصل الاجتماعي
-                        const socialSection = document.querySelector('.social-section');
-                        socialSection.parentNode.insertBefore(statsSection, socialSection);
-                        
-                        // تحميل وتنفيذ الـ JavaScript
-                        this.loadVisitorStatsScript();
-                    }
-                } catch (error) {
-                    console.error('خطأ في تحميل قسم الإحصائيات:', error);
-                    this.showNotification('❌ تعذر تحميل قسم الإحصائيات', 'error');
-                }
-            },
-            
-            async loadVisitorStatsScript() {
-                try {
-                    // إنشاء عنصر script جديد
-                    const script = document.createElement('script');
-                    script.src = 'visitor-stats.js';
-                    script.onload = () => {
-                        if (window.VisitorStatsSystem) {
-                            window.visitorStats = new window.VisitorStatsSystem();
-                        }
-                    };
-                    document.body.appendChild(script);
-                } catch (error) {
-                    console.error('خطأ في تحميل سكريبت الإحصائيات:', error);
-                }
-            },
-            
-            removeVisitorStatsSection() {
-                const statsSection = document.getElementById('visitor-stats-container');
-                if (statsSection) {
-                    statsSection.remove();
-                }
-                
-                // إزالة السكريبت
-                const script = document.querySelector('script[src="visitor-stats.js"]');
-                if (script) {
-                    script.remove();
-                }
-                
-                // تنظيف الذاكرة
-                if (window.visitorStats) {
-                    window.visitorStats = null;
-                }
-            },
-            
-            updateAdminButton(isActive) {
-                const adminBtn = document.getElementById('adminBtn');
-                if (adminBtn) {
-                    if (isActive) {
-                        adminBtn.innerHTML = '<i class="fas fa-user-shield" style="color: #2ed573"></i>';
-                        adminBtn.title = 'وضع المدير مفعل (انقر لتعطيل)';
-                        adminBtn.style.background = 'rgba(46, 213, 115, 0.2)';
-                        adminBtn.style.borderColor = '#2ed573';
-                    } else {
-                        adminBtn.innerHTML = '<i class="fas fa-user-shield"></i>';
-                        adminBtn.title = 'انقر بزر الماوس الأيمن للدخول كمدير';
-                        adminBtn.style.background = 'rgba(218, 44, 56, 0.2)';
-                        adminBtn.style.borderColor = '#DA2C38';
-                    }
-                }
-            },
-            
-            showNotification(message, type) {
-                const notification = document.createElement('div');
-                notification.className = 'notification';
-                notification.textContent = message;
-                notification.style.background = type === 'success' ? '#2ed573' : 
-                                              type === 'error' ? '#ff4757' : '#ffa502';
-                notification.style.color = 'white';
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.style.animation = 'slideOut 0.3s ease';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            }
-        };
-
-        // وظيفة حفظ جهة الاتصال
-        function saveContact() {
-            const vCardData = `BEGIN:VCARD
-VERSION:3.0
-FN:د. زيد حامد - Zaid Hamid
-N:حامد;زيد;;د.;
-TITLE:طبيب بيطري متخصص
-ORG:عيادة الدكتور زيد حامد
-TEL;TYPE=CELL,VOICE:+9647736308680
-EMAIL;TYPE=INTERNET,PREF:zy0aid@gmail.com
-URL;TYPE=INSTAGRAM:https://instagram.com/zie0d1
-URL;TYPE=TELEGRAM:https://t.me/zie0d1
-URL;TYPE=WHATSAPP:https://wa.me/9647736308680
-NOTE:طبيب بيطري متخصص في رعاية الحيوانات والصحة الحيوانية
-REV:${new Date().toISOString()}
-END:VCARD`;
-
-            const blob = new Blob([vCardData], { type: 'text/vcard' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'دكتور_زيد_حامد_Zaid_Hamid.vcf';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-            AdminSystem.showNotification('✅ تم حفظ جهة الاتصال بنجاح!', 'success');
-        }
-
-        // تهيئة النظام عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', () => {
-            AdminSystem.init();
-            
-            // إخفاء صفحة الترحيب بعد انتهاء الرسوم المتحركة
-            setTimeout(() => {
-                document.querySelector('.welcome-screen').style.display = 'none';
-            }, 3000);
-        });
-
-        // رابط سري للوصول المباشر (يمكنك استخدامه)
-        // yoursite.com?admin=showstats2024
-    </script>
 </body>
 </html>
