@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>زيد حامد | الهوية والأدب</title>
+    <title>زيد حامد</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Arabic:wght@400;700&family=Tajawal:wght@200;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,110 +12,134 @@
         :root {
             --bg: #0f1012;
             --text: #e2e2e2;
-            --accent-dev: #3b82f6;
-            --accent-vet: #10b981;
-            --accent-chess: #f59e0b;
-            --accent-lit: #ec4899;
+            --accent: #d4af37; /* لمسة ذهبية خفيفة للفخامة */
             --glass: rgba(255, 255, 255, 0.02);
             --border: rgba(255, 255, 255, 0.05);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
 
         body {
             background-color: var(--bg);
             color: var(--text);
             font-family: 'Tajawal', sans-serif;
-            display: flex; justify-content: center;
-            padding: 40px 20px;
-            background-image: radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.03) 0%, transparent 20%),
-                              radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.03) 0%, transparent 20%);
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at center, #1a1b1e 0%, #0f1012 100%);
         }
 
-        .container { width: 100%; max-width: 440px; }
+        .container {
+            width: 100%;
+            max-width: 440px;
+            animation: fadeIn 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
 
-        /* الكارت الرئيسي */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .profile-card {
             background: var(--glass);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px 20px;
+            border-radius: 30px;
+            padding: 50px 20px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            margin-bottom: 20px;
+            backdrop-filter: blur(15px);
+            margin-bottom: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        .img-container { width: 110px; height: 110px; margin: 0 auto 25px; }
+        .img-container {
+            position: relative;
+            width: 120px; height: 120px;
+            margin: 0 auto 30px;
+        }
+
         .profile-img {
             width: 100%; height: 100%;
-            border-radius: 35% 65% 60% 40% / 45% 45% 55% 55%;
+            border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
             object-fit: cover;
             border: 1px solid var(--border);
+            transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .name { font-family: 'Noto Serif Arabic', serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
-        .sub-name { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 4px; }
+        .profile-card:hover .profile-img {
+            border-radius: 50%;
+            transform: scale(1.05) rotate(-3deg);
+            border-color: var(--accent);
+        }
 
-        /* الروابط */
-        .links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .name {
+            font-family: 'Noto Serif Arabic', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .sub-name {
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            font-weight: 200;
+        }
+
+        .links-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .link-item {
-            background: var(--glass); border: 1px solid var(--border);
-            padding: 20px; border-radius: 18px; text-decoration: none;
-            color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 10px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 22px 30px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(212, 175, 55, 0.3);
+            transform: translateX(-8px);
+        }
+
+        .link-text {
+            font-weight: 500;
+            font-size: 1.05rem;
+        }
+
+        .link-item i {
+            font-size: 1.2rem;
+            opacity: 0.6;
             transition: 0.3s;
         }
-        .link-item:hover { background: rgba(255, 255, 255, 0.05); transform: translateY(-3px); }
 
-        /* الاهتمامات */
-        .interests-bar {
-            background: var(--glass); border: 1px solid var(--border);
-            border-radius: 20px; padding: 25px; margin-bottom: 20px;
-        }
-        .interest-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .icon-box { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
-        .dev { background: rgba(59, 130, 246, 0.1); color: var(--accent-dev); }
-        .vet { background: rgba(16, 185, 129, 0.1); color: var(--accent-vet); }
-        .chess { background: rgba(245, 158, 11, 0.1); color: var(--accent-chess); }
-        .lit { background: rgba(236, 72, 153, 0.1); color: var(--accent-lit); }
-        .interest-label { font-size: 0.9rem; font-weight: 500; color: #aaa; }
-
-        /* مساحة الشعر (القسم الجديد) */
-        .poetry-space {
-            background: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.03) 100%);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 35px 25px;
-            position: relative;
+        .link-item:hover i {
+            opacity: 1;
+            color: var(--accent);
+            transform: scale(1.2);
         }
 
-        .poetry-space::before {
-            content: "\f10d"; font-family: "Font Awesome 6 Free"; font-weight: 900;
-            position: absolute; top: 20px; left: 20px; font-size: 1.5rem; color: rgba(236, 72, 153, 0.1);
-        }
-
-        .poetry-title {
+        .poetry-footer {
+            margin-top: 50px;
+            text-align: center;
             font-family: 'Noto Serif Arabic', serif;
-            font-size: 1.2rem; color: var(--accent-lit);
-            margin-bottom: 25px; text-align: center;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-size: .75rem;
+            color: #555;
+            line-height: 1.8;
+            
         }
-
-        .poetry-content {
-            font-family: 'Noto Serif Arabic', serif;
-            font-size: 1.05rem; line-height: 2.2;
-            text-align: center; color: #ccc;
-        }
-
-        .poem-verse { margin-bottom: 20px; position: relative; }
-        .poem-verse:last-child { margin-bottom: 0; }
-        
-        /* تأثير فصل الأبيات */
-        .verse-separator {
-            display: block; width: 30px; height: 1px;
-            background: rgba(236, 72, 153, 0.3);
-            margin: 15px auto;
-        }
-
     </style>
 </head>
 <body>
@@ -123,53 +147,32 @@
     <div class="container">
         <header class="profile-card">
             <div class="img-container">
-                <img src="https://iili.io/F0u3eql.md.jpg" alt="زيد" class="profile-img">
+                <img src="https://raw.githubusercontent.com/Zie0d/mylove/refs/heads/main/IMG_3495.jpg" alt="زيد" class="profile-img">
             </div>
-            <h1 class="name">زَيـد حامد</h1>
-            <div class="sub-name">@zie0d1</div>
+            <h1 class="name">زيد حامد</h1>
+            <div class="sub-name">@ZIE0D1</div>
         </header>
 
-        <nav class="links-grid">
-            <a href="https://t.me/zie0d1" class="link-item"><i class="fa-brands fa-telegram"></i><span>تليجرام</span></a>
-            <a href="https://instagram.com/zie0d1" class="link-item"><i class="fa-brands fa-instagram"></i><span>إنستغرام</span></a>
-            <a href="https://wa.me/9647736308680" class="link-item"><i class="fa-brands fa-whatsapp"></i><span>واتساب</span></a>
-            <a href="mailto:zy0aid@gmail.com" class="link-item"><i class="fa-regular fa-envelope"></i><span>البريد</span></a>
+        <nav class="links-stack">
+            <a href="https://t.me/zie0d1" class="link-item">
+                <span class="link-text">تيليجرام</span>
+                <i class="fa-brands fa-telegram"></i>
+            </a>
+            <a href="https://instagram.com/zie0d1" class="link-item">
+                <span class="link-text">إنستغرام</span>
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://wa.me/9647736308670" class="link-item">
+                <span class="link-text">واتساب</span>
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <a href="mailto:zy0aid@gmail.com" class="link-item">
+                <span class="link-text">البريد الإلكتروني</span>
+                <i class="fa-regular fa-envelope"></i>
+            </a>
         </nav>
 
-        <section class="interests-bar">
-            <div class="interest-row"><div class="icon-box dev"><i class="fa-solid fa-code"></i></div><span class="interest-label">تطوير البرمجيات والتطبيقات</span></div>
-            <div class="interest-row"><div class="icon-box vet"><i class="fa-solid fa-microscope"></i></div><span class="interest-label">علوم الطب البيطري</span></div>
-            <div class="interest-row"><div class="icon-box chess"><i class="fa-solid fa-chess-knight"></i></div><span class="interest-label">تكتيكات الشطرنج</span></div>
-            <div class="interest-row"><div class="icon-box lit"><i class="fa-solid fa-feather-pointed"></i></div><span class="interest-label">الأدب والشعر العربي</span></div>
-        </section>
-
-        <section class="poetry-space">
-            <div class="poetry-title">
-                <i class="fa-solid fa-ink-pen" style="font-size: 0.9rem;"></i>
-                مساحتي
-            </div>
-            
-            <div class="poetry-content">
-                <div class="poem-verse">
-                    إِذا غامَرتَ في شَرَفٍ مَرومٍ <br> 
-                    فَلا تَقنَع بِما دونَ النُجومِ
-                </div>
-                
-                <span class="verse-separator"></span>
-
-                <div class="poem-verse">
-                    فَطَعمُ المَوتِ في أَمرٍ صَغيرٍ <br> 
-                    كَطَعمِ المَوتِ في أَمرٍ عَظيمِ
-                </div>
-
-                <span class="verse-separator"></span>
-
-                <div class="poem-verse">
-                    وَمَنْ يَهْيَبْ صُعُودَ الجِبَالِ <br> 
-                    يَعِشْ أَبَدَ الدَّهْرِ بَيْنَ الحُفَرِ
-                </div>
-            </div>
-        </section>
+        
     </div>
 
 </body>
