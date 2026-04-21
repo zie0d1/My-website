@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مولّد الأسئلة الذكي</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+
+:root {
+  --bg:#080c16; --s1:#0f1623; --s2:#151e30; --s3:#1c2840;
+  --border:#1e2d45; --accent:#3b82f6; --cyan:#06b6d4;
+  --green:#10b981; --red:#ef4444; --gold:#f59e0b;
+  --text:#e2e8f0; --muted:#64748b; --light:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 50% at 15% 5%,rgba(59,130,246,.08) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 40% at 85% 90%,rgba(6,182,212,.05) 0%,transparent 60%);}
+.wrap{max-width:880px;margin:0 auto;padding:2rem 1.25rem 5rem;position:relative;z-index:1;}
+
+/* TABS */
+.tabs{display:flex;gap:.5rem;background:var(--s1);border:1px solid var(--border);
+  border-radius:16px;padding:.4rem;margin-bottom:2rem;}
+.tab-btn{flex:1;padding:.75rem;border:none;border-radius:12px;background:transparent;
+  color:var(--muted);font-family:'Tajawal',sans-serif;font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:all .25s;}
+.tab-btn.active{background:linear-gradient(135deg,var(--accent),var(--cyan));color:#fff;}
+
+/* HEADER */
+header{text-align:center;padding:2.5rem 0 2rem;}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;background:linear-gradient(90deg,var(--accent),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.75rem;}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.6rem;}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+header p{color:var(--muted);font-size:1rem;font-weight:300;}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:18px;
+  padding:1.25rem 1.4rem;margin-bottom:1.1rem;}
+.card label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);
+  letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem;}
+.card input,.card select{width:100%;background:transparent;border:none;color:var(--text);
+  font-family:'Tajawal',sans-serif;font-size:1rem;font-weight:600;outline:none;cursor:pointer;}
+.card select option{background:#1c2840;}
+.card input::placeholder{color:var(--muted);font-weight:400;}
+.card input[type=number]{-moz-appearance:textfield;}
+.card input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:18px;padding:2.5rem 2rem;
+  text-align:center;cursor:pointer;background:var(--s1);position:relative;
+  overflow:hidden;transition:all .3s;margin-bottom:1.1rem;}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;
+  width:100%;height:100%;}
+.upload-zone:hover,.upload-zone.over{border-color:var(--accent);background:var(--s2);}
+.up-icon{font-size:2.5rem;margin-bottom:.75rem;display:block;transition:transform .3s;}
+.upload-zone:hover .up-icon{transform:scale(1.15) translateY(-3px);}
+.upload-zone h3{font-size:1.05rem;font-weight:700;margin-bottom:.3rem;}
+.upload-zone p{color:var(--muted);font-size:.85rem;}
+
+.file-badge{display:none;align-items:center;gap:.75rem;
+  background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);
+  border-radius:12px;padding:.7rem 1rem;margin-bottom:1.1rem;font-size:.9rem;}
+.file-badge.show{display:flex;}
+.file-badge .name{flex:1;font-weight:600;color:var(--green);}
+.file-badge .rm{background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:1rem;transition:color .2s;}
+.file-badge .rm:hover{color:var(--red);}
+
+/* ROW */
+.row3{display:flex;gap:.75rem;margin-bottom:1.1rem;flex-wrap:wrap;}
+.row3 .card{flex:1;min-width:140px;margin-bottom:0;}
+
+/* BUTTONS */
+.btn-main{width:100%;padding:1rem;margin-bottom:1.5rem;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));border:none;
+  border-radius:14px;color:#fff;font-family:'Tajawal',sans-serif;font-size:1.05rem;
+  font-weight:700;cursor:pointer;transition:all .3s;}
+.btn-main:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(59,130,246,.35);}
+.btn-main:disabled{opacity:.4;cursor:not-allowed;}
+.btn-sec{padding:.65rem 1.4rem;background:var(--s2);border:1px solid var(--border);
+  border-radius:12px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.9rem;
+  font-weight:600;cursor:pointer;transition:all .25s;}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ERROR */
+.err{display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+  border-radius:12px;padding:.9rem 1.1rem;color:#fca5a5;font-size:.875rem;margin-bottom:1.1rem;}
+.err.show{display:block;}
+
+/* INFO */
+.info-box{background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);
+  border-radius:12px;padding:.9rem 1.1rem;color:var(--cyan);font-size:.85rem;margin-bottom:1.1rem;
+  display:none;}
+.info-box.show{display:block;}
+
+/* PROGRESS */
+.progress{display:none;background:var(--s1);border:1px solid var(--border);
+  border-radius:14px;padding:2rem;text-align:center;margin-bottom:1.5rem;}
+.progress.show{display:block;}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto .9rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.progress p{color:var(--muted);font-size:.9rem;}
+
+/* SHARE */
+.share-panel{background:var(--s1);border:1px solid rgba(59,130,246,.25);
+  border-radius:16px;padding:1.25rem;margin-bottom:1.5rem;}
+.share-panel h3{font-size:.95rem;font-weight:700;margin-bottom:.75rem;color:var(--cyan);}
+.share-row{display:flex;gap:.6rem;align-items:center;}
+.share-url{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  padding:.6rem .9rem;font-size:.8rem;color:var(--light);font-family:monospace;direction:ltr;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-copy{padding:.6rem 1rem;background:var(--accent);border:none;border-radius:10px;
+  color:#fff;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:all .2s;}
+.btn-copy:hover{background:var(--cyan);}
+.share-note{color:var(--muted);font-size:.78rem;margin-top:.6rem;}
+
+/* NAME BANNER */
+.name-banner{display:none;background:var(--s1);border:1px solid var(--border);
+  border-radius:16px;padding:1.5rem;text-align:center;margin-bottom:1.5rem;}
+.name-banner.show{display:block;}
+.name-banner p{color:var(--muted);font-size:.9rem;margin-bottom:.75rem;}
+.name-row{display:flex;gap:.6rem;max-width:360px;margin:0 auto;}
+.name-row input{flex:1;background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:.65rem 1rem;color:var(--text);
+  font-family:'Tajawal',sans-serif;font-size:.95rem;outline:none;}
+.name-row input:focus{border-color:var(--accent);}
+
+/* QUIZ */
+#quizSection{display:none;}
+#quizSection.show{display:block;}
+.quiz-hdr{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;}
+.quiz-hdr h2{font-size:1.3rem;font-weight:800;}
+.score-pill{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);
+  border-radius:999px;padding:.35rem 1rem;font-size:.875rem;font-weight:700;color:var(--cyan);}
+
+/* Q CARDS */
+.q-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;
+  padding:1.4rem;margin-bottom:1.1rem;animation:fadeUp .4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.q-num{font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:.5rem;}
+.q-text{font-size:1.03rem;font-weight:700;line-height:1.65;margin-bottom:1rem;}
+.opts{display:flex;flex-direction:column;gap:.5rem;}
+.opt-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:12px;
+  padding:.75rem 1rem;text-align:right;cursor:pointer;
+  font-family:'Tajawal',sans-serif;font-size:.93rem;color:var(--text);
+  transition:all .2s;display:flex;align-items:center;gap:.7rem;}
+.opt-letter{min-width:28px;height:28px;border-radius:8px;background:var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;
+  transition:all .2s;flex-shrink:0;margin-right:auto;}
+.opt-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(59,130,246,.07);}
+.opt-btn:hover:not(:disabled) .opt-letter{background:var(--accent);color:#fff;}
+.opt-btn:disabled{cursor:default;}
+.opt-btn.correct{border-color:var(--green);background:rgba(16,185,129,.08);}
+.opt-btn.correct .opt-letter{background:var(--green);color:#fff;}
+.opt-btn.wrong{border-color:var(--red);background:rgba(239,68,68,.08);}
+.opt-btn.wrong .opt-letter{background:var(--red);color:#fff;}
+.expl{display:none;margin-top:.9rem;padding:.8rem 1rem;
+  background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.18);
+  border-radius:10px;font-size:.84rem;color:var(--light);line-height:1.7;}
+.expl.show{display:block;}
+.expl strong{color:var(--cyan);}
+
+/* RESULT */
+.result{display:none;background:var(--s1);border:1px solid var(--border);
+  border-radius:20px;padding:2.5rem;text-align:center;margin-top:1.5rem;}
+.result.show{display:block;animation:fadeUp .5s ease;}
+.res-emoji{font-size:3rem;margin-bottom:.75rem;}
+.res-score{font-size:2.8rem;font-weight:900;
+  background:linear-gradient(90deg,var(--accent),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.4rem;}
+.result p{color:var(--muted);margin-bottom:1.5rem;}
+.res-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
+
+/* LEADERBOARD */
+.leaderboard{display:none;background:var(--s1);border:1px solid rgba(245,158,11,.2);
+  border-radius:18px;padding:1.4rem;margin-top:1.5rem;}
+.leaderboard.show{display:block;animation:fadeUp .4s ease;}
+.leaderboard h3{font-size:1rem;font-weight:800;color:var(--gold);margin-bottom:1rem;}
+.lb-row{display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;
+  border-radius:12px;margin-bottom:.5rem;background:var(--s2);border:1px solid var(--border);}
+.lb-row.me{border-color:var(--accent);background:rgba(59,130,246,.06);}
+.lb-rank{font-size:1.2rem;min-width:28px;text-align:center;}
+.lb-name{flex:1;font-weight:700;}
+.lb-score{font-weight:800;color:var(--cyan);}
+.lb-pct{font-size:.78rem;color:var(--muted);}
+.lb-refresh{background:none;border:1px solid var(--border);border-radius:8px;
+  color:var(--muted);padding:.3rem .7rem;cursor:pointer;font-size:.78rem;
+  font-family:'Tajawal',sans-serif;transition:all .2s;margin-top:.75rem;}
+.lb-refresh:hover{border-color:var(--gold);color:var(--gold);}
+
+/* JOIN */
+.join-card{background:var(--s1);border:1px solid var(--border);
+  border-radius:20px;padding:2.5rem;text-align:center;margin-top:1rem;}
+.join-card h2{font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
+.join-card>p{color:var(--muted);margin-bottom:1.5rem;}
+.join-input{width:100%;max-width:420px;background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:.7rem 1rem;color:var(--text);
+  font-family:'Tajawal',sans-serif;font-size:.95rem;outline:none;margin-bottom:.75rem;}
+.join-input:focus{border-color:var(--accent);}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="mainView">
+
+  <header>
+    <div class="badge">✦ AI Quiz Generator</div>
+    <h1>مولّد الأسئلة <em>الذكي</em></h1>
+    <p>ارفع PDF — احصل على أسئلة MCQ — شارك مع أصدقائك وقارن النتائج</p>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabsBar">
+    <button class="tab-btn active" id="tabCreate" onclick="switchTab('create')">📄 إنشاء اختبار</button>
+    <button class="tab-btn" id="tabJoin" onclick="switchTab('join')">🔗 انضم لاختبار</button>
+  </div>
+
+  <!-- CREATE TAB -->
+  <div id="createTab">
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <span class="up-icon">📄</span>
+      <h3>اسحب ملف PDF هنا</h3>
+      <p>أو اضغط لاختيار الملف</p>
+    </div>
+
+    <div class="file-badge" id="fileBadge">
+      <span>✅</span>
+      <span class="name" id="fileName"></span>
+      <button class="rm" id="removeFile">✕</button>
+    </div>
+
+    <div class="row3">
+      <div class="card"><label>عدد الأسئلة</label><input type="number" id="numQ" value="5" min="3" max="20"/></div>
+      <div class="card"><label>اللغة</label>
+        <select id="lang"><option value="arabic">العربية</option><option value="english">الإنجليزية</option></select>
+      </div>
+      <div class="card"><label>الصعوبة</label>
+        <select id="diff"><option value="easy">سهل</option><option value="medium" selected>متوسط</option><option value="hard">صعب</option></select>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>اسمك (يظهر في لوحة النتائج)</label>
+      <input type="text" id="creatorName" placeholder="مثال: أحمد"/>
+    </div>
+
+    <div class="err" id="errBox"></div>
+    <button class="btn-main" id="genBtn" disabled>⚡ توليد الأسئلة</button>
+
+    <div class="progress" id="progressWrap">
+      <div class="spinner"></div>
+      <p id="progressText">جارٍ قراءة الملف...</p>
+    </div>
+  </div>
+
+  <!-- JOIN TAB -->
+  <div id="joinTab" class="hidden">
+    <div class="join-card">
+      <h2>🔗 انضم لاختبار</h2>
+      <p>الصق الرابط اللي شاركه معك صديقك</p>
+      <input class="join-input" type="text" id="joinUrl" placeholder="https://...?quiz=..." style="direction:ltr"/>
+      <input class="join-input" type="text" id="joinName" placeholder="اسمك"/>
+      <button class="btn-main" style="max-width:300px;margin:0 auto;" onclick="joinQuiz()">انضم وابدأ ⚡</button>
+      <div class="err" id="joinErrBox" style="max-width:420px;margin:.5rem auto 0;text-align:right;"></div>
+    </div>
+  </div>
+
+  <!-- QUIZ SECTION -->
+  <div id="quizSection">
+
+    <!-- Share panel -->
+    <div class="share-panel" id="sharePanel" style="display:none">
+      <h3>🔗 شارك الاختبار مع أصدقائك</h3>
+      <div class="share-row">
+        <div class="share-url" id="shareUrl">—</div>
+        <button class="btn-copy" id="copyBtn" onclick="copyShare()">نسخ الرابط</button>
+      </div>
+      <p class="share-note">📌 صديقك يفتح الرابط على أي جهاز ويحل نفس أسئلتك — تشوفون نتائج بعض في نهاية الاختبار</p>
+    </div>
+
+    <!-- Name banner for joiners -->
+    <div class="name-banner" id="nameBanner">
+      <p>✋ أدخل اسمك قبل البداية عشان تظهر في لوحة النتائج</p>
+      <div class="name-row">
+        <input type="text" id="playerName" placeholder="اسمك"/>
+        <button class="btn-main" style="width:auto;padding:.65rem 1.2rem;margin-bottom:0" onclick="startJoined()">ابدأ ⚡</button>
+      </div>
+    </div>
+
+    <!-- Quiz header -->
+    <div class="quiz-hdr" id="quizHdr" style="display:none">
+      <h2 id="quizTitle">📝 الأسئلة</h2>
+      <div class="score-pill" id="scoreDisplay">0 / 0</div>
+    </div>
+
+    <div id="qContainer"></div>
+
+    <!-- Result card -->
+    <div class="result" id="resultCard">
+      <div class="res-emoji" id="resEmoji"></div>
+      <div class="res-score" id="resScore"></div>
+      <p id="resMsg"></p>
+      <div class="res-btns">
+        <button class="btn-sec" onclick="location.href=location.pathname">🔄 اختبار جديد</button>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard" id="leaderboard">
+      <h3>🏆 لوحة النتائج</h3>
+      <div id="lbRows"></div>
+      <button class="lb-refresh" onclick="refreshLeaderboard()">🔄 تحديث النتائج</button>
+    </div>
+
+  </div>
+
+</div><!-- /mainView -->
+</div><!-- /wrap -->
+
+<script>
+// ════════════════════════════════════════════
+//  CONFIG — ضع مفاتيحك هنا
+// ════════════════════════════════════════════
+const GROQ_KEY  = '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';
+const GROQ_URL  = 'https://api.groq.com/openai/v1/chat/completions';
+const MODEL     = 'llama-3.3-70b-versatile';
+
+// JSONBin — مجاني — يسمح بالمشاركة الحقيقية بين الأجهزة
+// سجّل على jsonbin.io واحصل على X-Master-Key خاص بك
+const JSONBIN_KEY    = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
+const JSONBIN_URL    = 'https://api.jsonbin.io/v3/b';
+const JSONBIN_COLL   = ''; // اختياري: Collection ID
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let pdfFile   = null;
+let questions = [];
+let answered  = 0;
+let correct   = 0;
+let quizId    = null;   // JSONBin bin ID
+let myName    = '';
+let isJoiner  = false;
+let useCloud  = false;  // true if JSONBin key is configured
+
+// ════════════════════════════════════════════
+//  DOM REFS
+// ════════════════════════════════════════════
+const uploadZone   = document.getElementById('uploadZone');
+const fileInput    = document.getElementById('fileInput');
+const fileBadge    = document.getElementById('fileBadge');
+const fileNameEl   = document.getElementById('fileName');
+const genBtn       = document.getElementById('genBtn');
+const progressWrap = document.getElementById('progressWrap');
+const progressText = document.getElementById('progressText');
+const quizSection  = document.getElementById('quizSection');
+const qContainer   = document.getElementById('qContainer');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const resultCard   = document.getElementById('resultCard');
+const errBox       = document.getElementById('errBox');
+const sharePanel   = document.getElementById('sharePanel');
+const shareUrlEl   = document.getElementById('shareUrl');
+const nameBanner   = document.getElementById('nameBanner');
+const quizHdr      = document.getElementById('quizHdr');
+const leaderboard  = document.getElementById('leaderboard');
+const lbRows       = document.getElementById('lbRows');
+
+// ════════════════════════════════════════════
+//  INIT — فحص إذا JSONBin مُعدَّل
+// ════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  useCloud = !JSONBIN_KEY.includes('PLACEHOLDER');
+
+  const id = new URLSearchParams(location.search).get('quiz');
+  if (id) {
+    quizId = id;
+    loadSharedQuiz(id);
+  }
+});
+
+// ════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════
+function switchTab(t) {
+  document.getElementById('tabCreate').classList.toggle('active', t==='create');
+  document.getElementById('tabJoin').classList.toggle('active', t==='join');
+  document.getElementById('createTab').classList.toggle('hidden', t!=='create');
+  document.getElementById('joinTab').classList.toggle('hidden', t!=='join');
+}
+
+// ════════════════════════════════════════════
+//  UPLOAD
+// ════════════════════════════════════════════
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f?.name?.toLowerCase().endsWith('.pdf')) setFile(f);
+  else showErr('الملف يجب أن يكون PDF');
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+document.getElementById('removeFile').addEventListener('click', () => {
+  pdfFile=null; fileInput.value=''; fileBadge.classList.remove('show'); genBtn.disabled=true;
+});
+
+function setFile(f) {
+  pdfFile=f; fileNameEl.textContent=f.name;
+  fileBadge.classList.add('show'); genBtn.disabled=false; hideErr();
+}
+
+// ════════════════════════════════════════════
+//  ERRORS
+// ════════════════════════════════════════════
+function showErr(m, box) {
+  const el = box || errBox;
+  el.textContent=m; el.classList.add('show');
+}
+function hideErr(box) {
+  const el = box || errBox;
+  el.classList.remove('show');
+}
+
+// ════════════════════════════════════════════
+//  PDF TEXT EXTRACTION
+// ════════════════════════════════════════════
+async function extractText(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let text = '';
+  for (let i=1; i<=Math.min(pdf.numPages,20); i++) {
+    const page    = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(s=>s.str).join(' ') + '\n';
+  }
+  return text.trim();
+}
+
+// ════════════════════════════════════════════
+//  JSONBIN — Cloud Storage
+// ════════════════════════════════════════════
+async function cloudCreate(data) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Master-Key': JSONBIN_KEY,
+    'X-Bin-Private': 'false',
+    'X-Bin-Name': 'quiz_' + Date.now()
+  };
+  if (JSONBIN_COLL) headers['X-Collection-Id'] = JSONBIN_COLL;
+
+  const res = await fetch(JSONBIN_URL, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('JSONBin create failed: ' + res.status);
+  const j = await res.json();
+  return j.metadata.id; // bin id
+}
+
+async function cloudRead(binId) {
+  const res = await fetch(`${JSONBIN_URL}/${binId}/latest`, {
+    headers: { 'X-Master-Key': JSONBIN_KEY }
+  });
+  if (!res.ok) throw new Error('JSONBin read failed: ' + res.status);
+  const j = await res.json();
+  return j.record;
+}
+
+async function cloudUpdate(binId, data) {
+  const res = await fetch(`${JSONBIN_URL}/${binId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_KEY
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('JSONBin update failed: ' + res.status);
+  return await res.json();
+}
+
+// ════════════════════════════════════════════
+//  SESSION — Local (fallback) or Cloud
+// ════════════════════════════════════════════
+const LS_PFX = 'mcqapp_';
+
+function lsSave(id, data) {
+  localStorage.setItem(LS_PFX + id, JSON.stringify(data));
+}
+function lsRead(id) {
+  const r = localStorage.getItem(LS_PFX + id);
+  return r ? JSON.parse(r) : null;
+}
+
+async function saveSession(data) {
+  if (useCloud) {
+    if (!quizId) {
+      quizId = await cloudCreate(data);
+    } else {
+      await cloudUpdate(quizId, data);
+    }
+  } else {
+    if (!quizId) quizId = 'q' + Math.random().toString(36).slice(2,10);
+    lsSave(quizId, data);
+  }
+}
+
+async function readSession(id) {
+  if (useCloud) {
+    return await cloudRead(id);
+  } else {
+    return lsRead(id);
+  }
+}
+
+// ════════════════════════════════════════════
+//  GENERATE
+// ════════════════════════════════════════════
+genBtn.addEventListener('click', async () => {
+  hideErr();
+  const num  = parseInt(document.getElementById('numQ').value)||5;
+  const lang = document.getElementById('lang').value;
+  const diff = document.getElementById('diff').value;
+  myName     = (document.getElementById('creatorName').value.trim())||'المنشئ';
+  isJoiner   = false;
+  quizId     = null;
+
+  // reset
+  questions=[]; answered=0; correct=0;
+  qContainer.innerHTML='';
+  resultCard.classList.remove('show');
+  quizSection.classList.remove('show');
+  leaderboard.classList.remove('show');
+  sharePanel.style.display='none';
+  nameBanner.classList.remove('show');
+  quizHdr.style.display='none';
+
+  genBtn.disabled=true;
+  progressWrap.classList.add('show');
+  progressText.textContent='جارٍ قراءة الملف...';
+
+  let text='';
+  try { text = await extractText(pdfFile); }
+  catch(e) { showErr('تعذّر قراءة الملف — تأكد أنه PDF نصي.'); resetBtn(); return; }
+
+  if (text.length<150) { showErr('الملف لا يحتوي نصاً كافياً.'); resetBtn(); return; }
+
+  progressText.textContent='جارٍ توليد الأسئلة...';
+
+  const langLabel = lang==='arabic'?'العربية':'الإنجليزية';
+  const diffLabel = {easy:'سهل',medium:'متوسط',hard:'صعب'}[diff];
+
+  const prompt=`أنت متخصص في إنشاء أسئلة اختبار.
+من النص التالي أنشئ ${num} سؤال اختيار متعدد.
+اللغة: ${langLabel} — الصعوبة: ${diffLabel}
+القواعد: 4 خيارات لكل سؤال، خيار صحيح واحد، الأسئلة من المحتوى فقط.
+أجب بـ JSON صارم فقط بلا أي نص آخر:
+[{"question":"...","options":["أ","ب","ج","د"],"correct":0,"explanation":"..."}]
+النص:
+${text.substring(0,7000)}`;
+
+  try {
+    const res = await fetch(GROQ_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
+      body:JSON.stringify({model:MODEL,max_tokens:4000,temperature:0.3,
+        messages:[{role:'user',content:prompt}]})
+    });
+
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.error?.message||`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    let raw = data.choices[0].message.content.trim();
+    raw = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    const m = raw.match(/\[[\s\S]*\]/);
+    if (!m) throw new Error('الذكاء الاصطناعي لم يُعد JSON — جرّب مرة أخرى');
+    questions = JSON.parse(m[0]);
+    if (!Array.isArray(questions)||!questions.length) throw new Error('لم تُولَّد أسئلة');
+
+    progressText.textContent='جارٍ حفظ الاختبار...';
+
+    // save session
+    const sessionData = { questions, scores: {}, creator: myName };
+    await saveSession(sessionData);
+
+    progressWrap.classList.remove('show');
+
+    renderQuiz(false);
+    showShare();
+
+  } catch(e) {
+    showErr('خطأ: '+e.message);
+    resetBtn();
+  }
+});
+
+function resetBtn() {
+  progressWrap.classList.remove('show');
+  genBtn.disabled=false;
+}
+
+// ════════════════════════════════════════════
+//  SHARE
+// ════════════════════════════════════════════
+function showShare() {
+  const url = location.origin+location.pathname+'?quiz='+quizId;
+  shareUrlEl.textContent = url;
+  sharePanel.style.display = 'block';
+  if (!useCloud) {
+    // Add warning that local sharing is limited
+    document.querySelector('.share-note').innerHTML =
+      '⚠️ <strong>وضع محلي:</strong> الرابط يشتغل فقط على نفس الجهاز والمتصفح. لتفعيل المشاركة الحقيقية بين الأجهزة، أضف JSONBin Key في الإعدادات.';
+  }
+}
+
+function copyShare() {
+  const url = location.origin+location.pathname+'?quiz='+quizId;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    btn.textContent='✅ تم النسخ!';
+    setTimeout(()=>btn.textContent='نسخ الرابط',2500);
+  });
+}
+
+// ════════════════════════════════════════════
+//  JOIN
+// ════════════════════════════════════════════
+function joinQuiz() {
+  const raw  = document.getElementById('joinUrl').value.trim();
+  const name = document.getElementById('joinName').value.trim();
+  const joinErr = document.getElementById('joinErrBox');
+  hideErr(joinErr);
+
+  if (!name) { showErr('أدخل اسمك أولاً', joinErr); return; }
+  if (!raw)  { showErr('أدخل الرابط أولاً', joinErr); return; }
+
+  let id = null;
+  try { id = new URL(raw).searchParams.get('quiz'); } catch { id=raw.trim(); }
+  if (!id) { showErr('رابط غير صحيح', joinErr); return; }
+
+  myName   = name;
+  isJoiner = true;
+  loadSharedQuiz(id);
+}
+
+async function loadSharedQuiz(id) {
+  quizId = id;
+
+  progressWrap.classList.add('show');
+  progressText.textContent = 'جارٍ تحميل الاختبار...';
+  document.getElementById('createTab').classList.add('hidden');
+  document.getElementById('joinTab').classList.add('hidden');
+
+  try {
+    const s = await readSession(id);
+
+    if (!s || !s.questions || !s.questions.length) {
+      progressWrap.classList.remove('show');
+      switchTab('join');
+      document.getElementById('createTab').classList.remove('hidden');
+      document.getElementById('joinTab').classList.remove('hidden');
+      const joinErr = document.getElementById('joinErrBox');
+      showErr('⚠️ الاختبار غير موجود أو انتهت صلاحيته.', joinErr);
+      history.replaceState({},'',location.pathname);
+      return;
+    }
+
+    questions = s.questions;
+    progressWrap.classList.remove('show');
+
+    // hide header & tabs when opened via link
+    document.querySelector('header').style.display='none';
+    document.getElementById('tabsBar').style.display='none';
+
+    quizSection.classList.add('show');
+
+    if (isJoiner && !myName) {
+      nameBanner.classList.add('show');
+    } else {
+      renderQuiz(true);
+    }
+
+    history.replaceState({},'','?quiz='+id);
+
+  } catch(e) {
+    progressWrap.classList.remove('show');
+    document.getElementById('createTab').classList.remove('hidden');
+    document.getElementById('joinTab').classList.remove('hidden');
+    const joinErr = document.getElementById('joinErrBox');
+    showErr('خطأ في تحميل الاختبار: ' + e.message, joinErr);
+    history.replaceState({},'',location.pathname);
+  }
+}
+
+function startJoined() {
+  const n = document.getElementById('playerName').value.trim();
+  if (!n) { alert('أدخل اسمك'); return; }
+  myName = n; isJoiner=true;
+  nameBanner.classList.remove('show');
+  renderQuiz(true);
+}
+
+// ════════════════════════════════════════════
+//  RENDER QUIZ
+// ════════════════════════════════════════════
+function renderQuiz(joiner) {
+  quizSection.classList.add('show');
+  qContainer.innerHTML='';
+  answered=0; correct=0;
+  quizHdr.style.display='flex';
+  document.getElementById('quizTitle').textContent = joiner?'📝 أجب على الأسئلة':'📝 الأسئلة';
+  updateScore();
+
+  const letters=['أ','ب','ج','د'];
+
+  questions.forEach((q,qi)=>{
+    const card=document.createElement('div');
+    card.className='q-card';
+    card.style.animationDelay=(qi*.06)+'s';
+    card.innerHTML=`
+      <div class="q-num">سؤال ${qi+1} من ${questions.length}</div>
+      <div class="q-text">${q.question}</div>
+      <div class="opts" id="opts${qi}"></div>
+      <div class="expl" id="exp${qi}"><strong>💡 التوضيح:</strong> ${q.explanation||''}</div>
+    `;
+    const optsDiv=card.querySelector(`#opts${qi}`);
+    q.options.forEach((opt,oi)=>{
+      const btn=document.createElement('button');
+      btn.className='opt-btn';
+      btn.innerHTML=`<span>${opt}</span><span class="opt-letter">${letters[oi]}</span>`;
+      btn.addEventListener('click',()=>handleAnswer(qi,oi,btn,optsDiv));
+      optsDiv.appendChild(btn);
+    });
+    qContainer.appendChild(card);
+  });
+
+  resultCard.classList.remove('show');
+  genBtn.disabled=false;
+}
+
+function handleAnswer(qi,chosen,btn,optsDiv) {
+  const q=questions[qi];
+  optsDiv.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  if (chosen===q.correct) { btn.classList.add('correct'); correct++; }
+  else { btn.classList.add('wrong'); optsDiv.querySelectorAll('.opt-btn')[q.correct].classList.add('correct'); }
+  document.getElementById(`exp${qi}`).classList.add('show');
+  answered++; updateScore();
+  if (answered===questions.length) setTimeout(showResult,500);
+}
+
+function updateScore() { scoreDisplay.textContent=`${correct} / ${answered}`; }
+
+// ════════════════════════════════════════════
+//  RESULT
+// ════════════════════════════════════════════
+async function showResult() {
+  const pct=Math.round((correct/questions.length)*100);
+  const emoji=pct===100?'🏆':pct>=80?'🌟':pct>=60?'👍':'📚';
+  const msg=pct===100?'مثالي! ما شاء الله 🎉':pct>=80?'ممتاز! أداء رائع':pct>=60?'جيد! استمر في التعلم':'راجع المادة وحاول مجدداً';
+  document.getElementById('resEmoji').textContent=emoji;
+  document.getElementById('resScore').textContent=`${correct} / ${questions.length} (${pct}%)`;
+  document.getElementById('resMsg').textContent=msg;
+  resultCard.classList.add('show');
+  await saveScore(myName, correct, questions.length);
+  await renderLeaderboard();
+  resultCard.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ════════════════════════════════════════════
+//  SAVE SCORE — يحفظ في Cloud أو Local
+// ════════════════════════════════════════════
+async function saveScore(name, c, total) {
+  if (!quizId || !name) return;
+  try {
+    const s = await readSession(quizId);
+    if (!s) return;
+    if (!s.scores) s.scores = {};
+    s.scores[name] = {
+      correct: c,
+      total,
+      pct: Math.round((c/total)*100),
+      ts: Date.now()
+    };
+    if (useCloud) {
+      await cloudUpdate(quizId, s);
+    } else {
+      lsSave(quizId, s);
+    }
+  } catch(e) {
+    console.warn('saveScore error:', e);
+  }
+}
+
+// ════════════════════════════════════════════
+//  LEADERBOARD
+// ════════════════════════════════════════════
+async function renderLeaderboard() {
+  if (!quizId) return;
+  try {
+    const s = await readSession(quizId);
+    if (!s || !s.scores) return;
+    const entries = Object.entries(s.scores).sort((a,b)=>b[1].pct-a[1].pct);
+    if (!entries.length) return;
+    lbRows.innerHTML='';
+    const medals=['🥇','🥈','🥉'];
+    entries.forEach(([name,sc],i)=>{
+      const row=document.createElement('div');
+      const isme=name===myName;
+      row.className='lb-row'+(isme?' me':'');
+      row.innerHTML=`
+        <span class="lb-rank">${medals[i]||'#'+(i+1)}</span>
+        <span class="lb-name">${name}${isme?' <span style="color:var(--cyan);font-size:.75rem">(أنت)</span>':''}</span>
+        <span class="lb-score">${sc.correct}/${sc.total}</span>
+        <span class="lb-pct">${sc.pct}%</span>
+      `;
+      lbRows.appendChild(row);
+    });
+    leaderboard.classList.add('show');
+  } catch(e) {
+    console.warn('renderLeaderboard error:', e);
+  }
+}
+
+async function refreshLeaderboard() {
+  await renderLeaderboard();
+}
+</script>
+</body>
+</html>
