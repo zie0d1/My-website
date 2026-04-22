@@ -704,10 +704,41 @@ function submitName() {
     setTimeout(() => document.getElementById('ngInput').style.borderBottomColor = '', 800);
     return;
   }
+
+  // ── Admin trigger ──
+  if (val === 'زيد') {
+    document.getElementById('nameGate').classList.add('hidden');
+    document.getElementById('adminPwOverlay').classList.remove('hidden');
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwErr').classList.remove('show');
+    setTimeout(() => document.getElementById('adminPwInput').focus(), 200);
+    return;
+  }
+
+  // ── Ban check ──
+  if (typeof isUserBanned === 'function' && isUserBanned(val)) {
+    const inp = document.getElementById('ngInput');
+    inp.style.borderBottomColor = 'var(--red)';
+    let msg = document.getElementById('ngBanMsg');
+    if (!msg) {
+      msg = document.createElement('div');
+      msg.id = 'ngBanMsg';
+      msg.style.cssText = 'color:var(--red);font-size:.78rem;margin-top:.75rem;border-left:2px solid var(--red);padding:.4rem .75rem;text-align:left;';
+      inp.parentNode.insertBefore(msg, inp.nextSibling);
+    }
+    msg.textContent = '🚫 هذا المستخدم محظور من الاختبار.';
+    msg.style.display = 'block';
+    setTimeout(() => { inp.style.borderBottomColor = ''; }, 2000);
+    return;
+  }
+
+  // Remove ban msg if shown
+  const old = document.getElementById('ngBanMsg');
+  if (old) old.style.display = 'none';
+
   myName = val;
   localStorage.setItem('quiz_username', val);
   document.getElementById('nameGate').classList.add('hidden');
-  // Pre-fill creator name if visible
   const cn = document.getElementById('creatorName');
   if (cn) cn.value = val;
 }
@@ -862,6 +893,7 @@ const LS = 'mcq3_';
 function lsSave(id, d) { localStorage.setItem(LS + id, JSON.stringify(d)); }
 function lsRead(id)    { const r = localStorage.getItem(LS + id); return r ? JSON.parse(r) : null; }
 async function sessionSave(data) {
+  window._sessionCreator = data.creator || '';
   if (useCloud) {
     if (!quizId) quizId = await cloudCreate(data);
     else await cloudUpdate(quizId, data);
@@ -1033,6 +1065,17 @@ async function joinQuiz() {
 }
 
 async function loadSharedQuiz(id) {
+  // Ban check
+  if (myName && isUserBanned(myName)) {
+    document.getElementById('siteHeader').style.display = '';
+    document.getElementById('tabsBar').style.display = '';
+    document.getElementById('createTab').classList.remove('hidden');
+    document.getElementById('joinTab').classList.remove('hidden');
+    switchTab('join');
+    showErr('🚫 أنت محظور من هذا الاختبار.', document.getElementById('joinErrBox'));
+    history.replaceState({}, '', location.pathname);
+    return;
+  }
   progressWrap.classList.add('show');
   progressText.textContent = currentLang === 'ar' ? 'تحميل الاختبار…' : 'Loading quiz…';
   document.getElementById('siteHeader').style.display = 'none';
@@ -1349,47 +1392,6 @@ function unbanUser(name) {
   loadAdminData();
 }
 
-// Intercept submitName to check banned + trigger admin
-const _origSubmitName = window.submitName;
-window.submitName = function() {
-  const val = document.getElementById('ngInput').value.trim();
-  if (!val) { _origSubmitName(); return; }
-
-  // Admin trigger
-  if (val === ADMIN_NAME) {
-    document.getElementById('nameGate').classList.add('hidden');
-    document.getElementById('adminPwOverlay').classList.remove('hidden');
-    document.getElementById('adminPwInput').value = '';
-    document.getElementById('adminPwErr').classList.remove('show');
-    setTimeout(() => document.getElementById('adminPwInput').focus(), 200);
-    return;
-  }
-
-  // Check ban
-  if (isUserBanned(val)) {
-    const inp = document.getElementById('ngInput');
-    inp.style.borderBottomColor = 'var(--red)';
-    // Show ban message
-    let msg = document.getElementById('ngBanMsg');
-    if (!msg) {
-      msg = document.createElement('div');
-      msg.id = 'ngBanMsg';
-      msg.style.cssText = 'color:var(--red);font-size:.78rem;margin-top:.5rem;border-left:2px solid var(--red);padding:.4rem .7rem;text-align:left;';
-      document.getElementById('ngInput').parentNode.insertBefore(msg, document.getElementById('ngInput').nextSibling);
-    }
-    msg.textContent = '🚫 هذا المستخدم محظور من الاختبار.';
-    msg.style.display = 'block';
-    setTimeout(() => { inp.style.borderBottomColor = ''; }, 2000);
-    return;
-  }
-
-  // Remove ban msg if exists
-  const old = document.getElementById('ngBanMsg');
-  if (old) old.style.display = 'none';
-
-  _origSubmitName();
-};
-
 function checkAdminPassword() {
   const pw = document.getElementById('adminPwInput').value.trim();
   if (pw === ADMIN_PASSWORD) {
@@ -1511,30 +1513,6 @@ async function loadAdminData() {
 
 // Store session creator for admin display
 window._sessionCreator = '';
-
-// Wrap sessionSave to capture creator
-const __realSessionSave = sessionSave;
-async function sessionSave(data) {
-  window._sessionCreator = data.creator || '';
-  return __realSessionSave(data);
-}
-
-// Check ban on quiz join
-const _origLoadSharedQuiz = loadSharedQuiz;
-window.loadSharedQuiz = async function(id) {
-  if (myName && isUserBanned(myName)) {
-    progressWrap.classList.remove('show');
-    document.getElementById('siteHeader').style.display = '';
-    document.getElementById('tabsBar').style.display = '';
-    document.getElementById('createTab').classList.remove('hidden');
-    document.getElementById('joinTab').classList.remove('hidden');
-    switchTab('join');
-    showErr('🚫 أنت محظور من هذا الاختبار.', document.getElementById('joinErrBox'));
-    history.replaceState({}, '', location.pathname);
-    return;
-  }
-  return _origLoadSharedQuiz(id);
-};
 </script>
 </body>
 </html>
