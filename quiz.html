@@ -15,8 +15,10 @@
   --rule:#222;
   --red:#e03535;
   --red-bg:rgba(224,53,53,.07);
-  --green-bg:rgba(255,255,255,.05);
+  --green:#3ecf8e;
+  --green-bg:rgba(62,207,142,.07);
   --accent:#c8a96e;
+  --accent2:#7c6dfa;
   --serif:'Playfair Display',Georgia,serif;
   --sans:'DM Sans',system-ui,sans-serif;
   --arabic:'Tajawal',system-ui,sans-serif;
@@ -27,20 +29,23 @@ body.rtl{direction:rtl;font-family:var(--arabic);}
 body.rtl .serif{font-family:var(--arabic) !important;}
 body.rtl h1,body.rtl h2,body.rtl h3,body.rtl .logo{font-family:var(--arabic) !important;}
 
-.shell{max-width:640px;margin:0 auto;padding:0 1.5rem 7rem;}
+.shell{max-width:680px;margin:0 auto;padding:0 1.5rem 7rem;}
 
 /* Header */
 .top-bar{display:flex;align-items:baseline;justify-content:space-between;padding:2.25rem 0 1.5rem;border-bottom:1px solid var(--rule);margin-bottom:3rem;gap:1rem;}
 .logo{font-family:var(--serif);font-size:1.6rem;font-weight:900;letter-spacing:-.03em;}
 .logo em{color:var(--dim);font-style:normal;}
-.header-right{display:flex;align-items:center;gap:.75rem;}
+.header-right{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
 .sub{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);}
 .lang-toggle{background:none;border:1px solid var(--rule);color:var(--dim);font-family:var(--sans);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.35rem .75rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem;}
 .lang-toggle:hover{border-color:var(--paper);color:var(--paper);}
 .lang-toggle .globe{font-size:.85rem;line-height:1;}
+.user-chip{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--dim);border:1px solid var(--rule);padding:.3rem .7rem;cursor:pointer;transition:all .2s;}
+.user-chip:hover{border-color:var(--paper);color:var(--paper);}
+.user-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
 
 /* Tabs */
-.tabs{display:flex;border-bottom:1px solid var(--rule);margin-bottom:2.75rem;}
+.tabs{display:flex;border-bottom:1px solid var(--rule);margin-bottom:2.75rem;gap:.5rem;}
 .tab{background:none;border:none;color:var(--dim);font-family:var(--sans);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.7rem 1.5rem .7rem 0;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;}
 body.rtl .tab{padding:.7rem 0 .7rem 1.5rem;}
 .tab.active{color:var(--paper);border-bottom-color:var(--paper);}
@@ -94,6 +99,7 @@ body.rtl .btn{font-family:var(--arabic);letter-spacing:0;}
 .btn:disabled{opacity:.18;cursor:not-allowed;}
 .btn:hover:not(:disabled){opacity:.88;}
 .btn:active:not(:disabled){transform:scale(.99);}
+.btn-accent{background:var(--accent);color:var(--ink);}
 .btn-sm{background:none;border:1px solid var(--rule);color:#bbb;padding:.55rem 1.2rem;font-family:var(--sans);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,color .2s;}
 body.rtl .btn-sm{font-family:var(--arabic);letter-spacing:0;}
 .btn-sm:hover{border-color:var(--paper);color:var(--paper);}
@@ -135,28 +141,6 @@ body.rtl .share-lbl{letter-spacing:0;}
 .copy-btn:hover{opacity:.8;}
 .share-note{font-size:.7rem;color:var(--dim);margin-top:.6rem;line-height:1.6;}
 
-/* Waiting room */
-.wr{display:none;border:1px solid var(--rule);padding:2rem 1.75rem;margin-bottom:2rem;text-align:center;}
-.wr.show{display:block;animation:up .4s ease;}
-.wr-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;margin-bottom:.35rem;}
-body.rtl .wr-title{font-family:var(--arabic);}
-.wr-sub{font-size:.78rem;color:var(--dim);margin-bottom:2rem;}
-.wr-list-lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem;text-align:left;}
-body.rtl .wr-list-lbl{letter-spacing:0;text-align:right;}
-.player-list{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.5rem;}
-.player-row{display:flex;align-items:center;gap:.75rem;border:1px solid var(--rule);padding:.6rem 1rem;text-align:left;animation:up .3s ease;}
-body.rtl .player-row{text-align:right;}
-.pdot{width:6px;height:6px;border-radius:50%;background:#3ecf8e;margin-left:auto;flex-shrink:0;animation:glow 2s ease-in-out infinite;}
-body.rtl .pdot{margin-left:0;margin-right:auto;}
-@keyframes glow{0%,100%{opacity:.4}50%{opacity:1}}
-.pname{font-size:.88rem;font-weight:600;}
-.pbadge{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);padding:.18rem .5rem;}
-body.rtl .pbadge{letter-spacing:0;}
-.pbadge.host{border-color:var(--accent);color:var(--accent);}
-.wr-counter{font-size:.78rem;color:var(--dim);margin-bottom:1.5rem;}
-.wr-counter strong{color:var(--paper);}
-.wr-guest-msg{font-size:.76rem;color:var(--dim);font-style:italic;}
-
 /* Name Gate */
 .name-gate{position:fixed;inset:0;background:var(--ink);z-index:500;display:flex;align-items:center;justify-content:center;padding:2rem;}
 .name-gate.hidden{display:none;}
@@ -174,16 +158,19 @@ body.rtl .name-gate-input{font-family:var(--arabic);}
 .name-gate .btn{max-width:280px;margin:0 auto;}
 .name-gate-hint{font-size:.7rem;color:var(--dim);margin-top:1rem;opacity:.6;}
 
-/* Name banner (for join flow) */
 #quizSection{display:none;}
 #quizSection.show{display:block;}
 
 /* Quiz top */
-.quiz-top{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;border-bottom:1px solid var(--rule);margin-bottom:2.5rem;}
+.quiz-top{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;border-bottom:1px solid var(--rule);margin-bottom:2.5rem;flex-wrap:wrap;gap:.75rem;}
 .quiz-top h2{font-family:var(--serif);font-size:1.1rem;font-weight:700;}
 body.rtl .quiz-top h2{font-family:var(--arabic);}
 .score-tag{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);padding:.28rem .85rem;}
 body.rtl .score-tag{letter-spacing:0;}
+
+/* Timer bar */
+.timer-bar-wrap{width:100%;height:2px;background:var(--rule);margin-bottom:1.5rem;overflow:hidden;}
+.timer-bar{height:100%;width:100%;background:var(--accent);transition:width 1s linear;transform-origin:left;}
 
 /* Question cards */
 .qcard{padding:2rem 0;border-bottom:1px solid var(--rule);animation:up .4s ease both;}
@@ -209,12 +196,12 @@ body.rtl .opt{flex-direction:row-reverse;text-align:right;font-family:var(--arab
 .opt.selected{border-color:var(--paper);}
 .opt.selected .oltr{background:var(--paper);color:var(--ink);border-color:var(--paper);}
 .opt.locked{cursor:default;}
-.opt.revealed-correct{border-color:#3ecf8e;background:rgba(62,207,142,.07);}
-.opt.revealed-correct .oltr{background:#3ecf8e;color:var(--ink);border-color:#3ecf8e;}
+.opt.revealed-correct{border-color:var(--green);background:var(--green-bg);}
+.opt.revealed-correct .oltr{background:var(--green);color:var(--ink);border-color:var(--green);}
 .opt.revealed-wrong{border-color:var(--red);background:var(--red-bg);}
 .opt.revealed-wrong .oltr{background:var(--red);color:#fff;border-color:var(--red);}
-.opt.revealed-correct-answer{border-color:#3ecf8e;background:rgba(62,207,142,.05);}
-.opt.revealed-correct-answer .oltr{background:#3ecf8e;color:var(--ink);border-color:#3ecf8e;}
+.opt.revealed-correct-answer{border-color:var(--green);background:rgba(62,207,142,.05);}
+.opt.revealed-correct-answer .oltr{background:var(--green);color:var(--ink);border-color:var(--green);}
 
 /* Explanation */
 .expl{display:none;margin-top:.9rem;font-size:.78rem;color:var(--dim);line-height:1.7;border-left:1px solid var(--rule);padding-left:.75rem;}
@@ -227,8 +214,28 @@ body.rtl .expl{border-left:none;border-right:1px solid var(--rule);padding-left:
 .res-big{font-family:var(--serif);font-size:4.5rem;font-weight:900;line-height:1;margin-bottom:.2rem;color:var(--accent);}
 body.rtl .res-big{font-family:var(--arabic);}
 .res-pct{font-size:.78rem;color:var(--dim);margin-bottom:.5rem;}
-.res-msg{font-size:.9rem;color:#bbb;margin-bottom:2rem;}
+.res-msg{font-size:.9rem;color:#bbb;margin-bottom:1rem;}
+
+/* Understanding meter */
+.understanding-meter{margin:1.5rem auto 2rem;max-width:340px;text-align:left;}
+body.rtl .understanding-meter{text-align:right;}
+.um-label{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:.5rem;display:flex;justify-content:space-between;}
+body.rtl .um-label{letter-spacing:0;}
+.um-bar-bg{height:6px;background:var(--rule);border-radius:3px;overflow:hidden;}
+.um-bar{height:100%;border-radius:3px;transition:width 1s ease;width:0%;}
+.um-tiers{display:flex;gap:.5rem;margin-top:.75rem;justify-content:center;flex-wrap:wrap;}
+.um-tier{font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .6rem;border:1px solid var(--rule);color:var(--dim);}
+.um-tier.active{border-color:var(--accent);color:var(--accent);}
+
 .res-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
+
+/* Weak areas box */
+.weak-box{border:1px solid rgba(224,53,53,.3);padding:1.25rem;margin-bottom:2rem;background:rgba(224,53,53,.03);text-align:left;}
+body.rtl .weak-box{text-align:right;}
+.weak-box-title{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:.75rem;}
+body.rtl .weak-box-title{letter-spacing:0;}
+.weak-item{font-size:.8rem;color:#bbb;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.weak-item:last-child{border:none;}
 
 /* Review section */
 .review-section{margin-top:3rem;border-top:1px solid var(--rule);padding-top:2rem;}
@@ -243,8 +250,8 @@ body.rtl .review-qtext{font-family:var(--arabic);}
 .review-opt{display:flex;align-items:center;gap:.7rem;padding:.6rem .9rem;border:1px solid var(--rule);font-size:.84rem;color:var(--dim);}
 body.rtl .review-opt{flex-direction:row-reverse;font-family:var(--arabic);}
 .review-opt .rl{min-width:22px;height:22px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;}
-.review-opt.r-correct{border-color:#3ecf8e;color:var(--paper);}
-.review-opt.r-correct .rl{background:#3ecf8e;color:var(--ink);border-color:#3ecf8e;}
+.review-opt.r-correct{border-color:var(--green);color:var(--paper);}
+.review-opt.r-correct .rl{background:var(--green);color:var(--ink);border-color:var(--green);}
 .review-opt.r-wrong{border-color:var(--red);background:var(--red-bg);color:var(--red);}
 .review-opt.r-wrong .rl{background:var(--red);color:#fff;border-color:var(--red);}
 .review-expl{margin-top:.75rem;font-size:.76rem;color:var(--dim);line-height:1.7;border-left:1px solid var(--rule);padding-left:.7rem;}
@@ -266,7 +273,6 @@ body.rtl table td:last-child{text-align:left;}
 table tr.me td:nth-child(2){font-weight:700;color:var(--accent);}
 table tr.me td:nth-child(3){color:var(--accent);font-weight:700;}
 
-/* Friends mode direct — quiz immediately */
 /* Join hero */
 .join-hero{padding:1rem 0 2rem;}
 .join-hero h2{font-family:var(--serif);font-size:1.9rem;font-weight:700;margin-bottom:.4rem;}
@@ -280,37 +286,75 @@ body.rtl #confirmAllWrap p{letter-spacing:0;}
 
 .hidden{display:none!important;}
 
-/* Pulse badge for friends mode */
+/* Friends badge */
 .friends-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,169,110,.3);padding:.3rem .7rem;margin-bottom:1.5rem;}
 body.rtl .friends-badge{letter-spacing:0;}
 .friends-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:glow 1.5s ease-in-out infinite;}
+@keyframes glow{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ══ HISTORY TAB ══ */
+.history-empty{text-align:center;padding:4rem 0;color:var(--dim);font-size:.84rem;}
+.history-empty .icon{font-size:2rem;margin-bottom:1rem;opacity:.3;}
+.hist-card{border:1px solid var(--rule);padding:1.25rem;margin-bottom:1rem;animation:up .3s ease;transition:border-color .2s;}
+.hist-card:hover{border-color:#444;}
+.hist-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;gap:.75rem;}
+.hist-title{font-family:var(--serif);font-size:.95rem;font-weight:700;line-height:1.4;flex:1;}
+body.rtl .hist-title{font-family:var(--arabic);}
+.hist-score-badge{font-family:var(--serif);font-size:1.4rem;font-weight:900;color:var(--accent);flex-shrink:0;}
+.hist-meta{display:flex;gap:.75rem;flex-wrap:wrap;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem;}
+body.rtl .hist-meta{letter-spacing:0;}
+.hist-meta span{display:flex;align-items:center;gap:.3rem;}
+.hist-bar-wrap{height:3px;background:var(--rule);border-radius:2px;overflow:hidden;margin-bottom:.65rem;}
+.hist-bar{height:100%;border-radius:2px;transition:width .8s ease;}
+.hist-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;}
+.hist-tag{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.18rem .55rem;border:1px solid var(--rule);color:var(--dim);}
+body.rtl .hist-tag{letter-spacing:0;}
+.hist-tag.pass{border-color:rgba(62,207,142,.4);color:var(--green);}
+.hist-tag.fail{border-color:rgba(224,53,53,.4);color:var(--red);}
+.hist-tag.good{border-color:rgba(200,169,110,.4);color:var(--accent);}
+.hist-summary{font-size:.75rem;color:var(--dim);margin-top:.5rem;line-height:1.6;}
+
+/* History stats */
+.hist-stats{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
+.hstat{flex:1;min-width:100px;border:1px solid var(--rule);padding:.9rem 1rem;}
+.hstat-num{font-family:var(--serif);font-size:1.7rem;font-weight:900;color:var(--accent);}
+.hstat-lbl{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:.15rem;}
+body.rtl .hstat-lbl{letter-spacing:0;}
 
 /* ── ADMIN PANEL ── */
 .admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(4px);}
 .admin-overlay.hidden{display:none;}
-.admin-box{background:#111;border:1px solid var(--rule);max-width:620px;width:100%;max-height:90vh;overflow-y:auto;padding:2rem;}
+.admin-box{background:#111;border:1px solid var(--rule);max-width:660px;width:100%;max-height:90vh;overflow-y:auto;padding:2rem;}
 .admin-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:1.25rem;margin-bottom:1.75rem;}
 .admin-header h2{font-family:var(--serif);font-size:1.3rem;font-weight:700;}
 .admin-close{background:none;border:none;color:var(--dim);font-size:1.3rem;cursor:pointer;transition:color .2s;}
 .admin-close:hover{color:var(--paper);}
-.admin-stat{display:flex;gap:2rem;margin-bottom:2rem;flex-wrap:wrap;}
+.admin-stat{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
 .stat-card{flex:1;min-width:100px;border:1px solid var(--rule);padding:1rem 1.25rem;}
 .stat-num{font-family:var(--serif);font-size:2rem;font-weight:900;color:var(--accent);}
 .stat-lbl{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:.2rem;}
 .admin-section-lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem;}
-.admin-user-row{display:flex;align-items:center;gap:.75rem;border:1px solid var(--rule);padding:.65rem 1rem;margin-bottom:.35rem;animation:up .3s ease;}
-.admin-user-name{flex:1;font-size:.88rem;font-weight:600;}
+.admin-user-row{display:flex;align-items:center;gap:.75rem;border:1px solid var(--rule);padding:.65rem 1rem;margin-bottom:.35rem;animation:up .3s ease;flex-wrap:wrap;}
+.admin-user-name{flex:1;font-size:.88rem;font-weight:600;min-width:100px;}
 .admin-user-meta{font-size:.68rem;color:var(--dim);}
 .admin-user-badge{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;border:1px solid var(--rule);color:var(--dim);}
 .admin-user-badge.banned{border-color:var(--red);color:var(--red);}
 .admin-user-badge.host{border-color:var(--accent);color:var(--accent);}
 .ban-btn{background:none;border:1px solid var(--red);color:var(--red);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .75rem;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;}
 .ban-btn:hover{background:var(--red);color:#fff;}
-.unban-btn{background:none;border:1px solid #3ecf8e;color:#3ecf8e;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .75rem;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;}
-.unban-btn:hover{background:#3ecf8e;color:var(--ink);}
+.unban-btn{background:none;border:1px solid var(--green);color:var(--green);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .75rem;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;}
+.unban-btn:hover{background:var(--green);color:var(--ink);}
 .admin-refresh-btn{background:none;border:1px solid var(--rule);color:#bbb;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:.4rem 1rem;cursor:pointer;margin-bottom:1.25rem;transition:border-color .2s,color .2s;}
 .admin-refresh-btn:hover{border-color:var(--paper);color:var(--paper);}
 .admin-empty{font-size:.8rem;color:var(--dim);padding:1.5rem 0;text-align:center;}
+
+/* Admin login log */
+.login-log{max-height:300px;overflow-y:auto;}
+.log-row{display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.75rem;}
+.log-row:last-child{border:none;}
+.log-name{flex:1;font-weight:600;}
+.log-time{color:var(--dim);font-size:.65rem;font-family:monospace;}
+.log-count{font-size:.68rem;border:1px solid var(--rule);padding:.15rem .45rem;color:var(--dim);}
 
 /* Admin password modal */
 .admin-pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
@@ -323,6 +367,27 @@ body.rtl .friends-badge{letter-spacing:0;}
 .admin-pw-err{font-size:.75rem;color:var(--red);margin-bottom:1rem;display:none;}
 .admin-pw-err.show{display:block;}
 .admin-pw-cancel{background:none;border:none;color:var(--dim);font-size:.72rem;cursor:pointer;text-decoration:underline;margin-top:.5rem;}
+
+/* Waiting room */
+.wr{display:none;border:1px solid var(--rule);padding:2rem 1.75rem;margin-bottom:2rem;text-align:center;}
+.wr.show{display:block;animation:up .4s ease;}
+.wr-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;margin-bottom:.35rem;}
+body.rtl .wr-title{font-family:var(--arabic);}
+.wr-sub{font-size:.78rem;color:var(--dim);margin-bottom:2rem;}
+.wr-list-lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem;text-align:left;}
+body.rtl .wr-list-lbl{letter-spacing:0;text-align:right;}
+.player-list{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.5rem;}
+.player-row{display:flex;align-items:center;gap:.75rem;border:1px solid var(--rule);padding:.6rem 1rem;text-align:left;animation:up .3s ease;}
+body.rtl .player-row{text-align:right;}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;animation:glow 2s ease-in-out infinite;}
+body.rtl .pdot{margin-left:0;margin-right:auto;}
+.pname{font-size:.88rem;font-weight:600;}
+.pbadge{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);padding:.18rem .5rem;}
+body.rtl .pbadge{letter-spacing:0;}
+.pbadge.host{border-color:var(--accent);color:var(--accent);}
+.wr-counter{font-size:.78rem;color:var(--dim);margin-bottom:1.5rem;}
+.wr-counter strong{color:var(--paper);}
+.wr-guest-msg{font-size:.76rem;color:var(--dim);font-style:italic;}
 </style>
 </head>
 <body>
@@ -367,9 +432,17 @@ body.rtl .friends-badge{letter-spacing:0;}
         <div class="stat-num" id="adminBannedCount">0</div>
         <div class="stat-lbl">Banned</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-num" id="adminTotalLogins">0</div>
+        <div class="stat-lbl">Total Logins</div>
+      </div>
     </div>
     <button class="admin-refresh-btn" onclick="loadAdminData()">↻ Refresh Data</button>
-    <div class="admin-section-lbl">Current Session Users</div>
+
+    <div class="admin-section-lbl" style="margin-top:1rem;">📋 Login History (Cloud)</div>
+    <div class="login-log" id="adminLoginLog"><div class="admin-empty">No login records.</div></div>
+
+    <div class="admin-section-lbl" style="margin-top:1.5rem;">👥 Current Session Users</div>
     <div id="adminUserList"><div class="admin-empty">No active session loaded.</div></div>
   </div>
 </div>
@@ -382,7 +455,7 @@ body.rtl .friends-badge{letter-spacing:0;}
     <p id="ng-sub">Enter your name once — we'll remember it for next time.</p>
     <input type="text" class="name-gate-input" id="ngInput" placeholder="Your name" maxlength="32" autocomplete="off"/>
     <button class="btn" id="ngBtn" onclick="submitName()">Let's Go →</button>
-    <div class="name-gate-hint" id="ng-hint">You can change your name anytime in settings.</div>
+    <div class="name-gate-hint" id="ng-hint">You can change your name anytime.</div>
   </div>
 </div>
 
@@ -393,6 +466,10 @@ body.rtl .friends-badge{letter-spacing:0;}
     <div class="logo">Quiz<em>.</em></div>
     <div class="header-right">
       <div class="sub" id="headerSub">PDF → MCQ</div>
+      <div class="user-chip" id="userChip" onclick="showChangeName()" title="Change name">
+        <span class="dot"></span>
+        <span id="userChipName">—</span>
+      </div>
       <button class="lang-toggle" id="langToggleBtn" onclick="toggleLang()">
         <span class="globe">🌐</span>
         <span id="langLabel">العربية</span>
@@ -403,12 +480,12 @@ body.rtl .friends-badge{letter-spacing:0;}
   <!-- TABS -->
   <div class="tabs" id="tabsBar">
     <button class="tab active" id="tabCreate" onclick="switchTab('create')" data-en="Create Quiz" data-ar="إنشاء اختبار">Create Quiz</button>
-    <button class="tab"        id="tabJoin"   onclick="switchTab('join')"   data-en="Join"        data-ar="انضمام">Join</button>
+    <button class="tab" id="tabJoin" onclick="switchTab('join')" data-en="Join" data-ar="انضمام">Join</button>
+    <button class="tab" id="tabHistory" onclick="switchTab('history')" data-en="History" data-ar="السجل">History</button>
   </div>
 
   <!-- ══ CREATE TAB ══ -->
   <div id="createTab">
-
     <div class="lbl" id="lbl-upload" data-en="Upload PDF" data-ar="رفع ملف PDF">Upload PDF</div>
     <div class="dropzone" id="uploadZone">
       <input type="file" id="fileInput" accept=".pdf"/>
@@ -425,22 +502,22 @@ body.rtl .friends-badge{letter-spacing:0;}
 
     <div class="row">
       <div class="field">
-        <label id="lbl-q" data-en="Questions" data-ar="عدد الأسئلة">Questions</label>
-        <input type="number" id="numQ" value="5" min="3" max="20"/>
+        <label id="lbl-q" data-en="Questions (5–50)" data-ar="عدد الأسئلة (5–50)">Questions (5–50)</label>
+        <input type="number" id="numQ" value="10" min="5" max="50"/>
       </div>
       <div class="field">
         <label id="lbl-lang" data-en="Language" data-ar="لغة الاختبار">Language</label>
         <select id="lang">
           <option value="english" data-en="English" data-ar="إنجليزي">English</option>
-          <option value="arabic"  data-en="Arabic"  data-ar="عربي">Arabic</option>
+          <option value="arabic" data-en="Arabic" data-ar="عربي">Arabic</option>
         </select>
       </div>
       <div class="field">
         <label id="lbl-diff" data-en="Difficulty" data-ar="الصعوبة">Difficulty</label>
         <select id="diff">
-          <option value="easy"   data-en="Easy"   data-ar="سهل">Easy</option>
+          <option value="easy" data-en="Easy" data-ar="سهل">Easy</option>
           <option value="medium" selected data-en="Medium" data-ar="متوسط">Medium</option>
-          <option value="hard"   data-en="Hard"   data-ar="صعب">Hard</option>
+          <option value="hard" data-en="Hard" data-ar="صعب">Hard</option>
         </select>
       </div>
     </div>
@@ -461,7 +538,6 @@ body.rtl .friends-badge{letter-spacing:0;}
       <div class="dots"><span></span><span></span><span></span></div>
       <p id="progressText" data-en="Reading file…" data-ar="قراءة الملف…">Reading file…</p>
     </div>
-
   </div>
 
   <!-- ══ JOIN TAB ══ -->
@@ -478,6 +554,12 @@ body.rtl .friends-badge{letter-spacing:0;}
     </div>
   </div>
 
+  <!-- ══ HISTORY TAB ══ -->
+  <div id="historyTab" class="hidden">
+    <div class="hist-stats" id="histStats"></div>
+    <div id="historyList"></div>
+  </div>
+
   <!-- ══ SHARE BOX ══ -->
   <div class="share-box" id="sharePanel">
     <div class="share-lbl" id="share-lbl" data-en="Share this quiz" data-ar="شارك هذا الاختبار">Share this quiz</div>
@@ -491,21 +573,18 @@ body.rtl .friends-badge{letter-spacing:0;}
   <!-- ══ WAITING ROOM ══ -->
   <div class="wr" id="waitingRoom">
     <div class="wr-title" id="wr-title" data-en="Waiting Room" data-ar="غرفة الانتظار">Waiting Room</div>
-    <div class="wr-sub" id="wr-sub" data-en="Waiting for friends to join before starting…" data-ar="انتظار انضمام الأصدقاء قبل البدء…">Waiting for friends to join before starting…</div>
+    <div class="wr-sub" id="wr-sub" data-en="Waiting for friends to join…" data-ar="انتظار انضمام الأصدقاء…">Waiting for friends to join…</div>
     <div class="wr-list-lbl" id="wr-list-lbl" data-en="Players" data-ar="اللاعبون">Players</div>
     <div class="player-list" id="playerList"></div>
     <div class="wr-counter" id="wrCounter"><strong>0</strong> <span id="wr-joined" data-en="joined" data-ar="انضموا">joined</span></div>
     <div id="hostStartWrap" class="hidden" style="margin-bottom:1rem;">
-      <button class="btn" onclick="hostStartQuiz()" id="host-start-btn" style="max-width:280px;margin:0 auto;" data-en="Start Quiz for Everyone →" data-ar="ابدأ الاختبار للجميع ←">
-        Start Quiz for Everyone →
-      </button>
+      <button class="btn" onclick="hostStartQuiz()" id="host-start-btn" style="max-width:280px;margin:0 auto;" data-en="Start Quiz for Everyone →" data-ar="ابدأ الاختبار للجميع ←">Start Quiz for Everyone →</button>
     </div>
     <div class="wr-guest-msg" id="guestWaitMsg" data-en="Waiting for the host to start the quiz…" data-ar="انتظار بدء المضيف للاختبار…">Waiting for the host to start the quiz…</div>
   </div>
 
   <!-- ══ QUIZ SECTION ══ -->
   <div id="quizSection">
-
     <div class="quiz-top" id="quizHdr" style="display:none;">
       <h2 id="quizTitle">Questions</h2>
       <div class="score-tag" id="scoreDisplay">0 / 0</div>
@@ -521,10 +600,34 @@ body.rtl .friends-badge{letter-spacing:0;}
     <!-- Result -->
     <div class="result" id="resultCard">
       <div class="res-big" id="resScore"></div>
-      <div class="res-pct"  id="resPct"></div>
-      <div class="res-msg"  id="resMsg"></div>
+      <div class="res-pct" id="resPct"></div>
+      <div class="res-msg" id="resMsg"></div>
+
+      <!-- Understanding Meter -->
+      <div class="understanding-meter" id="understandingMeter">
+        <div class="um-label">
+          <span id="um-label-text">Understanding Level</span>
+          <span id="um-pct-text">0%</span>
+        </div>
+        <div class="um-bar-bg"><div class="um-bar" id="umBar"></div></div>
+        <div class="um-tiers" id="umTiers">
+          <span class="um-tier" data-min="0">Needs Review</span>
+          <span class="um-tier" data-min="50">Partial</span>
+          <span class="um-tier" data-min="70">Good</span>
+          <span class="um-tier" data-min="85">Excellent</span>
+          <span class="um-tier" data-min="95">Mastery</span>
+        </div>
+      </div>
+
+      <!-- Weak areas -->
+      <div class="weak-box" id="weakBox" style="display:none;max-width:420px;margin:0 auto 1.5rem;">
+        <div class="weak-box-title" id="weak-title">⚠ Areas to Review</div>
+        <div id="weakList"></div>
+      </div>
+
       <div class="res-btns">
         <button class="btn-sm" onclick="location.href=location.pathname" id="new-quiz-btn" data-en="New Quiz" data-ar="اختبار جديد">New Quiz</button>
+        <button class="btn-sm" onclick="switchTab('history')" id="view-hist-btn" data-en="View History" data-ar="السجل">View History</button>
       </div>
     </div>
 
@@ -542,7 +645,6 @@ body.rtl .friends-badge{letter-spacing:0;}
       </div>
       <table id="lbTable"></table>
     </div>
-
   </div>
 
 </div><!-- /shell -->
@@ -551,13 +653,17 @@ body.rtl .friends-badge{letter-spacing:0;}
 // ══════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════
-const GROQ_KEY  = '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';
-const GROQ_URL  = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL     = 'llama-3.3-70b-versatile';
+const GROQ_KEY    = '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';
+const GROQ_URL    = 'https://api.groq.com/openai/v1/chat/completions';
+const MODEL       = 'llama-3.3-70b-versatile';
 const JSONBIN_KEY = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
-const POLL_MS = 1200;
-const useCloud = !JSONBIN_KEY.includes('PLACEHOLDER');
+const POLL_MS     = 1200;
+const useCloud    = !JSONBIN_KEY.includes('PLACEHOLDER');
+
+// Login log bin ID — stores all user logins persistently
+// If empty, will auto-create on first use
+const LOGIN_LOG_KEY = 'quiz_login_log_bin';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -575,33 +681,34 @@ let isJoiner    = false;
 let isHost      = false;
 let friendsMode = false;
 let pollTimer   = null;
-let currentLang = 'en'; // 'en' or 'ar'
+let currentLang = 'en';
+let currentPdfName = '';
 
 // ══════════════════════════════════════════════════
 //  DOM REFS
 // ══════════════════════════════════════════════════
-const uploadZone   = document.getElementById('uploadZone');
-const fileInput    = document.getElementById('fileInput');
-const fileBadge    = document.getElementById('fileBadge');
-const fileNameEl   = document.getElementById('fileName');
-const genBtn       = document.getElementById('genBtn');
-const progressWrap = document.getElementById('progressWrap');
-const progressText = document.getElementById('progressText');
-const quizSection  = document.getElementById('quizSection');
-const qContainer   = document.getElementById('qContainer');
-const scoreDisplay = document.getElementById('scoreDisplay');
-const resultCard   = document.getElementById('resultCard');
-const errBox       = document.getElementById('errBox');
-const sharePanel   = document.getElementById('sharePanel');
-const shareUrlEl   = document.getElementById('shareUrl');
-const quizHdr      = document.getElementById('quizHdr');
-const leaderboard  = document.getElementById('leaderboard');
-const lbTable      = document.getElementById('lbTable');
-const waitingRoom  = document.getElementById('waitingRoom');
-const playerList   = document.getElementById('playerList');
-const wrCounter    = document.getElementById('wrCounter');
-const confirmAllWrap = document.getElementById('confirmAllWrap');
-const reviewSection  = document.getElementById('reviewSection');
+const uploadZone    = document.getElementById('uploadZone');
+const fileInput     = document.getElementById('fileInput');
+const fileBadge     = document.getElementById('fileBadge');
+const fileNameEl    = document.getElementById('fileName');
+const genBtn        = document.getElementById('genBtn');
+const progressWrap  = document.getElementById('progressWrap');
+const progressText  = document.getElementById('progressText');
+const quizSection   = document.getElementById('quizSection');
+const qContainer    = document.getElementById('qContainer');
+const scoreDisplay  = document.getElementById('scoreDisplay');
+const resultCard    = document.getElementById('resultCard');
+const errBox        = document.getElementById('errBox');
+const sharePanel    = document.getElementById('sharePanel');
+const shareUrlEl    = document.getElementById('shareUrl');
+const quizHdr       = document.getElementById('quizHdr');
+const leaderboard   = document.getElementById('leaderboard');
+const lbTable       = document.getElementById('lbTable');
+const waitingRoom   = document.getElementById('waitingRoom');
+const playerList    = document.getElementById('playerList');
+const wrCounter     = document.getElementById('wrCounter');
+const confirmAllWrap= document.getElementById('confirmAllWrap');
+const reviewSection = document.getElementById('reviewSection');
 const reviewContainer= document.getElementById('reviewContainer');
 
 // ══════════════════════════════════════════════════
@@ -635,49 +742,38 @@ function runLoadScreen(cb) {
 }
 
 // ══════════════════════════════════════════════════
-//  LANGUAGE TOGGLE
+//  LANGUAGE
 // ══════════════════════════════════════════════════
 function toggleLang() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   applyLang();
 }
-
 function applyLang() {
   const isAr = currentLang === 'ar';
   const html = document.getElementById('htmlRoot');
-  const body = document.body;
   html.setAttribute('lang', isAr ? 'ar' : 'en');
   html.setAttribute('dir',  isAr ? 'rtl' : 'ltr');
-  body.classList.toggle('rtl', isAr);
+  document.body.classList.toggle('rtl', isAr);
   document.getElementById('langLabel').textContent = isAr ? 'English' : 'العربية';
   document.getElementById('headerSub').textContent = isAr ? 'PDF ← MCQ' : 'PDF → MCQ';
-
-  // Update all elements with data-en/data-ar
   document.querySelectorAll('[data-en]').forEach(el => {
     const txt = el.getAttribute(isAr ? 'data-ar' : 'data-en');
     if (txt) {
-      // For buttons with innerHTML (like &amp;) handle carefully
-      if (el.tagName === 'BUTTON' || el.tagName === 'DIV' || el.tagName === 'P') {
-        el.innerHTML = txt;
-      } else {
-        el.textContent = txt;
-      }
+      if (el.tagName === 'BUTTON' || el.tagName === 'DIV' || el.tagName === 'P') el.innerHTML = txt;
+      else el.textContent = txt;
     }
   });
-
-  // Update select options
   document.querySelectorAll('select option[data-en]').forEach(opt => {
     opt.textContent = opt.getAttribute(isAr ? 'data-ar' : 'data-en');
   });
-
-  // Update name gate texts
   document.getElementById('ng-title').textContent = isAr ? 'مرحباً بك' : 'Welcome';
   document.getElementById('ng-sub').textContent   = isAr ? 'أدخل اسمك مرة واحدة — سنتذكره في المرة القادمة.' : "Enter your name once — we'll remember it for next time.";
   document.getElementById('ng-hint').textContent  = isAr ? 'يمكنك تغيير اسمك في أي وقت.' : 'You can change your name anytime.';
   document.getElementById('ngInput').placeholder  = isAr ? 'اسمك' : 'Your name';
-
-  // Save lang preference
+  document.getElementById('um-label-text').textContent = isAr ? 'مستوى الفهم' : 'Understanding Level';
+  document.getElementById('weak-title').textContent = isAr ? '⚠ مجالات تحتاج مراجعة' : '⚠ Areas to Review';
   localStorage.setItem('quiz_lang', currentLang);
+  renderHistoryTab();
 }
 
 // ══════════════════════════════════════════════════
@@ -685,16 +781,21 @@ function applyLang() {
 // ══════════════════════════════════════════════════
 function checkNameGate() {
   const saved = localStorage.getItem('quiz_username');
-  if (saved && saved.trim()) {
-    myName = saved.trim();
-    return false; // no gate needed
-  }
-  return true; // show gate
+  if (saved && saved.trim()) { myName = saved.trim(); updateUserChip(); return false; }
+  return true;
 }
-
 function showNameGate() {
   document.getElementById('nameGate').classList.remove('hidden');
   setTimeout(() => document.getElementById('ngInput').focus(), 300);
+}
+function showChangeName() {
+  document.getElementById('ngInput').value = myName;
+  document.getElementById('nameGate').classList.remove('hidden');
+  setTimeout(() => document.getElementById('ngInput').focus(), 300);
+}
+function updateUserChip() {
+  const chip = document.getElementById('userChipName');
+  if (chip) chip.textContent = myName || '—';
 }
 
 function submitName() {
@@ -704,8 +805,7 @@ function submitName() {
     setTimeout(() => document.getElementById('ngInput').style.borderBottomColor = '', 800);
     return;
   }
-
-  // ── Admin trigger ──
+  // Admin trigger
   if (val === 'زيد') {
     document.getElementById('nameGate').classList.add('hidden');
     document.getElementById('adminPwOverlay').classList.remove('hidden');
@@ -714,8 +814,7 @@ function submitName() {
     setTimeout(() => document.getElementById('adminPwInput').focus(), 200);
     return;
   }
-
-  // ── Ban check ──
+  // Ban check
   if (typeof isUserBanned === 'function' && isUserBanned(val)) {
     const inp = document.getElementById('ngInput');
     inp.style.borderBottomColor = 'var(--red)';
@@ -731,64 +830,73 @@ function submitName() {
     setTimeout(() => { inp.style.borderBottomColor = ''; }, 2000);
     return;
   }
-
-  // Remove ban msg if shown
   const old = document.getElementById('ngBanMsg');
   if (old) old.style.display = 'none';
 
   myName = val;
   localStorage.setItem('quiz_username', val);
   document.getElementById('nameGate').classList.add('hidden');
-  const cn = document.getElementById('creatorName');
-  if (cn) cn.value = val;
+  updateUserChip();
+
+  // Cloud login log
+  recordLogin(val);
 }
 
-// Allow Enter key in name gate
 document.getElementById('ngInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitName();
 });
 
 // ══════════════════════════════════════════════════
-//  INIT
+//  CLOUD LOGIN LOG
 // ══════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  // Restore language
-  const savedLang = localStorage.getItem('quiz_lang');
-  if (savedLang) { currentLang = savedLang; applyLang(); }
+async function recordLogin(name) {
+  if (!useCloud) return;
+  try {
+    const binId = localStorage.getItem(LOGIN_LOG_KEY);
+    const ts = Date.now();
+    const entry = { name, ts, date: new Date(ts).toISOString() };
 
-  runLoadScreen(() => {
-    // Check for quiz param first
-    const id = new URLSearchParams(location.search).get('quiz');
-    if (id) {
-      quizId = id; isJoiner = true;
-      // Need name before loading
-      if (checkNameGate()) {
-        showNameGate();
-        // After name submitted, load quiz
-        const origSubmit = window.submitName;
-        window.submitName = function() {
-          origSubmit();
-          if (myName) {
-            window.submitName = origSubmit;
-            loadSharedQuiz(id);
-          }
-        };
-      } else {
-        loadSharedQuiz(id);
+    if (!binId) {
+      // Create new login log bin
+      const r = await fetch(JSONBIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Private': 'false', 'X-Bin-Name': 'quiz_logins' },
+        body: JSON.stringify({ logins: [entry] })
+      });
+      if (r.ok) {
+        const d = await r.json();
+        localStorage.setItem(LOGIN_LOG_KEY, d.metadata.id);
       }
-      return;
-    }
-
-    // Normal flow — check name
-    if (checkNameGate()) {
-      showNameGate();
     } else {
-      // Pre-fill creator name
-      const cn = document.getElementById('creatorName');
-      if (cn && myName) cn.value = myName;
+      // Read existing, append
+      const r = await fetch(`${JSONBIN_URL}/${binId}/latest`, { headers: { 'X-Master-Key': JSONBIN_KEY } });
+      if (r.ok) {
+        const d = await r.json();
+        const logins = d.record.logins || [];
+        logins.push(entry);
+        // Keep last 200
+        const trimmed = logins.slice(-200);
+        await fetch(`${JSONBIN_URL}/${binId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+          body: JSON.stringify({ logins: trimmed })
+        });
+      }
     }
-  });
-});
+  } catch(e) { console.warn('recordLogin:', e); }
+}
+
+async function fetchLoginLog() {
+  if (!useCloud) return [];
+  try {
+    const binId = localStorage.getItem(LOGIN_LOG_KEY);
+    if (!binId) return [];
+    const r = await fetch(`${JSONBIN_URL}/${binId}/latest`, { headers: { 'X-Master-Key': JSONBIN_KEY } });
+    if (!r.ok) return [];
+    const d = await r.json();
+    return d.record.logins || [];
+  } catch(e) { return []; }
+}
 
 // ══════════════════════════════════════════════════
 //  TABS
@@ -796,12 +904,125 @@ window.addEventListener('DOMContentLoaded', () => {
 function switchTab(t) {
   document.getElementById('tabCreate').classList.toggle('active', t === 'create');
   document.getElementById('tabJoin').classList.toggle('active', t === 'join');
+  document.getElementById('tabHistory').classList.toggle('active', t === 'history');
   document.getElementById('createTab').classList.toggle('hidden', t !== 'create');
   document.getElementById('joinTab').classList.toggle('hidden', t !== 'join');
+  document.getElementById('historyTab').classList.toggle('hidden', t !== 'history');
+  if (t === 'history') renderHistoryTab();
 }
 
 // ══════════════════════════════════════════════════
-//  FRIENDS TOGGLE — now starts quiz immediately, shares results after
+//  QUIZ HISTORY (localStorage)
+// ══════════════════════════════════════════════════
+const HIST_KEY = 'quiz_history';
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch { return []; }
+}
+function saveHistory(arr) {
+  localStorage.setItem(HIST_KEY, JSON.stringify(arr.slice(-50)));
+}
+
+function addHistoryEntry(entry) {
+  const hist = getHistory();
+  hist.push(entry);
+  saveHistory(hist);
+}
+
+function renderHistoryTab() {
+  const hist = getHistory().slice().reverse();
+  const isAr = currentLang === 'ar';
+  const listEl = document.getElementById('historyList');
+  const statsEl = document.getElementById('histStats');
+
+  if (!hist.length) {
+    statsEl.innerHTML = '';
+    listEl.innerHTML = `<div class="history-empty"><div class="icon">📋</div>${isAr ? 'لا توجد اختبارات سابقة بعد.' : 'No quiz history yet.'}</div>`;
+    return;
+  }
+
+  // Stats
+  const totalQuizzes = hist.length;
+  const avgScore = Math.round(hist.reduce((s,h) => s + h.pct, 0) / totalQuizzes);
+  const bestScore = Math.max(...hist.map(h => h.pct));
+  const totalQ    = hist.reduce((s,h) => s + h.total, 0);
+
+  statsEl.innerHTML = `
+    <div class="hstat"><div class="hstat-num">${totalQuizzes}</div><div class="hstat-lbl">${isAr ? 'اختبارات' : 'Quizzes'}</div></div>
+    <div class="hstat"><div class="hstat-num">${avgScore}%</div><div class="hstat-lbl">${isAr ? 'متوسط الدرجة' : 'Avg Score'}</div></div>
+    <div class="hstat"><div class="hstat-num">${bestScore}%</div><div class="hstat-lbl">${isAr ? 'أعلى درجة' : 'Best Score'}</div></div>
+    <div class="hstat"><div class="hstat-num">${totalQ}</div><div class="hstat-lbl">${isAr ? 'أسئلة أُجيبت' : 'Questions'}</div></div>
+  `;
+
+  listEl.innerHTML = '';
+  hist.forEach((h, i) => {
+    const card = document.createElement('div');
+    card.className = 'hist-card';
+    const tier = getUnderstandingTier(h.pct);
+    const barColor = h.pct >= 85 ? 'var(--green)' : h.pct >= 60 ? 'var(--accent)' : 'var(--red)';
+    const tagClass = h.pct >= 70 ? (h.pct >= 85 ? 'pass' : 'good') : 'fail';
+    const tagText  = h.pct >= 85 ? (isAr ? 'ممتاز' : 'Excellent') : h.pct >= 70 ? (isAr ? 'جيد' : 'Good') : (isAr ? 'راجع المادة' : 'Needs Review');
+    const dateStr  = new Date(h.ts).toLocaleDateString(isAr ? 'ar' : 'en', { month:'short', day:'numeric', year:'numeric' });
+
+    card.innerHTML = `
+      <div class="hist-top">
+        <div class="hist-title">${h.pdfName || (isAr ? 'اختبار' : 'Quiz')}</div>
+        <div class="hist-score-badge">${h.correct}/${h.total}</div>
+      </div>
+      <div class="hist-meta">
+        <span>📅 ${dateStr}</span>
+        <span>❓ ${h.total} ${isAr ? 'سؤال' : 'questions'}</span>
+        <span>⚡ ${isAr ? 'صعوبة: ' : 'Difficulty: '}${h.diff || '—'}</span>
+      </div>
+      <div class="hist-bar-wrap"><div class="hist-bar" style="width:${h.pct}%;background:${barColor}"></div></div>
+      <div class="hist-actions">
+        <span class="hist-tag ${tagClass}">${tagText}</span>
+        <span class="hist-tag">${tier.label}</span>
+        <span class="hist-tag">${h.pct}%</span>
+      </div>
+      ${h.weakAreas && h.weakAreas.length ? `<div class="hist-summary">${isAr ? 'مجالات المراجعة:' : 'Review:'} ${h.weakAreas.join(', ')}</div>` : ''}
+    `;
+    listEl.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  UNDERSTANDING TIERS
+// ══════════════════════════════════════════════════
+function getUnderstandingTier(pct) {
+  const isAr = currentLang === 'ar';
+  if (pct >= 95) return { label: isAr ? '🏆 إتقان' : '🏆 Mastery', color: '#ffd700' };
+  if (pct >= 85) return { label: isAr ? '⭐ ممتاز' : '⭐ Excellent', color: 'var(--green)' };
+  if (pct >= 70) return { label: isAr ? '👍 جيد' : '👍 Good', color: 'var(--accent)' };
+  if (pct >= 50) return { label: isAr ? '📖 جزئي' : '📖 Partial', color: '#aaa' };
+  return { label: isAr ? '📚 يحتاج مراجعة' : '📚 Needs Review', color: 'var(--red)' };
+}
+
+function showUnderstandingMeter(pct) {
+  const isAr = currentLang === 'ar';
+  const tier = getUnderstandingTier(pct);
+  const barColor = pct >= 85 ? 'var(--green)' : pct >= 60 ? 'var(--accent)' : 'var(--red)';
+
+  document.getElementById('um-pct-text').textContent = pct + '%';
+  const bar = document.getElementById('umBar');
+  bar.style.background = barColor;
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+
+  // Highlight active tier
+  const tiers = document.querySelectorAll('.um-tier');
+  const tierMins = [0, 50, 70, 85, 95];
+  let activeTier = 0;
+  tierMins.forEach((min, i) => { if (pct >= min) activeTier = i; });
+  tiers.forEach((t, i) => t.classList.toggle('active', i === activeTier));
+
+  if (isAr) {
+    const labels = ['يحتاج مراجعة', 'جزئي', 'جيد', 'ممتاز', 'إتقان'];
+    tiers.forEach((t, i) => { t.textContent = labels[i]; });
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  FRIENDS TOGGLE
 // ══════════════════════════════════════════════════
 function toggleFriends() {
   friendsMode = !friendsMode;
@@ -831,11 +1052,13 @@ uploadZone.addEventListener('drop', e => {
 });
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
 document.getElementById('removeFile').addEventListener('click', () => {
-  pdfFile = null; fileInput.value = '';
+  pdfFile = null; fileInput.value = ''; currentPdfName = '';
   fileBadge.classList.remove('show'); genBtn.disabled = true;
 });
 function setFile(f) {
-  pdfFile = f; fileNameEl.textContent = f.name;
+  pdfFile = f;
+  currentPdfName = f.name.replace(/\.pdf$/i, '');
+  fileNameEl.textContent = f.name;
   fileBadge.classList.add('show'); genBtn.disabled = false; hideErr();
 }
 
@@ -843,7 +1066,7 @@ function setFile(f) {
 //  ERRORS
 // ══════════════════════════════════════════════════
 function showErr(m, box) { const el = box || errBox; el.textContent = m; el.classList.add('show'); }
-function hideErr(box)    { const el = box || errBox; el.classList.remove('show'); }
+function hideErr(box) { const el = box || errBox; el.classList.remove('show'); }
 
 // ══════════════════════════════════════════════════
 //  PDF EXTRACT
@@ -852,7 +1075,7 @@ async function extractText(file) {
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   let text = '';
-  for (let i = 1; i <= Math.min(pdf.numPages, 20); i++) {
+  for (let i = 1; i <= Math.min(pdf.numPages, 30); i++) {
     const pg = await pdf.getPage(i);
     const ct = await pg.getTextContent();
     text += ct.items.map(s => s.str).join(' ') + '\n';
@@ -873,12 +1096,12 @@ async function cloudCreate(data) {
   return (await r.json()).metadata.id;
 }
 async function cloudRead(id) {
-  const r = await fetch(JSONBIN_URL + '/' + id + '/latest', { headers: { 'X-Master-Key': JSONBIN_KEY } });
+  const r = await fetch(`${JSONBIN_URL}/${id}/latest`, { headers: { 'X-Master-Key': JSONBIN_KEY } });
   if (!r.ok) throw new Error('JSONBin read ' + r.status);
   return (await r.json()).record;
 }
 async function cloudUpdate(id, data) {
-  const r = await fetch(JSONBIN_URL + '/' + id, {
+  const r = await fetch(`${JSONBIN_URL}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
     body: JSON.stringify(data)
@@ -891,7 +1114,8 @@ async function cloudUpdate(id, data) {
 // ══════════════════════════════════════════════════
 const LS = 'mcq3_';
 function lsSave(id, d) { localStorage.setItem(LS + id, JSON.stringify(d)); }
-function lsRead(id)    { const r = localStorage.getItem(LS + id); return r ? JSON.parse(r) : null; }
+function lsRead(id) { const r = localStorage.getItem(LS + id); return r ? JSON.parse(r) : null; }
+
 async function sessionSave(data) {
   window._sessionCreator = data.creator || '';
   if (useCloud) {
@@ -911,16 +1135,16 @@ async function sessionRead(id) {
 // ══════════════════════════════════════════════════
 genBtn.addEventListener('click', async () => {
   hideErr();
-  const num  = parseInt(document.getElementById('numQ').value) || 5;
+  let num = parseInt(document.getElementById('numQ').value) || 10;
+  num = Math.max(5, Math.min(50, num));
+  document.getElementById('numQ').value = num;
+
   const lang = document.getElementById('lang').value;
   const diff = document.getElementById('diff').value;
-
-  // Use saved name
   const savedName = localStorage.getItem('quiz_username');
   myName = savedName || myName || 'Host';
 
   isJoiner = false; isHost = true; quizId = null;
-
   questions = []; userAnswers = []; confirmed = false;
   qContainer.innerHTML = '';
   resultCard.classList.remove('show');
@@ -949,23 +1173,32 @@ genBtn.addEventListener('click', async () => {
   }
 
   progressText.textContent = currentLang === 'ar' ? 'توليد الأسئلة…' : 'Generating questions…';
-
   const langLabel = lang === 'arabic' ? 'Arabic' : 'English';
   const diffLabel = { easy: 'easy', medium: 'medium', hard: 'hard' }[diff];
-  const prompt = `You are an expert quiz creator.
-From the text below, create ${num} multiple choice questions.
+
+  const prompt = `You are an expert quiz creator specializing in comprehensive academic assessment.
+From the text below, create exactly ${num} multiple choice questions.
 Language: ${langLabel} — Difficulty: ${diffLabel}
-Rules: 4 options per question, exactly one correct answer, questions from the content only.
-Reply with STRICT JSON only, no other text:
-[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}]
+
+CRITICAL RULES:
+1. Questions must comprehensively cover the ENTIRE material (beginning, middle, end equally)
+2. Each question tests a DIFFERENT concept — no repetition
+3. Questions should test understanding, not just memorization
+4. For ${num} questions: spread across all major topics in the text
+5. 4 options per question, exactly one correct answer
+6. Include a brief explanation for the correct answer
+
+Reply with STRICT JSON only, no other text, no markdown:
+[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"...","topic":"brief topic name"}]
+
 Text:
-${text.substring(0, 7000)}`;
+${text.substring(0, 10000)}`;
 
   try {
     const res = await fetch(GROQ_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
-      body: JSON.stringify({ model: MODEL, max_tokens: 4000, temperature: 0.3, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: MODEL, max_tokens: 6000, temperature: 0.3, messages: [{ role: 'user', content: prompt }] })
     });
     if (!res.ok) {
       const e = await res.json().catch(() => ({}));
@@ -973,7 +1206,7 @@ ${text.substring(0, 7000)}`;
     }
     const data = await res.json();
     let raw = data.choices[0].message.content.trim()
-      .replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '').trim();
+      .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
     const m = raw.match(/\[[\s\S]*\]/);
     if (!m) throw new Error(currentLang === 'ar' ? 'لم يعد الذكاء الاصطناعي JSON صحيحاً — حاول مرة أخرى.' : 'AI did not return valid JSON — please try again.');
     questions = JSON.parse(m[0]);
@@ -982,16 +1215,15 @@ ${text.substring(0, 7000)}`;
     progressText.textContent = currentLang === 'ar' ? 'حفظ الاختبار…' : 'Saving quiz…';
     const session = {
       questions, scores: {}, friendsMode,
-      started: true, // always start immediately in new friends mode
+      started: true,
       players: [{ name: myName, ts: Date.now() }],
-      creator: myName
+      creator: myName,
+      pdfName: currentPdfName,
+      diff
     };
     await sessionSave(session);
     progressWrap.classList.remove('show');
     showShareBox();
-
-    // Friends mode: start immediately and show leaderboard for comparison
-    // No more waiting room — just go straight to quiz
     renderQuiz();
 
   } catch (e) {
@@ -1008,14 +1240,12 @@ function showShareBox() {
   const url = location.origin + location.pathname + '?quiz=' + quizId;
   shareUrlEl.textContent = url;
   sharePanel.classList.add('show');
-  const note = document.getElementById('shareNote');
   if (!useCloud) {
-    note.textContent = currentLang === 'ar'
+    document.getElementById('shareNote').textContent = currentLang === 'ar'
       ? '⚠ الوضع المحلي: الرابط يعمل على هذا الجهاز فقط.'
       : '⚠ Local mode: link only works on this device.';
   }
 }
-
 function copyShare() {
   const url = location.origin + location.pathname + '?quiz=' + quizId;
   navigator.clipboard.writeText(url).then(() => {
@@ -1030,42 +1260,26 @@ function copyShare() {
 //  JOIN
 // ══════════════════════════════════════════════════
 async function joinQuiz() {
-  const raw  = document.getElementById('joinUrl').value.trim();
+  const raw = document.getElementById('joinUrl').value.trim();
   const jErr = document.getElementById('joinErrBox');
   hideErr(jErr);
-
-  // Use saved name
   const savedName = localStorage.getItem('quiz_username');
   if (!savedName && !myName) {
     showNameGate();
     const origSubmit = window.submitName;
-    window.submitName = function() {
-      origSubmit();
-      if (myName) {
-        window.submitName = origSubmit;
-        joinQuiz();
-      }
-    };
+    window.submitName = function() { origSubmit(); if (myName) { window.submitName = origSubmit; joinQuiz(); } };
     return;
   }
   myName = savedName || myName;
-
-  if (!raw) {
-    showErr(currentLang === 'ar' ? 'الصق رابط الاختبار.' : 'Paste the quiz link.', jErr);
-    return;
-  }
+  if (!raw) { showErr(currentLang === 'ar' ? 'الصق رابط الاختبار.' : 'Paste the quiz link.', jErr); return; }
   let id = null;
   try { id = new URL(raw).searchParams.get('quiz'); } catch { id = raw.trim(); }
-  if (!id) {
-    showErr(currentLang === 'ar' ? 'رابط غير صحيح.' : 'Invalid link.', jErr);
-    return;
-  }
+  if (!id) { showErr(currentLang === 'ar' ? 'رابط غير صحيح.' : 'Invalid link.', jErr); return; }
   isJoiner = true; isHost = false; quizId = id;
   loadSharedQuiz(id);
 }
 
 async function loadSharedQuiz(id) {
-  // Ban check
   if (myName && isUserBanned(myName)) {
     document.getElementById('siteHeader').style.display = '';
     document.getElementById('tabsBar').style.display = '';
@@ -1082,6 +1296,7 @@ async function loadSharedQuiz(id) {
   document.getElementById('tabsBar').style.display = 'none';
   document.getElementById('createTab').classList.add('hidden');
   document.getElementById('joinTab').classList.add('hidden');
+  document.getElementById('historyTab').classList.add('hidden');
 
   try {
     const s = await sessionRead(id);
@@ -1092,36 +1307,29 @@ async function loadSharedQuiz(id) {
       switchTab('join');
       document.getElementById('createTab').classList.remove('hidden');
       document.getElementById('joinTab').classList.remove('hidden');
+      document.getElementById('historyTab').classList.remove('hidden');
       showErr(currentLang === 'ar' ? 'الاختبار غير موجود أو انتهت صلاحيته.' : 'Quiz not found or has expired.', document.getElementById('joinErrBox'));
       history.replaceState({}, '', location.pathname);
       return;
     }
     questions = s.questions;
+    currentPdfName = s.pdfName || '';
     progressWrap.classList.remove('show');
     history.replaceState({}, '', '?quiz=' + id);
-
-    // Register player
-    if (useCloud && myName) {
-      await registerPlayerAndGet(id, myName, s);
-    }
-
-    // Always render quiz immediately (friends mode is now direct)
+    if (useCloud && myName) await registerPlayerAndGet(id, myName, s);
     renderQuiz();
-
   } catch (e) {
     progressWrap.classList.remove('show');
     document.getElementById('siteHeader').style.display = '';
     document.getElementById('tabsBar').style.display = '';
     document.getElementById('createTab').classList.remove('hidden');
     document.getElementById('joinTab').classList.remove('hidden');
+    document.getElementById('historyTab').classList.remove('hidden');
     showErr((currentLang === 'ar' ? 'خطأ في تحميل الاختبار: ' : 'Error loading quiz: ') + e.message, document.getElementById('joinErrBox'));
     history.replaceState({}, '', location.pathname);
   }
 }
 
-// ══════════════════════════════════════════════════
-//  PLAYER REGISTER
-// ══════════════════════════════════════════════════
 async function registerPlayerAndGet(id, name, existingSession) {
   if (!useCloud) return existingSession;
   try {
@@ -1133,53 +1341,44 @@ async function registerPlayerAndGet(id, name, existingSession) {
   } catch (e) { console.warn('registerPlayer:', e); return existingSession; }
 }
 
-function stopPolling() {
-  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-}
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
 
 // ══════════════════════════════════════════════════
 //  RENDER QUIZ
 // ══════════════════════════════════════════════════
 function renderQuiz() {
-  // Show share panel with friends badge if friends mode
   if (friendsMode && quizId) {
-    const badge = document.createElement('div');
-    badge.className = 'friends-badge';
-    badge.setAttribute('id', 'friendsBadge');
-    badge.textContent = currentLang === 'ar' ? 'وضع الأصدقاء — شارك الرابط أعلاه لمقارنة النتائج' : 'Friends Mode — share link above to compare results';
     if (!document.getElementById('friendsBadge') && sharePanel.parentNode) {
+      const badge = document.createElement('div');
+      badge.className = 'friends-badge';
+      badge.id = 'friendsBadge';
+      badge.textContent = currentLang === 'ar' ? 'وضع الأصدقاء — شارك الرابط أعلاه لمقارنة النتائج' : 'Friends Mode — share link above to compare results';
       sharePanel.parentNode.insertBefore(badge, sharePanel.nextSibling);
     }
   }
-
   quizSection.style.display = 'block';
   qContainer.innerHTML = '';
   userAnswers = new Array(questions.length).fill(null);
   confirmed = false;
   confirmAllWrap.style.display = 'none';
   reviewSection.style.display = 'none';
-
   quizHdr.style.display = 'flex';
   document.getElementById('quizTitle').textContent = currentLang === 'ar' ? 'الأسئلة' : 'Questions';
   updateProgressDisplay();
 
   const L = ['A', 'B', 'C', 'D'];
-
   questions.forEach((q, qi) => {
     const card = document.createElement('div');
     card.className = 'qcard';
-    card.style.animationDelay = (qi * .07) + 's';
-
+    card.style.animationDelay = (qi * .05) + 's';
     const qNumTxt = currentLang === 'ar'
       ? `سؤال ${qi + 1} من ${questions.length}`
       : `Question ${qi + 1} of ${questions.length}`;
-
     card.innerHTML = `
-      <div class="qnum">${qNumTxt}</div>
+      <div class="qnum">${qNumTxt}${q.topic ? ` — <em style="color:var(--dim);font-style:normal;font-size:.6rem">${q.topic}</em>` : ''}</div>
       <div class="qtext">${q.question}</div>
       <div class="opts" id="opts${qi}"></div>
     `;
-
     const od = card.querySelector('#opts' + qi);
     q.options.forEach((opt, oi) => {
       const b = document.createElement('button');
@@ -1188,7 +1387,6 @@ function renderQuiz() {
       b.addEventListener('click', () => selectOption(qi, oi));
       od.appendChild(b);
     });
-
     qContainer.appendChild(card);
   });
 
@@ -1228,7 +1426,7 @@ async function submitQuiz() {
   confirmAllWrap.style.display = 'none';
 
   let correct = 0;
-  const L = ['A', 'B', 'C', 'D'];
+  const wrongTopics = [];
 
   questions.forEach((q, qi) => {
     const od = document.getElementById('opts' + qi);
@@ -1236,45 +1434,75 @@ async function submitQuiz() {
     const chosen = userAnswers[qi];
     const isCorrect = chosen === q.correct;
     if (isCorrect) correct++;
+    else if (q.topic) wrongTopics.push(q.topic);
 
     btns.forEach((b, idx) => {
       b.disabled = true;
       b.classList.remove('selected');
       b.classList.add('locked');
-      if (idx === chosen && isCorrect) {
-        b.classList.add('revealed-correct');
-      } else if (idx === chosen && !isCorrect) {
-        b.classList.add('revealed-wrong');
-      } else if (idx === q.correct && !isCorrect) {
-        b.classList.add('revealed-correct-answer');
-      }
+      if (idx === chosen && isCorrect) b.classList.add('revealed-correct');
+      else if (idx === chosen && !isCorrect) b.classList.add('revealed-wrong');
+      else if (idx === q.correct && !isCorrect) b.classList.add('revealed-correct-answer');
     });
+
+    // Show explanation
+    if (q.explanation) {
+      const qcard = od.closest('.qcard');
+      if (qcard) {
+        const expl = document.createElement('div');
+        expl.className = 'expl show';
+        expl.textContent = '💡 ' + q.explanation;
+        qcard.appendChild(expl);
+      }
+    }
   });
 
   const total = questions.length;
   const pct = Math.round((correct / total) * 100);
+  const tier = getUnderstandingTier(pct);
 
   let msg;
   if (currentLang === 'ar') {
-    msg = pct === 100 ? 'مثالي! 🎉' : pct >= 80 ? 'ممتاز! 🌟' : pct >= 60 ? 'جيد! 👍' : 'راجع المادة. 📚';
+    msg = pct === 100 ? 'مثالي! 🎉' : pct >= 85 ? 'ممتاز! 🌟' : pct >= 70 ? 'جيد! 👍' : pct >= 50 ? 'حاول أكثر 📖' : 'راجع المادة بعناية 📚';
   } else {
-    msg = pct === 100 ? 'Perfect! 🎉' : pct >= 80 ? 'Excellent! 🌟' : pct >= 60 ? 'Good job! 👍' : 'Review the material. 📚';
+    msg = pct === 100 ? 'Perfect! 🎉' : pct >= 85 ? 'Excellent! 🌟' : pct >= 70 ? 'Good job! 👍' : pct >= 50 ? 'Keep trying 📖' : 'Review the material 📚';
   }
 
   document.getElementById('resScore').textContent = correct + '/' + total;
-  document.getElementById('resPct').textContent = pct + '%';
+  document.getElementById('resPct').textContent = tier.label;
   document.getElementById('resMsg').textContent = msg;
   resultCard.classList.add('show');
+
+  showUnderstandingMeter(pct);
+
+  // Weak areas
+  const uniqueWeak = [...new Set(wrongTopics)].slice(0, 5);
+  if (uniqueWeak.length) {
+    const weakBox = document.getElementById('weakBox');
+    const weakList = document.getElementById('weakList');
+    weakBox.style.display = 'block';
+    weakList.innerHTML = uniqueWeak.map(t => `<div class="weak-item">• ${t}</div>`).join('');
+  }
+
+  // Save to local history
+  const session = await sessionRead(quizId).catch(() => null);
+  const histEntry = {
+    ts: Date.now(),
+    pdfName: currentPdfName || session?.pdfName || (currentLang === 'ar' ? 'اختبار' : 'Quiz'),
+    correct, total, pct,
+    diff: session?.diff || document.getElementById('diff')?.value || '—',
+    weakAreas: uniqueWeak,
+    quizId
+  };
+  addHistoryEntry(histEntry);
 
   buildReview(correct);
   await saveScore(myName, correct, total);
   await renderLeaderboard();
 
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
   stopPolling();
   pollTimer = setInterval(renderLeaderboard, POLL_MS);
-
   scoreDisplay.textContent = correct + ' / ' + total + (currentLang === 'ar' ? ' صحيح' : ' correct');
 }
 
@@ -1284,35 +1512,29 @@ async function submitQuiz() {
 function buildReview(correctCount) {
   const L = ['A', 'B', 'C', 'D'];
   reviewContainer.innerHTML = '';
-
   questions.forEach((q, qi) => {
     const chosen = userAnswers[qi];
     const isCorrect = chosen === q.correct;
-
     const card = document.createElement('div');
     card.className = 'review-card';
-
     let optsHtml = q.options.map((opt, oi) => {
       let cls = 'review-opt';
       if (oi === q.correct) cls += ' r-correct';
       else if (oi === chosen && !isCorrect) cls += ' r-wrong';
       return `<div class="${cls}"><span class="rl">${L[oi]}</span><span>${opt}</span></div>`;
     }).join('');
-
     const qLabel = currentLang === 'ar'
       ? `سؤال ${qi + 1} — ${isCorrect ? '✓ صحيح' : '✗ خطأ'}`
       : `Question ${qi + 1} — ${isCorrect ? '✓ Correct' : '✗ Incorrect'}`;
-
     card.innerHTML = `
       <div class="review-qnum" style="color:${isCorrect ? 'var(--paper)' : 'var(--red)'}">${qLabel}</div>
+      ${q.topic ? `<div style="font-size:.6rem;color:var(--dim);margin-bottom:.4rem;letter-spacing:.08em;text-transform:uppercase">${q.topic}</div>` : ''}
       <div class="review-qtext">${q.question}</div>
       <div class="review-opts">${optsHtml}</div>
-      ${q.explanation ? `<div class="review-expl">${q.explanation}</div>` : ''}
+      ${q.explanation ? `<div class="review-expl">💡 ${q.explanation}</div>` : ''}
     `;
-
     reviewContainer.appendChild(card);
   });
-
   reviewSection.style.display = 'block';
   document.getElementById('review-title').textContent = currentLang === 'ar' ? 'مراجعة الإجابات' : 'Answer Review';
 }
@@ -1354,16 +1576,7 @@ async function renderLeaderboard() {
     document.getElementById('lb-title').textContent = currentLang === 'ar' ? 'لوحة المتصدرين' : 'Leaderboard';
   } catch (e) { console.warn('lb:', e); }
 }
-
 async function refreshLeaderboard() { await renderLeaderboard(); }
-
-// Hidden creator name field (keep for compat but use saved name)
-if (!document.getElementById('creatorName')) {
-  const inp = document.createElement('input');
-  inp.type = 'hidden';
-  inp.id = 'creatorName';
-  document.body.appendChild(inp);
-}
 
 // ══════════════════════════════════════════════════
 //  ADMIN SYSTEM
@@ -1372,33 +1585,19 @@ const ADMIN_NAME     = 'زيد';
 const ADMIN_PASSWORD = 'qazdrqwer';
 const BANNED_KEY     = 'quiz_banned_users';
 
-function getBannedList() {
-  try { return JSON.parse(localStorage.getItem(BANNED_KEY) || '[]'); } catch { return []; }
-}
-function saveBannedList(list) {
-  localStorage.setItem(BANNED_KEY, JSON.stringify(list));
-}
-function isUserBanned(name) {
-  return getBannedList().includes(name.trim());
-}
-function banUser(name) {
-  const list = getBannedList();
-  if (!list.includes(name)) { list.push(name); saveBannedList(list); }
-  loadAdminData();
-}
-function unbanUser(name) {
-  const list = getBannedList().filter(n => n !== name);
-  saveBannedList(list);
-  loadAdminData();
-}
+function getBannedList() { try { return JSON.parse(localStorage.getItem(BANNED_KEY) || '[]'); } catch { return []; } }
+function saveBannedList(list) { localStorage.setItem(BANNED_KEY, JSON.stringify(list)); }
+function isUserBanned(name) { return getBannedList().includes(name.trim()); }
+function banUser(name) { const list = getBannedList(); if (!list.includes(name)) { list.push(name); saveBannedList(list); } loadAdminData(); }
+function unbanUser(name) { saveBannedList(getBannedList().filter(n => n !== name)); loadAdminData(); }
 
 function checkAdminPassword() {
   const pw = document.getElementById('adminPwInput').value.trim();
   if (pw === ADMIN_PASSWORD) {
     document.getElementById('adminPwOverlay').classList.add('hidden');
-    // Save admin name so gate closes
     myName = ADMIN_NAME;
     localStorage.setItem('quiz_username', ADMIN_NAME);
+    updateUserChip();
     openAdmin();
   } else {
     document.getElementById('adminPwErr').classList.add('show');
@@ -1406,10 +1605,7 @@ function checkAdminPassword() {
     document.getElementById('adminPwInput').focus();
   }
 }
-
-document.getElementById('adminPwInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkAdminPassword();
-});
+document.getElementById('adminPwInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkAdminPassword(); });
 
 function closeAdminPw() {
   document.getElementById('adminPwOverlay').classList.add('hidden');
@@ -1421,29 +1617,52 @@ function openAdmin() {
   document.getElementById('adminOverlay').classList.remove('hidden');
   loadAdminData();
 }
-
-function closeAdmin() {
-  document.getElementById('adminOverlay').classList.add('hidden');
-}
+function closeAdmin() { document.getElementById('adminOverlay').classList.add('hidden'); }
 
 async function loadAdminData() {
   const banned = getBannedList();
   document.getElementById('adminBannedCount').textContent = banned.length;
 
-  // Try to load current session data
+  // Load login log from cloud
+  const logEl = document.getElementById('adminLoginLog');
+  logEl.innerHTML = '<div class="admin-empty" style="font-size:.72rem">Loading login log…</div>';
+  const logins = await fetchLoginLog();
+  document.getElementById('adminTotalLogins').textContent = logins.length;
+
+  if (logins.length) {
+    // Group by name for summary
+    const byName = {};
+    logins.forEach(l => {
+      if (!byName[l.name]) byName[l.name] = { count: 0, last: 0 };
+      byName[l.name].count++;
+      if (l.ts > byName[l.name].last) byName[l.name].last = l.ts;
+    });
+    const sorted = Object.entries(byName).sort((a,b) => b[1].last - a[1].last);
+    logEl.innerHTML = '';
+    sorted.forEach(([name, info]) => {
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      const timeStr = new Date(info.last).toLocaleString();
+      row.innerHTML = `
+        <div class="log-name">${name}</div>
+        <div class="log-count">${info.count}x</div>
+        <div class="log-time">${timeStr}</div>
+      `;
+      logEl.appendChild(row);
+    });
+    document.getElementById('adminTotalUsers').textContent = sorted.length;
+  } else {
+    logEl.innerHTML = '<div class="admin-empty">No login records yet.</div>';
+  }
+
   let players = [];
   let scores  = {};
-
   if (quizId) {
     try {
       const s = await sessionRead(quizId);
-      if (s) {
-        players = s.players || [];
-        scores  = s.scores  || {};
-      }
+      if (s) { players = s.players || []; scores = s.scores || {}; }
     } catch(e) { console.warn('admin load:', e); }
   } else {
-    // Show all known names from localStorage scores across all mcq3_ keys
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (k && k.startsWith('mcq3_')) {
@@ -1454,20 +1673,17 @@ async function loadAdminData() {
         } catch {}
       }
     }
-    // deduplicate
     const seen = new Set();
     players = players.filter(p => { if (seen.has(p.name)) return false; seen.add(p.name); return true; });
   }
 
-  document.getElementById('adminTotalUsers').textContent = players.length;
   document.getElementById('adminActiveQuizzes').textContent = quizId ? 1 : 0;
 
   const container = document.getElementById('adminUserList');
   if (!players.length) {
-    container.innerHTML = '<div class="admin-empty">No users found in the current session.</div>';
+    container.innerHTML = '<div class="admin-empty">No users in current session.</div>';
     return;
   }
-
   container.innerHTML = '';
   players.forEach(p => {
     const isBanned = banned.includes(p.name);
@@ -1475,26 +1691,17 @@ async function loadAdminData() {
     const sc = scores[p.name];
     const scoreText = sc ? `${sc.correct}/${sc.total} (${sc.pct}%)` : 'Not submitted';
     const time = p.ts ? new Date(p.ts).toLocaleTimeString() : '';
-
     const row = document.createElement('div');
     row.className = 'admin-user-row';
     row.innerHTML = `
       <div class="admin-user-name">${p.name}</div>
       <div class="admin-user-meta">${scoreText}</div>
       <div class="admin-user-meta" style="font-size:.64rem;opacity:.6">${time}</div>
-      ${isBanned
-        ? `<span class="admin-user-badge banned">Banned</span>`
-        : (isCreator ? `<span class="admin-user-badge host">Host</span>` : `<span class="admin-user-badge">Player</span>`)
-      }
-      ${isBanned
-        ? `<button class="unban-btn" onclick="unbanUser('${p.name}')">Unban</button>`
-        : `<button class="ban-btn" onclick="banUser('${p.name}')">Ban</button>`
-      }
+      ${isBanned ? `<span class="admin-user-badge banned">Banned</span>` : (isCreator ? `<span class="admin-user-badge host">Host</span>` : `<span class="admin-user-badge">Player</span>`)}
+      ${isBanned ? `<button class="unban-btn" onclick="unbanUser('${p.name}')">Unban</button>` : `<button class="ban-btn" onclick="banUser('${p.name}')">Ban</button>`}
     `;
     container.appendChild(row);
   });
-
-  // Also show banned users not in current session
   banned.forEach(name => {
     if (!players.find(p => p.name === name)) {
       const row = document.createElement('div');
@@ -1511,8 +1718,39 @@ async function loadAdminData() {
   });
 }
 
-// Store session creator for admin display
 window._sessionCreator = '';
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const savedLang = localStorage.getItem('quiz_lang');
+  if (savedLang) { currentLang = savedLang; applyLang(); }
+
+  runLoadScreen(() => {
+    const id = new URLSearchParams(location.search).get('quiz');
+    if (id) {
+      quizId = id; isJoiner = true;
+      if (checkNameGate()) {
+        showNameGate();
+        const origSubmit = window.submitName;
+        window.submitName = function() { origSubmit(); if (myName) { window.submitName = origSubmit; loadSharedQuiz(id); } };
+      } else {
+        loadSharedQuiz(id);
+      }
+      return;
+    }
+    if (checkNameGate()) showNameGate();
+    else { const cn = document.getElementById('creatorName'); if (cn && myName) cn.value = myName; }
+  });
+});
+
+// Hidden compat input
+if (!document.getElementById('creatorName')) {
+  const inp = document.createElement('input');
+  inp.type = 'hidden'; inp.id = 'creatorName';
+  document.body.appendChild(inp);
+}
 </script>
 </body>
 </html>
