@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiz.</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -16,28 +16,39 @@
   --red:#e03535;
   --red-bg:rgba(224,53,53,.07);
   --green-bg:rgba(255,255,255,.05);
+  --accent:#c8a96e;
   --serif:'Playfair Display',Georgia,serif;
   --sans:'DM Sans',system-ui,sans-serif;
+  --arabic:'Tajawal',system-ui,sans-serif;
 }
 html{scroll-behavior:smooth;}
 body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body.rtl{direction:rtl;font-family:var(--arabic);}
+body.rtl .serif{font-family:var(--arabic) !important;}
+body.rtl h1,body.rtl h2,body.rtl h3,body.rtl .logo{font-family:var(--arabic) !important;}
 
-.shell{max-width:620px;margin:0 auto;padding:0 1.5rem 7rem;}
+.shell{max-width:640px;margin:0 auto;padding:0 1.5rem 7rem;}
 
 /* Header */
-.top-bar{display:flex;align-items:baseline;justify-content:space-between;padding:2.25rem 0 1.5rem;border-bottom:1px solid var(--rule);margin-bottom:3rem;}
+.top-bar{display:flex;align-items:baseline;justify-content:space-between;padding:2.25rem 0 1.5rem;border-bottom:1px solid var(--rule);margin-bottom:3rem;gap:1rem;}
 .logo{font-family:var(--serif);font-size:1.6rem;font-weight:900;letter-spacing:-.03em;}
 .logo em{color:var(--dim);font-style:normal;}
+.header-right{display:flex;align-items:center;gap:.75rem;}
 .sub{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);}
+.lang-toggle{background:none;border:1px solid var(--rule);color:var(--dim);font-family:var(--sans);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.35rem .75rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem;}
+.lang-toggle:hover{border-color:var(--paper);color:var(--paper);}
+.lang-toggle .globe{font-size:.85rem;line-height:1;}
 
 /* Tabs */
 .tabs{display:flex;border-bottom:1px solid var(--rule);margin-bottom:2.75rem;}
 .tab{background:none;border:none;color:var(--dim);font-family:var(--sans);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.7rem 1.5rem .7rem 0;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;}
+body.rtl .tab{padding:.7rem 0 .7rem 1.5rem;}
 .tab.active{color:var(--paper);border-bottom-color:var(--paper);}
 .tab:hover:not(.active){color:#bbb;}
 
 /* Section label */
 .lbl{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:.65rem;}
+body.rtl .lbl{letter-spacing:0;}
 
 /* Upload */
 .dropzone{border:1px dashed var(--rule);padding:3.5rem 2rem;text-align:center;cursor:pointer;position:relative;overflow:hidden;transition:border-color .25s,background .25s;margin-bottom:2rem;}
@@ -46,6 +57,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height
 .drop-arrow{display:block;font-size:1.6rem;margin-bottom:.9rem;opacity:.25;transition:opacity .2s,transform .2s;}
 .dropzone:hover .drop-arrow{opacity:.6;transform:translateY(-4px);}
 .dropzone h3{font-family:var(--serif);font-size:1.1rem;font-weight:700;margin-bottom:.3rem;}
+body.rtl .dropzone h3{font-family:var(--arabic);}
 .dropzone p{font-size:.78rem;color:var(--dim);}
 
 .filepill{display:none;align-items:center;gap:.75rem;border:1px solid var(--rule);padding:.6rem 1rem;margin-bottom:2rem;font-size:.84rem;}
@@ -57,7 +69,9 @@ body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height
 /* Fields */
 .field{margin-bottom:1.5rem;}
 .field label{display:block;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:.45rem;}
+body.rtl .field label{letter-spacing:0;}
 .field input,.field select{width:100%;background:transparent;border:none;border-bottom:1px solid var(--rule);color:var(--paper);font-family:var(--sans);font-size:.94rem;padding:.45rem 0;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none;}
+body.rtl .field input,body.rtl .field select{font-family:var(--arabic);}
 .field input:focus,.field select:focus{border-bottom-color:var(--paper);}
 .field input::placeholder{color:var(--dim);}
 .field select option{background:#111;}
@@ -71,21 +85,35 @@ body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height
 .tog-row .tl small{font-size:.74rem;color:var(--dim);}
 .sw{width:38px;height:20px;background:var(--rule);border-radius:10px;position:relative;flex-shrink:0;transition:background .25s;}
 .sw::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:all .25s;}
-.tog-row.on .sw{background:var(--paper);}
+.tog-row.on .sw{background:var(--accent);}
 .tog-row.on .sw::after{left:calc(100% - 17px);background:var(--ink);}
 
 /* Buttons */
-.btn{width:100%;padding:.85rem 1rem;background:var(--paper);color:var(--ink);border:none;font-family:var(--sans);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;margin-bottom:1.5rem;}
+.btn{width:100%;padding:.85rem 1rem;background:var(--paper);color:var(--ink);border:none;font-family:var(--sans);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .2s,transform .1s;margin-bottom:1.5rem;}
+body.rtl .btn{font-family:var(--arabic);letter-spacing:0;}
 .btn:disabled{opacity:.18;cursor:not-allowed;}
 .btn:hover:not(:disabled){opacity:.88;}
+.btn:active:not(:disabled){transform:scale(.99);}
 .btn-sm{background:none;border:1px solid var(--rule);color:#bbb;padding:.55rem 1.2rem;font-family:var(--sans);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,color .2s;}
+body.rtl .btn-sm{font-family:var(--arabic);letter-spacing:0;}
 .btn-sm:hover{border-color:var(--paper);color:var(--paper);}
 
-/* Error box (form level) */
+/* Error box */
 .err{display:none;font-size:.78rem;color:var(--red);border-left:2px solid var(--red);padding:.5rem .8rem;margin-bottom:1.5rem;}
+body.rtl .err{border-left:none;border-right:2px solid var(--red);}
 .err.show{display:block;}
 
-/* Progress */
+/* Loading Overlay */
+.load-overlay{position:fixed;inset:0;background:var(--ink);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;transition:opacity .5s;}
+.load-overlay.gone{opacity:0;pointer-events:none;}
+.load-logo{font-family:var(--serif);font-size:2.8rem;font-weight:900;letter-spacing:-.04em;animation:pulse 2s ease-in-out infinite;}
+.load-logo em{color:var(--accent);font-style:normal;}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.load-bar-wrap{width:200px;height:1px;background:var(--rule);overflow:hidden;}
+.load-bar{height:100%;width:0%;background:var(--paper);transition:width .4s ease;}
+.load-status{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);}
+
+/* Progress (generation) */
 .prog{display:none;padding:3rem 0;text-align:center;}
 .prog.show{display:block;}
 .dots{display:flex;gap:.35rem;justify-content:center;margin-bottom:1rem;}
@@ -94,14 +122,16 @@ body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height
 .dots span:nth-child(3){animation-delay:.4s;}
 @keyframes blink{0%,80%,100%{opacity:.12}40%{opacity:1}}
 .prog p{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);}
+body.rtl .prog p{letter-spacing:0;}
 
 /* Share */
-.share-box{display:none;border:1px solid var(--rule);padding:1.25rem;margin-bottom:2rem;}
-.share-box.show{display:block;}
-.share-lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem;}
+.share-box{display:none;border:1px solid var(--rule);padding:1.25rem;margin-bottom:2rem;background:rgba(200,169,110,.04);border-color:rgba(200,169,110,.3);}
+.share-box.show{display:block;animation:up .4s ease;}
+.share-lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.7rem;}
+body.rtl .share-lbl{letter-spacing:0;}
 .share-row{display:flex;gap:.5rem;align-items:center;}
 .share-url{flex:1;font-family:monospace;font-size:.74rem;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(255,255,255,.04);padding:.5rem .75rem;}
-.copy-btn{background:var(--paper);color:var(--ink);border:none;padding:.5rem 1rem;font-family:var(--sans);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+.copy-btn{background:var(--accent);color:var(--ink);border:none;padding:.5rem 1rem;font-family:var(--sans);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
 .copy-btn:hover{opacity:.8;}
 .share-note{font-size:.7rem;color:var(--dim);margin-top:.6rem;line-height:1.6;}
 
@@ -109,42 +139,61 @@ body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height
 .wr{display:none;border:1px solid var(--rule);padding:2rem 1.75rem;margin-bottom:2rem;text-align:center;}
 .wr.show{display:block;animation:up .4s ease;}
 .wr-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;margin-bottom:.35rem;}
+body.rtl .wr-title{font-family:var(--arabic);}
 .wr-sub{font-size:.78rem;color:var(--dim);margin-bottom:2rem;}
 .wr-list-lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem;text-align:left;}
+body.rtl .wr-list-lbl{letter-spacing:0;text-align:right;}
 .player-list{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.5rem;}
 .player-row{display:flex;align-items:center;gap:.75rem;border:1px solid var(--rule);padding:.6rem 1rem;text-align:left;animation:up .3s ease;}
-.pdot{width:6px;height:6px;border-radius:50%;background:var(--paper);margin-left:auto;flex-shrink:0;}
+body.rtl .player-row{text-align:right;}
+.pdot{width:6px;height:6px;border-radius:50%;background:#3ecf8e;margin-left:auto;flex-shrink:0;animation:glow 2s ease-in-out infinite;}
+body.rtl .pdot{margin-left:0;margin-right:auto;}
+@keyframes glow{0%,100%{opacity:.4}50%{opacity:1}}
 .pname{font-size:.88rem;font-weight:600;}
 .pbadge{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);padding:.18rem .5rem;}
-.pbadge.host{border-color:var(--paper);color:var(--paper);}
+body.rtl .pbadge{letter-spacing:0;}
+.pbadge.host{border-color:var(--accent);color:var(--accent);}
 .wr-counter{font-size:.78rem;color:var(--dim);margin-bottom:1.5rem;}
 .wr-counter strong{color:var(--paper);}
 .wr-guest-msg{font-size:.76rem;color:var(--dim);font-style:italic;}
 
-/* Name banner */
-.name-banner{display:none;padding:3rem 0;text-align:center;}
-.name-banner.show{display:block;}
-.name-banner h2{font-family:var(--serif);font-size:1.6rem;font-weight:700;margin-bottom:.4rem;}
-.name-banner p{font-size:.82rem;color:var(--dim);margin-bottom:1.5rem;}
-.name-inline{display:flex;gap:.5rem;max-width:320px;margin:0 auto;}
-.name-inline input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--rule);color:var(--paper);font-family:var(--sans);font-size:.94rem;padding:.45rem 0;outline:none;transition:border-color .2s;}
-.name-inline input:focus{border-bottom-color:var(--paper);}
-.name-inline .btn{width:auto;margin-bottom:0;padding:.5rem 1.25rem;}
+/* Name Gate */
+.name-gate{position:fixed;inset:0;background:var(--ink);z-index:500;display:flex;align-items:center;justify-content:center;padding:2rem;}
+.name-gate.hidden{display:none;}
+.name-gate-inner{max-width:400px;width:100%;text-align:center;}
+.name-gate-logo{font-family:var(--serif);font-size:2rem;font-weight:900;margin-bottom:2.5rem;letter-spacing:-.03em;}
+body.rtl .name-gate-logo{font-family:var(--arabic);}
+.name-gate-logo em{color:var(--accent);font-style:normal;}
+.name-gate h2{font-family:var(--serif);font-size:1.4rem;font-weight:700;margin-bottom:.4rem;}
+body.rtl .name-gate h2{font-family:var(--arabic);}
+.name-gate p{font-size:.82rem;color:var(--dim);margin-bottom:2rem;line-height:1.7;}
+.name-gate-input{width:100%;background:transparent;border:none;border-bottom:2px solid var(--rule);color:var(--paper);font-family:var(--sans);font-size:1.2rem;padding:.6rem 0;outline:none;text-align:center;transition:border-color .2s;margin-bottom:1.5rem;}
+body.rtl .name-gate-input{font-family:var(--arabic);}
+.name-gate-input:focus{border-bottom-color:var(--accent);}
+.name-gate-input::placeholder{color:#444;}
+.name-gate .btn{max-width:280px;margin:0 auto;}
+.name-gate-hint{font-size:.7rem;color:var(--dim);margin-top:1rem;opacity:.6;}
 
-/* Quiz */
+/* Name banner (for join flow) */
 #quizSection{display:none;}
 #quizSection.show{display:block;}
+
+/* Quiz top */
 .quiz-top{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;border-bottom:1px solid var(--rule);margin-bottom:2.5rem;}
 .quiz-top h2{font-family:var(--serif);font-size:1.1rem;font-weight:700;}
+body.rtl .quiz-top h2{font-family:var(--arabic);}
 .score-tag{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);padding:.28rem .85rem;}
+body.rtl .score-tag{letter-spacing:0;}
 
 /* Question cards */
 .qcard{padding:2rem 0;border-bottom:1px solid var(--rule);animation:up .4s ease both;}
 @keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .qnum{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem;}
+body.rtl .qnum{letter-spacing:0;}
 .qtext{font-family:var(--serif);font-size:1.1rem;font-weight:700;line-height:1.6;margin-bottom:1.25rem;}
+body.rtl .qtext{font-family:var(--arabic);}
 
-/* Options — selection phase (before confirm) */
+/* Options */
 .opts{display:flex;flex-direction:column;gap:.35rem;}
 .opt{
   display:flex;align-items:center;gap:.75rem;
@@ -154,104 +203,139 @@ body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height
   text-align:left;transition:border-color .2s,background .2s;
   width:100%;
 }
+body.rtl .opt{flex-direction:row-reverse;text-align:right;font-family:var(--arabic);}
 .oltr{min-width:24px;height:24px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;transition:all .2s;}
 .opt:hover:not(.locked):not(.selected){border-color:#444;}
-/* Selected (before confirm) */
 .opt.selected{border-color:var(--paper);}
 .opt.selected .oltr{background:var(--paper);color:var(--ink);border-color:var(--paper);}
-/* Locked states after confirm */
 .opt.locked{cursor:default;}
-.opt.revealed-correct{border-color:var(--paper);background:var(--green-bg);}
-.opt.revealed-correct .oltr{background:var(--paper);color:var(--ink);border-color:var(--paper);}
+.opt.revealed-correct{border-color:#3ecf8e;background:rgba(62,207,142,.07);}
+.opt.revealed-correct .oltr{background:#3ecf8e;color:var(--ink);border-color:#3ecf8e;}
 .opt.revealed-wrong{border-color:var(--red);background:var(--red-bg);}
 .opt.revealed-wrong .oltr{background:var(--red);color:#fff;border-color:var(--red);}
-/* Show the correct answer when user was wrong */
-.opt.revealed-correct-answer{border-color:var(--paper);background:var(--green-bg);}
-.opt.revealed-correct-answer .oltr{background:var(--paper);color:var(--ink);border-color:var(--paper);}
-
-/* Confirm button per question */
-.confirm-wrap{margin-top:.75rem;}
-.btn-confirm{background:none;border:1px solid var(--rule);color:var(--paper);padding:.55rem 1.4rem;font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,background .2s;}
-.btn-confirm:hover{border-color:var(--paper);}
-.btn-confirm:disabled{opacity:.3;cursor:default;}
+.opt.revealed-correct-answer{border-color:#3ecf8e;background:rgba(62,207,142,.05);}
+.opt.revealed-correct-answer .oltr{background:#3ecf8e;color:var(--ink);border-color:#3ecf8e;}
 
 /* Explanation */
 .expl{display:none;margin-top:.9rem;font-size:.78rem;color:var(--dim);line-height:1.7;border-left:1px solid var(--rule);padding-left:.75rem;}
+body.rtl .expl{border-left:none;border-right:1px solid var(--rule);padding-left:0;padding-right:.75rem;}
 .expl.show{display:block;}
-/* Wrong/correct inline note */
-.inline-verdict{display:none;margin-top:.6rem;font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
-.inline-verdict.wrong{display:block;color:var(--red);}
-.inline-verdict.correct{display:block;color:var(--paper);}
 
 /* Result */
 .result{display:none;padding:4rem 0;border-top:1px solid var(--rule);margin-top:.5rem;text-align:center;}
 .result.show{display:block;animation:up .5s ease;}
-.res-big{font-family:var(--serif);font-size:4.5rem;font-weight:900;line-height:1;margin-bottom:.2rem;}
+.res-big{font-family:var(--serif);font-size:4.5rem;font-weight:900;line-height:1;margin-bottom:.2rem;color:var(--accent);}
+body.rtl .res-big{font-family:var(--arabic);}
 .res-pct{font-size:.78rem;color:var(--dim);margin-bottom:.5rem;}
 .res-msg{font-size:.9rem;color:#bbb;margin-bottom:2rem;}
 .res-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
 
-/* Review section (appears after result) */
+/* Review section */
 .review-section{margin-top:3rem;border-top:1px solid var(--rule);padding-top:2rem;}
 .review-section h3{font-family:var(--serif);font-size:1.1rem;font-weight:700;margin-bottom:2rem;}
+body.rtl .review-section h3{font-family:var(--arabic);}
 .review-card{padding:1.5rem 0;border-bottom:1px solid var(--rule);}
 .review-qnum{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:.5rem;}
+body.rtl .review-qnum{letter-spacing:0;}
 .review-qtext{font-family:var(--serif);font-size:1rem;font-weight:700;line-height:1.55;margin-bottom:1rem;}
+body.rtl .review-qtext{font-family:var(--arabic);}
 .review-opts{display:flex;flex-direction:column;gap:.3rem;}
 .review-opt{display:flex;align-items:center;gap:.7rem;padding:.6rem .9rem;border:1px solid var(--rule);font-size:.84rem;color:var(--dim);}
+body.rtl .review-opt{flex-direction:row-reverse;font-family:var(--arabic);}
 .review-opt .rl{min-width:22px;height:22px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;}
-.review-opt.r-correct{border-color:var(--paper);color:var(--paper);}
-.review-opt.r-correct .rl{background:var(--paper);color:var(--ink);border-color:var(--paper);}
+.review-opt.r-correct{border-color:#3ecf8e;color:var(--paper);}
+.review-opt.r-correct .rl{background:#3ecf8e;color:var(--ink);border-color:#3ecf8e;}
 .review-opt.r-wrong{border-color:var(--red);background:var(--red-bg);color:var(--red);}
 .review-opt.r-wrong .rl{background:var(--red);color:#fff;border-color:var(--red);}
 .review-expl{margin-top:.75rem;font-size:.76rem;color:var(--dim);line-height:1.7;border-left:1px solid var(--rule);padding-left:.7rem;}
+body.rtl .review-expl{border-left:none;border-right:1px solid var(--rule);padding-left:0;padding-right:.7rem;}
 
 /* Leaderboard */
 .lb{display:none;border:1px solid var(--rule);margin-top:2rem;padding:1.5rem;}
 .lb.show{display:block;animation:up .4s ease;}
 .lb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
 .lb-head h3{font-family:var(--serif);font-size:1rem;font-weight:700;}
+body.rtl .lb-head h3{font-family:var(--arabic);}
 table{width:100%;border-collapse:collapse;}
 table tr{border-bottom:1px solid var(--rule);}
 table tr:last-child{border:none;}
 table td{padding:.6rem .35rem;font-size:.84rem;}
 table td:first-child{color:var(--dim);font-size:.74rem;width:32px;}
 table td:last-child{text-align:right;color:var(--dim);font-size:.74rem;}
-table tr.me td:nth-child(2){font-weight:700;color:var(--paper);}
-table tr.me td:nth-child(3){color:var(--paper);font-weight:700;}
+body.rtl table td:last-child{text-align:left;}
+table tr.me td:nth-child(2){font-weight:700;color:var(--accent);}
+table tr.me td:nth-child(3){color:var(--accent);font-weight:700;}
 
-/* Join */
+/* Friends mode direct — quiz immediately */
+/* Join hero */
 .join-hero{padding:1rem 0 2rem;}
 .join-hero h2{font-family:var(--serif);font-size:1.9rem;font-weight:700;margin-bottom:.4rem;}
+body.rtl .join-hero h2{font-family:var(--arabic);}
 .join-hero p{font-size:.84rem;color:var(--dim);margin-bottom:2.5rem;}
 
+/* Confirm all */
+#confirmAllWrap{display:none;padding:1.5rem 0;text-align:center;border-top:1px solid var(--rule);}
+#confirmAllWrap p{font-size:.76rem;color:var(--dim);margin-bottom:1rem;letter-spacing:.05em;}
+body.rtl #confirmAllWrap p{letter-spacing:0;}
+
 .hidden{display:none!important;}
+
+/* Pulse badge for friends mode */
+.friends-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,169,110,.3);padding:.3rem .7rem;margin-bottom:1.5rem;}
+body.rtl .friends-badge{letter-spacing:0;}
+.friends-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:glow 1.5s ease-in-out infinite;}
 </style>
 </head>
 <body>
+
+<!-- LOADING OVERLAY -->
+<div class="load-overlay" id="loadOverlay">
+  <div class="load-logo">Quiz<em>.</em></div>
+  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+  <div class="load-status" id="loadStatus">Loading…</div>
+</div>
+
+<!-- NAME GATE (first time) -->
+<div class="name-gate hidden" id="nameGate">
+  <div class="name-gate-inner">
+    <div class="name-gate-logo">Quiz<em>.</em></div>
+    <h2 id="ng-title">Welcome</h2>
+    <p id="ng-sub">Enter your name once — we'll remember it for next time.</p>
+    <input type="text" class="name-gate-input" id="ngInput" placeholder="Your name" maxlength="32" autocomplete="off"/>
+    <button class="btn" id="ngBtn" onclick="submitName()">Let's Go →</button>
+    <div class="name-gate-hint" id="ng-hint">You can change your name anytime in settings.</div>
+  </div>
+</div>
+
 <div class="shell">
 
   <!-- HEADER -->
   <header class="top-bar" id="siteHeader">
     <div class="logo">Quiz<em>.</em></div>
-    <div class="sub">PDF → MCQ</div>
+    <div class="header-right">
+      <div class="sub" id="headerSub">PDF → MCQ</div>
+      <button class="lang-toggle" id="langToggleBtn" onclick="toggleLang()">
+        <span class="globe">🌐</span>
+        <span id="langLabel">العربية</span>
+      </button>
+    </div>
   </header>
 
   <!-- TABS -->
   <div class="tabs" id="tabsBar">
-    <button class="tab active" id="tabCreate" onclick="switchTab('create')">Create Quiz</button>
-    <button class="tab"        id="tabJoin"   onclick="switchTab('join')">Join</button>
+    <button class="tab active" id="tabCreate" onclick="switchTab('create')" data-en="Create Quiz" data-ar="إنشاء اختبار">Create Quiz</button>
+    <button class="tab"        id="tabJoin"   onclick="switchTab('join')"   data-en="Join"        data-ar="انضمام">Join</button>
   </div>
 
   <!-- ══ CREATE TAB ══ -->
   <div id="createTab">
 
-    <div class="lbl">Upload PDF</div>
+    <div class="lbl" id="lbl-upload" data-en="Upload PDF" data-ar="رفع ملف PDF">Upload PDF</div>
     <div class="dropzone" id="uploadZone">
       <input type="file" id="fileInput" accept=".pdf"/>
       <span class="drop-arrow">↑</span>
-      <h3>Drag your PDF here</h3>
-      <p>or click to browse</p>
+      <h3 id="drop-title" data-en="Drag your PDF here" data-ar="اسحب ملف PDF هنا">Drag your PDF here</h3>
+      <p id="drop-sub" data-en="or click to browse" data-ar="أو انقر للاستعراض">or click to browse</p>
     </div>
 
     <div class="filepill" id="fileBadge">
@@ -262,46 +346,41 @@ table tr.me td:nth-child(3){color:var(--paper);font-weight:700;}
 
     <div class="row">
       <div class="field">
-        <label>Questions</label>
+        <label id="lbl-q" data-en="Questions" data-ar="عدد الأسئلة">Questions</label>
         <input type="number" id="numQ" value="5" min="3" max="20"/>
       </div>
       <div class="field">
-        <label>Language</label>
+        <label id="lbl-lang" data-en="Language" data-ar="لغة الاختبار">Language</label>
         <select id="lang">
-          <option value="english">English</option>
-          <option value="arabic">Arabic</option>
+          <option value="english" data-en="English" data-ar="إنجليزي">English</option>
+          <option value="arabic"  data-en="Arabic"  data-ar="عربي">Arabic</option>
         </select>
       </div>
       <div class="field">
-        <label>Difficulty</label>
+        <label id="lbl-diff" data-en="Difficulty" data-ar="الصعوبة">Difficulty</label>
         <select id="diff">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
+          <option value="easy"   data-en="Easy"   data-ar="سهل">Easy</option>
+          <option value="medium" selected data-en="Medium" data-ar="متوسط">Medium</option>
+          <option value="hard"   data-en="Hard"   data-ar="صعب">Hard</option>
         </select>
       </div>
-    </div>
-
-    <div class="field">
-      <label>Your Name</label>
-      <input type="text" id="creatorName" placeholder="Shown on leaderboard"/>
     </div>
 
     <!-- Friends Mode Toggle -->
     <div class="tog-row" id="friendsToggle" onclick="toggleFriends()">
       <div class="tl">
-        <strong>Friends Mode</strong>
-        <small>Wait for friends to join before starting — results appear after everyone finishes</small>
+        <strong id="tog-title" data-en="Friends Mode" data-ar="وضع الأصدقاء">Friends Mode</strong>
+        <small id="tog-sub" data-en="Jump straight to questions — share results with friends after" data-ar="ابدأ الاختبار مباشرة — شارك النتائج مع أصدقائك بعد الانتهاء">Jump straight to questions — share results with friends after</small>
       </div>
       <div class="sw"></div>
     </div>
 
     <div class="err" id="errBox"></div>
-    <button class="btn" id="genBtn" disabled>Generate Questions</button>
+    <button class="btn" id="genBtn" disabled data-en="Generate Questions" data-ar="توليد الأسئلة">Generate Questions</button>
 
     <div class="prog" id="progressWrap">
       <div class="dots"><span></span><span></span><span></span></div>
-      <p id="progressText">Reading file…</p>
+      <p id="progressText" data-en="Reading file…" data-ar="قراءة الملف…">Reading file…</p>
     </div>
 
   </div>
@@ -309,54 +388,40 @@ table tr.me td:nth-child(3){color:var(--paper);font-weight:700;}
   <!-- ══ JOIN TAB ══ -->
   <div id="joinTab" class="hidden">
     <div class="join-hero">
-      <h2>Join a Quiz</h2>
-      <p>Paste the link your friend sent you</p>
+      <h2 id="join-title" data-en="Join a Quiz" data-ar="انضم إلى اختبار">Join a Quiz</h2>
+      <p id="join-sub" data-en="Paste the link your friend sent you" data-ar="الصق الرابط الذي أرسله إليك صديقك">Paste the link your friend sent you</p>
       <div class="field">
-        <label>Quiz Link</label>
+        <label id="join-lbl-link" data-en="Quiz Link" data-ar="رابط الاختبار">Quiz Link</label>
         <input type="text" id="joinUrl" placeholder="https://...?quiz=..." style="font-family:monospace;font-size:.82rem;"/>
       </div>
-      <div class="field">
-        <label>Your Name</label>
-        <input type="text" id="joinName" placeholder=""/>
-      </div>
       <div class="err" id="joinErrBox"></div>
-      <button class="btn" onclick="joinQuiz()">Join Now</button>
+      <button class="btn" onclick="joinQuiz()" id="join-btn" data-en="Join Now" data-ar="انضم الآن">Join Now</button>
     </div>
   </div>
 
   <!-- ══ SHARE BOX ══ -->
   <div class="share-box" id="sharePanel">
-    <div class="share-lbl">Share this quiz</div>
+    <div class="share-lbl" id="share-lbl" data-en="Share this quiz" data-ar="شارك هذا الاختبار">Share this quiz</div>
     <div class="share-row">
       <div class="share-url" id="shareUrl">—</div>
-      <button class="copy-btn" id="copyBtn" onclick="copyShare()">Copy</button>
+      <button class="copy-btn" id="copyBtn" onclick="copyShare()" data-en="Copy" data-ar="نسخ">Copy</button>
     </div>
-    <p class="share-note" id="shareNote">Send this link to friends — they answer the same questions and you compare results.</p>
+    <p class="share-note" id="shareNote" data-en="Send this link to friends — they answer the same questions and you compare results." data-ar="أرسل هذا الرابط لأصدقائك — يجيبون على نفس الأسئلة وتقارنون النتائج.">Send this link to friends — they answer the same questions and you compare results.</p>
   </div>
 
   <!-- ══ WAITING ROOM ══ -->
   <div class="wr" id="waitingRoom">
-    <div class="wr-title">Waiting Room</div>
-    <div class="wr-sub">Waiting for friends to join before starting…</div>
-    <div class="wr-list-lbl">Players</div>
+    <div class="wr-title" id="wr-title" data-en="Waiting Room" data-ar="غرفة الانتظار">Waiting Room</div>
+    <div class="wr-sub" id="wr-sub" data-en="Waiting for friends to join before starting…" data-ar="انتظار انضمام الأصدقاء قبل البدء…">Waiting for friends to join before starting…</div>
+    <div class="wr-list-lbl" id="wr-list-lbl" data-en="Players" data-ar="اللاعبون">Players</div>
     <div class="player-list" id="playerList"></div>
-    <div class="wr-counter" id="wrCounter"><strong>0</strong> joined</div>
+    <div class="wr-counter" id="wrCounter"><strong>0</strong> <span id="wr-joined" data-en="joined" data-ar="انضموا">joined</span></div>
     <div id="hostStartWrap" class="hidden" style="margin-bottom:1rem;">
-      <button class="btn" onclick="hostStartQuiz()" style="max-width:280px;margin:0 auto;">
+      <button class="btn" onclick="hostStartQuiz()" id="host-start-btn" style="max-width:280px;margin:0 auto;" data-en="Start Quiz for Everyone →" data-ar="ابدأ الاختبار للجميع ←">
         Start Quiz for Everyone →
       </button>
     </div>
-    <div class="wr-guest-msg" id="guestWaitMsg">Waiting for the host to start the quiz…</div>
-  </div>
-
-  <!-- ══ NAME BANNER ══ -->
-  <div class="name-banner" id="nameBanner">
-    <h2>Welcome</h2>
-    <p>Enter your name before starting</p>
-    <div class="name-inline">
-      <input type="text" id="playerName" placeholder="Your name"/>
-      <button class="btn" onclick="startJoined()">Start</button>
-    </div>
+    <div class="wr-guest-msg" id="guestWaitMsg" data-en="Waiting for the host to start the quiz…" data-ar="انتظار بدء المضيف للاختبار…">Waiting for the host to start the quiz…</div>
   </div>
 
   <!-- ══ QUIZ SECTION ══ -->
@@ -369,12 +434,9 @@ table tr.me td:nth-child(3){color:var(--paper);font-weight:700;}
 
     <div id="qContainer"></div>
 
-    <!-- Confirm All button — shown when all answered -->
-    <div id="confirmAllWrap" style="display:none;padding:1.5rem 0;text-align:center;border-top:1px solid var(--rule);">
-      <p style="font-size:.76rem;color:var(--dim);margin-bottom:1rem;letter-spacing:.05em;">All questions answered — submit to see your results.</p>
-      <button class="btn" id="confirmAllBtn" onclick="submitQuiz()" style="max-width:280px;margin:0 auto;">
-        Submit &amp; See Results
-      </button>
+    <div id="confirmAllWrap">
+      <p id="confirm-all-msg" data-en="All questions answered — submit to see your results." data-ar="تمت الإجابة على جميع الأسئلة — أرسل لرؤية نتائجك.">All questions answered — submit to see your results.</p>
+      <button class="btn" id="confirmAllBtn" onclick="submitQuiz()" style="max-width:280px;margin:0 auto;" data-en="Submit &amp; See Results" data-ar="أرسل وشاهد النتائج">Submit &amp; See Results</button>
     </div>
 
     <!-- Result -->
@@ -383,21 +445,21 @@ table tr.me td:nth-child(3){color:var(--paper);font-weight:700;}
       <div class="res-pct"  id="resPct"></div>
       <div class="res-msg"  id="resMsg"></div>
       <div class="res-btns">
-        <button class="btn-sm" onclick="location.href=location.pathname">New Quiz</button>
+        <button class="btn-sm" onclick="location.href=location.pathname" id="new-quiz-btn" data-en="New Quiz" data-ar="اختبار جديد">New Quiz</button>
       </div>
     </div>
 
-    <!-- Full review of all answers -->
+    <!-- Full review -->
     <div class="review-section" id="reviewSection" style="display:none;">
-      <h3>Answer Review</h3>
+      <h3 id="review-title" data-en="Answer Review" data-ar="مراجعة الإجابات">Answer Review</h3>
       <div id="reviewContainer"></div>
     </div>
 
     <!-- Leaderboard -->
     <div class="lb" id="leaderboard">
       <div class="lb-head">
-        <h3>Leaderboard</h3>
-        <button class="btn-sm" onclick="refreshLeaderboard()">Refresh</button>
+        <h3 id="lb-title" data-en="Leaderboard" data-ar="لوحة المتصدرين">Leaderboard</h3>
+        <button class="btn-sm" onclick="refreshLeaderboard()" id="lb-refresh" data-en="Refresh" data-ar="تحديث">Refresh</button>
       </div>
       <table id="lbTable"></table>
     </div>
@@ -413,11 +475,8 @@ table tr.me td:nth-child(3){color:var(--paper);font-weight:700;}
 const GROQ_KEY  = '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';
 const GROQ_URL  = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL     = 'llama-3.3-70b-versatile';
-
-// JSONBin — sign up free at jsonbin.io, replace the key below
 const JSONBIN_KEY = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
-
 const POLL_MS = 1200;
 const useCloud = !JSONBIN_KEY.includes('PLACEHOLDER');
 
@@ -428,8 +487,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 //  STATE
 // ══════════════════════════════════════════════════
 let pdfFile     = null;
-let questions   = [];   // [{question, options, correct, explanation}]
-let userAnswers = [];   // index of selected option per question, or null
+let questions   = [];
+let userAnswers = [];
 let confirmed   = false;
 let quizId      = null;
 let myName      = '';
@@ -437,6 +496,7 @@ let isJoiner    = false;
 let isHost      = false;
 let friendsMode = false;
 let pollTimer   = null;
+let currentLang = 'en'; // 'en' or 'ar'
 
 // ══════════════════════════════════════════════════
 //  DOM REFS
@@ -455,7 +515,6 @@ const resultCard   = document.getElementById('resultCard');
 const errBox       = document.getElementById('errBox');
 const sharePanel   = document.getElementById('sharePanel');
 const shareUrlEl   = document.getElementById('shareUrl');
-const nameBanner   = document.getElementById('nameBanner');
 const quizHdr      = document.getElementById('quizHdr');
 const leaderboard  = document.getElementById('leaderboard');
 const lbTable      = document.getElementById('lbTable');
@@ -467,11 +526,158 @@ const reviewSection  = document.getElementById('reviewSection');
 const reviewContainer= document.getElementById('reviewContainer');
 
 // ══════════════════════════════════════════════════
+//  LOADING SCREEN
+// ══════════════════════════════════════════════════
+function runLoadScreen(cb) {
+  const overlay = document.getElementById('loadOverlay');
+  const bar = document.getElementById('loadBar');
+  const status = document.getElementById('loadStatus');
+  const steps = [
+    { w: 30,  msg: 'Initializing…',  delay: 300 },
+    { w: 60,  msg: 'Loading fonts…', delay: 500 },
+    { w: 85,  msg: 'Almost ready…',  delay: 400 },
+    { w: 100, msg: 'Ready!',         delay: 300 }
+  ];
+  let i = 0;
+  function next() {
+    if (i >= steps.length) {
+      setTimeout(() => {
+        overlay.classList.add('gone');
+        setTimeout(() => { overlay.style.display = 'none'; cb(); }, 500);
+      }, 200);
+      return;
+    }
+    const s = steps[i++];
+    bar.style.width = s.w + '%';
+    status.textContent = s.msg;
+    setTimeout(next, s.delay);
+  }
+  setTimeout(next, 100);
+}
+
+// ══════════════════════════════════════════════════
+//  LANGUAGE TOGGLE
+// ══════════════════════════════════════════════════
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'ar' : 'en';
+  applyLang();
+}
+
+function applyLang() {
+  const isAr = currentLang === 'ar';
+  const html = document.getElementById('htmlRoot');
+  const body = document.body;
+  html.setAttribute('lang', isAr ? 'ar' : 'en');
+  html.setAttribute('dir',  isAr ? 'rtl' : 'ltr');
+  body.classList.toggle('rtl', isAr);
+  document.getElementById('langLabel').textContent = isAr ? 'English' : 'العربية';
+  document.getElementById('headerSub').textContent = isAr ? 'PDF ← MCQ' : 'PDF → MCQ';
+
+  // Update all elements with data-en/data-ar
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const txt = el.getAttribute(isAr ? 'data-ar' : 'data-en');
+    if (txt) {
+      // For buttons with innerHTML (like &amp;) handle carefully
+      if (el.tagName === 'BUTTON' || el.tagName === 'DIV' || el.tagName === 'P') {
+        el.innerHTML = txt;
+      } else {
+        el.textContent = txt;
+      }
+    }
+  });
+
+  // Update select options
+  document.querySelectorAll('select option[data-en]').forEach(opt => {
+    opt.textContent = opt.getAttribute(isAr ? 'data-ar' : 'data-en');
+  });
+
+  // Update name gate texts
+  document.getElementById('ng-title').textContent = isAr ? 'مرحباً بك' : 'Welcome';
+  document.getElementById('ng-sub').textContent   = isAr ? 'أدخل اسمك مرة واحدة — سنتذكره في المرة القادمة.' : "Enter your name once — we'll remember it for next time.";
+  document.getElementById('ng-hint').textContent  = isAr ? 'يمكنك تغيير اسمك في أي وقت.' : 'You can change your name anytime.';
+  document.getElementById('ngInput').placeholder  = isAr ? 'اسمك' : 'Your name';
+
+  // Save lang preference
+  localStorage.setItem('quiz_lang', currentLang);
+}
+
+// ══════════════════════════════════════════════════
+//  NAME GATE
+// ══════════════════════════════════════════════════
+function checkNameGate() {
+  const saved = localStorage.getItem('quiz_username');
+  if (saved && saved.trim()) {
+    myName = saved.trim();
+    return false; // no gate needed
+  }
+  return true; // show gate
+}
+
+function showNameGate() {
+  document.getElementById('nameGate').classList.remove('hidden');
+  setTimeout(() => document.getElementById('ngInput').focus(), 300);
+}
+
+function submitName() {
+  const val = document.getElementById('ngInput').value.trim();
+  if (!val) {
+    document.getElementById('ngInput').style.borderBottomColor = 'var(--red)';
+    setTimeout(() => document.getElementById('ngInput').style.borderBottomColor = '', 800);
+    return;
+  }
+  myName = val;
+  localStorage.setItem('quiz_username', val);
+  document.getElementById('nameGate').classList.add('hidden');
+  // Pre-fill creator name if visible
+  const cn = document.getElementById('creatorName');
+  if (cn) cn.value = val;
+}
+
+// Allow Enter key in name gate
+document.getElementById('ngInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitName();
+});
+
+// ══════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  const id = new URLSearchParams(location.search).get('quiz');
-  if (id) { quizId = id; isJoiner = true; loadSharedQuiz(id); }
+  // Restore language
+  const savedLang = localStorage.getItem('quiz_lang');
+  if (savedLang) { currentLang = savedLang; applyLang(); }
+
+  runLoadScreen(() => {
+    // Check for quiz param first
+    const id = new URLSearchParams(location.search).get('quiz');
+    if (id) {
+      quizId = id; isJoiner = true;
+      // Need name before loading
+      if (checkNameGate()) {
+        showNameGate();
+        // After name submitted, load quiz
+        const origSubmit = window.submitName;
+        window.submitName = function() {
+          origSubmit();
+          if (myName) {
+            window.submitName = origSubmit;
+            loadSharedQuiz(id);
+          }
+        };
+      } else {
+        loadSharedQuiz(id);
+      }
+      return;
+    }
+
+    // Normal flow — check name
+    if (checkNameGate()) {
+      showNameGate();
+    } else {
+      // Pre-fill creator name
+      const cn = document.getElementById('creatorName');
+      if (cn && myName) cn.value = myName;
+    }
+  });
 });
 
 // ══════════════════════════════════════════════════
@@ -485,11 +691,21 @@ function switchTab(t) {
 }
 
 // ══════════════════════════════════════════════════
-//  FRIENDS TOGGLE
+//  FRIENDS TOGGLE — now starts quiz immediately, shares results after
 // ══════════════════════════════════════════════════
 function toggleFriends() {
   friendsMode = !friendsMode;
   document.getElementById('friendsToggle').classList.toggle('on', friendsMode);
+  const sub = document.getElementById('tog-sub');
+  if (currentLang === 'ar') {
+    sub.textContent = friendsMode
+      ? 'سيبدأ الاختبار فوراً — يمكن لأصدقائك الانضمام وسترى نتائجهم في لوحة المتصدرين'
+      : 'ابدأ الاختبار مباشرة — شارك النتائج مع أصدقائك بعد الانتهاء';
+  } else {
+    sub.textContent = friendsMode
+      ? 'Quiz starts immediately — friends join anytime and you compare on the leaderboard'
+      : 'Jump straight to questions — share results with friends after';
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -501,7 +717,7 @@ uploadZone.addEventListener('drop', e => {
   e.preventDefault(); uploadZone.classList.remove('over');
   const f = e.dataTransfer.files[0];
   if (f?.name?.toLowerCase().endsWith('.pdf')) setFile(f);
-  else showErr('File must be a PDF.');
+  else showErr(currentLang === 'ar' ? 'يجب أن يكون الملف PDF.' : 'File must be a PDF.');
 });
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
 document.getElementById('removeFile').addEventListener('click', () => {
@@ -566,7 +782,6 @@ async function cloudUpdate(id, data) {
 const LS = 'mcq3_';
 function lsSave(id, d) { localStorage.setItem(LS + id, JSON.stringify(d)); }
 function lsRead(id)    { const r = localStorage.getItem(LS + id); return r ? JSON.parse(r) : null; }
-
 async function sessionSave(data) {
   if (useCloud) {
     if (!quizId) quizId = await cloudCreate(data);
@@ -588,34 +803,41 @@ genBtn.addEventListener('click', async () => {
   const num  = parseInt(document.getElementById('numQ').value) || 5;
   const lang = document.getElementById('lang').value;
   const diff = document.getElementById('diff').value;
-  myName     = (document.getElementById('creatorName').value.trim()) || 'Host';
+
+  // Use saved name
+  const savedName = localStorage.getItem('quiz_username');
+  myName = savedName || myName || 'Host';
+
   isJoiner = false; isHost = true; quizId = null;
 
-  // Reset
   questions = []; userAnswers = []; confirmed = false;
   qContainer.innerHTML = '';
   resultCard.classList.remove('show');
   reviewSection.style.display = 'none';
   quizSection.style.display = 'none';
-  quizSection.classList.remove('show');
   leaderboard.classList.remove('show');
   sharePanel.classList.remove('show');
   waitingRoom.classList.remove('show');
-  nameBanner.classList.remove('show');
   quizHdr.style.display = 'none';
   confirmAllWrap.style.display = 'none';
   stopPolling();
 
   genBtn.disabled = true;
   progressWrap.classList.add('show');
-  progressText.textContent = 'Reading file…';
+  progressText.textContent = currentLang === 'ar' ? 'قراءة الملف…' : 'Reading file…';
 
   let text = '';
   try { text = await extractText(pdfFile); }
-  catch (e) { showErr('Could not read file — make sure it is a text-based PDF.'); resetBtn(); return; }
-  if (text.length < 150) { showErr('The PDF does not contain enough text.'); resetBtn(); return; }
+  catch (e) {
+    showErr(currentLang === 'ar' ? 'تعذّر قراءة الملف — تأكد أن الملف PDF نصي.' : 'Could not read file — make sure it is a text-based PDF.');
+    resetBtn(); return;
+  }
+  if (text.length < 150) {
+    showErr(currentLang === 'ar' ? 'ملف PDF لا يحتوي على نص كافٍ.' : 'The PDF does not contain enough text.');
+    resetBtn(); return;
+  }
 
-  progressText.textContent = 'Generating questions…';
+  progressText.textContent = currentLang === 'ar' ? 'توليد الأسئلة…' : 'Generating questions…';
 
   const langLabel = lang === 'arabic' ? 'Arabic' : 'English';
   const diffLabel = { easy: 'easy', medium: 'medium', hard: 'hard' }[diff];
@@ -642,14 +864,14 @@ ${text.substring(0, 7000)}`;
     let raw = data.choices[0].message.content.trim()
       .replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '').trim();
     const m = raw.match(/\[[\s\S]*\]/);
-    if (!m) throw new Error('AI did not return valid JSON — please try again.');
+    if (!m) throw new Error(currentLang === 'ar' ? 'لم يعد الذكاء الاصطناعي JSON صحيحاً — حاول مرة أخرى.' : 'AI did not return valid JSON — please try again.');
     questions = JSON.parse(m[0]);
-    if (!Array.isArray(questions) || !questions.length) throw new Error('No questions were generated.');
+    if (!Array.isArray(questions) || !questions.length) throw new Error(currentLang === 'ar' ? 'لم يتم توليد أسئلة.' : 'No questions were generated.');
 
-    progressText.textContent = 'Saving quiz…';
+    progressText.textContent = currentLang === 'ar' ? 'حفظ الاختبار…' : 'Saving quiz…';
     const session = {
       questions, scores: {}, friendsMode,
-      started: !friendsMode,
+      started: true, // always start immediately in new friends mode
       players: [{ name: myName, ts: Date.now() }],
       creator: myName
     };
@@ -657,13 +879,12 @@ ${text.substring(0, 7000)}`;
     progressWrap.classList.remove('show');
     showShareBox();
 
-    if (friendsMode) {
-      showWaitingRoom(session, true);
-    } else {
-      renderQuiz();
-    }
+    // Friends mode: start immediately and show leaderboard for comparison
+    // No more waiting room — just go straight to quiz
+    renderQuiz();
+
   } catch (e) {
-    showErr('Error: ' + e.message); resetBtn();
+    showErr((currentLang === 'ar' ? 'خطأ: ' : 'Error: ') + e.message); resetBtn();
   }
 });
 
@@ -676,16 +897,21 @@ function showShareBox() {
   const url = location.origin + location.pathname + '?quiz=' + quizId;
   shareUrlEl.textContent = url;
   sharePanel.classList.add('show');
+  const note = document.getElementById('shareNote');
   if (!useCloud) {
-    document.getElementById('shareNote').textContent =
-      '⚠ Local mode: link only works on this device. Add a JSONBin key to enable real cross-device sharing.';
+    note.textContent = currentLang === 'ar'
+      ? '⚠ الوضع المحلي: الرابط يعمل على هذا الجهاز فقط.'
+      : '⚠ Local mode: link only works on this device.';
   }
 }
+
 function copyShare() {
   const url = location.origin + location.pathname + '?quiz=' + quizId;
   navigator.clipboard.writeText(url).then(() => {
     const b = document.getElementById('copyBtn');
-    b.textContent = '✓ Copied'; setTimeout(() => b.textContent = 'Copy', 2500);
+    const orig = b.textContent;
+    b.textContent = currentLang === 'ar' ? '✓ تم النسخ' : '✓ Copied';
+    setTimeout(() => b.textContent = orig, 2500);
   });
 }
 
@@ -694,21 +920,42 @@ function copyShare() {
 // ══════════════════════════════════════════════════
 async function joinQuiz() {
   const raw  = document.getElementById('joinUrl').value.trim();
-  const name = document.getElementById('joinName').value.trim();
   const jErr = document.getElementById('joinErrBox');
   hideErr(jErr);
-  if (!name) { showErr('Enter your name first.', jErr); return; }
-  if (!raw)  { showErr('Paste the quiz link.', jErr); return; }
+
+  // Use saved name
+  const savedName = localStorage.getItem('quiz_username');
+  if (!savedName && !myName) {
+    showNameGate();
+    const origSubmit = window.submitName;
+    window.submitName = function() {
+      origSubmit();
+      if (myName) {
+        window.submitName = origSubmit;
+        joinQuiz();
+      }
+    };
+    return;
+  }
+  myName = savedName || myName;
+
+  if (!raw) {
+    showErr(currentLang === 'ar' ? 'الصق رابط الاختبار.' : 'Paste the quiz link.', jErr);
+    return;
+  }
   let id = null;
   try { id = new URL(raw).searchParams.get('quiz'); } catch { id = raw.trim(); }
-  if (!id) { showErr('Invalid link.', jErr); return; }
-  myName = name; isJoiner = true; isHost = false; quizId = id;
+  if (!id) {
+    showErr(currentLang === 'ar' ? 'رابط غير صحيح.' : 'Invalid link.', jErr);
+    return;
+  }
+  isJoiner = true; isHost = false; quizId = id;
   loadSharedQuiz(id);
 }
 
 async function loadSharedQuiz(id) {
   progressWrap.classList.add('show');
-  progressText.textContent = 'Loading quiz…';
+  progressText.textContent = currentLang === 'ar' ? 'تحميل الاختبار…' : 'Loading quiz…';
   document.getElementById('siteHeader').style.display = 'none';
   document.getElementById('tabsBar').style.display = 'none';
   document.getElementById('createTab').classList.add('hidden');
@@ -723,7 +970,7 @@ async function loadSharedQuiz(id) {
       switchTab('join');
       document.getElementById('createTab').classList.remove('hidden');
       document.getElementById('joinTab').classList.remove('hidden');
-      showErr('Quiz not found or has expired.', document.getElementById('joinErrBox'));
+      showErr(currentLang === 'ar' ? 'الاختبار غير موجود أو انتهت صلاحيته.' : 'Quiz not found or has expired.', document.getElementById('joinErrBox'));
       history.replaceState({}, '', location.pathname);
       return;
     }
@@ -731,45 +978,27 @@ async function loadSharedQuiz(id) {
     progressWrap.classList.remove('show');
     history.replaceState({}, '', '?quiz=' + id);
 
-    if (isJoiner && !myName) {
-      nameBanner.classList.add('show');
-      return;
+    // Register player
+    if (useCloud && myName) {
+      await registerPlayerAndGet(id, myName, s);
     }
 
-    if (s.friendsMode) {
-      // Register and get updated session in ONE operation (no double read)
-      const updated = await registerPlayerAndGet(id, myName, s);
-      if (!updated.started) {
-        showWaitingRoom(updated, false);
-        startPollingWaiting();
-        return;
-      }
-    }
-
+    // Always render quiz immediately (friends mode is now direct)
     renderQuiz();
+
   } catch (e) {
     progressWrap.classList.remove('show');
     document.getElementById('siteHeader').style.display = '';
     document.getElementById('tabsBar').style.display = '';
     document.getElementById('createTab').classList.remove('hidden');
     document.getElementById('joinTab').classList.remove('hidden');
-    showErr('Error loading quiz: ' + e.message, document.getElementById('joinErrBox'));
+    showErr((currentLang === 'ar' ? 'خطأ في تحميل الاختبار: ' : 'Error loading quiz: ') + e.message, document.getElementById('joinErrBox'));
     history.replaceState({}, '', location.pathname);
   }
 }
 
-function startJoined() {
-  const n = document.getElementById('playerName').value.trim();
-  if (!n) { alert('Please enter your name.'); return; }
-  myName = n; isJoiner = true;
-  nameBanner.classList.remove('show');
-  progressWrap.classList.add('show');
-  progressText.textContent = 'Joining quiz…';
-  loadSharedQuiz(quizId);
-}
-
 // ══════════════════════════════════════════════════
-//  PLAYER REGISTER (optimised — reuses already-read session)
+//  PLAYER REGISTER
 // ══════════════════════════════════════════════════
 async function registerPlayerAndGet(id, name, existingSession) {
   if (!useCloud) return existingSession;
@@ -782,82 +1011,6 @@ async function registerPlayerAndGet(id, name, existingSession) {
   } catch (e) { console.warn('registerPlayer:', e); return existingSession; }
 }
 
-async function registerPlayer(id, name) {
-  if (!useCloud) return;
-  try {
-    const s = await sessionRead(id);
-    if (!s) return;
-    if (!s.players) s.players = [];
-    if (!s.players.find(p => p.name === name)) s.players.push({ name, ts: Date.now() });
-    await cloudUpdate(id, s);
-  } catch (e) { console.warn('registerPlayer:', e); }
-}
-
-// ══════════════════════════════════════════════════
-//  WAITING ROOM
-// ══════════════════════════════════════════════════
-function showWaitingRoom(session, host) {
-  waitingRoom.classList.add('show');
-  quizSection.style.display = 'none';
-  if (host) {
-    document.getElementById('hostStartWrap').classList.remove('hidden');
-    document.getElementById('guestWaitMsg').style.display = 'none';
-    startPollingWaiting();
-  } else {
-    document.getElementById('hostStartWrap').classList.add('hidden');
-    document.getElementById('guestWaitMsg').style.display = 'block';
-  }
-  renderPlayerList(session.players || []);
-}
-
-function renderPlayerList(players) {
-  playerList.innerHTML = '';
-  players.forEach((p, i) => {
-    const el = document.createElement('div');
-    el.className = 'player-row';
-    const isme = p.name === myName;
-    el.innerHTML = `
-      <span class="pname">${p.name}${isme ? ' (you)' : ''}</span>
-      <span class="pbadge ${i === 0 ? 'host' : ''}">${i === 0 ? 'host' : 'joined'}</span>
-      <span class="pdot"></span>`;
-    playerList.appendChild(el);
-  });
-  wrCounter.innerHTML = `<strong>${players.length}</strong> joined`;
-}
-
-function startPollingWaiting() {
-  stopPolling();
-  const pollFn = async () => {
-    try {
-      const s = await sessionRead(quizId);
-      if (!s) return;
-      renderPlayerList(s.players || []);
-      if (s.started && !isHost) {
-        stopPolling();
-        waitingRoom.classList.remove('show');
-        questions = s.questions;
-        renderQuiz();
-      }
-    } catch (e) {}
-  };
-  pollTimer = setInterval(pollFn, POLL_MS);
-}
-
-async function hostStartQuiz() {
-  const btn = document.querySelector('#hostStartWrap .btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Starting…'; }
-  try {
-    const s = await sessionRead(quizId);
-    if (!s) return;
-    s.started = true;
-    if (useCloud) await cloudUpdate(quizId, s);
-    else lsSave(quizId, s);
-  } catch (e) {}
-  stopPolling();
-  waitingRoom.classList.remove('show');
-  renderQuiz();
-}
-
 function stopPolling() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
 }
@@ -866,8 +1019,18 @@ function stopPolling() {
 //  RENDER QUIZ
 // ══════════════════════════════════════════════════
 function renderQuiz() {
+  // Show share panel with friends badge if friends mode
+  if (friendsMode && quizId) {
+    const badge = document.createElement('div');
+    badge.className = 'friends-badge';
+    badge.setAttribute('id', 'friendsBadge');
+    badge.textContent = currentLang === 'ar' ? 'وضع الأصدقاء — شارك الرابط أعلاه لمقارنة النتائج' : 'Friends Mode — share link above to compare results';
+    if (!document.getElementById('friendsBadge') && sharePanel.parentNode) {
+      sharePanel.parentNode.insertBefore(badge, sharePanel.nextSibling);
+    }
+  }
+
   quizSection.style.display = 'block';
-  quizSection.classList.add('show');
   qContainer.innerHTML = '';
   userAnswers = new Array(questions.length).fill(null);
   confirmed = false;
@@ -875,7 +1038,7 @@ function renderQuiz() {
   reviewSection.style.display = 'none';
 
   quizHdr.style.display = 'flex';
-  document.getElementById('quizTitle').textContent = 'Questions';
+  document.getElementById('quizTitle').textContent = currentLang === 'ar' ? 'الأسئلة' : 'Questions';
   updateProgressDisplay();
 
   const L = ['A', 'B', 'C', 'D'];
@@ -884,10 +1047,13 @@ function renderQuiz() {
     const card = document.createElement('div');
     card.className = 'qcard';
     card.style.animationDelay = (qi * .07) + 's';
-    card.setAttribute('data-qi', qi);
+
+    const qNumTxt = currentLang === 'ar'
+      ? `سؤال ${qi + 1} من ${questions.length}`
+      : `Question ${qi + 1} of ${questions.length}`;
 
     card.innerHTML = `
-      <div class="qnum">Question ${qi + 1} of ${questions.length}</div>
+      <div class="qnum">${qNumTxt}</div>
       <div class="qtext">${q.question}</div>
       <div class="opts" id="opts${qi}"></div>
     `;
@@ -896,7 +1062,7 @@ function renderQuiz() {
     q.options.forEach((opt, oi) => {
       const b = document.createElement('button');
       b.className = 'opt';
-      b.innerHTML = `<span>${opt}</span><span class="oltr">${L[oi]}</span>`;
+      b.innerHTML = `<span class="oltr">${L[oi]}</span><span>${opt}</span>`;
       b.addEventListener('click', () => selectOption(qi, oi));
       od.appendChild(b);
     });
@@ -909,26 +1075,22 @@ function renderQuiz() {
 }
 
 // ══════════════════════════════════════════════════
-//  OPTION SELECTION (before confirm)
+//  OPTION SELECTION
 // ══════════════════════════════════════════════════
 function selectOption(qi, oi) {
   if (confirmed) return;
-
   userAnswers[qi] = oi;
-
-  // Update visual selection for this question
   const od = document.getElementById('opts' + qi);
   od.querySelectorAll('.opt').forEach((b, idx) => {
     b.classList.toggle('selected', idx === oi);
   });
-
   updateProgressDisplay();
   checkAllAnswered();
 }
 
 function updateProgressDisplay() {
   const answeredCount = userAnswers.filter(a => a !== null).length;
-  scoreDisplay.textContent = answeredCount + ' / ' + questions.length + ' answered';
+  scoreDisplay.textContent = answeredCount + ' / ' + questions.length + (currentLang === 'ar' ? ' أُجيب' : ' answered');
 }
 
 function checkAllAnswered() {
@@ -937,7 +1099,7 @@ function checkAllAnswered() {
 }
 
 // ══════════════════════════════════════════════════
-//  SUBMIT — reveal results after confirmation
+//  SUBMIT
 // ══════════════════════════════════════════════════
 async function submitQuiz() {
   confirmed = true;
@@ -967,31 +1129,31 @@ async function submitQuiz() {
     });
   });
 
-  // Show score
   const total = questions.length;
   const pct = Math.round((correct / total) * 100);
-  const msg = pct === 100 ? 'Perfect!' : pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Good job!' : 'Review the material.';
+
+  let msg;
+  if (currentLang === 'ar') {
+    msg = pct === 100 ? 'مثالي! 🎉' : pct >= 80 ? 'ممتاز! 🌟' : pct >= 60 ? 'جيد! 👍' : 'راجع المادة. 📚';
+  } else {
+    msg = pct === 100 ? 'Perfect! 🎉' : pct >= 80 ? 'Excellent! 🌟' : pct >= 60 ? 'Good job! 👍' : 'Review the material. 📚';
+  }
 
   document.getElementById('resScore').textContent = correct + '/' + total;
   document.getElementById('resPct').textContent = pct + '%';
   document.getElementById('resMsg').textContent = msg;
   resultCard.classList.add('show');
 
-  // Build full review
   buildReview(correct);
-
-  // Save score
   await saveScore(myName, correct, total);
   await renderLeaderboard();
 
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-  // Poll leaderboard for friends
   stopPolling();
   pollTimer = setInterval(renderLeaderboard, POLL_MS);
 
-  // Update score display
-  scoreDisplay.textContent = correct + ' / ' + total + ' correct';
+  scoreDisplay.textContent = correct + ' / ' + total + (currentLang === 'ar' ? ' صحيح' : ' correct');
 }
 
 // ══════════════════════════════════════════════════
@@ -1015,21 +1177,22 @@ function buildReview(correctCount) {
       return `<div class="${cls}"><span class="rl">${L[oi]}</span><span>${opt}</span></div>`;
     }).join('');
 
+    const qLabel = currentLang === 'ar'
+      ? `سؤال ${qi + 1} — ${isCorrect ? '✓ صحيح' : '✗ خطأ'}`
+      : `Question ${qi + 1} — ${isCorrect ? '✓ Correct' : '✗ Incorrect'}`;
+
     card.innerHTML = `
-      <div class="review-qnum">Question ${qi + 1} — ${isCorrect ? '✓ Correct' : '✗ Incorrect'}</div>
+      <div class="review-qnum" style="color:${isCorrect ? 'var(--paper)' : 'var(--red)'}">${qLabel}</div>
       <div class="review-qtext">${q.question}</div>
       <div class="review-opts">${optsHtml}</div>
       ${q.explanation ? `<div class="review-expl">${q.explanation}</div>` : ''}
     `;
 
-    // Color the question number
-    const numEl = card.querySelector('.review-qnum');
-    numEl.style.color = isCorrect ? 'var(--paper)' : 'var(--red)';
-
     reviewContainer.appendChild(card);
   });
 
   reviewSection.style.display = 'block';
+  document.getElementById('review-title').textContent = currentLang === 'ar' ? 'مراجعة الإجابات' : 'Answer Review';
 }
 
 // ══════════════════════════════════════════════════
@@ -1066,10 +1229,19 @@ async function renderLeaderboard() {
       lbTable.appendChild(tr);
     });
     leaderboard.classList.add('show');
+    document.getElementById('lb-title').textContent = currentLang === 'ar' ? 'لوحة المتصدرين' : 'Leaderboard';
   } catch (e) { console.warn('lb:', e); }
 }
 
 async function refreshLeaderboard() { await renderLeaderboard(); }
+
+// Hidden creator name field (keep for compat but use saved name)
+if (!document.getElementById('creatorName')) {
+  const inp = document.createElement('input');
+  inp.type = 'hidden';
+  inp.id = 'creatorName';
+  document.body.appendChild(inp);
+}
 </script>
 </body>
 </html>
