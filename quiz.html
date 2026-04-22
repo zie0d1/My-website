@@ -418,7 +418,7 @@ const MODEL     = 'llama-3.3-70b-versatile';
 const JSONBIN_KEY = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
 
-const POLL_MS = 3500;
+const POLL_MS = 1200;
 const useCloud = !JSONBIN_KEY.includes('PLACEHOLDER');
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -709,6 +709,8 @@ async function joinQuiz() {
 async function loadSharedQuiz(id) {
   progressWrap.classList.add('show');
   progressText.textContent = 'Loading quiz…';
+  document.getElementById('siteHeader').style.display = 'none';
+  document.getElementById('tabsBar').style.display = 'none';
   document.getElementById('createTab').classList.add('hidden');
   document.getElementById('joinTab').classList.add('hidden');
 
@@ -716,6 +718,8 @@ async function loadSharedQuiz(id) {
     const s = await sessionRead(id);
     if (!s || !s.questions || !s.questions.length) {
       progressWrap.classList.remove('show');
+      document.getElementById('siteHeader').style.display = '';
+      document.getElementById('tabsBar').style.display = '';
       switchTab('join');
       document.getElementById('createTab').classList.remove('hidden');
       document.getElementById('joinTab').classList.remove('hidden');
@@ -725,31 +729,28 @@ async function loadSharedQuiz(id) {
     }
     questions = s.questions;
     progressWrap.classList.remove('show');
-
-    document.getElementById('siteHeader').style.display = 'none';
-    document.getElementById('tabsBar').style.display = 'none';
+    history.replaceState({}, '', '?quiz=' + id);
 
     if (isJoiner && !myName) {
       nameBanner.classList.add('show');
-      history.replaceState({}, '', '?quiz=' + id);
       return;
     }
 
     if (s.friendsMode) {
-      await registerPlayer(id, myName);
-      const fresh = await sessionRead(id);
-      if (!fresh.started) {
-        showWaitingRoom(fresh, false);
-        history.replaceState({}, '', '?quiz=' + id);
+      // Register and get updated session in ONE operation (no double read)
+      const updated = await registerPlayerAndGet(id, myName, s);
+      if (!updated.started) {
+        showWaitingRoom(updated, false);
         startPollingWaiting();
         return;
       }
     }
 
     renderQuiz();
-    history.replaceState({}, '', '?quiz=' + id);
   } catch (e) {
     progressWrap.classList.remove('show');
+    document.getElementById('siteHeader').style.display = '';
+    document.getElementById('tabsBar').style.display = '';
     document.getElementById('createTab').classList.remove('hidden');
     document.getElementById('joinTab').classList.remove('hidden');
     showErr('Error loading quiz: ' + e.message, document.getElementById('joinErrBox'));
@@ -762,12 +763,25 @@ function startJoined() {
   if (!n) { alert('Please enter your name.'); return; }
   myName = n; isJoiner = true;
   nameBanner.classList.remove('show');
+  progressWrap.classList.add('show');
+  progressText.textContent = 'Joining quiz…';
   loadSharedQuiz(quizId);
 }
 
 // ══════════════════════════════════════════════════
-//  PLAYER REGISTER
+//  PLAYER REGISTER (optimised — reuses already-read session)
 // ══════════════════════════════════════════════════
+async function registerPlayerAndGet(id, name, existingSession) {
+  if (!useCloud) return existingSession;
+  try {
+    const s = existingSession;
+    if (!s.players) s.players = [];
+    if (!s.players.find(p => p.name === name)) s.players.push({ name, ts: Date.now() });
+    await cloudUpdate(id, s);
+    return s;
+  } catch (e) { console.warn('registerPlayer:', e); return existingSession; }
+}
+
 async function registerPlayer(id, name) {
   if (!useCloud) return;
   try {
@@ -813,7 +827,7 @@ function renderPlayerList(players) {
 
 function startPollingWaiting() {
   stopPolling();
-  pollTimer = setInterval(async () => {
+  const pollFn = async () => {
     try {
       const s = await sessionRead(quizId);
       if (!s) return;
@@ -825,10 +839,13 @@ function startPollingWaiting() {
         renderQuiz();
       }
     } catch (e) {}
-  }, POLL_MS);
+  };
+  pollTimer = setInterval(pollFn, POLL_MS);
 }
 
 async function hostStartQuiz() {
+  const btn = document.querySelector('#hostStartWrap .btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Starting…'; }
   try {
     const s = await sessionRead(quizId);
     if (!s) return;
