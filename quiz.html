@@ -284,6 +284,45 @@ body.rtl #confirmAllWrap p{letter-spacing:0;}
 .friends-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,169,110,.3);padding:.3rem .7rem;margin-bottom:1.5rem;}
 body.rtl .friends-badge{letter-spacing:0;}
 .friends-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:glow 1.5s ease-in-out infinite;}
+
+/* ── ADMIN PANEL ── */
+.admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(4px);}
+.admin-overlay.hidden{display:none;}
+.admin-box{background:#111;border:1px solid var(--rule);max-width:620px;width:100%;max-height:90vh;overflow-y:auto;padding:2rem;}
+.admin-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:1.25rem;margin-bottom:1.75rem;}
+.admin-header h2{font-family:var(--serif);font-size:1.3rem;font-weight:700;}
+.admin-close{background:none;border:none;color:var(--dim);font-size:1.3rem;cursor:pointer;transition:color .2s;}
+.admin-close:hover{color:var(--paper);}
+.admin-stat{display:flex;gap:2rem;margin-bottom:2rem;flex-wrap:wrap;}
+.stat-card{flex:1;min-width:100px;border:1px solid var(--rule);padding:1rem 1.25rem;}
+.stat-num{font-family:var(--serif);font-size:2rem;font-weight:900;color:var(--accent);}
+.stat-lbl{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:.2rem;}
+.admin-section-lbl{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem;}
+.admin-user-row{display:flex;align-items:center;gap:.75rem;border:1px solid var(--rule);padding:.65rem 1rem;margin-bottom:.35rem;animation:up .3s ease;}
+.admin-user-name{flex:1;font-size:.88rem;font-weight:600;}
+.admin-user-meta{font-size:.68rem;color:var(--dim);}
+.admin-user-badge{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;border:1px solid var(--rule);color:var(--dim);}
+.admin-user-badge.banned{border-color:var(--red);color:var(--red);}
+.admin-user-badge.host{border-color:var(--accent);color:var(--accent);}
+.ban-btn{background:none;border:1px solid var(--red);color:var(--red);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .75rem;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;}
+.ban-btn:hover{background:var(--red);color:#fff;}
+.unban-btn{background:none;border:1px solid #3ecf8e;color:#3ecf8e;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .75rem;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;}
+.unban-btn:hover{background:#3ecf8e;color:var(--ink);}
+.admin-refresh-btn{background:none;border:1px solid var(--rule);color:#bbb;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:.4rem 1rem;cursor:pointer;margin-bottom:1.25rem;transition:border-color .2s,color .2s;}
+.admin-refresh-btn:hover{border-color:var(--paper);color:var(--paper);}
+.admin-empty{font-size:.8rem;color:var(--dim);padding:1.5rem 0;text-align:center;}
+
+/* Admin password modal */
+.admin-pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.admin-pw-overlay.hidden{display:none;}
+.admin-pw-box{background:#111;border:1px solid var(--rule);max-width:340px;width:100%;padding:2rem;text-align:center;}
+.admin-pw-box h3{font-family:var(--serif);font-size:1.2rem;margin-bottom:.4rem;}
+.admin-pw-box p{font-size:.78rem;color:var(--dim);margin-bottom:1.5rem;}
+.admin-pw-input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--rule);color:var(--paper);font-family:monospace;font-size:1rem;padding:.5rem 0;outline:none;text-align:center;margin-bottom:1.25rem;transition:border-color .2s;letter-spacing:.12em;}
+.admin-pw-input:focus{border-bottom-color:var(--accent);}
+.admin-pw-err{font-size:.75rem;color:var(--red);margin-bottom:1rem;display:none;}
+.admin-pw-err.show{display:block;}
+.admin-pw-cancel{background:none;border:none;color:var(--dim);font-size:.72rem;cursor:pointer;text-decoration:underline;margin-top:.5rem;}
 </style>
 </head>
 <body>
@@ -293,6 +332,46 @@ body.rtl .friends-badge{letter-spacing:0;}
   <div class="load-logo">Quiz<em>.</em></div>
   <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
   <div class="load-status" id="loadStatus">Loading…</div>
+</div>
+
+<!-- ADMIN PASSWORD MODAL -->
+<div class="admin-pw-overlay hidden" id="adminPwOverlay">
+  <div class="admin-pw-box">
+    <h3>🔐 Admin Access</h3>
+    <p>Enter the admin password to continue</p>
+    <input type="password" class="admin-pw-input" id="adminPwInput" placeholder="••••••••" maxlength="32" autocomplete="off"/>
+    <div class="admin-pw-err" id="adminPwErr">Incorrect password. Try again.</div>
+    <button class="btn" onclick="checkAdminPassword()" style="max-width:200px;margin:0 auto;">Enter →</button>
+    <br/>
+    <button class="admin-pw-cancel" onclick="closeAdminPw()">Cancel</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-overlay hidden" id="adminOverlay">
+  <div class="admin-box">
+    <div class="admin-header">
+      <h2>⚙ Admin Panel</h2>
+      <button class="admin-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div class="admin-stat">
+      <div class="stat-card">
+        <div class="stat-num" id="adminTotalUsers">0</div>
+        <div class="stat-lbl">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="adminActiveQuizzes">0</div>
+        <div class="stat-lbl">Active Quizzes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="adminBannedCount">0</div>
+        <div class="stat-lbl">Banned</div>
+      </div>
+    </div>
+    <button class="admin-refresh-btn" onclick="loadAdminData()">↻ Refresh Data</button>
+    <div class="admin-section-lbl">Current Session Users</div>
+    <div id="adminUserList"><div class="admin-empty">No active session loaded.</div></div>
+  </div>
 </div>
 
 <!-- NAME GATE (first time) -->
@@ -1242,6 +1321,220 @@ if (!document.getElementById('creatorName')) {
   inp.id = 'creatorName';
   document.body.appendChild(inp);
 }
+
+// ══════════════════════════════════════════════════
+//  ADMIN SYSTEM
+// ══════════════════════════════════════════════════
+const ADMIN_NAME     = 'زيد';
+const ADMIN_PASSWORD = 'qazdrqwer';
+const BANNED_KEY     = 'quiz_banned_users';
+
+function getBannedList() {
+  try { return JSON.parse(localStorage.getItem(BANNED_KEY) || '[]'); } catch { return []; }
+}
+function saveBannedList(list) {
+  localStorage.setItem(BANNED_KEY, JSON.stringify(list));
+}
+function isUserBanned(name) {
+  return getBannedList().includes(name.trim());
+}
+function banUser(name) {
+  const list = getBannedList();
+  if (!list.includes(name)) { list.push(name); saveBannedList(list); }
+  loadAdminData();
+}
+function unbanUser(name) {
+  const list = getBannedList().filter(n => n !== name);
+  saveBannedList(list);
+  loadAdminData();
+}
+
+// Intercept submitName to check banned + trigger admin
+const _origSubmitName = window.submitName;
+window.submitName = function() {
+  const val = document.getElementById('ngInput').value.trim();
+  if (!val) { _origSubmitName(); return; }
+
+  // Admin trigger
+  if (val === ADMIN_NAME) {
+    document.getElementById('nameGate').classList.add('hidden');
+    document.getElementById('adminPwOverlay').classList.remove('hidden');
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwErr').classList.remove('show');
+    setTimeout(() => document.getElementById('adminPwInput').focus(), 200);
+    return;
+  }
+
+  // Check ban
+  if (isUserBanned(val)) {
+    const inp = document.getElementById('ngInput');
+    inp.style.borderBottomColor = 'var(--red)';
+    // Show ban message
+    let msg = document.getElementById('ngBanMsg');
+    if (!msg) {
+      msg = document.createElement('div');
+      msg.id = 'ngBanMsg';
+      msg.style.cssText = 'color:var(--red);font-size:.78rem;margin-top:.5rem;border-left:2px solid var(--red);padding:.4rem .7rem;text-align:left;';
+      document.getElementById('ngInput').parentNode.insertBefore(msg, document.getElementById('ngInput').nextSibling);
+    }
+    msg.textContent = '🚫 هذا المستخدم محظور من الاختبار.';
+    msg.style.display = 'block';
+    setTimeout(() => { inp.style.borderBottomColor = ''; }, 2000);
+    return;
+  }
+
+  // Remove ban msg if exists
+  const old = document.getElementById('ngBanMsg');
+  if (old) old.style.display = 'none';
+
+  _origSubmitName();
+};
+
+function checkAdminPassword() {
+  const pw = document.getElementById('adminPwInput').value.trim();
+  if (pw === ADMIN_PASSWORD) {
+    document.getElementById('adminPwOverlay').classList.add('hidden');
+    // Save admin name so gate closes
+    myName = ADMIN_NAME;
+    localStorage.setItem('quiz_username', ADMIN_NAME);
+    openAdmin();
+  } else {
+    document.getElementById('adminPwErr').classList.add('show');
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').focus();
+  }
+}
+
+document.getElementById('adminPwInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkAdminPassword();
+});
+
+function closeAdminPw() {
+  document.getElementById('adminPwOverlay').classList.add('hidden');
+  document.getElementById('nameGate').classList.remove('hidden');
+  setTimeout(() => document.getElementById('ngInput').focus(), 200);
+}
+
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.remove('hidden');
+  loadAdminData();
+}
+
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.add('hidden');
+}
+
+async function loadAdminData() {
+  const banned = getBannedList();
+  document.getElementById('adminBannedCount').textContent = banned.length;
+
+  // Try to load current session data
+  let players = [];
+  let scores  = {};
+
+  if (quizId) {
+    try {
+      const s = await sessionRead(quizId);
+      if (s) {
+        players = s.players || [];
+        scores  = s.scores  || {};
+      }
+    } catch(e) { console.warn('admin load:', e); }
+  } else {
+    // Show all known names from localStorage scores across all mcq3_ keys
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('mcq3_')) {
+        try {
+          const d = JSON.parse(localStorage.getItem(k));
+          if (d && d.players) players.push(...d.players);
+          if (d && d.scores) Object.assign(scores, d.scores);
+        } catch {}
+      }
+    }
+    // deduplicate
+    const seen = new Set();
+    players = players.filter(p => { if (seen.has(p.name)) return false; seen.add(p.name); return true; });
+  }
+
+  document.getElementById('adminTotalUsers').textContent = players.length;
+  document.getElementById('adminActiveQuizzes').textContent = quizId ? 1 : 0;
+
+  const container = document.getElementById('adminUserList');
+  if (!players.length) {
+    container.innerHTML = '<div class="admin-empty">No users found in the current session.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  players.forEach(p => {
+    const isBanned = banned.includes(p.name);
+    const isCreator = p.name === (window._sessionCreator || '');
+    const sc = scores[p.name];
+    const scoreText = sc ? `${sc.correct}/${sc.total} (${sc.pct}%)` : 'Not submitted';
+    const time = p.ts ? new Date(p.ts).toLocaleTimeString() : '';
+
+    const row = document.createElement('div');
+    row.className = 'admin-user-row';
+    row.innerHTML = `
+      <div class="admin-user-name">${p.name}</div>
+      <div class="admin-user-meta">${scoreText}</div>
+      <div class="admin-user-meta" style="font-size:.64rem;opacity:.6">${time}</div>
+      ${isBanned
+        ? `<span class="admin-user-badge banned">Banned</span>`
+        : (isCreator ? `<span class="admin-user-badge host">Host</span>` : `<span class="admin-user-badge">Player</span>`)
+      }
+      ${isBanned
+        ? `<button class="unban-btn" onclick="unbanUser('${p.name}')">Unban</button>`
+        : `<button class="ban-btn" onclick="banUser('${p.name}')">Ban</button>`
+      }
+    `;
+    container.appendChild(row);
+  });
+
+  // Also show banned users not in current session
+  banned.forEach(name => {
+    if (!players.find(p => p.name === name)) {
+      const row = document.createElement('div');
+      row.className = 'admin-user-row';
+      row.style.opacity = '.6';
+      row.innerHTML = `
+        <div class="admin-user-name">${name}</div>
+        <div class="admin-user-meta" style="font-style:italic">Not in current session</div>
+        <span class="admin-user-badge banned">Banned</span>
+        <button class="unban-btn" onclick="unbanUser('${name}')">Unban</button>
+      `;
+      container.appendChild(row);
+    }
+  });
+}
+
+// Store session creator for admin display
+window._sessionCreator = '';
+
+// Wrap sessionSave to capture creator
+const __realSessionSave = sessionSave;
+async function sessionSave(data) {
+  window._sessionCreator = data.creator || '';
+  return __realSessionSave(data);
+}
+
+// Check ban on quiz join
+const _origLoadSharedQuiz = loadSharedQuiz;
+window.loadSharedQuiz = async function(id) {
+  if (myName && isUserBanned(myName)) {
+    progressWrap.classList.remove('show');
+    document.getElementById('siteHeader').style.display = '';
+    document.getElementById('tabsBar').style.display = '';
+    document.getElementById('createTab').classList.remove('hidden');
+    document.getElementById('joinTab').classList.remove('hidden');
+    switchTab('join');
+    showErr('🚫 أنت محظور من هذا الاختبار.', document.getElementById('joinErrBox'));
+    history.replaceState({}, '', location.pathname);
+    return;
+  }
+  return _origLoadSharedQuiz(id);
+};
 </script>
 </body>
 </html>
