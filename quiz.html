@@ -653,8 +653,37 @@ body.rtl .pbadge{letter-spacing:0;}
 // ══════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════
-const GROQ_KEY    = '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';
+const GROQ_KEYS   = [
+  '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',
+  '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'
+];
 const GROQ_URL    = 'https://api.groq.com/openai/v1/chat/completions';
+
+async function groqRequest(payload) {
+  for (let i = 0; i < GROQ_KEYS.length; i++) {
+    try {
+      const res = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEYS[i] },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return res;
+      const err = await res.json().catch(() => ({}));
+      const msg = err.error?.message || '';
+      // If rate limit or quota, try next key
+      if (res.status === 429 || res.status === 401 || msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('quota')) {
+        console.warn(`GROQ key ${i+1} failed (${res.status}), trying next…`);
+        continue;
+      }
+      // Other error — throw immediately
+      throw new Error(msg || 'HTTP ' + res.status);
+    } catch(e) {
+      if (i === GROQ_KEYS.length - 1) throw e;
+      console.warn(`GROQ key ${i+1} error, trying next…`, e.message);
+    }
+  }
+  throw new Error('All API keys exhausted — please try again later.');
+}
 const MODEL       = 'llama-3.3-70b-versatile';
 const JSONBIN_KEY = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
@@ -1195,15 +1224,7 @@ Text:
 ${text.substring(0, 10000)}`;
 
   try {
-    const res = await fetch(GROQ_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
-      body: JSON.stringify({ model: MODEL, max_tokens: 6000, temperature: 0.3, messages: [{ role: 'user', content: prompt }] })
-    });
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({}));
-      throw new Error(e.error?.message || 'HTTP ' + res.status);
-    }
+    const res = await groqRequest({ model: MODEL, max_tokens: 6000, temperature: 0.3, messages: [{ role: 'user', content: prompt }] });
     const data = await res.json();
     let raw = data.choices[0].message.content.trim()
       .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
