@@ -286,8 +286,13 @@ body.rtl #confirmAllWrap p{letter-spacing:0;}
 
 .hidden{display:none!important;}
 
-/* Friends badge */
-.friends-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,169,110,.3);padding:.3rem .7rem;margin-bottom:1.5rem;}
+/* Provider badge */
+.provider-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .65rem;margin-bottom:.5rem;border:1px solid var(--rule);color:var(--dim);}
+.provider-badge.groq{border-color:rgba(124,109,250,.4);color:#a09af0;}
+.provider-badge.gemini{border-color:rgba(66,133,244,.4);color:#7ab3f7;}
+#aiProviderField select{color:var(--paper);padding-right:1.5rem;}
+#aiProviderField select option[value="groq"]{color:#a09af0;}
+#aiProviderField select option[value="gemini"]{color:#7ab3f7;}align-items:center;gap:.4rem;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,169,110,.3);padding:.3rem .7rem;margin-bottom:1.5rem;}
 body.rtl .friends-badge{letter-spacing:0;}
 .friends-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:glow 1.5s ease-in-out infinite;}
 @keyframes glow{0%,100%{opacity:.4}50%{opacity:1}}
@@ -525,6 +530,15 @@ body.rtl .pbadge{letter-spacing:0;}
       </div>
     </div>
 
+    <!-- AI Provider Selector -->
+    <div class="field" id="aiProviderField" style="margin-bottom:1.75rem;">
+      <label id="lbl-ai" data-en="AI Model" data-ar="نموذج الذكاء الاصطناعي">AI Model</label>
+      <select id="aiProvider" onchange="setProvider(this.value)">
+        <option value="groq" data-en="⚡ Groq — Llama 3.3 70B (Fast)" data-ar="⚡ Groq — Llama 3.3 70B (سريع)">⚡ Groq — Llama 3.3 70B (Fast)</option>
+        <option value="gemini" data-en="✨ Google Gemini 2.0 Flash (Smart)" data-ar="✨ Google Gemini 2.0 Flash (ذكي)">✨ Google Gemini 2.0 Flash (Smart)</option>
+      </select>
+    </div>
+
     <!-- Friends Mode Toggle -->
     <div class="tog-row" id="friendsToggle" onclick="toggleFriends()">
       <div class="tl">
@@ -661,6 +675,14 @@ const GROQ_KEYS   = [
   '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'
 ];
 const GROQ_URL    = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL  = 'llama-3.3-70b-versatile';
+
+// Gemini config
+const GEMINI_KEY  = 'AQ.Ab8RN6L56iy2V3Vv2iArteWaCNu6f68HiBKszISQTHvysSBrJA';
+const GEMINI_URL  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+// Active provider state
+let activeProvider = 'groq'; // 'groq' | 'gemini'
 
 async function groqRequest(payload) {
   for (let i = 0; i < GROQ_KEYS.length; i++) {
@@ -673,21 +695,39 @@ async function groqRequest(payload) {
       if (res.ok) return res;
       const err = await res.json().catch(() => ({}));
       const msg = err.error?.message || '';
-      // If rate limit or quota, try next key
       if (res.status === 429 || res.status === 401 || msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('quota')) {
         console.warn(`GROQ key ${i+1} failed (${res.status}), trying next…`);
         continue;
       }
-      // Other error — throw immediately
       throw new Error(msg || 'HTTP ' + res.status);
     } catch(e) {
       if (i === GROQ_KEYS.length - 1) throw e;
       console.warn(`GROQ key ${i+1} error, trying next…`, e.message);
     }
   }
-  throw new Error('All API keys exhausted — please try again later.');
+  throw new Error('All GROQ keys exhausted — please try again later.');
 }
-const MODEL       = 'llama-3.3-70b-versatile';
+
+async function geminiRequest(systemPrompt, userPrompt) {
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
+    generationConfig: { temperature: 0.2, maxOutputTokens: 8192 }
+  };
+  const res = await fetch(GEMINI_URL + '?key=' + GEMINI_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'Gemini HTTP ' + res.status);
+  }
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return text;
+}
+
+const MODEL = GROQ_MODEL;
 const JSONBIN_KEY = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
 const POLL_MS     = 1200;
@@ -1141,6 +1181,10 @@ function toggleFriends() {
   }
 }
 
+function setProvider(val) {
+  activeProvider = val;
+}
+
 // ══════════════════════════════════════════════════
 //  UPLOAD
 // ══════════════════════════════════════════════════
@@ -1323,10 +1367,19 @@ ABSOLUTE RULES:
 - If you are not 100% sure of the correct answer from the text, skip that question and write a different one.
 - Wrong options must be wrong for a clear reason, not just random.`;
 
-    const res = await groqRequest({ model: MODEL, max_tokens: 8000, temperature: 0.2, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }] });
-    const data = await res.json();
-    let raw = data.choices[0].message.content.trim()
-      .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    let raw = '';
+
+    if (activeProvider === 'gemini') {
+      progressText.textContent = currentLang === 'ar' ? 'Gemini يولّد الأسئلة…' : 'Gemini is generating questions…';
+      raw = await geminiRequest(systemPrompt, prompt);
+    } else {
+      progressText.textContent = currentLang === 'ar' ? 'Groq يولّد الأسئلة…' : 'Groq is generating questions…';
+      const res = await groqRequest({ model: GROQ_MODEL, max_tokens: 8000, temperature: 0.2, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }] });
+      const data = await res.json();
+      raw = data.choices[0].message.content.trim();
+    }
+
+    raw = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
     const m = raw.match(/\[[\s\S]*\]/);
     if (!m) throw new Error(currentLang === 'ar' ? 'لم يعد الذكاء الاصطناعي JSON صحيحاً — حاول مرة أخرى.' : 'AI did not return valid JSON — please try again.');
     questions = JSON.parse(m[0]);
