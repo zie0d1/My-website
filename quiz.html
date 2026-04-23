@@ -313,6 +313,9 @@ body.rtl .hist-tag{letter-spacing:0;}
 .hist-tag.fail{border-color:rgba(224,53,53,.4);color:var(--red);}
 .hist-tag.good{border-color:rgba(200,169,110,.4);color:var(--accent);}
 .hist-summary{font-size:.75rem;color:var(--dim);margin-top:.5rem;line-height:1.6;}
+.retake-btn{margin-top:.9rem;display:inline-block;background:none;border:1px solid var(--accent);color:var(--accent);font-family:var(--sans);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:.45rem 1.1rem;cursor:pointer;transition:background .2s,color .2s;}
+body.rtl .retake-btn{font-family:var(--arabic);letter-spacing:0;}
+.retake-btn:hover{background:var(--accent);color:var(--ink);}
 
 /* History stats */
 .hist-stats{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
@@ -992,6 +995,8 @@ function renderHistoryTab() {
     const tagClass = h.pct >= 70 ? (h.pct >= 85 ? 'pass' : 'good') : 'fail';
     const tagText  = h.pct >= 85 ? (isAr ? 'ممتاز' : 'Excellent') : h.pct >= 70 ? (isAr ? 'جيد' : 'Good') : (isAr ? 'راجع المادة' : 'Needs Review');
     const dateStr  = new Date(h.ts).toLocaleDateString(isAr ? 'ar' : 'en', { month:'short', day:'numeric', year:'numeric' });
+    const hasQs    = h.questions && h.questions.length > 0;
+    const retakeIdx = getHistory().length - 1 - i; // index in original array (non-reversed)
 
     card.innerHTML = `
       <div class="hist-top">
@@ -1010,14 +1015,82 @@ function renderHistoryTab() {
         <span class="hist-tag">${h.pct}%</span>
       </div>
       ${h.weakAreas && h.weakAreas.length ? `<div class="hist-summary">${isAr ? 'مجالات المراجعة:' : 'Review:'} ${h.weakAreas.join(', ')}</div>` : ''}
+      ${hasQs ? `<button class="retake-btn" onclick="retakeQuiz(${retakeIdx})">${isAr ? '🔁 إعادة الاختبار' : '🔁 Retake Quiz'}</button>` : ''}
     `;
     listEl.appendChild(card);
   });
 }
 
 // ══════════════════════════════════════════════════
-//  UNDERSTANDING TIERS
+//  RETAKE QUIZ FROM HISTORY
 // ══════════════════════════════════════════════════
+function retakeQuiz(histIndex) {
+  const hist = getHistory();
+  const entry = hist[histIndex];
+  if (!entry || !entry.questions || !entry.questions.length) return;
+
+  // Shuffle options order for each question so it feels fresh
+  const shuffled = entry.questions.map(q => {
+    const opts = q.options.map((o, i) => ({ text: o, isCorrect: i === q.correct }));
+    // Shuffle
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    return {
+      ...q,
+      options: opts.map(o => o.text),
+      correct: opts.findIndex(o => o.isCorrect),
+    };
+  });
+
+  // Load into quiz
+  questions = shuffled;
+  currentPdfName = entry.pdfName || '';
+  quizId = null;
+  isJoiner = false; isHost = true;
+  confirmed = false;
+
+  // Reset UI
+  resultCard.classList.remove('show');
+  reviewSection.style.display = 'none';
+  leaderboard.classList.remove('show');
+  sharePanel.classList.remove('show');
+  waitingRoom.classList.remove('show');
+  document.getElementById('weakBox').style.display = 'none';
+  stopPolling();
+
+  // Switch to quiz view
+  document.getElementById('siteHeader').style.display = '';
+  document.getElementById('tabsBar').style.display = '';
+  document.getElementById('createTab').classList.add('hidden');
+  document.getElementById('joinTab').classList.add('hidden');
+  document.getElementById('historyTab').classList.add('hidden');
+  document.getElementById('tabCreate').classList.remove('active');
+  document.getElementById('tabJoin').classList.remove('active');
+  document.getElementById('tabHistory').classList.remove('active');
+
+  renderQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Show a small "back" button above the quiz
+  const existing = document.getElementById('retakeBackBtn');
+  if (existing) existing.remove();
+  const backBtn = document.createElement('button');
+  backBtn.id = 'retakeBackBtn';
+  backBtn.className = 'btn-sm';
+  backBtn.style.cssText = 'margin-bottom:1.5rem;display:block;';
+  backBtn.textContent = currentLang === 'ar' ? '← العودة للسجل' : '← Back to History';
+  backBtn.onclick = () => {
+    backBtn.remove();
+    document.getElementById('createTab').classList.remove('hidden');
+    document.getElementById('joinTab').classList.remove('hidden');
+    document.getElementById('historyTab').classList.remove('hidden');
+    quizSection.style.display = 'none';
+    switchTab('history');
+  };
+  quizSection.parentNode.insertBefore(backBtn, quizSection);
+}
 function getUnderstandingTier(pct) {
   const isAr = currentLang === 'ar';
   if (pct >= 95) return { label: isAr ? '🏆 إتقان' : '🏆 Mastery', color: '#ffd700' };
@@ -1205,26 +1278,52 @@ genBtn.addEventListener('click', async () => {
   const langLabel = lang === 'arabic' ? 'Arabic' : 'English';
   const diffLabel = { easy: 'easy', medium: 'medium', hard: 'hard' }[diff];
 
-  const prompt = `You are an expert quiz creator specializing in comprehensive academic assessment.
-From the text below, create exactly ${num} multiple choice questions.
-Language: ${langLabel} — Difficulty: ${diffLabel}
+  // Smart chunking: split text into equal parts to ensure full coverage
+  const chunkSize = Math.floor(10000 / 3);
+  const t = text.replace(/\s+/g,' ').trim();
+  const part1 = t.substring(0, chunkSize);
+  const part2 = t.substring(Math.floor(t.length/2 - chunkSize/2), Math.floor(t.length/2 + chunkSize/2));
+  const part3 = t.substring(Math.max(0, t.length - chunkSize));
+  const balancedText = [part1, '...', part2, '...', part3].join('\n');
 
-CRITICAL RULES:
-1. Questions must comprehensively cover the ENTIRE material (beginning, middle, end equally)
-2. Each question tests a DIFFERENT concept — no repetition
-3. Questions should test understanding, not just memorization
-4. For ${num} questions: spread across all major topics in the text
-5. 4 options per question, exactly one correct answer
-6. Include a brief explanation for the correct answer
+  const diffInstructions = {
+    easy:   'Focus on definitions, key terms, and direct facts stated in the text. Questions should be straightforward.',
+    medium: 'Mix of factual recall AND conceptual understanding. Some questions should require connecting ideas from different parts.',
+    hard:   'Prioritize analysis, application, and synthesis. Questions should require deep understanding. Distractors (wrong answers) must be plausible and require careful thinking to eliminate.'
+  }[diff];
 
-Reply with STRICT JSON only, no other text, no markdown:
-[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"...","topic":"brief topic name"}]
+  const prompt = `You are a university professor creating a rigorous academic exam.
 
-Text:
-${text.substring(0, 10000)}`;
+TASK: Create exactly ${num} multiple-choice questions from the provided text.
+LANGUAGE: Write ALL questions and answers in ${langLabel}.
+DIFFICULTY: ${diff.toUpperCase()} — ${diffInstructions}
+
+STRICT QUALITY RULES (follow every single one):
+1. COVERAGE: Distribute questions evenly — roughly equal from the beginning, middle, and end of the text. Never cluster questions on one section.
+2. NO REPETITION: Every question must test a completely different concept. Do not ask about the same idea twice in different words.
+3. QUESTION DEPTH: Questions must require actual thinking. FORBIDDEN: "What is mentioned in the text about X?" — Instead ask: "Why does X cause Y?" or "What would happen if Z?"
+4. WRONG OPTIONS (distractors): Each wrong answer must be believable and related to the topic — not obviously absurd. A student who hasn't studied well should find them tempting.
+5. ONE CLEAR ANSWER: The correct answer must be unambiguously correct. No trick questions.
+6. QUESTION VARIETY: Use different question formats — "Which of the following...", "What is the PRIMARY reason...", "According to the text, what BEST describes...", "If X occurs, what is the likely result...", "Which statement is INCORRECT..."
+7. TOPIC TAG: Give each question a 2-4 word topic tag in ${langLabel}.
+
+OUTPUT FORMAT — return ONLY this JSON array, no other text, no markdown, no explanation:
+[{"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"one sentence why this answer is correct","topic":"..."}]
+
+TEXT TO ANALYZE:
+${balancedText}`;
 
   try {
-    const res = await groqRequest({ model: MODEL, max_tokens: 6000, temperature: 0.3, messages: [{ role: 'user', content: prompt }] });
+    const systemPrompt = `You are a meticulous academic exam writer. Your most important job is ACCURACY.
+ABSOLUTE RULES:
+- The "correct" field index MUST point to the factually correct answer. Double-check every single question before outputting.
+- Every question must be crystal clear — a student should understand exactly what is being asked with no ambiguity.
+- Never write a question where two options could both be correct.
+- Never write a question that is not directly answerable from the provided text.
+- If you are not 100% sure of the correct answer from the text, skip that question and write a different one.
+- Wrong options must be wrong for a clear reason, not just random.`;
+
+    const res = await groqRequest({ model: MODEL, max_tokens: 8000, temperature: 0.2, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }] });
     const data = await res.json();
     let raw = data.choices[0].message.content.trim()
       .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
@@ -1232,6 +1331,28 @@ ${text.substring(0, 10000)}`;
     if (!m) throw new Error(currentLang === 'ar' ? 'لم يعد الذكاء الاصطناعي JSON صحيحاً — حاول مرة أخرى.' : 'AI did not return valid JSON — please try again.');
     questions = JSON.parse(m[0]);
     if (!Array.isArray(questions) || !questions.length) throw new Error(currentLang === 'ar' ? 'لم يتم توليد أسئلة.' : 'No questions were generated.');
+
+    // Validate & clean questions
+    questions = questions.filter((q, i) => {
+      if (!q.question || typeof q.question !== 'string' || q.question.trim().length < 10) return false;
+      if (!Array.isArray(q.options) || q.options.length < 4) return false;
+      if (typeof q.correct !== 'number' || q.correct < 0 || q.correct > 3) return false;
+      if (!q.options[q.correct] || q.options[q.correct].trim().length < 2) return false;
+      // Check options are all distinct
+      const opts = q.options.map(o => o.trim().toLowerCase());
+      const unique = new Set(opts);
+      if (unique.size < 4) return false;
+      return true;
+    });
+    // De-duplicate by question text similarity
+    const seen = new Set();
+    questions = questions.filter(q => {
+      const key = q.question.trim().toLowerCase().substring(0, 40);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    if (!questions.length) throw new Error(currentLang === 'ar' ? 'لم يتم توليد أسئلة صالحة — حاول مرة أخرى.' : 'No valid questions generated — please try again.');
 
     progressText.textContent = currentLang === 'ar' ? 'حفظ الاختبار…' : 'Saving quiz…';
     const session = {
@@ -1513,7 +1634,8 @@ async function submitQuiz() {
     correct, total, pct,
     diff: session?.diff || document.getElementById('diff')?.value || '—',
     weakAreas: uniqueWeak,
-    quizId
+    quizId,
+    questions: JSON.parse(JSON.stringify(questions)) // حفظ نسخة من الأسئلة
   };
   addHistoryEntry(histEntry);
 
