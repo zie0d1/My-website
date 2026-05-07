@@ -317,6 +317,24 @@
         .due-alert { background:var(--danger-bg); border:1px solid var(--danger); color:var(--danger); padding:10px 14px; font-size:12px; font-family:var(--mono); margin-bottom:12px; display:flex; align-items:center; gap:8px; cursor:pointer; }
         .due-alert:hover { background:var(--danger); color:#fff; }
 
+
+        /* SPINNER */
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* SUMMARY CARD STYLES */
+        .summary-card { background:var(--surface); border:1px solid var(--border); padding:18px; margin-bottom:10px; transition:all var(--transition); position:relative; }
+        .summary-card:hover { box-shadow:var(--shadow-lg); border-color:var(--border-hover); }
+        .summary-card-header { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+        .summary-card-icon { width:36px; height:36px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .summary-card-icon svg { width:18px; height:18px; color:var(--accent); stroke:var(--accent); }
+        .summary-card-name { font-weight:600; font-size:14px; color:var(--text); margin-bottom:3px; }
+        .summary-card-meta { font-size:10px; color:var(--text4); font-family:var(--mono); }
+        .summary-card-preview { font-size:12px; color:var(--text3); line-height:1.7; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; unicode-bidi:plaintext; text-align:start; }
+        .summary-card-actions { display:flex; gap:6px; margin-top:12px; }
+        .summary-empty { text-align:center; padding:48px 20px; color:var(--text4); }
+        .summary-empty-icon { font-size:40px; margin-bottom:12px; opacity:0.3; }
+        .summary-empty-text { font-size:13px; }
+
         .hidden { display:none !important; }
 
         /* MOBILE */
@@ -382,15 +400,16 @@
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></span>
                 <span class="si-label" data-t="gen_pdf">توليد من PDF</span>
             </button>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="summary" id="sidebarSummary" onclick="switchPanel('summary')">
-                <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
-                <span class="si-label">الملخصات</span>
-            </button>
+
             <button class="sidebar-item disabled subject-only hidden" data-panel="todo" id="sidebarTodo" onclick="switchPanel('todo')">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="1"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="16" x2="9.01" y2="16" stroke-width="3"/><polyline points="12 14 15 17 20 12"/></svg></span>
                 <span class="si-label" data-t="todo">المحاضرات</span>
             </button>
             <div class="sidebar-section subject-only hidden" id="sidebarSectionLib" data-t="library">المكتبة</div>
+            <button class="sidebar-item disabled subject-only hidden" data-panel="summary" id="sidebarSummary" onclick="switchPanel('summary')">
+                <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+                <span class="si-label" data-t="summary_lib">الملخصات</span>
+            </button>
             <button class="sidebar-item disabled subject-only hidden" data-panel="decks" id="sidebarDecks" onclick="switchPanel('decks')">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
                 <span class="si-label" data-t="my_cards">بطاقاتي</span>
@@ -458,10 +477,23 @@
                     <div class="input-row">
                         <div class="input-group"><label data-t="quiz_name">اسم الاختبار</label><input id="quizNameInput" placeholder="مثلاً اختبار الفصل الأول" value=""></div>
                     </div>
+                    <!-- AI Status -->
+                    <div id="aiStatus" class="hidden" style="margin-bottom:14px">
+                        <div style="background:var(--surface2);border:1px solid var(--border);padding:14px;display:flex;align-items:center;gap:10px">
+                            <div id="aiSpinner" style="width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
+                            <span id="aiStatusText" style="font-family:var(--mono);font-size:12px;color:var(--text3)"></span>
+                        </div>
+                    </div>
                     <div class="btn-group">
-                        <button class="btn btn-primary" id="btnGroq" disabled onclick="groqMCQ()">⚡ توليد MCQ</button>
-                        <button class="btn" id="btnCards" disabled onclick="genFlashcardsAI()">🃏 توليد بطاقات</button>
-                        <button class="btn" id="btnEssay" disabled onclick="genEssay()" data-t="essay">✍ مقالي</button>
+                        <button class="btn btn-primary" id="btnGenMCQ" disabled onclick="nvidiaMCQ()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
+                            <span data-t="gen_mcq_btn">توليد MCQ</span>
+                        </button>
+                        <button class="btn" id="btnGenCards" disabled onclick="nvidiaCards()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                            <span data-t="gen_cards_btn">توليد بطاقات</span>
+                        </button>
+                        <button class="btn" id="btnEssay" disabled onclick="genEssay()" data-t="essay">مقالي</button>
                     </div>
                     <div id="groqStatus" class="hidden card" style="font-family:var(--mono);font-size:12px;text-align:center"></div>
                     <div id="essayArea" class="hidden">
@@ -505,81 +537,90 @@
                     <div id="progressContent"></div>
                 </div>
 
+
+
                 <!-- SUMMARY PANEL -->
                 <div class="panel" id="panel-summary">
-                    <h1 class="page-title">الملخصات</h1>
-                    <p class="page-subtitle">استخرج ملخصاً ذكياً من PDF باستخدام الذكاء الاصطناعي</p>
+                    <h1 class="page-title" data-t="summary_library_title">الملخصات</h1>
+                    <p class="page-subtitle" data-t="summary_lib_subtitle">ملخصات ذكية من ملفات PDF — احفظها وراجعها في أي وقت</p>
 
-                    <!-- PDF Upload -->
-                    <div class="drop-zone" id="summaryDropZone"
-                        onclick="document.getElementById('summaryPdfInput').click()"
-                        ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'"
-                        ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''"
-                        ondrop="handleSummaryDrop(event)">
-                        <div class="drop-title">انقر هنا أو اسحب ملف PDF لتلخيصه</div>
-                        <div class="drop-hint">PDF — 25 pages max</div>
-                    </div>
-                    <input type="file" id="summaryPdfInput" accept=".pdf" class="hidden" onchange="setSummaryPDF(this.files[0])">
-                    <div id="summaryFilePill" class="card hidden" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:14px">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <span id="summaryFileName" style="flex:1;font-family:var(--mono);font-size:12px"></span>
-                        <button class="btn btn-sm btn-ghost" onclick="clearSummaryPDF()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <!-- Generate Summary from PDF -->
+                    <div class="card" style="margin-bottom:18px">
+                        <div class="card-header" style="margin-bottom:14px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:8px">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                                <span data-t="gen_summary_title">توليد ملخص بالذكاء الاصطناعي</span>
+                            </span>
+                        </div>
+                        <div id="summaryDropZone" class="drop-zone" onclick="document.getElementById('summaryPdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleSummaryDrop(event)">
+                            <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
+                            <div class="drop-hint">PDF - 25 pages max</div>
+                        </div>
+                        <input type="file" id="summaryPdfInput" accept=".pdf" class="hidden" onchange="setSummaryPDF(this.files[0])">
+                        <div id="summaryFilePill" class="hidden" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);background:var(--surface2);margin-bottom:12px">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span id="summaryFileName" style="flex:1;font-family:var(--mono);font-size:12px;color:var(--text2)"></span>
+                            <button class="btn btn-sm btn-ghost" onclick="clearSummaryPDF()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                        <div class="input-row" style="margin-bottom:12px">
+                            <div class="input-group">
+                                <label data-t="quiz_name">اسم الملخص</label>
+                                <input id="summaryNameInput" placeholder="مثلاً: ملخص الفصل الأول">
+                            </div>
+                            <div class="input-group">
+                                <label data-t="language">اللغة</label>
+                                <select id="summaryLangSel"><option value="عربي" data-t="arabic">عربي</option><option value="English">English</option></select>
+                            </div>
+                        </div>
+                        <!-- Summary Style Chips -->
+                        <div style="margin-bottom:14px">
+                            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);font-family:var(--mono);margin-bottom:8px">نوع الملخص</div>
+                            <div class="chip-row" id="summaryStyleChips">
+                                <span class="chip active" data-style="detailed" onclick="setSummaryStyle(this)">مفصّل</span>
+                                <span class="chip" data-style="bullets" onclick="setSummaryStyle(this)">نقاط</span>
+                                <span class="chip" data-style="concise" onclick="setSummaryStyle(this)">مختصر</span>
+                                <span class="chip" data-style="academic" onclick="setSummaryStyle(this)">أكاديمي</span>
+                            </div>
+                        </div>
+                        <!-- AI Status -->
+                        <div id="summaryAiStatus" class="hidden" style="margin-bottom:12px">
+                            <div style="background:var(--accent-light);border:1px solid var(--accent);padding:12px 14px;display:flex;align-items:center;gap:10px">
+                                <div style="width:14px;height:14px;border:2px solid var(--accent-light);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
+                                <span id="summaryAiStatusText" style="font-family:var(--mono);font-size:12px;color:var(--accent)"></span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-full" id="btnGenSummary" disabled onclick="nvidiaSummary()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                            <span data-t="gen_summary_btn">توليد الملخص</span>
                         </button>
                     </div>
 
-                    <!-- Options -->
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>اسم الملخص</label>
-                            <input id="summaryNameInput" placeholder="مثلاً: ملخص الفصل الأول">
-                        </div>
-                        <div class="input-group" style="max-width:140px">
-                            <label>اللغة</label>
-                            <select id="summaryLangSel">
-                                <option value="عربي" selected>عربي</option>
-                                <option value="English">English</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary btn-full" id="btnGenSummary" disabled onclick="groqSummary()" style="margin-bottom:14px">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
-                        توليد الملخص بالذكاء الاصطناعي
-                    </button>
-
-                    <!-- Status -->
-                    <div id="summaryStatus" class="hidden card" style="font-family:var(--mono);font-size:12px;text-align:center;margin-bottom:14px"></div>
-
-                    <!-- Result -->
-                    <div id="summaryResultArea" class="hidden">
-                        <div class="card" style="margin-bottom:14px;line-height:1.8">
-                            <div class="card-header">
-                                <span class="card-title">الملخص</span>
-                                <div style="display:flex;gap:6px">
-                                    <button class="btn btn-sm" onclick="copySummaryResult()" title="نسخ">⎘ نسخ</button>
-                                </div>
-                            </div>
-                            <div id="summaryResultText" style="font-size:13px;color:var(--text2)"></div>
-                        </div>
-                    </div>
-
-                    <!-- Library -->
-                    <div style="margin-top:24px">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-                            <div class="section-label" style="margin-bottom:0">الملخصات المحفوظة</div>
+                    <!-- Generated Result Preview -->
+                    <div id="summaryResultArea" class="hidden" style="margin-bottom:20px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                            <div class="section-label" style="margin-bottom:0">الملخص المولّد</div>
                             <div style="display:flex;gap:6px">
-                                <button class="btn btn-sm" onclick="$('summaryImportArea').classList.toggle('hidden')">استيراد</button>
-                                <button class="btn btn-sm" onclick="exportSummaryLib()">تصدير</button>
-                                <button class="btn btn-danger btn-sm" onclick="confirmModal(t('clear_all')+'?', ()=>{saveSummaryLibData([]);renderSummaryLib();})">مسح الكل</button>
+                                <button class="btn btn-sm btn-success" onclick="saveCurrentSummary()" data-t="save">حفظ</button>
+                                <button class="btn btn-sm" onclick="copySummaryResult()" data-t="copy">نسخ</button>
                             </div>
                         </div>
-                        <div id="summaryImportArea" class="hidden" style="margin-bottom:14px">
-                            <textarea id="summaryImportInput" rows="3" placeholder="Paste exported summaries JSON..." style="font-family:var(--mono);font-size:11px;margin-bottom:6px"></textarea>
-                            <button class="btn btn-primary btn-sm" onclick="importSummaryJSON()">استيراد</button>
-                        </div>
-                        <div id="summaryLibList"></div>
+                        <div id="summaryResultBox" style="background:var(--surface);border:1px solid var(--border);padding:20px;font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--text2);max-height:500px;overflow-y:auto;unicode-bidi:plaintext;text-align:start"></div>
                     </div>
+
+                    <!-- Saved Summaries Library -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                        <div class="section-label" style="margin-bottom:0" data-t="summary_library_title">المكتبة المحفوظة</div>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn btn-sm" onclick="exportSummaryLib()" data-t="export">تصدير</button>
+                            <button class="btn btn-sm" onclick="document.getElementById('summarySearchWrap').classList.toggle('hidden')">🔍</button>
+                        </div>
+                    </div>
+                    <div id="summarySearchWrap" class="hidden" style="margin-bottom:10px">
+                        <input id="summarySearch" placeholder="ابحث في الملخصات..." oninput="renderSummaryLib()" style="margin-bottom:0">
+                    </div>
+                    <div id="summaryLibList"></div>
                 </div>
 
                 <!-- DECKS PANEL -->
@@ -641,9 +682,15 @@
                 <div class="panel" id="panel-settings">
                     <h1 class="page-title" data-t="settings_title">الإعدادات</h1>
                     <p class="page-subtitle" data-t="settings_subtitle">إعدادات التطبيق ومفاتيح API</p>
-                    <div class="card" style="border-color:var(--success);background:var(--success-bg)">
-                        <div class="card-header"><span class="card-title" style="color:var(--success)">✓ AI مُفعّل</span></div>
-                        <p style="font-size:12px;color:var(--success)">الذكاء الاصطناعي متصل ويعمل تلقائياً. لا حاجة لإعدادات API.</p>
+                    <div class="card">
+                        <div class="card-header"><span class="card-title" style="display:flex;align-items:center;gap:8px">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            NVIDIA AI — متصل
+                        </span></div>
+                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b</div>
+                        <div style="font-size:11px;padding:10px 12px;background:var(--success-bg);border:1px solid var(--success);color:var(--success);font-family:var(--mono)">
+                            ✓ API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
+                        </div>
                     </div>
                     <div class="card">
                         <div class="card-header"><span class="card-title" data-t="notifications">الإشعارات</span></div>
@@ -770,7 +817,9 @@
             due_cards_banner:'لديك بطاقات مستحقة للمراجعة — انقر للدراسة',
             explain_groq:'اشرح مع Groq', summary_saved:'تم حفظ الملخص',
             no_summaries:'لا توجد ملخصات محفوظة', view:'عرض',
-            summary_library_title:'مكتبة الملخصات', summary_import:'استيراد JSON',
+            summary_library_title:'الملخصات', summary_lib_subtitle:'ملخصات ذكية من ملفات PDF',
+            gen_summary_title:'توليد ملخص بالذكاء الاصطناعي', gen_summary_btn:'توليد الملخص',
+            summary_lib:'الملخصات',
             todo_title:'قائمة المحاضرات', todo_subtitle:'تتبع تقدمك في كل محاضرة',
             todo_set_count:'حدد عدد المحاضرات', lec_count:'عدد المحاضرات',
             status_not_started:'لم يبدأ', status_in_progress:'جاري', status_done:'مكتمل',
@@ -806,7 +855,7 @@
             drop_zone_title:'Click here or drag a PDF file',
             q_count:'Number of Questions', difficulty:'Difficulty',
             easy:'Easy', medium:'Medium', hard:'Hard', language:'Language', arabic:'Arabic',
-            prompt_mcq:'MCQ Prompt', prompt_cards:'Cards Prompt', prompt_summary:'Summary Prompt',
+            prompt_mcq:'MCQ Prompt', prompt_cards:'Cards Prompt', prompt_summary:'Summary Prompt', gen_mcq_btn:'Generate MCQ', gen_cards_btn:'Generate Cards',
             quiz_name:'Quiz Name', lecture_name:'Lecture Name', essay:'Essay', copy:'Copy',
             your_answer:'Your Answer', evaluate:'Grade', new_question:'New Question',
             json_subtitle:'Paste question data and start the quiz instantly',
@@ -849,7 +898,9 @@
             due_cards_banner:'You have cards due for review — click to study',
             explain_groq:'Explain with Groq', summary_saved:'Summary saved',
             no_summaries:'No saved summaries', view:'View',
-            summary_library_title:'Summary Library', summary_import:'Import JSON',
+            summary_library_title:'Summaries', summary_lib_subtitle:'AI-powered smart summaries from PDF files',
+            gen_summary_title:'Generate AI Summary', gen_summary_btn:'Generate Summary',
+            summary_lib:'Summaries',
         }
     };
     function t(key) { return (TR[currentLang]?.[key]) || (TR['ar'][key]) || key; }
@@ -863,7 +914,7 @@
         const activePanel = document.querySelector('.panel.active');
         if (activePanel) {
             const id = activePanel.id.replace('panel-','');
-            const r = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummaryLib};
+            const r = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress};
             if (r[id]) r[id]();
         }
         toast(t('saved') + ' — ' + (currentLang==='ar'?'العربية':'English'));
@@ -968,7 +1019,7 @@
         if (si) si.classList.add('active');
         hide($('quizArea'));
         hide($('flashArea'));
-        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummaryLib};
+        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib()};
         if (renders[panelId]) renders[panelId]();
         window.scrollTo({top:0, behavior:'smooth'});
         closeMobileMenu();
@@ -1154,7 +1205,7 @@
             const autoQCount = Math.min(30, Math.max(5, Math.round(doc.numPages * 2.5)));
             if ($('qCount')) $('qCount').value = autoQCount;
             toast('OK — '+pdfText.length.toLocaleString()+' chars · '+doc.numPages+' pages → '+autoQCount+' Qs');
-            ['btnGroq','btnCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=false; });
+            ['btnGenMCQ','btnGenCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=false; });
         } catch(e) { alertModal(t('error')+': '+e.message); clearPDF(); }
     }
 
@@ -1162,9 +1213,10 @@
         pdfText=''; pdfFile='';
         if ($('filePill')) hide($('filePill'));
         if ($('dropZone')) show($('dropZone'));
+        hide($('promptWrap'));
         if ($('groqStatus')) hide($('groqStatus'));
         if ($('essayArea')) hide($('essayArea'));
-        ['btnGroq','btnCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=true; });
+        ['btnGenMCQ','btnGenCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=true; });
         $('pdfInput').value='';
     }
 
@@ -1175,51 +1227,82 @@
     }
 
     // ── PROMPTS ─────────────────────────────────────
+    let _fullPrompt = '';
     function buildMCQP() { return `Generate ${$('qCount').value} MCQ questions in ${$('langSel').value} at ${$('diffSel').value} level. Output JSON only:\n[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}]\nText:\n${pdfText}`; }
-    function buildSummaryPrompt(txt, lang) { return `Summarize the following text in ${lang||'Arabic'}, highlighting the most important points and key concepts in a structured way with clear sections. Output plain text, no JSON.\nText:\n${txt}`; }
-
-    // ── FLASHCARD GENERATION ──────────────────────
-    async function genFlashcardsAI() {
-        if (!pdfText) { alertModal(currentLang==='ar'?'يرجى رفع ملف PDF أولاً':'Please upload a PDF first'); return; }
-        const el = $('groqStatus');
-        show(el); el.textContent = t('generating'); el.style.color = 'var(--text3)';
-        const lang = $('langSel').value;
-        const count = Math.min(parseInt($('qCount').value)||10, 20);
-        const prompt = `Generate ${count} flashcards from the following text in ${lang}. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`;
+    function buildSummaryPrompt() { return ''; } // replaced by nvidiaSummary
+    function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
+    function genMCQPrompt() { showPrompt(buildMCQP()); }
+    function genCardsPrompt() { showPrompt(`Generate flashcards. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`); }
+    function genSummaryPrompt() {} // removed
+    async function copyPrompt() {
+        const txt = _fullPrompt || $('promptText')?.value || $('summaryPromptText')?.value;
+        if (!txt) return;
         try {
-            const r = await groqChat(prompt);
-            const cards = parseJSON(r);
-            if (!Array.isArray(cards) || !cards[0]?.question) throw new Error(t('json_invalid'));
-            const valid = cards.filter(c => c.question && c.answer);
-            if (!valid.length) throw new Error('No valid cards');
-            const deckName = $('quizNameInput').value.trim() || pdfFile || 'Generated Deck';
-            const decks = getDecks();
-            decks.push({name: deckName, cards: valid});
-            saveDecks(decks);
-            el.textContent = `OK — ${valid.length} ${t('cards')} → "${deckName}"`; el.style.color = 'var(--success)';
-            toast(t('saved'));
-        } catch(e) { el.textContent = 'ERR — '+e.message; el.style.color = 'var(--danger)'; }
+            await navigator.clipboard.writeText(txt);
+            toast(t('copied'));
+        } catch {
+            const ta = document.createElement('textarea');
+            ta.value = txt;
+            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+            document.body.appendChild(ta);
+            ta.focus(); ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            toast(t('copied'));
+        }
     }
 
-    // ── AI (NVIDIA) ──────────────────────────────────
-    const _NVIDIA_KEY = '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';
-    async function groqChat(prompt) {
+    // ── AI API (NVIDIA NIM) ──────────────────────────
+    const NV_API_KEY  = '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';
+    const NV_MODEL    = 'openai/gpt-oss-20b';
+    const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+
+    // Multiple CORS proxies to try in order
+    const CORS_PROXIES = [
+        url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        url => `https://cors-anywhere.herokuapp.com/${url}`,
+    ];
+
+    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=3000) {
+        const body = JSON.stringify({
+            model: NV_MODEL,
+            messages:[{role:'system',content:system},{role:'user',content:prompt}],
+            max_tokens: maxTokens,
+            temperature: 0.5
+        });
+        const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
+
+        // 1. Try direct call first
         try {
-            const r = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+_NVIDIA_KEY},
-                body: JSON.stringify({
-                    model: 'openai/gpt-4.1',
-                    messages: [{role:'system',content:'Output exactly as requested'},{role:'user',content:prompt}],
-                    max_tokens: 2048,
-                    temperature: 0.4
-                })
-            });
-            const d = await r.json();
-            if (!r.ok) throw new Error(d.error?.message || r.statusText);
-            return d.choices[0].message.content;
-        } catch(e) { throw e; }
+            const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
+            if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
+            const d = await r.json().catch(()=>({}));
+            // Real API error (not CORS) — throw immediately
+            throw new Error(d.error?.message || ('HTTP '+r.status));
+        } catch(directErr) {
+            // Only continue to proxy if it's a network/CORS TypeError
+            if (directErr.name !== 'TypeError') throw directErr;
+        }
+
+        // 2. Try CORS proxies in sequence
+        let lastErr = null;
+        for (const makeProxy of CORS_PROXIES) {
+            try {
+                const proxyUrl = makeProxy(NV_ENDPOINT);
+                const r = await fetch(proxyUrl, {method:'POST', headers, body});
+                if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
+                const d = await r.json();
+                // allorigins wraps in {contents:...}
+                const parsed = d.contents ? JSON.parse(d.contents) : d;
+                return parsed.choices[0].message.content;
+            } catch(e) { lastErr = e; }
+        }
+        throw new Error('Network error — check your connection. ' + (lastErr?.message||''));
     }
+
+    // Keep groqChat as alias for legacy calls
+    async function groqChat(prompt) { return nvidiaChat(prompt); }
 
     function parseJSON(t) {
         try { return JSON.parse(t); } catch {}
@@ -1228,19 +1311,63 @@
         return null;
     }
 
-    async function groqMCQ() {
-        const el = $('groqStatus');
-        show(el); el.textContent=t('generating'); el.style.color='var(--text3)';
+    function setAIStatus(msg, done=false, error=false) {
+        const wrap = $('aiStatus');
+        const txt = $('aiStatusText');
+        const spinner = $('aiSpinner');
+        if (!msg) { hide(wrap); return; }
+        show(wrap);
+        txt.textContent = msg;
+        txt.style.color = error ? 'var(--danger)' : done ? 'var(--success)' : 'var(--text3)';
+        if (spinner) spinner.style.display = (done||error) ? 'none' : 'block';
+    }
+
+    async function nvidiaMCQ() {
+        const btns = ['btnGenMCQ','btnGenCards','btnEssay'];
+        btns.forEach(id => { if ($(id)) $(id).disabled = true; });
+        setAIStatus(t('generating'));
         try {
-            const r = await groqChat(buildMCQP());
+            const r = await nvidiaChat(buildMCQP());
             const qs = parseJSON(r);
             if (!qs||!Array.isArray(qs)) throw new Error(t('json_invalid'));
             const v = qs.filter(q => q.question&&Array.isArray(q.options)&&q.correct!==undefined);
-            if (!v.length) throw new Error('No valid questions');
-            el.textContent='OK — '+v.length+' questions'; el.style.color='var(--success)';
+            if (!v.length) throw new Error('No valid questions parsed');
+            setAIStatus('✓ ' + v.length + ' ' + (currentLang==='ar'?'سؤال جاهز':'questions ready'), true);
             const quizName = $('quizNameInput').value.trim()||pdfFile||'MCQ Quiz';
-            setTimeout(() => startQuiz(v, quizName), 400);
-        } catch(e) { el.textContent='ERR — '+e.message; el.style.color='var(--danger)'; }
+            setTimeout(() => { setAIStatus(''); startQuiz(v, quizName); }, 600);
+        } catch(e) {
+            setAIStatus('✗ ' + e.message, false, true);
+            setTimeout(()=>setAIStatus(''), 4000);
+        } finally {
+            btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+        }
+    }
+
+    async function nvidiaCards() {
+        const btns = ['btnGenMCQ','btnGenCards','btnEssay'];
+        btns.forEach(id => { if ($(id)) $(id).disabled = true; });
+        setAIStatus(currentLang==='ar'?'جاري توليد البطاقات...':'Generating flashcards...');
+        try {
+            const r = await nvidiaChat(
+                'Generate comprehensive flashcards in ' + $('langSel').value + '. Output JSON array ONLY, no markdown:\n[{"question":"...","answer":"..."}]\nText:\n' + pdfText
+            );
+            const cards = parseJSON(r);
+            if (!Array.isArray(cards)||!cards[0]?.question) throw new Error(t('json_invalid'));
+            const valid = cards.filter(c=>c.question&&c.answer);
+            if (!valid.length) throw new Error('No valid cards');
+            // Auto-save to deck
+            const deckName = $('quizNameInput').value.trim() || pdfFile || 'Deck ' + (getDecks().length+1);
+            const decks = getDecks();
+            decks.push({name: deckName, cards: valid});
+            saveDecks(decks);
+            setAIStatus('✓ ' + valid.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+            setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
+        } catch(e) {
+            setAIStatus('✗ ' + e.message, false, true);
+            setTimeout(()=>setAIStatus(''), 4000);
+        } finally {
+            btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+        }
     }
 
     let _essayData = null;
@@ -1269,8 +1396,20 @@
         } catch(e) { fb.textContent='ERR — '+e.message; fb.style.color='var(--danger)'; }
     }
 
-    // ── SUMMARY PDF ──────────────────────────────────
-    let summaryPdfText = '', summaryPdfFile = '';
+    // groqSummary replaced by nvidiaSummary in panel-summary
+
+    // ── SUMMARY SYSTEM ───────────────────────────────
+    let summaryPdfText = '', summaryPdfFile = '', summaryCurrentStyle = 'detailed';
+    let _currentSummaryResult = '';
+
+    function getSummaryLib() { return lj(subKey('summary_lib')) || []; }
+    function saveSummaryLibData(d) { ls(subKey('summary_lib'), JSON.stringify(d.slice(0,100))); }
+
+    function setSummaryStyle(el) {
+        document.querySelectorAll('#summaryStyleChips .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        summaryCurrentStyle = el.dataset.style;
+    }
 
     async function setSummaryPDF(file) {
         if (!file || !file.name.endsWith('.pdf')) return;
@@ -1278,7 +1417,8 @@
         $('summaryFileName').textContent = file.name;
         show($('summaryFilePill'));
         hide($('summaryDropZone'));
-        toast(t('generating'));
+        show($('summaryAiStatus'));
+        $('summaryAiStatusText').textContent = currentLang==='ar'?'جاري قراءة الملف...':'Reading file...';
         try {
             const ab = await file.arrayBuffer();
             const doc = await pdfjsLib.getDocument({data:ab}).promise;
@@ -1289,20 +1429,26 @@
                 txt += tc.items.map(it=>it.str).join(' ') + '\n';
             }
             summaryPdfText = txt.trim();
-            toast('PDF OK — '+doc.numPages+' pages');
-            if ($('btnGenSummary')) $('btnGenSummary').disabled = false;
-        } catch(e) { alertModal(t('error')+': '+e.message); clearSummaryPDF(); }
+            hide($('summaryAiStatus'));
+            $('btnGenSummary').disabled = false;
+            if (!$('summaryNameInput').value) $('summaryNameInput').value = file.name.replace('.pdf','');
+            toast('✓ ' + doc.numPages + (currentLang==='ar'?' صفحة':' pages'));
+        } catch(e) {
+            hide($('summaryAiStatus'));
+            alertModal(t('error') + ': ' + e.message);
+            clearSummaryPDF();
+        }
     }
 
     function clearSummaryPDF() {
-        summaryPdfText = ''; summaryPdfFile = '';
-        if ($('summaryFilePill')) hide($('summaryFilePill'));
-        if ($('summaryDropZone')) show($('summaryDropZone'));
-        if ($('summaryStatus')) hide($('summaryStatus'));
-        if ($('summaryResultArea')) hide($('summaryResultArea'));
-        if ($('btnGenSummary')) $('btnGenSummary').disabled = true;
-        const inp = $('summaryPdfInput');
-        if (inp) inp.value = '';
+        summaryPdfText=''; summaryPdfFile='';
+        hide($('summaryFilePill'));
+        show($('summaryDropZone'));
+        hide($('summaryAiStatus'));
+        hide($('summaryResultArea'));
+        $('btnGenSummary').disabled = true;
+        $('summaryPdfInput').value = '';
+        $('summaryNameInput').value = '';
     }
 
     function handleSummaryDrop(e) {
@@ -1311,51 +1457,60 @@
         setSummaryPDF(e.dataTransfer.files[0]);
     }
 
-    async function groqSummary() {
-        if (!summaryPdfText) { alertModal(currentLang==='ar'?'يرجى رفع ملف PDF أولاً':'Please upload a PDF first'); return; }
-        const el=$('summaryStatus'); show(el); el.textContent=t('generating'); el.style.color='var(--text3)';
-        const lang = $('summaryLangSel')?.value || (currentLang==='ar'?'عربي':'English');
-        try {
-            const result = await groqChat(buildSummaryPrompt(summaryPdfText, lang));
-            if (!result) throw new Error('No response');
-            el.textContent='✓ '+t('summary_saved'); el.style.color='var(--success)';
-            const name=$('summaryNameInput').value.trim()||summaryPdfFile||t('summary');
-            // Render result beautifully
-            const lines = result.split('\n').filter(l=>l.trim());
-            let html = `<div style="padding:20px 0">`;
-            html += `<div style="font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--accent)">${esc(name)}</div>`;
-            let inList = false;
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                if (!trimmed) return;
-                if (trimmed.startsWith('##') || trimmed.startsWith('**') || /^[A-Zأَ\u0600-\u06FF].{0,60}:$/.test(trimmed)) {
-                    if (inList) { html += '</ul>'; inList = false; }
-                    html += `<div style="font-size:14px;font-weight:700;color:var(--accent);margin:14px 0 6px">${esc(trimmed.replace(/^#+\s*/,'').replace(/\*\*/g,''))}</div>`;
-                } else if (trimmed.startsWith('- ') || trimmed.startsWith('• ') || trimmed.startsWith('* ')) {
-                    if (!inList) { html += '<ul style="margin:4px 0 4px 20px;padding:0">'; inList = true; }
-                    html += `<li style="font-size:13px;line-height:1.8;color:var(--text2);margin-bottom:2px">${esc(trimmed.slice(2))}</li>`;
-                } else {
-                    if (inList) { html += '</ul>'; inList = false; }
-                    html += `<p style="font-size:13px;line-height:1.8;color:var(--text2);margin-bottom:8px">${esc(trimmed)}</p>`;
-                }
-            });
-            if (inList) html += '</ul>';
-            html += '</div>';
-            $('summaryResultText').innerHTML = html;
-            show($('summaryResultArea'));
-            saveSummaryToLib(name, result);
-            renderSummaryLib();
-        } catch(e) { el.textContent='ERR — '+e.message; el.style.color='var(--danger)'; }
+    function buildSummarySystemPrompt() {
+        const styles = {
+            detailed: 'Create a detailed, comprehensive summary with clear sections and explanations.',
+            bullets: 'Create a structured bullet-point summary with key points and sub-points.',
+            concise: 'Create a concise summary in 5-8 key sentences covering the most important points.',
+            academic: 'Create an academic-style summary with introduction, main concepts, methodology if applicable, and conclusion.'
+        };
+        return styles[summaryCurrentStyle] || styles.detailed;
     }
 
-    // ── SUMMARY LIBRARY ─────────────────────────────
-    function getSummaryLib() { return lj(subKey('summary_lib')) || []; }
-    function saveSummaryLibData(d) { ls(subKey('summary_lib'), JSON.stringify(d.slice(0,100))); }
+    async function nvidiaSummary() {
+        if (!summaryPdfText) return;
+        $('btnGenSummary').disabled = true;
+        show($('summaryAiStatus'));
+        $('summaryAiStatusText').textContent = currentLang==='ar'?'جاري توليد الملخص...':'Generating summary...';
+
+        try {
+            const lang = $('summaryLangSel').value;
+            const styleInstr = buildSummarySystemPrompt();
+            const prompt = `${styleInstr} Write in ${lang}. Do NOT use JSON. Output plain readable text with clear structure.\n\nDocument text:\n${summaryPdfText.slice(0, 12000)}`;
+
+            const result = await nvidiaChat(prompt, 'You are an expert academic summarizer. Write clearly and insightfully.', 2000);
+            _currentSummaryResult = result;
+
+            $('summaryResultBox').textContent = result;
+            show($('summaryResultArea'));
+            hide($('summaryAiStatus'));
+            toast(currentLang==='ar'?'تم التوليد بنجاح':'Summary generated!');
+        } catch(e) {
+            $('summaryAiStatusText').textContent = '✗ ' + e.message;
+            setTimeout(()=>hide($('summaryAiStatus')), 4000);
+        } finally {
+            $('btnGenSummary').disabled = false;
+        }
+    }
+
+    function saveCurrentSummary() {
+        if (!_currentSummaryResult) return;
+        const name = $('summaryNameInput').value.trim() || summaryPdfFile || 'ملخص ' + new Date().toLocaleDateString();
+        saveSummaryToLib(name, _currentSummaryResult);
+        renderSummaryLib();
+    }
+
+    async function copySummaryResult() {
+        if (!_currentSummaryResult) return;
+        try { await navigator.clipboard.writeText(_currentSummaryResult); toast(t('copied')); }
+        catch { toast(t('copied')); }
+    }
 
     function saveSummaryToLib(name, text) {
         const lib = getSummaryLib();
         const existing = lib.findIndex(s => s.name === name);
-        const entry = {id: Date.now(), name, text, date: new Date().toLocaleDateString(currentLang==='ar'?'ar-EG':'en-US'), dateISO: new Date().toISOString()};
+        const styleLabel = summaryCurrentStyle;
+        const entry = {id: Date.now(), name, text, style: styleLabel, date: new Date().toLocaleDateString(currentLang==='ar'?'ar-EG':'en-US'), dateISO: new Date().toISOString()};
         if (existing >= 0) lib[existing] = entry;
         else lib.unshift(entry);
         saveSummaryLibData(lib);
@@ -1365,40 +1520,58 @@
     function renderSummaryLib() {
         const el = $('summaryLibList');
         if (!el) return;
-        const lib = getSummaryLib();
-        if (!lib.length) { el.innerHTML=`<div style="color:var(--text4);text-align:center;padding:16px;font-size:13px">${t('no_summaries')}</div>`; return; }
+        let lib = getSummaryLib();
+        const srch = ($('summarySearch')?.value||'').toLowerCase();
+        if (srch) lib = lib.filter(s => s.name.toLowerCase().includes(srch) || s.text.toLowerCase().includes(srch));
+        if (!lib.length) {
+            el.innerHTML = `<div class="summary-empty"><div class="summary-empty-icon">📄</div><div class="summary-empty-text">${t('no_summaries')}</div></div>`;
+            return;
+        }
         el.innerHTML = lib.map(s => `
-            <div class="history-item" style="flex-direction:column;align-items:flex-start;gap:6px">
-                <div style="display:flex;align-items:center;gap:8px;width:100%">
-                    <span class="history-name" style="flex:1">${esc(s.name)}</span>
-                    <span class="history-meta">${s.date}</span>
-                    <button class="btn btn-sm" onclick="viewSummary(${s.id})" title="${t('view')}">↗</button>
-                    <button class="btn btn-sm" onclick="copySummaryText(${s.id})" title="${t('copy')}">⎘</button>
-                    <button class="btn btn-danger btn-sm" onclick="delSummary(${s.id})">X</button>
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <div class="summary-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <div class="summary-card-name">${esc(s.name)}</div>
+                        <div class="summary-card-meta">${s.date}${s.style?' · '+s.style:''}</div>
+                    </div>
                 </div>
-                <div style="font-size:12px;color:var(--text3);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(s.text.slice(0,180))}</div>
+                <div class="summary-card-preview">${esc(s.text.slice(0,240))}</div>
+                <div class="summary-card-actions">
+                    <button class="btn btn-sm btn-primary" onclick="viewSummary(${s.id})" style="flex:1" data-t="view">عرض</button>
+                    <button class="btn btn-sm" onclick="copySummaryById(${s.id})" title="${t('copy')}">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="delSummary(${s.id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                    </button>
+                </div>
             </div>`).join('');
     }
 
     function viewSummary(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
-        modal(`<div class="modal-title">${esc(s.name)}</div><div style="white-space:pre-wrap;font-size:13px;line-height:1.8;max-height:60vh;overflow-y:auto;color:var(--text2)">${esc(s.text)}</div>`,
-            `<button class="btn btn-primary" onclick="copySummaryText(${id});closeModal()">${t('copy')}</button><button class="btn" onclick="closeModal()">${t('ok')}</button>`);
+        modal(
+            `<div class="modal-title">${esc(s.name)}</div>
+             <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-bottom:12px">${s.date}${s.style?' · '+s.style:''}</div>
+             <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;max-height:55vh;overflow-y:auto;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(s.text)}</div>`,
+            `<button class="btn btn-primary" onclick="copySummaryById(${id});closeModal()">${t('copy')}</button>
+             <button class="btn" onclick="closeModal()">${t('ok')}</button>`
+        );
     }
 
-    async function copySummaryText(id) {
+    async function copySummaryById(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
         try { await navigator.clipboard.writeText(s.text); toast(t('copied')); }
-        catch {
-            const ta=document.createElement('textarea'); ta.value=s.text;
-            ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-            document.body.appendChild(ta); ta.focus(); ta.select();
-            document.execCommand('copy'); document.body.removeChild(ta);
-            toast(t('copied'));
-        }
+        catch { toast(t('copied')); }
     }
+
+    // Keep old name for compatibility
+    async function copySummaryText(id) { return copySummaryById(id); }
 
     function delSummary(id) {
         confirmModal(t('delete_confirm')+'?', () => {
@@ -1409,39 +1582,7 @@
 
     function exportSummaryLib() { downloadJSON(getSummaryLib(), 'summaries'); }
 
-    async function copySummaryResult() {
-        const text = $('summaryResultText')?.innerText || '';
-        if (!text) return;
-        try { await navigator.clipboard.writeText(text); toast(t('copied')); }
-        catch {
-            const ta=document.createElement('textarea'); ta.value=text;
-            ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-            document.body.appendChild(ta); ta.focus(); ta.select();
-            document.execCommand('copy'); document.body.removeChild(ta);
-            toast(t('copied'));
-        }
-    }
-
-    function importSummaryJSON() {
-        const raw = $('summaryImportInput')?.value.trim();
-        if (!raw) return;
-        const data = parseJSON(raw);
-        if (!Array.isArray(data)) { alertModal(t('json_invalid')); return; }
-        const lib = getSummaryLib();
-        data.forEach(s => { if (s.name && s.text) lib.unshift({id:Date.now()+Math.random(), ...s}); });
-        saveSummaryLibData(lib);
-        $('summaryImportInput').value = '';
-        $('summaryImportArea').classList.add('hidden');
-        renderSummaryLib();
-        toast(t('saved'));
-    }
-
-    function saveApiKeys() {
-        const k1=$('groqKey1').value.trim(), k2=$('groqKey2').value.trim();
-        if (k1) ls('groq_key_1',k1); else localStorage.removeItem('groq_key_1');
-        if (k2) ls('groq_key_2',k2); else localStorage.removeItem('groq_key_2');
-        toast(t('saved'));
-    }
+    function saveApiKeys() { toast(t('saved')); }
 
     function startFromJSON() {
         const raw=$('jsonInput').value.trim();
@@ -2337,8 +2478,6 @@
 
     // ── SETTINGS ───────────────────────────────────
     function renderSettings() {
-        $('groqKey1').value=lg('groq_key_1')||'';
-        $('groqKey2').value=lg('groq_key_2')||'';
         const notifEl = $('notifStatus');
         if (!notifEl) return;
         if (!('Notification' in window)) { notifEl.textContent='Not supported'; return; }
