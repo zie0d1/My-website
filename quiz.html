@@ -383,7 +383,7 @@
                 <span class="si-label" data-t="gen_pdf">توليد من PDF</span>
             </button>
             <button class="sidebar-item disabled subject-only hidden" data-panel="summary" id="sidebarSummary" onclick="switchPanel('summary')">
-                <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span>
+                <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
                 <span class="si-label">الملخصات</span>
             </button>
             <button class="sidebar-item disabled subject-only hidden" data-panel="todo" id="sidebarTodo" onclick="switchPanel('todo')">
@@ -459,9 +459,9 @@
                         <div class="input-group"><label data-t="quiz_name">اسم الاختبار</label><input id="quizNameInput" placeholder="مثلاً اختبار الفصل الأول" value=""></div>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-primary" id="btnGroq" disabled onclick="groqMCQ()">توليد MCQ</button>
-                        <button class="btn" id="btnEssay" disabled onclick="genEssay()" data-t="essay">مقالي</button>
-                        <button class="btn" id="btnFlash" disabled onclick="groqFlashCards()">توليد بطاقات</button>
+                        <button class="btn btn-primary" id="btnGroq" disabled onclick="groqMCQ()">⚡ توليد MCQ</button>
+                        <button class="btn" id="btnCards" disabled onclick="genFlashcardsAI()">🃏 توليد بطاقات</button>
+                        <button class="btn" id="btnEssay" disabled onclick="genEssay()" data-t="essay">✍ مقالي</button>
                     </div>
                     <div id="groqStatus" class="hidden card" style="font-family:var(--mono);font-size:12px;text-align:center"></div>
                     <div id="essayArea" class="hidden">
@@ -508,39 +508,78 @@
                 <!-- SUMMARY PANEL -->
                 <div class="panel" id="panel-summary">
                     <h1 class="page-title">الملخصات</h1>
-                    <p class="page-subtitle">لخّص محتوى PDF واحفظ ملخصاتك في مكتبة منظّمة</p>
+                    <p class="page-subtitle">استخرج ملخصاً ذكياً من PDF باستخدام الذكاء الاصطناعي</p>
 
-                    <div class="card" style="margin-bottom:20px">
-                        <div class="card-header"><span class="card-title">توليد ملخص</span></div>
-                        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--accent-light);border:1px solid var(--accent);margin-bottom:16px;font-size:12px;color:var(--accent)">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            <span>قم بتحميل PDF من صفحة التوليد أولاً، ثم عُد هنا لتوليد الملخص</span>
-                        </div>
-                        <div class="input-group" style="margin-bottom:16px">
+                    <!-- PDF Upload -->
+                    <div class="drop-zone" id="summaryDropZone"
+                        onclick="document.getElementById('summaryPdfInput').click()"
+                        ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'"
+                        ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''"
+                        ondrop="handleSummaryDrop(event)">
+                        <div class="drop-title">انقر هنا أو اسحب ملف PDF لتلخيصه</div>
+                        <div class="drop-hint">PDF — 25 pages max</div>
+                    </div>
+                    <input type="file" id="summaryPdfInput" accept=".pdf" class="hidden" onchange="setSummaryPDF(this.files[0])">
+                    <div id="summaryFilePill" class="card hidden" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:14px">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span id="summaryFileName" style="flex:1;font-family:var(--mono);font-size:12px"></span>
+                        <button class="btn btn-sm btn-ghost" onclick="clearSummaryPDF()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="input-row">
+                        <div class="input-group">
                             <label>اسم الملخص</label>
-                            <input id="summaryNameInput" placeholder="مثلاً: محاضرة الفصل الأول...">
+                            <input id="summaryNameInput" placeholder="مثلاً: ملخص الفصل الأول">
                         </div>
-                        <button class="btn btn-primary btn-full" onclick="groqSummary()" style="font-size:14px;padding:12px">✦ توليد ملخص</button>
-                        <div id="summaryStatus" class="hidden" style="font-family:var(--mono);font-size:12px;text-align:center;padding:10px;margin-top:12px;border:1px solid var(--border)"></div>
-                        <div id="summaryResultArea" class="hidden" style="margin-top:20px">
-                            <div class="section-label">الملخص</div>
-                            <div id="summaryResultText" style="font-size:14px;line-height:2;padding:20px;border:1px solid var(--border);background:var(--surface2);unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;max-height:400px;overflow-y:auto"></div>
-                            <div class="btn-group" style="margin-top:10px">
-                                <button class="btn btn-sm" onclick="copySummaryFromResult()">⎘ نسخ الملخص</button>
+                        <div class="input-group" style="max-width:140px">
+                            <label>اللغة</label>
+                            <select id="summaryLangSel">
+                                <option value="عربي" selected>عربي</option>
+                                <option value="English">English</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" id="btnGenSummary" disabled onclick="groqSummary()" style="margin-bottom:14px">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+                        توليد الملخص بالذكاء الاصطناعي
+                    </button>
+
+                    <!-- Status -->
+                    <div id="summaryStatus" class="hidden card" style="font-family:var(--mono);font-size:12px;text-align:center;margin-bottom:14px"></div>
+
+                    <!-- Result -->
+                    <div id="summaryResultArea" class="hidden">
+                        <div class="card" style="margin-bottom:14px;line-height:1.8">
+                            <div class="card-header">
+                                <span class="card-title">الملخص</span>
+                                <div style="display:flex;gap:6px">
+                                    <button class="btn btn-sm" onclick="copySummaryResult()" title="نسخ">⎘ نسخ</button>
+                                </div>
+                            </div>
+                            <div id="summaryResultText" style="font-size:13px;color:var(--text2)"></div>
+                        </div>
+                    </div>
+
+                    <!-- Library -->
+                    <div style="margin-top:24px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                            <div class="section-label" style="margin-bottom:0">الملخصات المحفوظة</div>
+                            <div style="display:flex;gap:6px">
+                                <button class="btn btn-sm" onclick="$('summaryImportArea').classList.toggle('hidden')">استيراد</button>
+                                <button class="btn btn-sm" onclick="exportSummaryLib()">تصدير</button>
+                                <button class="btn btn-danger btn-sm" onclick="confirmModal(t('clear_all')+'?', ()=>{saveSummaryLibData([]);renderSummaryLib();})">مسح الكل</button>
                             </div>
                         </div>
+                        <div id="summaryImportArea" class="hidden" style="margin-bottom:14px">
+                            <textarea id="summaryImportInput" rows="3" placeholder="Paste exported summaries JSON..." style="font-family:var(--mono);font-size:11px;margin-bottom:6px"></textarea>
+                            <button class="btn btn-primary btn-sm" onclick="importSummaryJSON()">استيراد</button>
+                        </div>
+                        <div id="summaryLibList"></div>
                     </div>
-
-                    <div class="section-label">الملخصات المحفوظة</div>
-                    <div class="btn-group" style="margin-bottom:12px">
-                        <button class="btn btn-sm" onclick="document.getElementById('summaryImportArea').classList.toggle('hidden')">+ استيراد</button>
-                        <button class="btn btn-sm" onclick="exportSummaryLib()">تصدير</button>
-                    </div>
-                    <div id="summaryImportArea" class="hidden" style="margin-bottom:14px">
-                        <textarea id="summaryImportInput" rows="3" placeholder='[{"name":"...","text":"..."}]' style="font-family:var(--mono);font-size:11px;margin-bottom:6px"></textarea>
-                        <button class="btn btn-primary btn-sm" onclick="importSummaryJSON()">استيراد</button>
-                    </div>
-                    <div id="summaryLibList"></div>
                 </div>
 
                 <!-- DECKS PANEL -->
@@ -550,6 +589,11 @@
                     <div id="decksList"></div>
                     <div class="section-label" style="margin-top:28px" data-t="add_deck">إضافة مجموعة</div>
                     <div class="input-group" style="margin-bottom:10px"><label data-t="deck_name">اسم المجموعة</label><input id="newDeckName" placeholder="..."></div>
+                    <button class="btn btn-sm" onclick="document.getElementById('ndJsonArea').classList.toggle('hidden')" style="margin-bottom:10px" data-t="add_from_json">+ إضافة من JSON</button>
+                    <div id="ndJsonArea" class="hidden">
+                        <textarea id="ndJson" rows="4" placeholder='[{"question":"...","answer":"..."}]' style="font-family:var(--mono);font-size:11px;margin-bottom:6px"></textarea>
+                        <button class="btn btn-primary btn-sm" onclick="createDeckFromJSON()" data-t="create">إنشاء</button>
+                    </div>
                 </div>
 
                 <!-- HISTORY PANEL -->
@@ -597,6 +641,10 @@
                 <div class="panel" id="panel-settings">
                     <h1 class="page-title" data-t="settings_title">الإعدادات</h1>
                     <p class="page-subtitle" data-t="settings_subtitle">إعدادات التطبيق ومفاتيح API</p>
+                    <div class="card" style="border-color:var(--success);background:var(--success-bg)">
+                        <div class="card-header"><span class="card-title" style="color:var(--success)">✓ AI مُفعّل</span></div>
+                        <p style="font-size:12px;color:var(--success)">الذكاء الاصطناعي متصل ويعمل تلقائياً. لا حاجة لإعدادات API.</p>
+                    </div>
                     <div class="card">
                         <div class="card-header"><span class="card-title" data-t="notifications">الإشعارات</span></div>
                         <p style="font-size:12px;color:var(--text3);margin-bottom:12px" data-t="notif_desc">تفعيل إشعارات تذكير المراجعة اليومية للبطاقات</p>
@@ -720,7 +768,7 @@
             weekly_activity:'النشاط الأسبوعي', topic_breakdown:'أداء المصادر',
             time_per_q:'وقت/سؤال', avg_time:'متوسط الوقت',
             due_cards_banner:'لديك بطاقات مستحقة للمراجعة — انقر للدراسة',
-            explain_groq:'اشرح مع AI', summary_saved:'تم حفظ الملخص',
+            explain_groq:'اشرح مع Groq', summary_saved:'تم حفظ الملخص',
             no_summaries:'لا توجد ملخصات محفوظة', view:'عرض',
             summary_library_title:'مكتبة الملخصات', summary_import:'استيراد JSON',
             todo_title:'قائمة المحاضرات', todo_subtitle:'تتبع تقدمك في كل محاضرة',
@@ -799,7 +847,7 @@
             weekly_activity:'Weekly Activity', topic_breakdown:'Source Performance',
             time_per_q:'Time/Question', avg_time:'Avg Time',
             due_cards_banner:'You have cards due for review — click to study',
-            explain_groq:'Explain with AI', summary_saved:'Summary saved',
+            explain_groq:'Explain with Groq', summary_saved:'Summary saved',
             no_summaries:'No saved summaries', view:'View',
             summary_library_title:'Summary Library', summary_import:'Import JSON',
         }
@@ -815,7 +863,7 @@
         const activePanel = document.querySelector('.panel.active');
         if (activePanel) {
             const id = activePanel.id.replace('panel-','');
-            const r = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress};
+            const r = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummaryLib};
             if (r[id]) r[id]();
         }
         toast(t('saved') + ' — ' + (currentLang==='ar'?'العربية':'English'));
@@ -920,7 +968,7 @@
         if (si) si.classList.add('active');
         hide($('quizArea'));
         hide($('flashArea'));
-        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummary};
+        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummaryLib};
         if (renders[panelId]) renders[panelId]();
         window.scrollTo({top:0, behavior:'smooth'});
         closeMobileMenu();
@@ -1106,7 +1154,7 @@
             const autoQCount = Math.min(30, Math.max(5, Math.round(doc.numPages * 2.5)));
             if ($('qCount')) $('qCount').value = autoQCount;
             toast('OK — '+pdfText.length.toLocaleString()+' chars · '+doc.numPages+' pages → '+autoQCount+' Qs');
-            ['btnGroq','btnEssay','btnFlash'].forEach(id => { if ($(id)) $(id).disabled=false; });
+            ['btnGroq','btnCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=false; });
         } catch(e) { alertModal(t('error')+': '+e.message); clearPDF(); }
     }
 
@@ -1116,7 +1164,7 @@
         if ($('dropZone')) show($('dropZone'));
         if ($('groqStatus')) hide($('groqStatus'));
         if ($('essayArea')) hide($('essayArea'));
-        ['btnGroq','btnEssay','btnFlash'].forEach(id => { if ($(id)) $(id).disabled=true; });
+        ['btnGroq','btnCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=true; });
         $('pdfInput').value='';
     }
 
@@ -1128,18 +1176,49 @@
 
     // ── PROMPTS ─────────────────────────────────────
     function buildMCQP() { return `Generate ${$('qCount').value} MCQ questions in ${$('langSel').value} at ${$('diffSel').value} level. Output JSON only:\n[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}]\nText:\n${pdfText}`; }
-    function buildSummaryPrompt() { return `Summarize the following text in ${$('langSel').value}, highlighting the most important points and key concepts. Output plain text, no JSON.\nText:\n${pdfText}`; }
+    function buildSummaryPrompt(txt, lang) { return `Summarize the following text in ${lang||'Arabic'}, highlighting the most important points and key concepts in a structured way with clear sections. Output plain text, no JSON.\nText:\n${txt}`; }
 
-    // ── AI API (via proxy) ───────────────────────────
-    async function aiChat(prompt) {
-        const r = await fetch('/api/ai/chat', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ prompt })
-        });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error || r.statusText);
-        return d.content;
+    // ── FLASHCARD GENERATION ──────────────────────
+    async function genFlashcardsAI() {
+        if (!pdfText) { alertModal(currentLang==='ar'?'يرجى رفع ملف PDF أولاً':'Please upload a PDF first'); return; }
+        const el = $('groqStatus');
+        show(el); el.textContent = t('generating'); el.style.color = 'var(--text3)';
+        const lang = $('langSel').value;
+        const count = Math.min(parseInt($('qCount').value)||10, 20);
+        const prompt = `Generate ${count} flashcards from the following text in ${lang}. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`;
+        try {
+            const r = await groqChat(prompt);
+            const cards = parseJSON(r);
+            if (!Array.isArray(cards) || !cards[0]?.question) throw new Error(t('json_invalid'));
+            const valid = cards.filter(c => c.question && c.answer);
+            if (!valid.length) throw new Error('No valid cards');
+            const deckName = $('quizNameInput').value.trim() || pdfFile || 'Generated Deck';
+            const decks = getDecks();
+            decks.push({name: deckName, cards: valid});
+            saveDecks(decks);
+            el.textContent = `OK — ${valid.length} ${t('cards')} → "${deckName}"`; el.style.color = 'var(--success)';
+            toast(t('saved'));
+        } catch(e) { el.textContent = 'ERR — '+e.message; el.style.color = 'var(--danger)'; }
+    }
+
+    // ── AI (NVIDIA) ──────────────────────────────────
+    const _NVIDIA_KEY = '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';
+    async function groqChat(prompt) {
+        try {
+            const r = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+_NVIDIA_KEY},
+                body: JSON.stringify({
+                    model: 'openai/gpt-4.1',
+                    messages: [{role:'system',content:'Output exactly as requested'},{role:'user',content:prompt}],
+                    max_tokens: 2048,
+                    temperature: 0.4
+                })
+            });
+            const d = await r.json();
+            if (!r.ok) throw new Error(d.error?.message || r.statusText);
+            return d.choices[0].message.content;
+        } catch(e) { throw e; }
     }
 
     function parseJSON(t) {
@@ -1153,7 +1232,7 @@
         const el = $('groqStatus');
         show(el); el.textContent=t('generating'); el.style.color='var(--text3)';
         try {
-            const r = await aiChat(buildMCQP());
+            const r = await groqChat(buildMCQP());
             const qs = parseJSON(r);
             if (!qs||!Array.isArray(qs)) throw new Error(t('json_invalid'));
             const v = qs.filter(q => q.question&&Array.isArray(q.options)&&q.correct!==undefined);
@@ -1168,7 +1247,7 @@
     async function genEssay() {
         const el=$('groqStatus'); show(el); el.textContent=t('generating'); el.style.color='var(--text3)';
         try {
-            const r = await aiChat(`Create an essay question. Output JSON:\n{"question":"...","model_answer":"...","criteria":["..."]}\nText:\n${pdfText}`);
+            const r = await groqChat(`Create an essay question. Output JSON:\n{"question":"...","model_answer":"...","criteria":["..."]}\nText:\n${pdfText}`);
             _essayData = parseJSON(r);
             if (!_essayData?.question) throw new Error(t('json_invalid'));
             hide(el); $('essayQ').textContent=_essayData.question; $('essayAns').value='';
@@ -1182,7 +1261,7 @@
         if (!ans) { alertModal(t('enter_answer')); return; }
         const fb=$('essayFB'); show(fb); fb.textContent=t('generating'); fb.style.color='var(--text3)';
         try {
-            const r = await aiChat(`Grade the answer. Output JSON:\n{"score":8,"strengths":["..."],"improvements":["..."]}\nQuestion: ${_essayData.question}\nModel: ${_essayData.model_answer}\nAnswer: ${ans}`);
+            const r = await groqChat(`Grade the answer. Output JSON:\n{"score":8,"strengths":["..."],"improvements":["..."]}\nQuestion: ${_essayData.question}\nModel: ${_essayData.model_answer}\nAnswer: ${ans}`);
             const gr = parseJSON(r);
             if (!gr||gr.score===undefined) throw new Error('Grading failed');
             fb.innerHTML=`<strong>${t('score')}: ${gr.score}/10</strong><br>Strengths: ${(gr.strengths||[]).join(' · ')}<br>Improve: ${(gr.improvements||[]).join(' · ')}`;
@@ -1190,49 +1269,83 @@
         } catch(e) { fb.textContent='ERR — '+e.message; fb.style.color='var(--danger)'; }
     }
 
-    async function groqSummary() {
-        const el=$('summaryStatus'); show(el); el.textContent=t('generating'); el.style.color='var(--text3)';
+    // ── SUMMARY PDF ──────────────────────────────────
+    let summaryPdfText = '', summaryPdfFile = '';
+
+    async function setSummaryPDF(file) {
+        if (!file || !file.name.endsWith('.pdf')) return;
+        summaryPdfFile = file.name;
+        $('summaryFileName').textContent = file.name;
+        show($('summaryFilePill'));
+        hide($('summaryDropZone'));
+        toast(t('generating'));
         try {
-            const result = await aiChat(buildSummaryPrompt());
+            const ab = await file.arrayBuffer();
+            const doc = await pdfjsLib.getDocument({data:ab}).promise;
+            let txt = '';
+            for (let i=1; i<=Math.min(doc.numPages,25); i++) {
+                const page = await doc.getPage(i);
+                const tc = await page.getTextContent();
+                txt += tc.items.map(it=>it.str).join(' ') + '\n';
+            }
+            summaryPdfText = txt.trim();
+            toast('PDF OK — '+doc.numPages+' pages');
+            if ($('btnGenSummary')) $('btnGenSummary').disabled = false;
+        } catch(e) { alertModal(t('error')+': '+e.message); clearSummaryPDF(); }
+    }
+
+    function clearSummaryPDF() {
+        summaryPdfText = ''; summaryPdfFile = '';
+        if ($('summaryFilePill')) hide($('summaryFilePill'));
+        if ($('summaryDropZone')) show($('summaryDropZone'));
+        if ($('summaryStatus')) hide($('summaryStatus'));
+        if ($('summaryResultArea')) hide($('summaryResultArea'));
+        if ($('btnGenSummary')) $('btnGenSummary').disabled = true;
+        const inp = $('summaryPdfInput');
+        if (inp) inp.value = '';
+    }
+
+    function handleSummaryDrop(e) {
+        e.preventDefault();
+        e.currentTarget.style.borderColor=''; e.currentTarget.style.background='';
+        setSummaryPDF(e.dataTransfer.files[0]);
+    }
+
+    async function groqSummary() {
+        if (!summaryPdfText) { alertModal(currentLang==='ar'?'يرجى رفع ملف PDF أولاً':'Please upload a PDF first'); return; }
+        const el=$('summaryStatus'); show(el); el.textContent=t('generating'); el.style.color='var(--text3)';
+        const lang = $('summaryLangSel')?.value || (currentLang==='ar'?'عربي':'English');
+        try {
+            const result = await groqChat(buildSummaryPrompt(summaryPdfText, lang));
             if (!result) throw new Error('No response');
-            el.textContent='OK'; el.style.color='var(--success)';
-            const name=$('summaryNameInput').value.trim()||pdfFile||t('summary');
-            $('summaryResultText').innerHTML=`<strong>${esc(name)}</strong><br><br>${esc(result)}`;
+            el.textContent='✓ '+t('summary_saved'); el.style.color='var(--success)';
+            const name=$('summaryNameInput').value.trim()||summaryPdfFile||t('summary');
+            // Render result beautifully
+            const lines = result.split('\n').filter(l=>l.trim());
+            let html = `<div style="padding:20px 0">`;
+            html += `<div style="font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--accent)">${esc(name)}</div>`;
+            let inList = false;
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+                if (trimmed.startsWith('##') || trimmed.startsWith('**') || /^[A-Zأَ\u0600-\u06FF].{0,60}:$/.test(trimmed)) {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    html += `<div style="font-size:14px;font-weight:700;color:var(--accent);margin:14px 0 6px">${esc(trimmed.replace(/^#+\s*/,'').replace(/\*\*/g,''))}</div>`;
+                } else if (trimmed.startsWith('- ') || trimmed.startsWith('• ') || trimmed.startsWith('* ')) {
+                    if (!inList) { html += '<ul style="margin:4px 0 4px 20px;padding:0">'; inList = true; }
+                    html += `<li style="font-size:13px;line-height:1.8;color:var(--text2);margin-bottom:2px">${esc(trimmed.slice(2))}</li>`;
+                } else {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    html += `<p style="font-size:13px;line-height:1.8;color:var(--text2);margin-bottom:8px">${esc(trimmed)}</p>`;
+                }
+            });
+            if (inList) html += '</ul>';
+            html += '</div>';
+            $('summaryResultText').innerHTML = html;
             show($('summaryResultArea'));
-            // Auto-save to library
             saveSummaryToLib(name, result);
             renderSummaryLib();
         } catch(e) { el.textContent='ERR — '+e.message; el.style.color='var(--danger)'; }
-    }
-
-    async function groqFlashCards() {
-        if (!pdfText) { alertModal(currentLang==='ar'?'قم بتحميل PDF أولاً':'Please load a PDF first'); return; }
-        const el = $('groqStatus');
-        show(el); el.textContent = t('generating'); el.style.color = 'var(--text3)';
-        try {
-            const lang = $('langSel').value;
-            const count = parseInt($('qCount').value) || 10;
-            const r = await aiChat(`Generate ${count} flashcards in ${lang} from the following text. Each card should have a concise question and a clear answer. Output JSON array only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`);
-            const cards = parseJSON(r);
-            if (!cards || !Array.isArray(cards)) throw new Error(t('json_invalid'));
-            const valid = cards.filter(c => c.question && c.answer);
-            if (!valid.length) throw new Error('No valid cards');
-            el.textContent = 'OK — ' + valid.length + ' cards'; el.style.color = 'var(--success)';
-            const deckName = $('quizNameInput').value.trim() || pdfFile || 'Flashcards';
-            const d = getDecks();
-            d.push({ name: deckName, cards: valid });
-            saveDecks(d);
-            setTimeout(() => { switchPanel('decks'); toast('✓ ' + valid.length + (currentLang==='ar'?' بطاقة محفوظة في: ':' cards saved to: ') + deckName); }, 400);
-        } catch(e) { el.textContent = 'ERR — ' + e.message; el.style.color = 'var(--danger)'; }
-    }
-
-    function renderSummary() { renderSummaryLib(); }
-
-    function copySummaryFromResult() {
-        const el = $('summaryResultText');
-        if (!el) return;
-        const text = el.innerText || el.textContent || '';
-        navigator.clipboard.writeText(text).then(() => toast(t('copied'))).catch(() => toast(t('copied')));
     }
 
     // ── SUMMARY LIBRARY ─────────────────────────────
@@ -1296,6 +1409,19 @@
 
     function exportSummaryLib() { downloadJSON(getSummaryLib(), 'summaries'); }
 
+    async function copySummaryResult() {
+        const text = $('summaryResultText')?.innerText || '';
+        if (!text) return;
+        try { await navigator.clipboard.writeText(text); toast(t('copied')); }
+        catch {
+            const ta=document.createElement('textarea'); ta.value=text;
+            ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            toast(t('copied'));
+        }
+    }
+
     function importSummaryJSON() {
         const raw = $('summaryImportInput')?.value.trim();
         if (!raw) return;
@@ -1307,6 +1433,13 @@
         $('summaryImportInput').value = '';
         $('summaryImportArea').classList.add('hidden');
         renderSummaryLib();
+        toast(t('saved'));
+    }
+
+    function saveApiKeys() {
+        const k1=$('groqKey1').value.trim(), k2=$('groqKey2').value.trim();
+        if (k1) ls('groq_key_1',k1); else localStorage.removeItem('groq_key_1');
+        if (k2) ls('groq_key_2',k2); else localStorage.removeItem('groq_key_2');
         toast(t('saved'));
     }
 
@@ -1330,7 +1463,7 @@
         const btn=document.querySelector('[onclick="aiNameLecture()"]');
         if (btn) { btn.textContent=t('generating'); btn.disabled=true; }
         try {
-            const r=await aiChat(`Based on these MCQ questions, suggest a concise lecture name (max 6 words). Output ONLY the name, no quotes, no explanation.\n${sample}`);
+            const r=await groqChat(`Based on these MCQ questions, suggest a concise lecture name (max 6 words). Output ONLY the name, no quotes, no explanation.\n${sample}`);
             if ($('jsonLecName')) $('jsonLecName').value=(r||'').trim().replace(/^["']|["']$/g,'');
             toast(t('saved'));
         } catch(e) { alertModal('ERR: '+e.message); }
@@ -1636,7 +1769,7 @@
         expDiv.style.display = 'block';
         expDiv.textContent = t('generating');
         try {
-            const r = await aiChat(prompt);
+            const r = await groqChat(prompt);
             expDiv.textContent = r || '—';
         } catch(e) {
             expDiv.textContent = 'ERR — ' + e.message;
@@ -2204,6 +2337,8 @@
 
     // ── SETTINGS ───────────────────────────────────
     function renderSettings() {
+        $('groqKey1').value=lg('groq_key_1')||'';
+        $('groqKey2').value=lg('groq_key_2')||'';
         const notifEl = $('notifStatus');
         if (!notifEl) return;
         if (!('Notification' in window)) { notifEl.textContent='Not supported'; return; }
