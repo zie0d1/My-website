@@ -393,53 +393,82 @@
         /* ── AI SUMMARY ASSISTANT ── */
         .sum-ai-btn {
             position: fixed; bottom: 24px; left: 24px; z-index: 510;
-            width: 46px; height: 46px; border-radius: 50%;
+            width: 48px; height: 48px; border-radius: 50%;
             background: var(--accent); color: #fff; border: none;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 12px rgba(37,99,235,.4);
+            box-shadow: 0 4px 16px rgba(37,99,235,.45);
             transition: all var(--transition);
         }
         .sum-ai-btn:hover { background: var(--accent-dark); transform: scale(1.08); }
-        .sum-ai-btn svg { width: 20px; height: 20px; }
+        .sum-ai-btn svg { width: 22px; height: 22px; }
         .sum-ai-panel {
-            position: fixed; bottom: 80px; left: 24px; z-index: 510;
-            width: 340px; max-height: 420px;
+            position: fixed; bottom: 86px; left: 24px; z-index: 510;
+            width: 420px; max-height: 580px;
             background: var(--surface); border: 1px solid var(--border);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 32px rgba(0,0,0,.18);
             display: flex; flex-direction: column;
             animation: fadeIn 200ms ease;
         }
         .sum-ai-header {
-            padding: 10px 14px; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: 8px;
+            padding: 13px 16px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px;
             background: var(--surface2);
         }
-        .sum-ai-header-title { font-size: 13px; font-weight: 600; flex: 1; color: var(--text); }
-        .sum-ai-close { background: none; border: none; cursor: pointer; color: var(--text3); padding: 2px; display: flex; align-items: center; justify-content: center; }
+        .sum-ai-header-title { font-size: 14px; font-weight: 700; flex: 1; color: var(--text); letter-spacing: -0.3px; }
+        .sum-ai-close { background: none; border: none; cursor: pointer; color: var(--text3); padding: 4px; display: flex; align-items: center; justify-content: center; transition: color var(--transition); }
         .sum-ai-close:hover { color: var(--text); }
         .sum-ai-messages {
-            flex: 1; overflow-y: auto; padding: 12px; display: flex;
-            flex-direction: column; gap: 10px; max-height: 270px;
+            flex: 1; overflow-y: auto; padding: 16px; display: flex;
+            flex-direction: column; gap: 12px; max-height: 380px;
         }
-        .sum-ai-msg { font-size: 12px; line-height: 1.65; padding: 8px 12px; max-width: 92%; }
-        .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; }
-        .sum-ai-msg.assistant { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); align-self: flex-start; white-space: normal; unicode-bidi: plaintext; overflow-x: auto; max-width: 100%; }
-        .sum-ai-msg.assistant code { font-family:var(--mono); font-size:11px; background:var(--bg); padding:1px 5px; border:1px solid var(--border); color:var(--accent); }
-        .sum-ai-msg.assistant .sum-table-wrap { margin: 6px -4px; }
-        .sum-ai-msg.assistant .sum-table th { font-size:10px; padding:7px 10px; }
-        .sum-ai-msg.assistant .sum-table td { padding:7px 10px; font-size:12px; }
-        .sum-ai-msg.typing { color: var(--text4); font-family: var(--mono); font-size: 11px; }
-        .sum-ai-quick { padding: 8px 12px; border-top: 1px solid var(--border); display: flex; gap: 5px; flex-wrap: wrap; background: var(--surface2); }
-        .sum-ai-quick-btn { font-size: 10px; padding: 3px 9px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); font-family: var(--mono); transition: all var(--transition); white-space: nowrap; }
-        .sum-ai-quick-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .sum-ai-msg { font-size: 13.5px; line-height: 1.75; padding: 11px 15px; max-width: 94%; }
+        .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; font-size: 13px; }
+        .sum-ai-msg.assistant {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text2); align-self: flex-start; white-space: normal;
+            unicode-bidi: plaintext; overflow-x: auto; max-width: 100%;
+            animation: msgSlideIn 220ms cubic-bezier(.34,1.2,.64,1) both;
+        }
+        @keyframes msgSlideIn {
+            from { opacity:0; transform: translateY(8px) scale(0.97); }
+            to   { opacity:1; transform: translateY(0) scale(1); }
+        }
+        .sum-ai-msg.assistant code { font-family:var(--mono); font-size:11.5px; background:var(--bg); padding:2px 6px; border:1px solid var(--border); color:var(--accent); }
+        .sum-ai-msg.assistant .sum-table-wrap { margin: 8px -4px; }
+        .sum-ai-msg.assistant .sum-table th { font-size:10.5px; padding:8px 11px; }
+        .sum-ai-msg.assistant .sum-table td { padding:9px 11px; font-size:12.5px; }
+
+        /* Typing animation */
+        .sum-ai-msg.typing {
+            display: flex; align-items: center; gap: 5px;
+            background: var(--surface2); border: 1px solid var(--border);
+            align-self: flex-start; padding: 14px 18px;
+            animation: msgSlideIn 220ms ease both;
+        }
+        .sum-ai-msg.typing .dot {
+            width: 7px; height: 7px; background: var(--accent);
+            border-radius: 50%; opacity: 0.3;
+            animation: typingBounce 1.2s ease-in-out infinite;
+        }
+        .sum-ai-msg.typing .dot:nth-child(2) { animation-delay: 0.2s; }
+        .sum-ai-msg.typing .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
+            40%            { transform: translateY(-6px); opacity: 1; }
+        }
+
+        .sum-ai-quick { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; background: var(--surface2); }
+        .sum-ai-quick-btn { font-size: 11px; padding: 5px 11px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); font-family: var(--mono); transition: all var(--transition); white-space: nowrap; }
+        .sum-ai-quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
         .sum-ai-input-row { display: flex; gap: 0; border-top: 1px solid var(--border); }
-        .sum-ai-input { flex: 1; border: none; background: var(--surface); padding: 10px 12px; font-size: 12px; color: var(--text); outline: none; resize: none; font-family: var(--sans); }
-        .sum-ai-send { width: 40px; flex-shrink: 0; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
+        .sum-ai-input { flex: 1; border: none; background: var(--surface); padding: 12px 14px; font-size: 13px; color: var(--text); outline: none; resize: none; font-family: var(--sans); line-height: 1.5; }
+        .sum-ai-input::placeholder { color: var(--text4); }
+        .sum-ai-send { width: 44px; flex-shrink: 0; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
         .sum-ai-send:hover { background: var(--accent-dark); }
-        .sum-ai-send svg { width: 15px; height: 15px; }
+        .sum-ai-send svg { width: 16px; height: 16px; }
         @media (max-width: 480px) {
-            .sum-ai-panel { width: calc(100vw - 32px); left: 16px; bottom: 72px; }
-            .sum-ai-btn { bottom: 16px; left: 16px; }
+            .sum-ai-panel { width: calc(100vw - 24px); left: 12px; bottom: 76px; max-height: 70vh; }
+            .sum-ai-btn { bottom: 16px; left: 12px; }
         }
 
         /* ── CARD FOCUS SETTINGS ── */
@@ -2078,7 +2107,7 @@ ${textSlice}`;
                     <div style="flex:1;overflow-y:auto;padding:24px 28px" id="summaryViewScroll">
                         <div id="summaryViewContent" style="max-width:700px;margin:0 auto"></div>
                     </div>
-                    <div id="sumAIPanel" style="width:310px;flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease">
+                    <div id="sumAIPanel" style="width:380px;flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease">
                         <div class="sum-ai-header">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             <span class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</span>
@@ -3286,7 +3315,7 @@ ${pdfText}`;
             panel.style.overflow = 'hidden';
             if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI ▶`;
         } else {
-            panel.style.width = '310px';
+            panel.style.width = '380px';
             panel.style.overflow = 'hidden';
             if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI ◀`;
             setTimeout(() => document.getElementById('sumAIInput')?.focus(), 250);
@@ -3426,7 +3455,7 @@ ${pdfText}`;
         // typing indicator
         const typing = document.createElement('div');
         typing.className = 'sum-ai-msg typing';
-        typing.textContent = '⋯';
+        typing.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
         msgs.appendChild(typing);
         msgs.scrollTop = msgs.scrollHeight;
 
