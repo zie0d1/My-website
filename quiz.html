@@ -362,6 +362,82 @@
 
         .hidden { display:none !important; }
 
+        /* ── AI SUMMARY ASSISTANT ── */
+        .sum-ai-btn {
+            position: fixed; bottom: 24px; left: 24px; z-index: 510;
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--accent); color: #fff; border: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(37,99,235,.4);
+            transition: all var(--transition);
+        }
+        .sum-ai-btn:hover { background: var(--accent-dark); transform: scale(1.08); }
+        .sum-ai-btn svg { width: 20px; height: 20px; }
+        .sum-ai-panel {
+            position: fixed; bottom: 80px; left: 24px; z-index: 510;
+            width: 340px; max-height: 420px;
+            background: var(--surface); border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            display: flex; flex-direction: column;
+            animation: fadeIn 200ms ease;
+        }
+        .sum-ai-header {
+            padding: 10px 14px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 8px;
+            background: var(--surface2);
+        }
+        .sum-ai-header-title { font-size: 13px; font-weight: 600; flex: 1; color: var(--text); }
+        .sum-ai-close { background: none; border: none; cursor: pointer; color: var(--text3); padding: 2px; display: flex; align-items: center; justify-content: center; }
+        .sum-ai-close:hover { color: var(--text); }
+        .sum-ai-messages {
+            flex: 1; overflow-y: auto; padding: 12px; display: flex;
+            flex-direction: column; gap: 10px; max-height: 270px;
+        }
+        .sum-ai-msg { font-size: 12px; line-height: 1.65; padding: 8px 12px; max-width: 92%; }
+        .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; }
+        .sum-ai-msg.assistant { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); align-self: flex-start; white-space: pre-wrap; unicode-bidi: plaintext; }
+        .sum-ai-msg.typing { color: var(--text4); font-family: var(--mono); font-size: 11px; }
+        .sum-ai-quick { padding: 8px 12px; border-top: 1px solid var(--border); display: flex; gap: 5px; flex-wrap: wrap; background: var(--surface2); }
+        .sum-ai-quick-btn { font-size: 10px; padding: 3px 9px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); font-family: var(--mono); transition: all var(--transition); white-space: nowrap; }
+        .sum-ai-quick-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .sum-ai-input-row { display: flex; gap: 0; border-top: 1px solid var(--border); }
+        .sum-ai-input { flex: 1; border: none; background: var(--surface); padding: 10px 12px; font-size: 12px; color: var(--text); outline: none; resize: none; font-family: var(--sans); }
+        .sum-ai-send { width: 40px; flex-shrink: 0; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
+        .sum-ai-send:hover { background: var(--accent-dark); }
+        .sum-ai-send svg { width: 15px; height: 15px; }
+        @media (max-width: 480px) {
+            .sum-ai-panel { width: calc(100vw - 32px); left: 16px; bottom: 72px; }
+            .sum-ai-btn { bottom: 16px; left: 16px; }
+        }
+
+        /* ── CARD FOCUS SETTINGS ── */
+        .card-focus-row {
+            display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 4px;
+        }
+        .focus-chip {
+            padding: 5px 11px; font-size: 11px; border: 1px solid var(--border);
+            cursor: pointer; transition: all var(--transition);
+            background: var(--surface); color: var(--text3); font-family: var(--mono);
+        }
+        .focus-chip:hover { border-color: var(--border-hover); color: var(--text); }
+        .focus-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .card-settings-toggle {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; color: var(--text3); cursor: pointer;
+            padding: 6px 0; user-select: none;
+        }
+        .card-settings-toggle:hover { color: var(--text); }
+        .card-settings-panel {
+            border: 1px solid var(--border); background: var(--surface2);
+            padding: 14px; margin: 8px 0 14px;
+        }
+        .card-settings-row { display: flex; flex-direction: column; gap: 10px; }
+        .card-settings-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text4); font-family: var(--mono); margin-bottom: 4px; }
+        .card-count-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+        .card-count-chip { padding: 4px 10px; font-size: 10px; border: 1px solid var(--border); cursor: pointer; transition: all var(--transition); background: var(--surface); color: var(--text3); font-family: var(--mono); }
+        .card-count-chip:hover { border-color: var(--border-hover); color: var(--text); }
+        .card-count-chip.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
         /* MOBILE */
         @media (max-width:768px) {
             .sidebar { position:fixed; top:52px; right:-100%; bottom:0; width:240px; border-left:1px solid var(--border); transition:right 250ms ease; z-index:95; box-shadow:var(--shadow-lg); }
@@ -509,6 +585,44 @@
                     <div class="input-row">
                         <div class="input-group"><label data-t="quiz_name">اسم الاختبار</label><input id="quizNameInput" placeholder="مثلاً اختبار الفصل الأول" value="" oninput="ls('app_quizName',this.value)"></div>
                     </div>
+
+                    <!-- Card Settings Toggle -->
+                    <div class="card-settings-toggle" onclick="toggleCardSettings()" id="cardSettingsToggle">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <span id="cardSettingsToggleLabel">إعدادات البطاقات ▾</span>
+                    </div>
+                    <div class="card-settings-panel hidden" id="cardSettingsPanel">
+                        <div class="card-settings-row">
+                            <div>
+                                <div class="card-settings-label">نوع التركيز — Focus Type</div>
+                                <div class="card-focus-row" id="focusChips">
+                                    <span class="focus-chip active" data-focus="general" onclick="setFocusChip(this)">General</span>
+                                    <span class="focus-chip" data-focus="definition" onclick="setFocusChip(this)">Definitions</span>
+                                    <span class="focus-chip" data-focus="enumeration" onclick="setFocusChip(this)">Enumerations</span>
+                                    <span class="focus-chip" data-focus="concept" onclick="setFocusChip(this)">Concepts</span>
+                                    <span class="focus-chip" data-focus="mechanism" onclick="setFocusChip(this)">Mechanisms</span>
+                                    <span class="focus-chip" data-focus="comparison" onclick="setFocusChip(this)">Comparisons</span>
+                                    <span class="focus-chip" data-focus="formula" onclick="setFocusChip(this)">Formulas</span>
+                                    <span class="focus-chip" data-focus="clinical" onclick="setFocusChip(this)">Clinical / Cases</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="card-settings-label">عدد البطاقات — Card Count</div>
+                                <div class="card-count-row" id="cardCountChips">
+                                    <span class="card-count-chip" data-val="10" onclick="setCardCount(this)">10</span>
+                                    <span class="card-count-chip active" data-val="20" onclick="setCardCount(this)">20</span>
+                                    <span class="card-count-chip" data-val="30" onclick="setCardCount(this)">30</span>
+                                    <span class="card-count-chip" data-val="40" onclick="setCardCount(this)">40</span>
+                                    <span class="card-count-chip" data-val="50" onclick="setCardCount(this)">50</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="card-settings-label">إضافة ملاحظة للـ AI (اختياري)</div>
+                                <input id="cardExtraNote" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- AI Status -->
                     <div id="aiStatus" class="hidden" style="margin-bottom:14px">
                         <div style="background:var(--surface2);border:1px solid var(--border);padding:14px;display:flex;align-items:center;gap:10px">
@@ -1845,7 +1959,7 @@ ${textSlice}`;
             overlay.innerHTML = `
                 <div style="max-width:760px;margin:0 auto">
                     <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-                        <button class="btn" onclick="document.getElementById('summaryViewOverlay').remove()">
+                        <button class="btn" onclick="document.getElementById('summaryViewOverlay').remove();closeSumAI()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                             ${currentLang==='ar'?'رجوع':'Back'}
                         </button>
@@ -1857,11 +1971,40 @@ ${textSlice}`;
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             ${currentLang==='ar'?'نسخ':'Copy'}
                         </button>
+                        <button class="btn btn-sm btn-primary" onclick="toggleSumAI()" id="sumAIToggleBtn" style="gap:5px">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                            AI
+                        </button>
                     </div>
                     <div id="summaryViewContent"></div>
+                </div>
+                <!-- AI Floating Panel -->
+                <div class="sum-ai-panel hidden" id="sumAIPanel">
+                    <div class="sum-ai-header">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                        <span class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary Assistant'}</span>
+                        <button class="sum-ai-close" onclick="toggleSumAI()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    </div>
+                    <div class="sum-ai-messages" id="sumAIMessages">
+                        <div class="sum-ai-msg assistant">${currentLang==='ar'?'مرحباً! يمكنني شرح أو ترجمة أي جزء من هذا الملخص. اضغط على اقتراح أو اكتب سؤالك.':'Hello! I can explain or translate any part of this summary. Tap a suggestion or type your question.'}</div>
+                    </div>
+                    <div class="sum-ai-quick" id="sumAIQuick">
+                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('explain_all')">${currentLang==='ar'?'اشرح الملخص':'Explain summary'}</button>
+                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('translate')">${currentLang==='ar'?'ترجم للإنجليزية':'Translate to Arabic'}</button>
+                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('key_terms')">${currentLang==='ar'?'اشرح المصطلحات':'Explain key terms'}</button>
+                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('simplify')">${currentLang==='ar'?'بسّط اللغة':'Simplify language'}</button>
+                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('fix_json')">${currentLang==='ar'?'إصلاح JSON':'Fix JSON errors'}</button>
+                    </div>
+                    <div class="sum-ai-input-row">
+                        <textarea class="sum-ai-input" id="sumAIInput" rows="1" placeholder="${currentLang==='ar'?'اكتب سؤالك...':'Ask about this summary...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSumAI()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
+                        <button class="sum-ai-send" onclick="sendSumAI()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                    </div>
                 </div>`;
+            // Store current summary data for AI context
+            window._sumAIContext = s;
             renderStructuredSummary(s.structured, overlay.querySelector('#summaryViewContent'));
         } else {
+            window._sumAIContext = s; // set context even for plain summaries
             modal(
                 `<div class="modal-title">${esc(s.name)}</div>
                  <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-bottom:12px">${s.date} · ${s.style||'plain'}</div>
@@ -2907,7 +3050,208 @@ ${textSlice}`;
         setInterval(updateDueBadge, 60000);
     }
 
+    // ── CARD FOCUS SETTINGS ────────────────────────────────────────────────
+    let _cardFocus = 'general';
+    let _cardCount = 20;
+
+    function toggleCardSettings() {
+        const panel = $('cardSettingsPanel');
+        const lbl = $('cardSettingsToggleLabel');
+        if (!panel) return;
+        const open = !panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', open);
+        if (lbl) lbl.textContent = open
+            ? (currentLang==='ar' ? 'إعدادات البطاقات ▾' : 'Card Settings ▾')
+            : (currentLang==='ar' ? 'إعدادات البطاقات ▴' : 'Card Settings ▴');
+    }
+
+    function setFocusChip(el) {
+        document.querySelectorAll('#focusChips .focus-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _cardFocus = el.dataset.focus;
+    }
+
+    function setCardCount(el) {
+        document.querySelectorAll('#cardCountChips .card-count-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _cardCount = parseInt(el.dataset.val) || 20;
+    }
+
+    function buildCardsPromptWithFocus() {
+        const focusInstructions = {
+            general:     'Generate comprehensive flashcards covering all major concepts.',
+            definition:  'Focus ONLY on definitions: each card should have a term on the front and its definition on the back.',
+            enumeration: 'Focus on enumerations and lists: front = "List the [X] types/causes/features of...", back = numbered list.',
+            concept:     'Focus on key concepts and their explanations. Each card should test understanding of a single concept.',
+            mechanism:   'Focus on mechanisms, pathways, and processes. Front = mechanism name or trigger, back = how it works step by step.',
+            comparison:  'Focus on comparisons and differences. Front = "Compare X vs Y", back = clear tabular or bullet comparison.',
+            formula:     'Focus on formulas, equations, and calculations. Front = formula name, back = equation and when to use it.',
+            clinical:    'Focus on clinical scenarios and applications. Front = clinical case/presentation, back = diagnosis/management.',
+        };
+        const note = $('cardExtraNote')?.value.trim() || '';
+        const lang = $('langSel').value;
+        const count = _cardCount;
+        const focusText = focusInstructions[_cardFocus] || focusInstructions.general;
+        return `Generate exactly ${count} flashcards in ${lang}.
+${focusText}
+${note ? `Additional instruction: ${note}` : ''}
+Output ONLY a valid JSON array, no markdown, no code fences:
+[{"question":"...","answer":"..."}]
+Text:
+${pdfText}`;
+    }
+
+    // Override nvidiaCards to use focus settings
+    async function nvidiaCards() {
+        const btns = ['btnGenMCQ','btnGenCards'];
+        btns.forEach(id => { if ($(id)) $(id).disabled = true; });
+        setAIStatus(currentLang==='ar'?'جاري توليد البطاقات...':'Generating flashcards...');
+        try {
+            const prompt = buildCardsPromptWithFocus();
+            const r = await nvidiaChat(prompt, 'You are a flashcard generator. Output only valid JSON array. No markdown.', 4000);
+            const cards = parseJSON(r);
+            if (!Array.isArray(cards)||!cards[0]?.question) throw new Error(t('json_invalid'));
+            const valid = cards.filter(c=>c.question&&c.answer);
+            if (!valid.length) throw new Error('No valid cards');
+            const deckName = $('quizNameInput').value.trim() || pdfFile || 'Deck ' + (getDecks().length+1);
+            const focusLabel = _cardFocus !== 'general' ? ` [${_cardFocus}]` : '';
+            const decks = getDecks();
+            decks.push({name: deckName + focusLabel, cards: valid});
+            saveDecks(decks);
+            setAIStatus('✓ ' + valid.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+            setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
+        } catch(e) {
+            setAIStatus('✗ ' + e.message, false, true);
+            setTimeout(()=>setAIStatus(''), 4000);
+        } finally {
+            btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+        }
+    }
+
+    // ── SUMMARY AI ASSISTANT ───────────────────────────────────────────────
+    let _sumAIChatHistory = [];
+
+    function toggleSumAI() {
+        const panel = document.getElementById('sumAIPanel');
+        if (!panel) return;
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) {
+            setTimeout(() => document.getElementById('sumAIInput')?.focus(), 100);
+        }
+    }
+
+    function closeSumAI() {
+        _sumAIChatHistory = [];
+        window._sumAIContext = null;
+    }
+
+    function sumAIQuick(type) {
+        const ctx = window._sumAIContext;
+        if (!ctx) return;
+        const isAr = currentLang === 'ar';
+        const summaryText = ctx.structured ? structuredToPlainText(ctx.structured) : (ctx.text || '');
+
+        const prompts = {
+            explain_all:  isAr ? `اشرح هذا الملخص بطريقة مبسطة وسهلة الفهم:\n\n${summaryText}` : `Explain this summary in a simple, easy-to-understand way:\n\n${summaryText}`,
+            translate:    isAr ? `ترجم هذا الملخص للغة الإنجليزية مع الحفاظ على البنية:\n\n${summaryText}` : `Translate this summary to Arabic while keeping the structure:\n\n${summaryText}`,
+            key_terms:    isAr ? `اشرح المصطلحات الرئيسية في هذا الملخص بشكل مفصل:\n\n${summaryText}` : `Explain the key terms in this summary in detail:\n\n${summaryText}`,
+            simplify:     isAr ? `بسّط لغة هذا الملخص واجعله أسهل للفهم لطالب مبتدئ:\n\n${summaryText}` : `Simplify the language of this summary for a beginner student:\n\n${summaryText}`,
+            fix_json:     isAr ? `هذا JSON للملخص. إذا كان هناك خطأ في البنية أو محتوى ناقص، أصلحه وأعده كـ JSON صحيح فقط:\n\n${JSON.stringify(ctx.structured||{}, null, 2)}` : `This is the summary JSON. If there are structural errors or missing content, fix it and return only valid corrected JSON:\n\n${JSON.stringify(ctx.structured||{}, null, 2)}`,
+        };
+
+        const userMsg = { explain_all: isAr?'اشرح الملخص':'Explain summary', translate: isAr?'ترجم للإنجليزية':'Translate to Arabic', key_terms: isAr?'اشرح المصطلحات':'Explain key terms', simplify: isAr?'بسّط اللغة':'Simplify language', fix_json: isAr?'إصلاح JSON':'Fix JSON errors' };
+        _appendSumAIMsg(userMsg[type] || type, 'user');
+        _doSumAICall(prompts[type]);
+    }
+
+    async function sendSumAI() {
+        const input = document.getElementById('sumAIInput');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        input.style.height = 'auto';
+
+        const ctx = window._sumAIContext;
+        const summaryText = ctx ? (ctx.structured ? structuredToPlainText(ctx.structured) : (ctx.text||'')) : '';
+        _appendSumAIMsg(text, 'user');
+
+        const systemContext = summaryText
+            ? `You are a helpful study assistant. The user is viewing this summary:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer the user's question about this summary. Be concise, helpful, and in the same language as the user's message.`
+            : 'You are a helpful study assistant. Answer the user\'s question concisely.';
+
+        _doSumAICall(text, systemContext);
+    }
+
+    function _appendSumAIMsg(text, role) {
+        const msgs = document.getElementById('sumAIMessages');
+        if (!msgs) return;
+        const div = document.createElement('div');
+        div.className = `sum-ai-msg ${role}`;
+        div.textContent = text;
+        msgs.appendChild(div);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    async function _doSumAICall(userPrompt, systemOverride) {
+        const msgs = document.getElementById('sumAIMessages');
+        if (!msgs) return;
+
+        // typing indicator
+        const typing = document.createElement('div');
+        typing.className = 'sum-ai-msg typing';
+        typing.textContent = '⋯';
+        msgs.appendChild(typing);
+        msgs.scrollTop = msgs.scrollHeight;
+
+        // build history for context
+        _sumAIChatHistory.push({ role: 'user', content: userPrompt });
+        const historyForAPI = _sumAIChatHistory.slice(-8); // keep last 8 turns
+
+        const ctx = window._sumAIContext;
+        const summaryText = ctx ? (ctx.structured ? structuredToPlainText(ctx.structured) : (ctx.text||'')) : '';
+        const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
+
+        try {
+            // Use multi-turn via the history
+            const body = JSON.stringify({
+                model: NV_MODEL,
+                messages: [{ role:'system', content: system }, ...historyForAPI],
+                max_tokens: 1000,
+                temperature: 0.5
+            });
+            const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+NV_API_KEY };
+            let responseText = '';
+            try {
+                const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body });
+                if (r.ok) { const d = await r.json(); responseText = d.choices[0].message.content; }
+                else throw new Error('HTTP ' + r.status);
+            } catch(e) {
+                if (e.name !== 'TypeError') throw e;
+                for (const makeProxy of CORS_PROXIES) {
+                    try {
+                        const r = await fetch(makeProxy(NV_ENDPOINT), { method:'POST', headers, body });
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        const d = await r.json();
+                        const parsed = d.contents ? JSON.parse(d.contents) : d;
+                        responseText = parsed.choices[0].message.content;
+                        break;
+                    } catch(pe) { /* try next */ }
+                }
+            }
+            if (!responseText) throw new Error('No response');
+
+            _sumAIChatHistory.push({ role: 'assistant', content: responseText });
+            typing.className = 'sum-ai-msg assistant';
+            typing.textContent = responseText;
+        } catch(e) {
+            typing.className = 'sum-ai-msg assistant';
+            typing.textContent = '✗ ' + e.message;
+        }
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
     init();
-    </script>
+</script>
 </body>
 </html>
