@@ -360,6 +360,16 @@
         .sum-term-word { font-weight:700; font-size:12px; color:var(--text); min-width:100px; max-width:140px; flex-shrink:0; unicode-bidi:plaintext; text-align:start; }
         .sum-term-def { font-size:12px; color:var(--text3); line-height:1.6; unicode-bidi:plaintext; text-align:start; }
 
+        /* SUMMARY TABLE */
+        .sum-table-wrap { padding:14px 16px; overflow-x:auto; }
+        .sum-table { width:100%; border-collapse:collapse; font-size:13px; }
+        .sum-table th { background:var(--surface2); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; font-family:var(--mono); color:var(--text3); padding:9px 12px; border:1px solid var(--border); text-align:start; }
+        .sum-table td { padding:9px 12px; border:1px solid var(--border); color:var(--text2); line-height:1.55; unicode-bidi:plaintext; vertical-align:top; transition:background var(--transition); }
+        .sum-table tr:hover td { background:var(--accent-light); }
+        .sum-table tr:hover td b, .sum-table tr:hover td strong { color:var(--accent-dark); }
+        .sum-table td b, .sum-table td strong { color:var(--text); font-weight:700; }
+        .sum-table td:first-child { font-weight:600; color:var(--text); }
+
         .hidden { display:none !important; }
 
         /* ── AI SUMMARY ASSISTANT ── */
@@ -1715,7 +1725,12 @@ The JSON must follow this exact schema:
     {
       "heading": "string — section name",
       "color": "one of: blue | green | purple | orange | pink | teal | amber | red | indigo | cyan",
-      "points": ["string", "string", "string"]
+      "type": "points OR table",
+      "points": ["string", "string"],
+      "table": {
+        "headers": ["Col1", "Col2", "Col3"],
+        "rows": [["cell", "cell", "cell"]]
+      }
     }
   ],
   "key_terms": [
@@ -1725,7 +1740,11 @@ The JSON must follow this exact schema:
 
 Rules:
 - Write everything in ${lang}
-- 4–8 sections, each with 3–6 points
+- 4–8 sections total
+- For each section choose the BEST display type:
+  * Use "points" for narrative/process/explanation content (include "points" array, omit "table")
+  * Use "table" for comparisons, classifications, lifecycle stages, properties, or multi-attribute data (include "table" object with headers+rows, omit "points"). Bold key words inside cells using <b>word</b> tags.
+- Include at least 1–2 table sections when the document has comparative or structured data
 - 5–12 key terms
 - Assign a DIFFERENT color to each section
 - Points must be complete, informative sentences — not single words
@@ -1768,22 +1787,47 @@ ${textSlice}`;
         if (!data || !container) return;
         const sections = (data.sections || []).map((sec, i) => {
             const c = resolveColor(sec.color, i);
-            const isChipStyle = summaryCurrentStyle === 'structured';
+            const isTable = sec.type === 'table' && sec.table && Array.isArray(sec.table.headers);
 
-            const pointsHTML = (sec.points || []).map(pt =>
-                `<div class="sum-point">
-                    <div class="sum-point-bullet" style="background:${c.hex}"></div>
-                    <span>${esc(pt)}</span>
-                </div>`
-            ).join('');
+            let bodyHTML = '';
+            if (isTable) {
+                const headers = sec.table.headers || [];
+                const rows = sec.table.rows || [];
+                const thCells = headers.map(h => `<th>${esc(h)}</th>`).join('');
+                const trRows = rows.map(row =>
+                    `<tr>${(Array.isArray(row) ? row : [row]).map((cell, ci) => {
+                        // Allow <b> tags inside cells for bold highlights
+                        const safe = String(cell||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>');
+                        return `<td>${safe}</td>`;
+                    }).join('')}</tr>`
+                ).join('');
+                bodyHTML = `<div class="sum-table-wrap">
+                    <table class="sum-table">
+                        <thead><tr>${thCells}</tr></thead>
+                        <tbody>${trRows}</tbody>
+                    </table>
+                </div>`;
+            } else {
+                const pointsHTML = (sec.points || []).map(pt =>
+                    `<div class="sum-point">
+                        <div class="sum-point-bullet" style="background:${c.hex}"></div>
+                        <span>${esc(pt)}</span>
+                    </div>`
+                ).join('');
+                bodyHTML = `<div class="sum-points">${pointsHTML}</div>`;
+            }
+
+            const count = isTable
+                ? `${(sec.table.rows||[]).length} ${currentLang==='ar'?'صف':'rows'}`
+                : `${(sec.points||[]).length} ${currentLang==='ar'?'نقطة':'pts'}`;
 
             return `<div class="sum-section" style="border-color:${c.border};animation-delay:${i*60}ms">
                 <div class="sum-section-head" style="border-bottom-color:${c.border}">
                     <div class="sum-section-stripe" style="background:${c.hex}"></div>
                     <div class="sum-section-title" style="color:${c.hex}">${esc(sec.heading||'')}</div>
-                    <div class="sum-section-count">${(sec.points||[]).length} ${currentLang==='ar'?'نقطة':'pts'}</div>
+                    <div class="sum-section-count">${count}</div>
                 </div>
-                <div class="sum-points">${pointsHTML}</div>
+                ${bodyHTML}
             </div>`;
         }).join('');
 
