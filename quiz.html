@@ -269,7 +269,7 @@
         .notif-banner-close { background:none; border:none; color:var(--accent); cursor:pointer; font-size:16px; }
 
         /* LECTURE TODO GRID */
-        .lec-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px; margin-top:14px; }
+        .lec-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:6px; margin-top:14px; }
         .lec-card { background:var(--surface); border:1px solid var(--border); padding:16px; transition:all var(--transition); position:relative; }
         .lec-card:hover { box-shadow:var(--shadow-lg); }
         .lec-card.status-done { border-color:var(--success); background:var(--success-bg); }
@@ -495,12 +495,21 @@
                         </button>
                     </div>
                     <div class="input-row">
-                        <div class="input-group"><label data-t="q_count">عدد الأسئلة</label><input type="number" id="qCount" min="3" max="30" value="5"></div>
-                        <div class="input-group"><label data-t="difficulty">الصعوبة</label><select id="diffSel"><option value="سهل" data-t="easy">سهل</option><option value="متوسط" selected data-t="medium">متوسط</option><option value="صعب" data-t="hard">صعب</option></select></div>
-                        <div class="input-group"><label data-t="language">اللغة</label><select id="langSel"><option value="عربي" selected data-t="arabic">عربي</option><option value="English">English</option></select></div>
+                        <div class="input-group">
+                            <label data-t="q_count">عدد الأسئلة</label>
+                            <div class="chip-row" id="qCountChips" style="margin-top:4px">
+                                <span class="chip" data-val="10" onclick="setQCount(this)">10</span>
+                                <span class="chip active" data-val="15" onclick="setQCount(this)">15</span>
+                                <span class="chip" data-val="20" onclick="setQCount(this)">20</span>
+                                <span class="chip" data-val="30" onclick="setQCount(this)">30</span>
+                            </div>
+                            <input type="hidden" id="qCount" value="15">
+                        </div>
+                        <div class="input-group"><label data-t="difficulty">الصعوبة</label><select id="diffSel" onchange="ls('app_diff',this.value)"><option value="سهل" data-t="easy">سهل</option><option value="متوسط" selected data-t="medium">متوسط</option><option value="صعب" data-t="hard">صعب</option></select></div>
+                        <div class="input-group"><label data-t="language">اللغة</label><select id="langSel" onchange="ls('app_lang_sel',this.value)"><option value="عربي" selected data-t="arabic">عربي</option><option value="English">English</option></select></div>
                     </div>
                     <div class="input-row">
-                        <div class="input-group"><label data-t="quiz_name">اسم الاختبار</label><input id="quizNameInput" placeholder="مثلاً اختبار الفصل الأول" value=""></div>
+                        <div class="input-group"><label data-t="quiz_name">اسم الاختبار</label><input id="quizNameInput" placeholder="مثلاً اختبار الفصل الأول" value="" oninput="ls('app_quizName',this.value)"></div>
                     </div>
                     <!-- AI Status -->
                     <div id="aiStatus" class="hidden" style="margin-bottom:14px">
@@ -518,24 +527,15 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                             <span data-t="gen_cards_btn">توليد بطاقات</span>
                         </button>
-                        <button class="btn" id="btnEssay" disabled onclick="genEssay()" data-t="essay">مقالي</button>
+
                     </div>
                     <div id="groqStatus" class="hidden card" style="font-family:var(--mono);font-size:12px;text-align:center"></div>
-                    <div id="essayArea" class="hidden">
-                        <div class="card" id="essayQ" style="font-size:15px;font-weight:500;line-height:1.7"></div>
-                        <div class="input-group" style="margin-bottom:14px"><label data-t="your_answer">إجابتك</label><textarea id="essayAns" rows="6" placeholder="..."></textarea></div>
-                        <div class="btn-group">
-                            <button class="btn btn-primary" onclick="gradeEssay()" data-t="evaluate">تقييم</button>
-                            <button class="btn" onclick="genEssay()" data-t="new_question">سؤال جديد</button>
-                        </div>
-                        <div id="essayFB" class="hidden card" style="font-family:var(--mono);font-size:12px"></div>
-                    </div>
                 </div>
 
                 <!-- TODO / LECTURES PANEL -->
                 <div class="panel" id="panel-todo">
                     <h1 class="page-title" data-t="todo_title">قائمة المحاضرات</h1>
-                    <p class="page-subtitle" data-t="todo_subtitle">تتبع تقدمك في كل محاضرة</p>
+                    <p class="page-subtitle" data-t="todo_subtitle">اضغط على المحاضرة للتبديل بين: لم يبدأ → جاري → مكتمل</p>
                     <!-- Set lecture count -->
                     <div class="card" style="margin-bottom:16px">
                         <div class="card-header">
@@ -567,59 +567,79 @@
                 <!-- SUMMARY PANEL -->
                 <div class="panel" id="panel-summary">
                     <h1 class="page-title" data-t="summary_library_title">الملخصات</h1>
-                    <p class="page-subtitle" data-t="summary_lib_subtitle">ملخصات ذكية من ملفات PDF — احفظها وراجعها في أي وقت</p>
+                    <p class="page-subtitle" data-t="summary_lib_subtitle">ملخصات ذكية من ملفات PDF أو نص مباشر</p>
 
-                    <!-- Generate Summary from PDF -->
+                    <!-- Input Card -->
                     <div class="card" style="margin-bottom:18px">
                         <div class="card-header" style="margin-bottom:14px">
                             <span class="card-title" style="display:flex;align-items:center;gap:8px">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                                <span data-t="gen_summary_title">توليد ملخص بالذكاء الاصطناعي</span>
+                                <span data-t="gen_summary_title">توليد ملخص ذكي</span>
                             </span>
                         </div>
-                        <div id="summaryDropZone" class="drop-zone" onclick="document.getElementById('summaryPdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleSummaryDrop(event)">
-                            <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
-                            <div class="drop-hint">PDF - 25 pages max</div>
-                        </div>
-                        <input type="file" id="summaryPdfInput" accept=".pdf" class="hidden" onchange="setSummaryPDF(this.files[0])">
-                        <div id="summaryFilePill" class="hidden" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);background:var(--surface2);margin-bottom:12px">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <span id="summaryFileName" style="flex:1;font-family:var(--mono);font-size:12px;color:var(--text2)"></span>
-                            <button class="btn btn-sm btn-ghost" onclick="clearSummaryPDF()">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+
+                        <!-- Input mode toggle -->
+                        <div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border)">
+                            <button id="sumTabPdf" class="btn" style="flex:1;border:none;background:var(--accent);color:#fff;font-weight:600" onclick="switchSumTab('pdf')">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                PDF
+                            </button>
+                            <button id="sumTabText" class="btn" style="flex:1;border:none;background:var(--surface2);color:var(--text3)" onclick="switchSumTab('text')">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                                نص مباشر
                             </button>
                         </div>
-                        <div class="input-row" style="margin-bottom:12px">
+
+                        <!-- PDF tab -->
+                        <div id="sumPdfTab">
+                            <div id="summaryDropZone" class="drop-zone" onclick="document.getElementById('summaryPdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleSummaryDrop(event)">
+                                <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
+                                <div class="drop-hint">PDF - 25 pages max</div>
+                            </div>
+                            <input type="file" id="summaryPdfInput" accept=".pdf" class="hidden" onchange="setSummaryPDF(this.files[0])">
+                            <div id="summaryFilePill" class="hidden" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);background:var(--surface2);margin-top:8px">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                <span id="summaryFileName" style="flex:1;font-family:var(--mono);font-size:12px;color:var(--text2)"></span>
+                                <button class="btn btn-sm btn-ghost" onclick="clearSummaryPDF()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Direct text tab -->
+                        <div id="sumTextTab" class="hidden">
+                            <textarea id="summaryDirectText" rows="7" placeholder="الصق النص الذي تريد تلخيصه هنا..." style="width:100%;resize:vertical;direction:auto" oninput="onSummaryTextInput()"></textarea>
+                            <div id="sumTextCount" style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:4px;text-align:end">0 حرف</div>
+                        </div>
+
+                        <!-- Options row -->
+                        <div class="input-row" style="margin:12px 0 10px">
                             <div class="input-group">
                                 <label data-t="quiz_name">اسم الملخص</label>
-                                <input id="summaryNameInput" placeholder="مثلاً: ملخص الفصل الأول">
+                                <input id="summaryNameInput" placeholder="مثلاً: ملخص الفصل الأول" oninput="ls('app_sumName',this.value)">
                             </div>
                             <div class="input-group">
                                 <label data-t="language">اللغة</label>
-                                <select id="summaryLangSel"><option value="عربي" data-t="arabic">عربي</option><option value="English">English</option></select>
+                                <select id="summaryLangSel" onchange="ls('app_sumLang',this.value)"><option value="عربي" data-t="arabic">عربي</option><option value="English">English</option></select>
                             </div>
                         </div>
-                        <!-- Summary Style Chips -->
-                        <div style="margin-bottom:14px">
-                            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);font-family:var(--mono);margin-bottom:8px" data-t="sum_style_label">نوع الملخص</div>
-                            <div class="chip-row" id="summaryStyleChips">
-                                <span class="chip" data-style="detailed" onclick="setSummaryStyle(this)" data-t="sum_detailed">مفصّل</span>
-                                <span class="chip" data-style="bullets" onclick="setSummaryStyle(this)" data-t="sum_bullets">نقاط</span>
-                                <span class="chip" data-style="concise" onclick="setSummaryStyle(this)" data-t="sum_concise">مختصر</span>
-                                <span class="chip" data-style="academic" onclick="setSummaryStyle(this)" data-t="sum_academic">أكاديمي</span>
-                                <span class="chip active" data-style="structured" onclick="setSummaryStyle(this)" data-t="sum_structured" style="border-color:var(--accent);color:var(--accent)">✦ منظم JSON</span>
-                            </div>
-                        </div>
+
                         <!-- AI Status -->
                         <div id="summaryAiStatus" class="hidden" style="margin-bottom:12px">
-                            <div style="background:var(--accent-light);border:1px solid var(--accent);padding:12px 14px;display:flex;align-items:center;gap:10px">
-                                <div style="width:14px;height:14px;border:2px solid var(--accent-light);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
-                                <span id="summaryAiStatusText" style="font-family:var(--mono);font-size:12px;color:var(--accent)"></span>
+                            <div style="background:var(--accent-light);border:1px solid var(--accent);padding:12px 14px">
+                                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+                                    <div style="width:14px;height:14px;border:2px solid transparent;border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
+                                    <span id="summaryAiStatusText" style="font-family:var(--mono);font-size:12px;color:var(--accent)"></span>
+                                </div>
+                                <div id="summaryProgressBar" style="height:3px;background:var(--border);overflow:hidden">
+                                    <div id="summaryProgressFill" style="height:100%;background:var(--accent);width:0%;transition:width 0.4s ease"></div>
+                                </div>
                             </div>
                         </div>
+
                         <button class="btn btn-primary btn-full" id="btnGenSummary" disabled onclick="nvidiaSummary()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                            <span data-t="gen_summary_btn">توليد الملخص</span>
+                            <span data-t="gen_summary_btn">إنشاء ملخص ذكي</span>
                         </button>
                     </div>
 
@@ -810,7 +830,7 @@
             q_count:'عدد الأسئلة', difficulty:'الصعوبة', easy:'سهل', medium:'متوسط', hard:'صعب',
             language:'اللغة', arabic:'عربي', prompt_mcq:'برومت MCQ', prompt_cards:'برومت بطاقات',
             prompt_summary:'برومت الملخص', quiz_name:'اسم الاختبار', lecture_name:'اسم المحاضرة',
-            essay:'مقالي', copy:'نسخ', your_answer:'إجابتك', evaluate:'تقييم',
+            copy:'نسخ', your_answer:'إجابتك', evaluate:'تقييم',
             new_question:'سؤال جديد', json_subtitle:'الصق بيانات الأسئلة وابدأ الاختبار فوراً',
             start_quiz:'بدء الاختبار', clear:'مسح', my_cards_title:'بطاقاتي',
             decks_subtitle:'مجموعات البطاقات التعليمية للمراجعة المتباعدة',
@@ -893,7 +913,7 @@
             q_count:'Number of Questions', difficulty:'Difficulty',
             easy:'Easy', medium:'Medium', hard:'Hard', language:'Language', arabic:'Arabic',
             prompt_mcq:'MCQ Prompt', prompt_cards:'Cards Prompt', prompt_summary:'Summary Prompt', gen_mcq_btn:'Generate MCQ', gen_cards_btn:'Generate Cards',
-            quiz_name:'Quiz Name', lecture_name:'Lecture Name', essay:'Essay', copy:'Copy',
+            quiz_name:'Quiz Name', lecture_name:'Lecture Name', copy:'Copy',
             your_answer:'Your Answer', evaluate:'Grade', new_question:'New Question',
             json_subtitle:'Paste question data and start the quiz instantly',
             start_quiz:'Start Quiz', clear:'Clear', my_cards_title:'My Cards',
@@ -1241,11 +1261,8 @@
                 txt += tc.items.map(it=>it.str).join(' ') + '\n';
             }
             pdfText = txt.trim();
-            // Auto-calculate suggested MCQ count from page count
-            const autoQCount = Math.min(30, Math.max(5, Math.round(doc.numPages * 2.5)));
-            if ($('qCount')) $('qCount').value = autoQCount;
-            toast('OK — '+pdfText.length.toLocaleString()+' chars · '+doc.numPages+' pages → '+autoQCount+' Qs');
-            ['btnGenMCQ','btnGenCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=false; });
+            toast('OK — '+pdfText.length.toLocaleString()+' chars · '+doc.numPages+' pages');
+            ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled=false; });
         } catch(e) { alertModal(t('error')+': '+e.message); clearPDF(); }
     }
 
@@ -1255,8 +1272,7 @@
         if ($('dropZone')) show($('dropZone'));
         hide($('promptWrap'));
         if ($('groqStatus')) hide($('groqStatus'));
-        if ($('essayArea')) hide($('essayArea'));
-        ['btnGenMCQ','btnGenCards','btnEssay'].forEach(id => { if ($(id)) $(id).disabled=true; });
+        ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled=true; });
         $('pdfInput').value='';
     }
 
@@ -1268,6 +1284,13 @@
 
     // ── PROMPTS ─────────────────────────────────────
     let _fullPrompt = '';
+    function setQCount(el) {
+        document.querySelectorAll('#qCountChips .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        $('qCount').value = el.dataset.val;
+        ls('app_qCount', el.dataset.val);
+    }
+
     function buildMCQP() { return `Generate ${$('qCount').value} MCQ questions in ${$('langSel').value} at ${$('diffSel').value} level. Output JSON only:\n[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}]\nText:\n${pdfText}`; }
     function buildSummaryPrompt() { return ''; } // replaced by nvidiaSummary
     function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
@@ -1363,7 +1386,7 @@
     }
 
     async function nvidiaMCQ() {
-        const btns = ['btnGenMCQ','btnGenCards','btnEssay'];
+        const btns = ['btnGenMCQ','btnGenCards'];
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
         setAIStatus(t('generating'));
         try {
@@ -1384,7 +1407,7 @@
     }
 
     async function nvidiaCards() {
-        const btns = ['btnGenMCQ','btnGenCards','btnEssay'];
+        const btns = ['btnGenMCQ','btnGenCards'];
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
         setAIStatus(currentLang==='ar'?'جاري توليد البطاقات...':'Generating flashcards...');
         try {
@@ -1410,50 +1433,45 @@
         }
     }
 
-    let _essayData = null;
-    async function genEssay() {
-        const el=$('groqStatus'); show(el); el.textContent=t('generating'); el.style.color='var(--text3)';
-        try {
-            const r = await groqChat(`Create an essay question. Output JSON:\n{"question":"...","model_answer":"...","criteria":["..."]}\nText:\n${pdfText}`);
-            _essayData = parseJSON(r);
-            if (!_essayData?.question) throw new Error(t('json_invalid'));
-            hide(el); $('essayQ').textContent=_essayData.question; $('essayAns').value='';
-            hide($('essayFB')); show($('essayArea'));
-        } catch(e) { el.textContent='ERR — '+e.message; el.style.color='var(--danger)'; }
-    }
-
-    async function gradeEssay() {
-        if (!_essayData) return;
-        const ans = $('essayAns').value.trim();
-        if (!ans) { alertModal(t('enter_answer')); return; }
-        const fb=$('essayFB'); show(fb); fb.textContent=t('generating'); fb.style.color='var(--text3)';
-        try {
-            const r = await groqChat(`Grade the answer. Output JSON:\n{"score":8,"strengths":["..."],"improvements":["..."]}\nQuestion: ${_essayData.question}\nModel: ${_essayData.model_answer}\nAnswer: ${ans}`);
-            const gr = parseJSON(r);
-            if (!gr||gr.score===undefined) throw new Error('Grading failed');
-            fb.innerHTML=`<strong>${t('score')}: ${gr.score}/10</strong><br>Strengths: ${(gr.strengths||[]).join(' · ')}<br>Improve: ${(gr.improvements||[]).join(' · ')}`;
-            fb.style.color = gr.score>=7?'var(--success)':'var(--danger)';
-        } catch(e) { fb.textContent='ERR — '+e.message; fb.style.color='var(--danger)'; }
-    }
-
-    // groqSummary replaced by nvidiaSummary in panel-summary
-
-    // ── SUMMARY SYSTEM ────────────────────────────────────────────────────
+    // ── SUMMARY GLOBALS & COLORS ──────────────────────────────────────────
     let summaryPdfText = '', summaryPdfFile = '', summaryCurrentStyle = 'structured';
-    let _currentSummaryResult = '';   // raw string
-    let _currentSummaryData   = null; // parsed JSON or null
-
-    // ── Color palette ─────────────────────────────────────────────────────
+    let _currentSummaryResult = '', _currentSummaryData = null, sumCurrentTab = 'pdf';
     const SUM_COLORS = {
-        blue:   { hex:'#3b82f6', bg:'rgba(59,130,246,.1)',  border:'rgba(59,130,246,.35)'  },
-        green:  { hex:'#10b981', bg:'rgba(16,185,129,.1)',  border:'rgba(16,185,129,.35)'  },
-        purple: { hex:'#8b5cf6', bg:'rgba(139,92,246,.1)',  border:'rgba(139,92,246,.35)'  },
-        orange: { hex:'#f59e0b', bg:'rgba(245,158,11,.1)',  border:'rgba(245,158,11,.35)'  },
-        pink:   { hex:'#ec4899', bg:'rgba(236,72,153,.1)',  border:'rgba(236,72,153,.35)'  },
-        teal:   { hex:'#14b8a6', bg:'rgba(20,184,166,.1)',  border:'rgba(20,184,166,.35)'  },
-        amber:  { hex:'#d97706', bg:'rgba(217,119,6,.1)',   border:'rgba(217,119,6,.35)'   },
-        red:    { hex:'#ef4444', bg:'rgba(239,68,68,.1)',   border:'rgba(239,68,68,.35)'   },
+        blue:   { hex:'#3b82f6', bg:'#dbeafe', border:'#93c5fd' },
+        green:  { hex:'#10b981', bg:'#d1fae5', border:'#6ee7b7' },
+        purple: { hex:'#8b5cf6', bg:'#ede9fe', border:'#c4b5fd' },
+        orange: { hex:'#f59e0b', bg:'#fef3c7', border:'#fcd34d' },
+        pink:   { hex:'#ec4899', bg:'#fce7f3', border:'#f9a8d4' },
+        teal:   { hex:'#14b8a6', bg:'#ccfbf1', border:'#5eead4' },
+        amber:  { hex:'#d97706', bg:'#fffbeb', border:'#fbbf24' },
+        red:    { hex:'#ef4444', bg:'#fee2e2', border:'#fca5a5' },
+        indigo: { hex:'#6366f1', bg:'#e0e7ff', border:'#a5b4fc' },
+        cyan:   { hex:'#06b6d4', bg:'#cffafe', border:'#67e8f9' },
     };
+
+    function switchSumTab(tab) {
+        sumCurrentTab = tab;
+        const isPdf = tab === 'pdf';
+        $('sumPdfTab').classList.toggle('hidden', !isPdf);
+        $('sumTextTab').classList.toggle('hidden', isPdf);
+        $('sumTabPdf').style.background = isPdf ? 'var(--accent)' : 'var(--surface2)';
+        $('sumTabPdf').style.color = isPdf ? '#fff' : 'var(--text3)';
+        $('sumTabText').style.background = !isPdf ? 'var(--accent)' : 'var(--surface2)';
+        $('sumTabText').style.color = !isPdf ? '#fff' : 'var(--text3)';
+        if (!isPdf) {
+            $('btnGenSummary').disabled = !($('summaryDirectText').value.trim());
+        } else {
+            $('btnGenSummary').disabled = !summaryPdfText;
+        }
+    }
+
+    function onSummaryTextInput() {
+        const txt = $('summaryDirectText').value.trim();
+        const cnt = $('sumTextCount');
+        if (cnt) cnt.textContent = txt.length + (currentLang==='ar' ? ' حرف' : ' chars');
+        $('btnGenSummary').disabled = !txt;
+    }
+
     const SUM_COLOR_KEYS = Object.keys(SUM_COLORS);
 
     function resolveColor(raw, idx) {
@@ -1578,38 +1596,63 @@ ${text}`;
 
     // ── AI call ───────────────────────────────────────────────────────────
     async function nvidiaSummary() {
-        if (!summaryPdfText) return;
+        const sourceText = sumCurrentTab === 'text'
+            ? ($('summaryDirectText')?.value.trim() || '')
+            : summaryPdfText;
+        if (!sourceText) return;
+        summaryCurrentStyle = 'structured'; // always use beautiful structured format
         $('btnGenSummary').disabled = true;
         show($('summaryAiStatus'));
         $('summaryAiStatusText').textContent = currentLang==='ar' ? 'جاري توليد الملخص...' : 'Generating summary...';
         _currentSummaryData = null; _currentSummaryResult = '';
 
-        try {
-            const isStructured = summaryCurrentStyle === 'structured';
-            const sys = isStructured
-                ? 'You are a JSON-only summarizer. Output valid JSON and nothing else. No markdown. No explanation.'
-                : 'You are an expert academic summarizer. Write clearly and insightfully.';
+        const lang = $('summaryLangSel').value;
+        const textSlice = sourceText.slice(0, 12000);
+        const prompt = `You are an expert academic summarizer. Analyze the following document and return ONLY a valid JSON object — no markdown, no code fences, no extra text.
 
-            const raw = await nvidiaChat(buildSummaryPrompt(), sys, 3000);
+The JSON must follow this exact schema:
+{
+  "title": "string — chapter or document title",
+  "summary_line": "string — one powerful sentence capturing the whole document",
+  "sections": [
+    {
+      "heading": "string — section name",
+      "color": "one of: blue | green | purple | orange | pink | teal | amber | red | indigo | cyan",
+      "points": ["string", "string", "string"]
+    }
+  ],
+  "key_terms": [
+    { "term": "string", "definition": "string" }
+  ]
+}
+
+Rules:
+- Write everything in ${lang}
+- 4–8 sections, each with 3–6 points
+- 5–12 key terms
+- Assign a DIFFERENT color to each section
+- Points must be complete, informative sentences — not single words
+- Output RAW JSON only. No \`\`\`json wrapper. No explanation.
+
+Document:
+${textSlice}`;
+
+        try {
+            const sys = 'You are a JSON-only summarizer. Output valid JSON and nothing else. No markdown. No explanation.';
+            const raw = await nvidiaChat(prompt, sys, 3000);
             _currentSummaryResult = raw;
 
-            if (isStructured) {
-                // Try to parse JSON — strip any accidental fences
-                const cleaned = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-                try {
-                    _currentSummaryData = JSON.parse(cleaned);
-                    renderStructuredSummary(_currentSummaryData, $('summaryResultBox'));
-                } catch(parseErr) {
-                    // JSON parse failed — fallback to plain text
-                    _currentSummaryData = null;
-                    $('summaryResultBox').innerHTML = `
-                        <div style="padding:10px 14px;background:var(--warning-bg);border:1px solid var(--warning);color:var(--warning);font-family:var(--mono);font-size:11px;margin-bottom:12px">
-                            ⚠ JSON parse failed — showing raw output
-                        </div>
-                        <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(raw)}</div>`;
-                }
-            } else {
-                $('summaryResultBox').innerHTML = `<div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(raw)}</div>`;
+            const cleaned = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+            try {
+                _currentSummaryData = JSON.parse(cleaned);
+                renderStructuredSummary(_currentSummaryData, $('summaryResultBox'));
+            } catch(parseErr) {
+                _currentSummaryData = null;
+                $('summaryResultBox').innerHTML = `
+                    <div style="padding:10px 14px;background:var(--warning-bg);border:1px solid var(--warning);color:var(--warning);font-family:var(--mono);font-size:11px;margin-bottom:12px">
+                        ⚠ JSON parse failed — showing raw output
+                    </div>
+                    <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(raw)}</div>`;
             }
 
             show($('summaryResultArea'));
@@ -1933,31 +1976,40 @@ ${text}`;
                 <div class="lec-progress-overall"><div class="lec-progress-fill" style="width:${pct}%"></div></div>`;
             }
         }
-        // Grid
+        // Compact pill grid
         const grid = $('lecGrid');
         if (!grid) return;
         if (!n) { grid.innerHTML=`<div style="color:var(--text4);padding:20px;text-align:center">${t('todo_set_count')}</div>`; return; }
+
+        // Render compact pills: clicking cycles status
         grid.innerHTML = lecs.map((lec, i) => {
-            const timeStr = fmtMs(lec.timeMs||0);
-            const isRunning = !!_lecTimers[i];
-            const statusClass = lec.status==='done'?'status-done':lec.status==='in-progress'?'status-in-progress':'';
-            return `<div class="lec-card ${statusClass}" id="lecCard${i}">
-                <div class="lec-num">${t('lec_num')} ${String(i+1).padStart(2,'0')}</div>
-                <input class="lec-name-input" id="lecNameInput${i}" value="${esc(lec.name)}"
-                    placeholder="${t('lec_name_placeholder')}"
-                    onchange="updateLecName(${i},this.value)"
-                    onblur="updateLecName(${i},this.value)">
-                <div class="lec-status-row">
-                    <span class="lec-status-chip s-not${lec.status==='not-started'?' active':''}" onclick="setLecStatus(${i},'not-started')">${t('status_not_started')}</span>
-                    <span class="lec-status-chip s-progress${lec.status==='in-progress'?' active':''}" onclick="setLecStatus(${i},'in-progress')">${t('status_in_progress')}</span>
-                    <span class="lec-status-chip s-done${lec.status==='done'?' active':''}" onclick="setLecStatus(${i},'done')">${t('status_done')}</span>
-                </div>
-                <div class="lec-timer-row">
-                    <span class="lec-timer-display" id="lecTimer${i}">${timeStr}</span>
-                    <button class="lec-timer-btn${isRunning?' running':''}" onclick="toggleLecTimer(${i})">${isRunning?t('stop_timer'):t('start_timer')}</button>
-                </div>
+            const isDone = lec.status === 'done';
+            const isProgress = lec.status === 'in-progress';
+            const label = lec.name ? lec.name.slice(0, 18) + (lec.name.length > 18 ? '…' : '') : `Lec ${i+1}`;
+            const bg = isDone ? 'var(--success)' : isProgress ? 'var(--accent)' : 'var(--surface)';
+            const color = isDone || isProgress ? '#fff' : 'var(--text2)';
+            const border = isDone ? 'var(--success)' : isProgress ? 'var(--accent)' : 'var(--border)';
+            const checkmark = isDone
+                ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`
+                : isProgress
+                ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
+                : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"><rect x="3" y="3" width="18" height="18"/></svg>`;
+            return `<div title="${esc(lec.name||('Lec '+(i+1)))}" onclick="cycleLecStatus(${i})"
+                style="display:flex;align-items:center;gap:7px;padding:8px 12px;background:${bg};border:1px solid ${border};color:${color};cursor:pointer;transition:all 150ms ease;user-select:none;font-size:12px;font-weight:600;font-family:var(--mono)">
+                ${checkmark}
+                <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Lec ${i+1}</span>
+                ${lec.name ? `<span style="font-size:10px;opacity:0.75;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px">${esc(label)}</span>` : ''}
             </div>`;
         }).join('');
+    }
+
+    function cycleLecStatus(idx) {
+        const lecs = getTodo();
+        if (!lecs[idx]) return;
+        const cycle = {'not-started':'in-progress','in-progress':'done','done':'not-started'};
+        lecs[idx].status = cycle[lecs[idx].status] || 'not-started';
+        saveTodo(lecs);
+        renderTodo();
     }
 
     function fmtMs(ms) {
@@ -2837,9 +2889,17 @@ ${text}`;
         document.documentElement.dir=currentLang==='ar'?'rtl':'ltr';
         updateAllTranslations();
 
-        $('qCount').value=lg('app_qCount')||5;
+        // Restore saved qCount chip
+        const savedQ = lg('app_qCount')||'15';
+        $('qCount').value = savedQ;
+        document.querySelectorAll('#qCountChips .chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.val === String(savedQ));
+        });
         $('diffSel').value=lg('app_diff')||'متوسط';
         $('langSel').value=lg('app_lang_sel')||'عربي';
+        if ($('quizNameInput') && lg('app_quizName')) $('quizNameInput').value=lg('app_quizName');
+        if ($('summaryNameInput') && lg('app_sumName')) $('summaryNameInput').value=lg('app_sumName');
+        if ($('summaryLangSel') && lg('app_sumLang')) $('summaryLangSel').value=lg('app_sumLang');
 
         const currentId=getCurrentSubjectId();
         const currentSubj=getSubjects().find(s=>s.id===currentId);
