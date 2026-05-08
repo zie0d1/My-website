@@ -322,18 +322,43 @@
         @keyframes spin { to { transform:rotate(360deg); } }
 
         /* SUMMARY CARD STYLES */
-        .summary-card { background:var(--surface); border:1px solid var(--border); padding:18px; margin-bottom:10px; transition:all var(--transition); position:relative; }
-        .summary-card:hover { box-shadow:var(--shadow-lg); border-color:var(--border-hover); }
+        .summary-card { background:var(--surface); border:1px solid var(--border); padding:18px; margin-bottom:10px; transition:all var(--transition); position:relative; cursor:pointer; }
+        .summary-card:hover { box-shadow:var(--shadow-lg); border-color:var(--border-hover); transform:translateY(-1px); }
         .summary-card-header { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
         .summary-card-icon { width:36px; height:36px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .summary-card-icon svg { width:18px; height:18px; color:var(--accent); stroke:var(--accent); }
         .summary-card-name { font-weight:600; font-size:14px; color:var(--text); margin-bottom:3px; }
         .summary-card-meta { font-size:10px; color:var(--text4); font-family:var(--mono); }
         .summary-card-preview { font-size:12px; color:var(--text3); line-height:1.7; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; unicode-bidi:plaintext; text-align:start; }
+        .summary-card-dots { display:flex; gap:4px; margin-top:10px; flex-wrap:wrap; align-items:center; }
+        .summary-card-dot { width:10px; height:10px; flex-shrink:0; }
         .summary-card-actions { display:flex; gap:6px; margin-top:12px; }
         .summary-empty { text-align:center; padding:48px 20px; color:var(--text4); }
         .summary-empty-icon { font-size:40px; margin-bottom:12px; opacity:0.3; }
         .summary-empty-text { font-size:13px; }
+        .summary-card-badge { font-size:9px; font-family:var(--mono); padding:2px 7px; border:1px solid var(--border); color:var(--text4); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        .summary-card-badge.structured { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
+
+        /* STRUCTURED SUMMARY RENDER */
+        @keyframes sectionFadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .sum-render { animation:fadeIn 300ms ease; }
+        .sum-callout { padding:14px 18px; margin-bottom:22px; border-right:4px solid var(--accent); background:var(--accent-light); font-size:14px; font-weight:500; line-height:1.7; color:var(--text); unicode-bidi:plaintext; text-align:start; animation:sectionFadeIn 300ms ease both; }
+        .sum-section { margin-bottom:18px; border:1px solid var(--border); overflow:hidden; background:var(--surface); animation:sectionFadeIn 300ms ease both; }
+        .sum-section-head { display:flex; align-items:center; gap:10px; padding:13px 16px; background:var(--surface2); border-bottom:1px solid var(--border); }
+        .sum-section-stripe { width:4px; height:20px; flex-shrink:0; }
+        .sum-section-title { font-weight:700; font-size:14px; color:var(--text); flex:1; unicode-bidi:plaintext; text-align:start; }
+        .sum-section-count { font-size:10px; font-family:var(--mono); color:var(--text4); padding:2px 7px; border:1px solid var(--border); }
+        .sum-points { padding:14px 16px; display:flex; flex-direction:column; gap:8px; }
+        .sum-point { display:flex; align-items:flex-start; gap:10px; font-size:13px; line-height:1.6; color:var(--text2); unicode-bidi:plaintext; text-align:start; }
+        .sum-point-bullet { width:6px; height:6px; flex-shrink:0; margin-top:7px; }
+        .sum-point-chip { display:inline-block; font-size:11px; padding:3px 10px; margin:2px; border:1px solid; cursor:default; transition:all var(--transition); line-height:1.5; unicode-bidi:plaintext; }
+        .sum-point-chip:hover { opacity:0.8; transform:translateY(-1px); }
+        .sum-terms { padding:0 16px 14px; }
+        .sum-terms-title { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text4); font-family:var(--mono); padding:12px 0 8px; border-top:1px solid var(--border); margin-bottom:10px; }
+        .sum-term { padding:8px 0; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:flex-start; }
+        .sum-term:last-child { border-bottom:none; }
+        .sum-term-word { font-weight:700; font-size:12px; color:var(--text); min-width:100px; max-width:140px; flex-shrink:0; unicode-bidi:plaintext; text-align:start; }
+        .sum-term-def { font-size:12px; color:var(--text3); line-height:1.6; unicode-bidi:plaintext; text-align:start; }
 
         .hidden { display:none !important; }
 
@@ -576,12 +601,13 @@
                         </div>
                         <!-- Summary Style Chips -->
                         <div style="margin-bottom:14px">
-                            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);font-family:var(--mono);margin-bottom:8px">نوع الملخص</div>
+                            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);font-family:var(--mono);margin-bottom:8px" data-t="sum_style_label">نوع الملخص</div>
                             <div class="chip-row" id="summaryStyleChips">
-                                <span class="chip active" data-style="detailed" onclick="setSummaryStyle(this)">مفصّل</span>
-                                <span class="chip" data-style="bullets" onclick="setSummaryStyle(this)">نقاط</span>
-                                <span class="chip" data-style="concise" onclick="setSummaryStyle(this)">مختصر</span>
-                                <span class="chip" data-style="academic" onclick="setSummaryStyle(this)">أكاديمي</span>
+                                <span class="chip" data-style="detailed" onclick="setSummaryStyle(this)" data-t="sum_detailed">مفصّل</span>
+                                <span class="chip" data-style="bullets" onclick="setSummaryStyle(this)" data-t="sum_bullets">نقاط</span>
+                                <span class="chip" data-style="concise" onclick="setSummaryStyle(this)" data-t="sum_concise">مختصر</span>
+                                <span class="chip" data-style="academic" onclick="setSummaryStyle(this)" data-t="sum_academic">أكاديمي</span>
+                                <span class="chip active" data-style="structured" onclick="setSummaryStyle(this)" data-t="sum_structured" style="border-color:var(--accent);color:var(--accent)">✦ منظم JSON</span>
                             </div>
                         </div>
                         <!-- AI Status -->
@@ -597,16 +623,22 @@
                         </button>
                     </div>
 
-                    <!-- Generated Result Preview -->
-                    <div id="summaryResultArea" class="hidden" style="margin-bottom:20px">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                            <div class="section-label" style="margin-bottom:0">الملخص المولّد</div>
+                    <!-- Generated Result Area -->
+                    <div id="summaryResultArea" class="hidden" style="margin-bottom:24px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                            <div class="section-label" style="margin-bottom:0" data-t="sum_result_label">الملخص المولّد</div>
                             <div style="display:flex;gap:6px">
-                                <button class="btn btn-sm btn-success" onclick="saveCurrentSummary()" data-t="save">حفظ</button>
-                                <button class="btn btn-sm" onclick="copySummaryResult()" data-t="copy">نسخ</button>
+                                <button class="btn btn-sm btn-success" onclick="saveCurrentSummary()">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    <span data-t="save">حفظ</span>
+                                </button>
+                                <button class="btn btn-sm" onclick="copySummaryResult()">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    <span data-t="copy">نسخ</span>
+                                </button>
                             </div>
                         </div>
-                        <div id="summaryResultBox" style="background:var(--surface);border:1px solid var(--border);padding:20px;font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--text2);max-height:500px;overflow-y:auto;unicode-bidi:plaintext;text-align:start"></div>
+                        <div id="summaryResultBox"></div>
                     </div>
 
                     <!-- Saved Summaries Library -->
@@ -614,7 +646,9 @@
                         <div class="section-label" style="margin-bottom:0" data-t="summary_library_title">المكتبة المحفوظة</div>
                         <div style="display:flex;gap:6px">
                             <button class="btn btn-sm" onclick="exportSummaryLib()" data-t="export">تصدير</button>
-                            <button class="btn btn-sm" onclick="document.getElementById('summarySearchWrap').classList.toggle('hidden')">🔍</button>
+                            <button class="btn btn-sm" onclick="document.getElementById('summarySearchWrap').classList.toggle('hidden')">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </button>
                         </div>
                     </div>
                     <div id="summarySearchWrap" class="hidden" style="margin-bottom:10px">
@@ -818,6 +852,9 @@
             explain_groq:'اشرح مع Groq', summary_saved:'تم حفظ الملخص',
             no_summaries:'لا توجد ملخصات محفوظة', view:'عرض',
             summary_library_title:'الملخصات', summary_lib_subtitle:'ملخصات ذكية من ملفات PDF',
+            sum_style_label:'نوع الملخص', sum_detailed:'مفصّل', sum_bullets:'نقاط',
+            sum_concise:'مختصر', sum_academic:'أكاديمي', sum_structured:'✦ منظم JSON',
+            sum_result_label:'الملخص المولّد',
             gen_summary_title:'توليد ملخص بالذكاء الاصطناعي', gen_summary_btn:'توليد الملخص',
             summary_lib:'الملخصات',
             todo_title:'قائمة المحاضرات', todo_subtitle:'تتبع تقدمك في كل محاضرة',
@@ -899,6 +936,9 @@
             explain_groq:'Explain with Groq', summary_saved:'Summary saved',
             no_summaries:'No saved summaries', view:'View',
             summary_library_title:'Summaries', summary_lib_subtitle:'AI-powered smart summaries from PDF files',
+            sum_style_label:'Summary Type', sum_detailed:'Detailed', sum_bullets:'Bullets',
+            sum_concise:'Concise', sum_academic:'Academic', sum_structured:'✦ Structured JSON',
+            sum_result_label:'Generated Summary',
             gen_summary_title:'Generate AI Summary', gen_summary_btn:'Generate Summary',
             summary_lib:'Summaries',
         }
@@ -1398,41 +1438,76 @@
 
     // groqSummary replaced by nvidiaSummary in panel-summary
 
-    // ── SUMMARY SYSTEM ───────────────────────────────
-    let summaryPdfText = '', summaryPdfFile = '', summaryCurrentStyle = 'detailed';
-    let _currentSummaryResult = '';
+    // ── SUMMARY SYSTEM ────────────────────────────────────────────────────
+    let summaryPdfText = '', summaryPdfFile = '', summaryCurrentStyle = 'structured';
+    let _currentSummaryResult = '';   // raw string
+    let _currentSummaryData   = null; // parsed JSON or null
 
+    // ── Color palette ─────────────────────────────────────────────────────
+    const SUM_COLORS = {
+        blue:   { hex:'#3b82f6', bg:'rgba(59,130,246,.1)',  border:'rgba(59,130,246,.35)'  },
+        green:  { hex:'#10b981', bg:'rgba(16,185,129,.1)',  border:'rgba(16,185,129,.35)'  },
+        purple: { hex:'#8b5cf6', bg:'rgba(139,92,246,.1)',  border:'rgba(139,92,246,.35)'  },
+        orange: { hex:'#f59e0b', bg:'rgba(245,158,11,.1)',  border:'rgba(245,158,11,.35)'  },
+        pink:   { hex:'#ec4899', bg:'rgba(236,72,153,.1)',  border:'rgba(236,72,153,.35)'  },
+        teal:   { hex:'#14b8a6', bg:'rgba(20,184,166,.1)',  border:'rgba(20,184,166,.35)'  },
+        amber:  { hex:'#d97706', bg:'rgba(217,119,6,.1)',   border:'rgba(217,119,6,.35)'   },
+        red:    { hex:'#ef4444', bg:'rgba(239,68,68,.1)',   border:'rgba(239,68,68,.35)'   },
+    };
+    const SUM_COLOR_KEYS = Object.keys(SUM_COLORS);
+
+    function resolveColor(raw, idx) {
+        if (!raw) return SUM_COLORS[SUM_COLOR_KEYS[idx % SUM_COLOR_KEYS.length]];
+        const k = raw.toLowerCase().replace(/[^a-z]/g,'');
+        if (SUM_COLORS[k]) return SUM_COLORS[k];
+        // treat as hex
+        if (/^#?[0-9a-f]{3,6}$/i.test(raw)) {
+            const hex = raw.startsWith('#') ? raw : '#'+raw;
+            return { hex, bg: hex+'1a', border: hex+'59' };
+        }
+        return SUM_COLORS[SUM_COLOR_KEYS[idx % SUM_COLOR_KEYS.length]];
+    }
+
+    // ── localStorage ──────────────────────────────────────────────────────
     function getSummaryLib() { return lj(subKey('summary_lib')) || []; }
     function saveSummaryLibData(d) { ls(subKey('summary_lib'), JSON.stringify(d.slice(0,100))); }
 
+    // ── Style chip selector ───────────────────────────────────────────────
     function setSummaryStyle(el) {
-        document.querySelectorAll('#summaryStyleChips .chip').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('#summaryStyleChips .chip').forEach(c => {
+            c.classList.remove('active');
+            c.style.borderColor = ''; c.style.color = '';
+        });
         el.classList.add('active');
         summaryCurrentStyle = el.dataset.style;
+        if (summaryCurrentStyle === 'structured') {
+            el.style.borderColor = 'var(--accent)'; el.style.color = 'var(--accent)';
+        }
     }
 
+    // ── PDF loading ───────────────────────────────────────────────────────
     async function setSummaryPDF(file) {
-        if (!file || !file.name.endsWith('.pdf')) return;
+        if (!file || !file.name.toLowerCase().endsWith('.pdf')) return;
         summaryPdfFile = file.name;
         $('summaryFileName').textContent = file.name;
-        show($('summaryFilePill'));
-        hide($('summaryDropZone'));
+        show($('summaryFilePill')); hide($('summaryDropZone'));
         show($('summaryAiStatus'));
-        $('summaryAiStatusText').textContent = currentLang==='ar'?'جاري قراءة الملف...':'Reading file...';
+        $('summaryAiStatusText').textContent = currentLang==='ar' ? 'جاري قراءة الملف...' : 'Reading file...';
         try {
             const ab = await file.arrayBuffer();
             const doc = await pdfjsLib.getDocument({data:ab}).promise;
             let txt = '';
             for (let i=1; i<=Math.min(doc.numPages,25); i++) {
                 const page = await doc.getPage(i);
-                const tc = await page.getTextContent();
+                const tc   = await page.getTextContent();
                 txt += tc.items.map(it=>it.str).join(' ') + '\n';
             }
             summaryPdfText = txt.trim();
             hide($('summaryAiStatus'));
             $('btnGenSummary').disabled = false;
-            if (!$('summaryNameInput').value) $('summaryNameInput').value = file.name.replace('.pdf','');
-            toast('✓ ' + doc.numPages + (currentLang==='ar'?' صفحة':' pages'));
+            if (!$('summaryNameInput').value)
+                $('summaryNameInput').value = file.name.replace(/\.pdf$/i,'');
+            toast('✓ ' + doc.numPages + (currentLang==='ar' ? ' صفحة' : ' pages'));
         } catch(e) {
             hide($('summaryAiStatus'));
             alertModal(t('error') + ': ' + e.message);
@@ -1441,14 +1516,13 @@
     }
 
     function clearSummaryPDF() {
-        summaryPdfText=''; summaryPdfFile='';
-        hide($('summaryFilePill'));
-        show($('summaryDropZone'));
-        hide($('summaryAiStatus'));
-        hide($('summaryResultArea'));
+        summaryPdfText = ''; summaryPdfFile = '';
+        hide($('summaryFilePill')); show($('summaryDropZone'));
+        hide($('summaryAiStatus')); hide($('summaryResultArea'));
         $('btnGenSummary').disabled = true;
         $('summaryPdfInput').value = '';
         $('summaryNameInput').value = '';
+        _currentSummaryResult = ''; _currentSummaryData = null;
     }
 
     function handleSummaryDrop(e) {
@@ -1457,90 +1531,263 @@
         setSummaryPDF(e.dataTransfer.files[0]);
     }
 
-    function buildSummarySystemPrompt() {
-        const styles = {
-            detailed: 'Create a detailed, comprehensive summary with clear sections and explanations.',
-            bullets: 'Create a structured bullet-point summary with key points and sub-points.',
-            concise: 'Create a concise summary in 5-8 key sentences covering the most important points.',
-            academic: 'Create an academic-style summary with introduction, main concepts, methodology if applicable, and conclusion.'
+    // ── Prompt builders ───────────────────────────────────────────────────
+    function buildSummaryPrompt() {
+        const lang = $('summaryLangSel').value;
+        const text = summaryPdfText.slice(0, 12000);
+
+        if (summaryCurrentStyle === 'structured') {
+            return `You are an expert academic summarizer. Analyze the following document and return ONLY a valid JSON object — no markdown, no code fences, no extra text.
+
+The JSON must follow this exact schema:
+{
+  "title": "string — chapter or document title",
+  "summary_line": "string — one powerful sentence capturing the whole document",
+  "sections": [
+    {
+      "heading": "string — section name",
+      "color": "one of: blue | green | purple | orange | pink | teal | amber | red",
+      "points": ["string", "string", "string"]
+    }
+  ],
+  "key_terms": [
+    { "term": "string", "definition": "string" }
+  ]
+}
+
+Rules:
+- Write everything in ${lang}
+- 4–8 sections, each with 3–6 points
+- 5–12 key terms
+- Assign a DIFFERENT color to each section
+- Points must be complete, informative sentences — not single words
+- Output RAW JSON only. No \`\`\`json wrapper. No explanation.
+
+Document:
+${text}`;
+        }
+
+        const plain = {
+            detailed: `Create a detailed, comprehensive summary with clear sections. Write in ${lang}. Output plain readable text.`,
+            bullets:  `Create a structured bullet-point summary with key points and sub-points. Write in ${lang}. Output plain text with bullets.`,
+            concise:  `Create a concise summary in 5–8 key sentences. Write in ${lang}. Plain text only.`,
+            academic: `Create an academic summary: introduction, main concepts, methodology, conclusion. Write in ${lang}. Plain text.`,
         };
-        return styles[summaryCurrentStyle] || styles.detailed;
+        return (plain[summaryCurrentStyle] || plain.detailed) + '\n\nDocument:\n' + text;
     }
 
+    // ── AI call ───────────────────────────────────────────────────────────
     async function nvidiaSummary() {
         if (!summaryPdfText) return;
         $('btnGenSummary').disabled = true;
         show($('summaryAiStatus'));
-        $('summaryAiStatusText').textContent = currentLang==='ar'?'جاري توليد الملخص...':'Generating summary...';
+        $('summaryAiStatusText').textContent = currentLang==='ar' ? 'جاري توليد الملخص...' : 'Generating summary...';
+        _currentSummaryData = null; _currentSummaryResult = '';
 
         try {
-            const lang = $('summaryLangSel').value;
-            const styleInstr = buildSummarySystemPrompt();
-            const prompt = `${styleInstr} Write in ${lang}. Do NOT use JSON. Output plain readable text with clear structure.\n\nDocument text:\n${summaryPdfText.slice(0, 12000)}`;
+            const isStructured = summaryCurrentStyle === 'structured';
+            const sys = isStructured
+                ? 'You are a JSON-only summarizer. Output valid JSON and nothing else. No markdown. No explanation.'
+                : 'You are an expert academic summarizer. Write clearly and insightfully.';
 
-            const result = await nvidiaChat(prompt, 'You are an expert academic summarizer. Write clearly and insightfully.', 2000);
-            _currentSummaryResult = result;
+            const raw = await nvidiaChat(buildSummaryPrompt(), sys, 3000);
+            _currentSummaryResult = raw;
 
-            $('summaryResultBox').textContent = result;
+            if (isStructured) {
+                // Try to parse JSON — strip any accidental fences
+                const cleaned = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+                try {
+                    _currentSummaryData = JSON.parse(cleaned);
+                    renderStructuredSummary(_currentSummaryData, $('summaryResultBox'));
+                } catch(parseErr) {
+                    // JSON parse failed — fallback to plain text
+                    _currentSummaryData = null;
+                    $('summaryResultBox').innerHTML = `
+                        <div style="padding:10px 14px;background:var(--warning-bg);border:1px solid var(--warning);color:var(--warning);font-family:var(--mono);font-size:11px;margin-bottom:12px">
+                            ⚠ JSON parse failed — showing raw output
+                        </div>
+                        <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(raw)}</div>`;
+                }
+            } else {
+                $('summaryResultBox').innerHTML = `<div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(raw)}</div>`;
+            }
+
             show($('summaryResultArea'));
             hide($('summaryAiStatus'));
-            toast(currentLang==='ar'?'تم التوليد بنجاح':'Summary generated!');
+            toast(currentLang==='ar' ? '✓ تم التوليد بنجاح' : '✓ Summary generated!');
         } catch(e) {
             $('summaryAiStatusText').textContent = '✗ ' + e.message;
-            setTimeout(()=>hide($('summaryAiStatus')), 4000);
+            setTimeout(()=>hide($('summaryAiStatus')), 5000);
         } finally {
             $('btnGenSummary').disabled = false;
         }
     }
 
+    // ── Structured JSON renderer ──────────────────────────────────────────
+    function renderStructuredSummary(data, container) {
+        if (!data || !container) return;
+        const sections = (data.sections || []).map((sec, i) => {
+            const c = resolveColor(sec.color, i);
+            const isChipStyle = summaryCurrentStyle === 'structured';
+
+            const pointsHTML = (sec.points || []).map(pt =>
+                `<div class="sum-point">
+                    <div class="sum-point-bullet" style="background:${c.hex}"></div>
+                    <span>${esc(pt)}</span>
+                </div>`
+            ).join('');
+
+            return `<div class="sum-section" style="border-color:${c.border};animation-delay:${i*60}ms">
+                <div class="sum-section-head" style="border-bottom-color:${c.border}">
+                    <div class="sum-section-stripe" style="background:${c.hex}"></div>
+                    <div class="sum-section-title" style="color:${c.hex}">${esc(sec.heading||'')}</div>
+                    <div class="sum-section-count">${(sec.points||[]).length} ${currentLang==='ar'?'نقطة':'pts'}</div>
+                </div>
+                <div class="sum-points">${pointsHTML}</div>
+            </div>`;
+        }).join('');
+
+        const termsHTML = (data.key_terms || []).length ? `
+            <div class="sum-section" style="animation-delay:${(data.sections||[]).length*60+60}ms">
+                <div class="sum-section-head">
+                    <div class="sum-section-stripe" style="background:var(--text3)"></div>
+                    <div class="sum-section-title" style="color:var(--text2)">${currentLang==='ar'?'المصطلحات الرئيسية':'Key Terms'}</div>
+                    <div class="sum-section-count">${data.key_terms.length}</div>
+                </div>
+                <div class="sum-terms">
+                    ${data.key_terms.map(kt=>`
+                        <div class="sum-term">
+                            <div class="sum-term-word">${esc(kt.term||'')}</div>
+                            <div class="sum-term-def">${esc(kt.definition||'')}</div>
+                        </div>`).join('')}
+                </div>
+            </div>` : '';
+
+        container.innerHTML = `<div class="sum-render">
+            ${data.title ? `<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;unicode-bidi:plaintext;text-align:start">${esc(data.title)}</div>` : ''}
+            ${data.summary_line ? `<div class="sum-callout">${esc(data.summary_line)}</div>` : ''}
+            ${sections}
+            ${termsHTML}
+        </div>`;
+    }
+
+    // ── Save / copy result ────────────────────────────────────────────────
     function saveCurrentSummary() {
         if (!_currentSummaryResult) return;
-        const name = $('summaryNameInput').value.trim() || summaryPdfFile || 'ملخص ' + new Date().toLocaleDateString();
-        saveSummaryToLib(name, _currentSummaryResult);
+        const name = $('summaryNameInput').value.trim() || summaryPdfFile || ('ملخص ' + new Date().toLocaleDateString());
+        saveSummaryToLib(name, _currentSummaryResult, _currentSummaryData);
         renderSummaryLib();
     }
 
     async function copySummaryResult() {
         if (!_currentSummaryResult) return;
-        try { await navigator.clipboard.writeText(_currentSummaryResult); toast(t('copied')); }
+        // For structured, copy a readable plain-text version
+        const text = _currentSummaryData
+            ? structuredToPlainText(_currentSummaryData)
+            : _currentSummaryResult;
+        try { await navigator.clipboard.writeText(text); toast(t('copied')); }
         catch { toast(t('copied')); }
     }
 
-    function saveSummaryToLib(name, text) {
+    function structuredToPlainText(data) {
+        let out = '';
+        if (data.title)        out += data.title + '\n' + '─'.repeat(40) + '\n\n';
+        if (data.summary_line) out += data.summary_line + '\n\n';
+        (data.sections||[]).forEach(sec => {
+            out += '## ' + (sec.heading||'') + '\n';
+            (sec.points||[]).forEach(p => { out += '• ' + p + '\n'; });
+            out += '\n';
+        });
+        if ((data.key_terms||[]).length) {
+            out += (currentLang==='ar' ? 'المصطلحات:\n' : 'Key Terms:\n');
+            data.key_terms.forEach(kt => { out += kt.term + ': ' + kt.definition + '\n'; });
+        }
+        return out;
+    }
+
+    // ── Persist to localStorage ───────────────────────────────────────────
+    function saveSummaryToLib(name, rawText, structuredData) {
         const lib = getSummaryLib();
         const existing = lib.findIndex(s => s.name === name);
-        const styleLabel = summaryCurrentStyle;
-        const entry = {id: Date.now(), name, text, style: styleLabel, date: new Date().toLocaleDateString(currentLang==='ar'?'ar-EG':'en-US'), dateISO: new Date().toISOString()};
+        const entry = {
+            id: Date.now(), name,
+            text: rawText,
+            structured: structuredData || null,
+            style: summaryCurrentStyle,
+            date: new Date().toLocaleDateString(currentLang==='ar'?'ar-EG':'en-US'),
+            dateISO: new Date().toISOString()
+        };
         if (existing >= 0) lib[existing] = entry;
         else lib.unshift(entry);
         saveSummaryLibData(lib);
         toast(t('summary_saved'));
     }
 
+    // ── Library rendering ─────────────────────────────────────────────────
     function renderSummaryLib() {
         const el = $('summaryLibList');
         if (!el) return;
         let lib = getSummaryLib();
         const srch = ($('summarySearch')?.value||'').toLowerCase();
-        if (srch) lib = lib.filter(s => s.name.toLowerCase().includes(srch) || s.text.toLowerCase().includes(srch));
+        if (srch) lib = lib.filter(s =>
+            s.name.toLowerCase().includes(srch) ||
+            (s.text||'').toLowerCase().includes(srch) ||
+            (s.structured?.title||'').toLowerCase().includes(srch)
+        );
         if (!lib.length) {
-            el.innerHTML = `<div class="summary-empty"><div class="summary-empty-icon">📄</div><div class="summary-empty-text">${t('no_summaries')}</div></div>`;
+            el.innerHTML = `<div class="summary-empty">
+                <div class="summary-empty-icon">📄</div>
+                <div class="summary-empty-text">${t('no_summaries')}</div>
+            </div>`;
             return;
         }
-        el.innerHTML = lib.map(s => `
-            <div class="summary-card">
+        el.innerHTML = lib.map(s => {
+            const isStr = s.style === 'structured' && s.structured;
+            const secs  = isStr ? (s.structured.sections||[]) : [];
+            const badge = `<span class="summary-card-badge${isStr?' structured':''}">
+                ${isStr ? '✦ JSON' : (s.style||'plain')}
+            </span>`;
+
+            // Colored section dots for structured cards
+            const dots = isStr && secs.length ? `
+                <div class="summary-card-dots">
+                    <span style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-left:4px">${secs.length} ${currentLang==='ar'?'أقسام':'sections'}</span>
+                    ${secs.map((sec,i)=>{
+                        const c = resolveColor(sec.color,i);
+                        return `<div class="summary-card-dot" style="background:${c.hex}" title="${esc(sec.heading||'')}"></div>`;
+                    }).join('')}
+                </div>` : '';
+
+            const preview = isStr
+                ? (s.structured.summary_line || secs.map(s=>s.heading).join(' · ') || s.name)
+                : (s.text||'').slice(0,180);
+
+            return `<div class="summary-card" onclick="viewSummary(${s.id})">
                 <div class="summary-card-header">
-                    <div class="summary-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <div class="summary-card-icon" style="${isStr?'background:var(--accent-light)':''}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="${isStr?'var(--accent)':'currentColor'}" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
                     </div>
                     <div style="flex:1;min-width:0">
                         <div class="summary-card-name">${esc(s.name)}</div>
-                        <div class="summary-card-meta">${s.date}${s.style?' · '+s.style:''}</div>
+                        <div class="summary-card-meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                            <span>${s.date}</span>
+                            ${badge}
+                            ${isStr?`<span>${secs.length} ${currentLang==='ar'?'قسم':'sections'} · ${(s.structured.key_terms||[]).length} ${currentLang==='ar'?'مصطلح':'terms'}</span>`:''}
+                        </div>
                     </div>
                 </div>
-                <div class="summary-card-preview">${esc(s.text.slice(0,240))}</div>
-                <div class="summary-card-actions">
-                    <button class="btn btn-sm btn-primary" onclick="viewSummary(${s.id})" style="flex:1" data-t="view">عرض</button>
+                <div class="summary-card-preview">${esc(preview)}</div>
+                ${dots}
+                <div class="summary-card-actions" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-primary" onclick="viewSummary(${s.id})" style="flex:1">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        ${currentLang==='ar'?'عرض':'View'}
+                    </button>
                     <button class="btn btn-sm" onclick="copySummaryById(${s.id})" title="${t('copy')}">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     </button>
@@ -1548,29 +1795,66 @@
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
                     </button>
                 </div>
-            </div>`).join('');
+            </div>`;
+        }).join('');
     }
 
+    // ── View summary (full modal or inline) ───────────────────────────────
     function viewSummary(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
-        modal(
-            `<div class="modal-title">${esc(s.name)}</div>
-             <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-bottom:12px">${s.date}${s.style?' · '+s.style:''}</div>
-             <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;max-height:55vh;overflow-y:auto;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(s.text)}</div>`,
-            `<button class="btn btn-primary" onclick="copySummaryById(${id});closeModal()">${t('copy')}</button>
-             <button class="btn" onclick="closeModal()">${t('ok')}</button>`
-        );
+
+        if (s.style === 'structured' && s.structured) {
+            // Render structured view in a full-panel overlay
+            let overlay = document.getElementById('summaryViewOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'summaryViewOverlay';
+                overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto;padding:24px';
+                document.body.appendChild(overlay);
+            }
+            const c = resolveColor(null,0);
+            overlay.innerHTML = `
+                <div style="max-width:760px;margin:0 auto">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+                        <button class="btn" onclick="document.getElementById('summaryViewOverlay').remove()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                            ${currentLang==='ar'?'رجوع':'Back'}
+                        </button>
+                        <div style="flex:1">
+                            <div style="font-weight:700;font-size:15px">${esc(s.name)}</div>
+                            <div style="font-size:10px;color:var(--text4);font-family:var(--mono)">${s.date} · ✦ JSON</div>
+                        </div>
+                        <button class="btn btn-sm" onclick="copySummaryById(${id})">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            ${currentLang==='ar'?'نسخ':'Copy'}
+                        </button>
+                    </div>
+                    <div id="summaryViewContent"></div>
+                </div>`;
+            renderStructuredSummary(s.structured, overlay.querySelector('#summaryViewContent'));
+        } else {
+            modal(
+                `<div class="modal-title">${esc(s.name)}</div>
+                 <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-bottom:12px">${s.date} · ${s.style||'plain'}</div>
+                 <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;max-height:55vh;overflow-y:auto;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(s.text||'')}</div>`,
+                `<button class="btn btn-primary" onclick="copySummaryById(${id});closeModal()">${t('copy')}</button>
+                 <button class="btn" onclick="closeModal()">${t('ok')}</button>`
+            );
+        }
     }
 
+    // ── Copy by id ────────────────────────────────────────────────────────
     async function copySummaryById(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
-        try { await navigator.clipboard.writeText(s.text); toast(t('copied')); }
+        const text = (s.style==='structured' && s.structured)
+            ? structuredToPlainText(s.structured)
+            : (s.text||'');
+        try { await navigator.clipboard.writeText(text); toast(t('copied')); }
         catch { toast(t('copied')); }
     }
 
-    // Keep old name for compatibility
     async function copySummaryText(id) { return copySummaryById(id); }
 
     function delSummary(id) {
