@@ -586,43 +586,6 @@
                         <div class="input-group"><label data-t="quiz_name">اسم الاختبار</label><input id="quizNameInput" placeholder="مثلاً اختبار الفصل الأول" value="" oninput="ls('app_quizName',this.value)"></div>
                     </div>
 
-                    <!-- Card Settings Toggle -->
-                    <div class="card-settings-toggle" onclick="toggleCardSettings()" id="cardSettingsToggle">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                        <span id="cardSettingsToggleLabel">إعدادات البطاقات ▾</span>
-                    </div>
-                    <div class="card-settings-panel hidden" id="cardSettingsPanel">
-                        <div class="card-settings-row">
-                            <div>
-                                <div class="card-settings-label">نوع التركيز — Focus Type</div>
-                                <div class="card-focus-row" id="focusChips">
-                                    <span class="focus-chip active" data-focus="general" onclick="setFocusChip(this)">General</span>
-                                    <span class="focus-chip" data-focus="definition" onclick="setFocusChip(this)">Definitions</span>
-                                    <span class="focus-chip" data-focus="enumeration" onclick="setFocusChip(this)">Enumerations</span>
-                                    <span class="focus-chip" data-focus="concept" onclick="setFocusChip(this)">Concepts</span>
-                                    <span class="focus-chip" data-focus="mechanism" onclick="setFocusChip(this)">Mechanisms</span>
-                                    <span class="focus-chip" data-focus="comparison" onclick="setFocusChip(this)">Comparisons</span>
-                                    <span class="focus-chip" data-focus="formula" onclick="setFocusChip(this)">Formulas</span>
-                                    <span class="focus-chip" data-focus="clinical" onclick="setFocusChip(this)">Clinical / Cases</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="card-settings-label">عدد البطاقات — Card Count</div>
-                                <div class="card-count-row" id="cardCountChips">
-                                    <span class="card-count-chip" data-val="10" onclick="setCardCount(this)">10</span>
-                                    <span class="card-count-chip active" data-val="20" onclick="setCardCount(this)">20</span>
-                                    <span class="card-count-chip" data-val="30" onclick="setCardCount(this)">30</span>
-                                    <span class="card-count-chip" data-val="40" onclick="setCardCount(this)">40</span>
-                                    <span class="card-count-chip" data-val="50" onclick="setCardCount(this)">50</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="card-settings-label">إضافة ملاحظة للـ AI (اختياري)</div>
-                                <input id="cardExtraNote" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px">
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- AI Status -->
                     <div id="aiStatus" class="hidden" style="margin-bottom:14px">
                         <div style="background:var(--surface2);border:1px solid var(--border);padding:14px;display:flex;align-items:center;gap:10px">
@@ -854,6 +817,41 @@
                     <div class="card" style="border-color:var(--danger);background:var(--danger-bg)">
                         <p style="font-size:12px;color:var(--danger);margin-bottom:8px" data-t="danger_zone_warning">مسح جميع البيانات المحلية. لا يمكن التراجع.</p>
                         <button class="btn btn-danger btn-sm" onclick="clearAllData()" data-t="clear_all_data">مسح كل البيانات المحلية</button>
+                    </div>
+                    <!-- CARD GENERATION SETTINGS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title" style="display:flex;align-items:center;gap:8px">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                                إعدادات توليد البطاقات
+                            </span>
+                        </div>
+                        <p style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:var(--mono)">تُطبَّق عند توليد البطاقات من PDF — يمكن اختيار أكثر من نوع تركيز</p>
+
+                        <div class="card-settings-label" style="margin-bottom:8px">نوع التركيز — يمكن تحديد أكثر من واحد</div>
+                        <div class="card-focus-row" id="focusChips">
+                            <span class="focus-chip active" data-focus="general" onclick="toggleFocusChip(this)">🔍 General</span>
+                            <span class="focus-chip" data-focus="definition" onclick="toggleFocusChip(this)">📖 Definitions</span>
+                            <span class="focus-chip" data-focus="enumeration" onclick="toggleFocusChip(this)">📋 Enumerations</span>
+                            <span class="focus-chip" data-focus="concept" onclick="toggleFocusChip(this)">💡 Concepts</span>
+                            <span class="focus-chip" data-focus="mechanism" onclick="toggleFocusChip(this)">⚙️ Mechanisms</span>
+                            <span class="focus-chip" data-focus="comparison" onclick="toggleFocusChip(this)">⚖️ Comparisons</span>
+                            <span class="focus-chip" data-focus="formula" onclick="toggleFocusChip(this)">🧮 Formulas</span>
+                            <span class="focus-chip" data-focus="clinical" onclick="toggleFocusChip(this)">🏥 Clinical / Cases</span>
+                        </div>
+
+                        <div class="card-settings-label" style="margin-top:16px;margin-bottom:8px">عدد البطاقات — Card Count</div>
+                        <div class="card-count-row" id="cardCountChips">
+                            <span class="card-count-chip" data-val="10" onclick="setCardCount(this)">10</span>
+                            <span class="card-count-chip active" data-val="20" onclick="setCardCount(this)">20</span>
+                            <span class="card-count-chip" data-val="30" onclick="setCardCount(this)">30</span>
+                            <span class="card-count-chip" data-val="40" onclick="setCardCount(this)">40</span>
+                            <span class="card-count-chip" data-val="50" onclick="setCardCount(this)">50</span>
+                        </div>
+
+                        <div class="card-settings-label" style="margin-top:16px;margin-bottom:6px">ملاحظة إضافية للـ AI (اختياري)</div>
+                        <input id="cardExtraNote" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px;margin-bottom:0">
+                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:6px" id="focusActiveLabel">التركيز الحالي: General</div>
                     </div>
                 </div>
 
@@ -1178,7 +1176,7 @@
         if (si) si.classList.add('active');
         hide($('quizArea'));
         hide($('flashArea'));
-        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib()};
+        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:()=>{renderSettings();setTimeout(initCardSettings,50);}, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib()};
         if (renders[panelId]) renders[panelId]();
         window.scrollTo({top:0, behavior:'smooth'});
         closeMobileMenu();
@@ -1952,52 +1950,51 @@ ${textSlice}`;
             if (!overlay) {
                 overlay = document.createElement('div');
                 overlay.id = 'summaryViewOverlay';
-                overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto;padding:24px';
+                overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;overflow:hidden';
                 document.body.appendChild(overlay);
             }
-            const c = resolveColor(null,0);
             overlay.innerHTML = `
-                <div style="max-width:760px;margin:0 auto">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-                        <button class="btn" onclick="document.getElementById('summaryViewOverlay').remove();closeSumAI()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                            ${currentLang==='ar'?'رجوع':'Back'}
-                        </button>
-                        <div style="flex:1">
-                            <div style="font-weight:700;font-size:15px">${esc(s.name)}</div>
-                            <div style="font-size:10px;color:var(--text4);font-family:var(--mono)">${s.date} · ✦ JSON</div>
-                        </div>
-                        <button class="btn btn-sm" onclick="copySummaryById(${id})">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                            ${currentLang==='ar'?'نسخ':'Copy'}
-                        </button>
-                        <button class="btn btn-sm btn-primary" onclick="toggleSumAI()" id="sumAIToggleBtn" style="gap:5px">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                            AI
-                        </button>
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0">
+                    <button class="btn" onclick="document.getElementById('summaryViewOverlay').remove();closeSumAI()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        ${currentLang==='ar'?'رجوع':'Back'}
+                    </button>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.name)}</div>
+                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono)">${s.date} · ✦ JSON</div>
                     </div>
-                    <div id="summaryViewContent"></div>
+                    <button class="btn btn-sm" onclick="copySummaryById(${id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        ${currentLang==='ar'?'نسخ':'Copy'}
+                    </button>
+                    <button class="btn btn-sm" onclick="toggleSumAISide()" id="sumAIToggleBtn" style="gap:5px;font-size:11px;font-family:var(--mono)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        AI ◀
+                    </button>
                 </div>
-                <!-- AI Floating Panel -->
-                <div class="sum-ai-panel hidden" id="sumAIPanel">
-                    <div class="sum-ai-header">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                        <span class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary Assistant'}</span>
-                        <button class="sum-ai-close" onclick="toggleSumAI()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <div style="display:flex;flex:1;overflow:hidden">
+                    <div style="flex:1;overflow-y:auto;padding:24px 28px" id="summaryViewScroll">
+                        <div id="summaryViewContent" style="max-width:700px;margin:0 auto"></div>
                     </div>
-                    <div class="sum-ai-messages" id="sumAIMessages">
-                        <div class="sum-ai-msg assistant">${currentLang==='ar'?'مرحباً! يمكنني شرح أو ترجمة أي جزء من هذا الملخص. اضغط على اقتراح أو اكتب سؤالك.':'Hello! I can explain or translate any part of this summary. Tap a suggestion or type your question.'}</div>
-                    </div>
-                    <div class="sum-ai-quick" id="sumAIQuick">
-                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('explain_all')">${currentLang==='ar'?'اشرح الملخص':'Explain summary'}</button>
-                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('translate')">${currentLang==='ar'?'ترجم للإنجليزية':'Translate to Arabic'}</button>
-                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('key_terms')">${currentLang==='ar'?'اشرح المصطلحات':'Explain key terms'}</button>
-                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('simplify')">${currentLang==='ar'?'بسّط اللغة':'Simplify language'}</button>
-                        <button class="sum-ai-quick-btn" onclick="sumAIQuick('fix_json')">${currentLang==='ar'?'إصلاح JSON':'Fix JSON errors'}</button>
-                    </div>
-                    <div class="sum-ai-input-row">
-                        <textarea class="sum-ai-input" id="sumAIInput" rows="1" placeholder="${currentLang==='ar'?'اكتب سؤالك...':'Ask about this summary...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSumAI()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
-                        <button class="sum-ai-send" onclick="sendSumAI()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                    <div id="sumAIPanel" style="width:310px;flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease">
+                        <div class="sum-ai-header">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <span class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</span>
+                        </div>
+                        <div class="sum-ai-quick">
+                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('explain_all')">${currentLang==='ar'?'اشرح':'Explain'}</button>
+                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('translate')">${currentLang==='ar'?'ترجم':'Translate'}</button>
+                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('key_terms')">${currentLang==='ar'?'المصطلحات':'Key Terms'}</button>
+                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('simplify')">${currentLang==='ar'?'بسّط':'Simplify'}</button>
+                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('fix_json')">${currentLang==='ar'?'إصلاح JSON':'Fix JSON'}</button>
+                        </div>
+                        <div class="sum-ai-messages" id="sumAIMessages" style="flex:1;max-height:unset;overflow-y:auto">
+                            <div class="sum-ai-msg assistant">${currentLang==='ar'?'مرحباً! اسألني عن أي شيء في هذا الملخص.':'Hello! Ask me anything about this summary.'}</div>
+                        </div>
+                        <div class="sum-ai-input-row" style="border-top:1px solid var(--border)">
+                            <textarea class="sum-ai-input" id="sumAIInput" rows="1" placeholder="${currentLang==='ar'?'اكتب سؤالك...':'Ask anything...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSumAI()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
+                            <button class="sum-ai-send" onclick="sendSumAI()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                        </div>
                     </div>
                 </div>`;
             // Store current summary data for AI context
@@ -3048,57 +3045,101 @@ ${textSlice}`;
 
         // Refresh badge every minute
         setInterval(updateDueBadge, 60000);
+
+        // Init card focus settings
+        setTimeout(initCardSettings, 100);
     }
 
     // ── CARD FOCUS SETTINGS ────────────────────────────────────────────────
-    let _cardFocus = 'general';
+    let _activeFocuses = new Set(['general']);
     let _cardCount = 20;
 
-    function toggleCardSettings() {
-        const panel = $('cardSettingsPanel');
-        const lbl = $('cardSettingsToggleLabel');
-        if (!panel) return;
-        const open = !panel.classList.contains('hidden');
-        panel.classList.toggle('hidden', open);
-        if (lbl) lbl.textContent = open
-            ? (currentLang==='ar' ? 'إعدادات البطاقات ▾' : 'Card Settings ▾')
-            : (currentLang==='ar' ? 'إعدادات البطاقات ▴' : 'Card Settings ▴');
+    function toggleFocusChip(el) {
+        const focus = el.dataset.focus;
+        if (focus === 'general') {
+            // Selecting general deselects everything else
+            _activeFocuses = new Set(['general']);
+            document.querySelectorAll('#focusChips .focus-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        } else {
+            // Toggle this focus; deselect 'general' if it was the only one
+            if (_activeFocuses.has(focus)) {
+                _activeFocuses.delete(focus);
+                el.classList.remove('active');
+                if (_activeFocuses.size === 0) {
+                    _activeFocuses.add('general');
+                    document.querySelector('#focusChips .focus-chip[data-focus="general"]')?.classList.add('active');
+                }
+            } else {
+                _activeFocuses.delete('general');
+                document.querySelector('#focusChips .focus-chip[data-focus="general"]')?.classList.remove('active');
+                _activeFocuses.add(focus);
+                el.classList.add('active');
+            }
+        }
+        ls('app_card_focuses', JSON.stringify([..._activeFocuses]));
+        const lbl = document.getElementById('focusActiveLabel');
+        if (lbl) lbl.textContent = 'التركيز الحالي: ' + [..._activeFocuses].join(' · ');
     }
 
-    function setFocusChip(el) {
-        document.querySelectorAll('#focusChips .focus-chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        _cardFocus = el.dataset.focus;
-    }
+    // Legacy single-select kept as alias (not used in new UI)
+    function setFocusChip(el) { toggleFocusChip(el); }
 
     function setCardCount(el) {
         document.querySelectorAll('#cardCountChips .card-count-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         _cardCount = parseInt(el.dataset.val) || 20;
+        ls('app_card_count', String(_cardCount));
     }
 
     function buildCardsPromptWithFocus() {
         const focusInstructions = {
             general:     'Generate comprehensive flashcards covering all major concepts.',
-            definition:  'Focus ONLY on definitions: each card should have a term on the front and its definition on the back.',
-            enumeration: 'Focus on enumerations and lists: front = "List the [X] types/causes/features of...", back = numbered list.',
-            concept:     'Focus on key concepts and their explanations. Each card should test understanding of a single concept.',
-            mechanism:   'Focus on mechanisms, pathways, and processes. Front = mechanism name or trigger, back = how it works step by step.',
-            comparison:  'Focus on comparisons and differences. Front = "Compare X vs Y", back = clear tabular or bullet comparison.',
-            formula:     'Focus on formulas, equations, and calculations. Front = formula name, back = equation and when to use it.',
-            clinical:    'Focus on clinical scenarios and applications. Front = clinical case/presentation, back = diagnosis/management.',
+            definition:  'DEFINITIONS: each card front = a term, back = its precise definition.',
+            enumeration: 'ENUMERATIONS: front = "List the [N] types/causes/features of...", back = numbered list.',
+            concept:     'CONCEPTS: each card tests understanding of one key concept.',
+            mechanism:   'MECHANISMS: front = mechanism name or trigger, back = step-by-step process.',
+            comparison:  'COMPARISONS: front = "Compare X vs Y", back = clear differences.',
+            formula:     'FORMULAS: front = formula name/when to use, back = equation.',
+            clinical:    'CLINICAL: front = patient presentation or scenario, back = diagnosis/management.',
         };
-        const note = $('cardExtraNote')?.value.trim() || '';
-        const lang = $('langSel').value;
+        const focuses = [..._activeFocuses];
+        const focusText = focuses.map(f => focusInstructions[f] || '').filter(Boolean).join('\n');
+        const note = document.getElementById('cardExtraNote')?.value.trim() || '';
+        const lang = document.getElementById('langSel')?.value || 'عربي';
         const count = _cardCount;
-        const focusText = focusInstructions[_cardFocus] || focusInstructions.general;
         return `Generate exactly ${count} flashcards in ${lang}.
+Focus types requested:
 ${focusText}
 ${note ? `Additional instruction: ${note}` : ''}
 Output ONLY a valid JSON array, no markdown, no code fences:
 [{"question":"...","answer":"..."}]
 Text:
 ${pdfText}`;
+    }
+
+    function _getFocusLabel() {
+        return [..._activeFocuses].filter(f => f !== 'general').join('+') || '';
+    }
+
+    // Init card settings from localStorage
+    function initCardSettings() {
+        const saved = lj('app_card_focuses');
+        if (saved && Array.isArray(saved)) {
+            _activeFocuses = new Set(saved);
+            document.querySelectorAll('#focusChips .focus-chip').forEach(c => {
+                c.classList.toggle('active', _activeFocuses.has(c.dataset.focus));
+            });
+        }
+        const savedCount = lg('app_card_count');
+        if (savedCount) {
+            _cardCount = parseInt(savedCount) || 20;
+            document.querySelectorAll('#cardCountChips .card-count-chip').forEach(c => {
+                c.classList.toggle('active', c.dataset.val === savedCount);
+            });
+        }
+        const lbl = document.getElementById('focusActiveLabel');
+        if (lbl) lbl.textContent = 'التركيز الحالي: ' + [..._activeFocuses].join(' · ');
     }
 
     // Override nvidiaCards to use focus settings
@@ -3114,7 +3155,7 @@ ${pdfText}`;
             const valid = cards.filter(c=>c.question&&c.answer);
             if (!valid.length) throw new Error('No valid cards');
             const deckName = $('quizNameInput').value.trim() || pdfFile || 'Deck ' + (getDecks().length+1);
-            const focusLabel = _cardFocus !== 'general' ? ` [${_cardFocus}]` : '';
+            const focusLabel = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
             const decks = getDecks();
             decks.push({name: deckName + focusLabel, cards: valid});
             saveDecks(decks);
@@ -3131,12 +3172,22 @@ ${pdfText}`;
     // ── SUMMARY AI ASSISTANT ───────────────────────────────────────────────
     let _sumAIChatHistory = [];
 
-    function toggleSumAI() {
+    function toggleSumAI() { toggleSumAISide(); }
+
+    function toggleSumAISide() {
         const panel = document.getElementById('sumAIPanel');
+        const btn = document.getElementById('sumAIToggleBtn');
         if (!panel) return;
-        panel.classList.toggle('hidden');
-        if (!panel.classList.contains('hidden')) {
-            setTimeout(() => document.getElementById('sumAIInput')?.focus(), 100);
+        const isOpen = panel.style.width !== '0px' && panel.style.width !== '';
+        if (isOpen) {
+            panel.style.width = '0px';
+            panel.style.overflow = 'hidden';
+            if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI ▶`;
+        } else {
+            panel.style.width = '310px';
+            panel.style.overflow = 'hidden';
+            if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI ◀`;
+            setTimeout(() => document.getElementById('sumAIInput')?.focus(), 250);
         }
     }
 
