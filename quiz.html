@@ -423,7 +423,11 @@
         }
         .sum-ai-msg { font-size: 12px; line-height: 1.65; padding: 8px 12px; max-width: 92%; }
         .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; }
-        .sum-ai-msg.assistant { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); align-self: flex-start; white-space: pre-wrap; unicode-bidi: plaintext; }
+        .sum-ai-msg.assistant { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); align-self: flex-start; white-space: normal; unicode-bidi: plaintext; overflow-x: auto; max-width: 100%; }
+        .sum-ai-msg.assistant code { font-family:var(--mono); font-size:11px; background:var(--bg); padding:1px 5px; border:1px solid var(--border); color:var(--accent); }
+        .sum-ai-msg.assistant .sum-table-wrap { margin: 6px -4px; }
+        .sum-ai-msg.assistant .sum-table th { font-size:10px; padding:7px 10px; }
+        .sum-ai-msg.assistant .sum-table td { padding:7px 10px; font-size:12px; }
         .sum-ai-msg.typing { color: var(--text4); font-family: var(--mono); font-size: 11px; }
         .sum-ai-quick { padding: 8px 12px; border-top: 1px solid var(--border); display: flex; gap: 5px; flex-wrap: wrap; background: var(--surface2); }
         .sum-ai-quick-btn { font-size: 10px; padding: 3px 9px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); font-family: var(--mono); transition: all var(--transition); white-space: nowrap; }
@@ -3332,12 +3336,85 @@ ${pdfText}`;
         _doSumAICall(text, systemContext);
     }
 
+    // ── Markdown → HTML for AI chat messages ─────────────────────────────
+    function renderMsgMarkdown(md) {
+        const lines = md.split('\n');
+        let html = '';
+        let i = 0;
+
+        function parseBoldItalic(s) {
+            return s
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/\*\*\*(.*?)\*\*\*/g,'<b><em>$1</em></b>')
+                .replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')
+                .replace(/__(.*?)__/g,'<b>$1</b>')
+                .replace(/\*(.*?)\*/g,'<em>$1</em>')
+                .replace(/`([^`]+)`/g,'<code>$1</code>');
+        }
+
+        while (i < lines.length) {
+            const line = lines[i];
+
+            // Markdown table: detect | --- | separator row
+            if (i + 1 < lines.length && /^\s*\|[\s\-|:]+\|\s*$/.test(lines[i+1])) {
+                // collect header, separator, and rows
+                const headerCells = line.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+                i += 2; // skip header + separator
+                const tableRows = [];
+                while (i < lines.length && lines[i].trim().startsWith('|')) {
+                    tableRows.push(lines[i].trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));
+                    i++;
+                }
+                const ths = headerCells.map(h=>`<th>${parseBoldItalic(h)}</th>`).join('');
+                const trs = tableRows.map(row=>
+                    `<tr>${row.map((c,ci)=>`<td>${parseBoldItalic(c).replace(/\\n|<br\s*\/?>/gi,'<br>')}</td>`).join('')}</tr>`
+                ).join('');
+                html += `<div class="sum-table-wrap" style="margin:8px 0"><table class="sum-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+                continue;
+            }
+
+            // Headings
+            const hm = line.match(/^(#{1,3})\s+(.*)/);
+            if (hm) {
+                const lvl = hm[1].length;
+                const sz = lvl===1?'15px':lvl===2?'13px':'12px';
+                html += `<div style="font-weight:700;font-size:${sz};color:var(--text);margin:10px 0 4px;unicode-bidi:plaintext">${parseBoldItalic(hm[2])}</div>`;
+                i++; continue;
+            }
+
+            // Bullet list
+            if (/^\s*[•\-\*]\s+/.test(line)) {
+                html += `<div style="display:flex;gap:7px;align-items:flex-start;margin:3px 0;unicode-bidi:plaintext"><span style="color:var(--accent);font-size:10px;margin-top:4px;flex-shrink:0">●</span><span>${parseBoldItalic(line.replace(/^\s*[•\-\*]\s+/,''))}</span></div>`;
+                i++; continue;
+            }
+
+            // Numbered list
+            const nm = line.match(/^\s*(\d+)[.)]\s+(.*)/);
+            if (nm) {
+                html += `<div style="display:flex;gap:7px;align-items:flex-start;margin:3px 0;unicode-bidi:plaintext"><span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-light);padding:1px 6px;flex-shrink:0;margin-top:1px">${nm[1]}</span><span>${parseBoldItalic(nm[2])}</span></div>`;
+                i++; continue;
+            }
+
+            // Blank line
+            if (line.trim() === '') { html += '<div style="height:6px"></div>'; i++; continue; }
+
+            // Normal paragraph
+            html += `<div style="unicode-bidi:plaintext;margin:2px 0">${parseBoldItalic(line)}</div>`;
+            i++;
+        }
+        return html;
+    }
+
     function _appendSumAIMsg(text, role) {
         const msgs = document.getElementById('sumAIMessages');
         if (!msgs) return;
         const div = document.createElement('div');
         div.className = `sum-ai-msg ${role}`;
-        div.textContent = text;
+        if (role === 'assistant') {
+            div.innerHTML = renderMsgMarkdown(text);
+        } else {
+            div.textContent = text;
+        }
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
     }
@@ -3392,7 +3469,7 @@ ${pdfText}`;
 
             _sumAIChatHistory.push({ role: 'assistant', content: responseText });
             typing.className = 'sum-ai-msg assistant';
-            typing.textContent = responseText;
+            typing.innerHTML = renderMsgMarkdown(responseText);
         } catch(e) {
             typing.className = 'sum-ai-msg assistant';
             typing.textContent = '✗ ' + e.message;
