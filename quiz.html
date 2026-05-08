@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zero — Minimal Study Protocol</title>
+    <title>zStudy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -389,7 +389,7 @@
             <button class="topbar-btn hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" title="Menu">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
             </button>
-            <span class="topbar-logo" id="topbarLogo">Zero</span>
+            <span class="topbar-logo" id="topbarLogo">zStudy</span>
             <span class="topbar-subject hidden" id="topbarSubject">
                 <span class="topbar-subject-dot" id="topbarSubjectDot"></span>
                 <span id="topbarSubjectName"></span>
@@ -470,8 +470,6 @@
 
                 <!-- DASHBOARD PANEL -->
                 <div class="panel active" id="panel-dashboard">
-                    <h1 class="page-title" data-t="zero_protocol">بروتوكول الصفر</h1>
-                    <p class="page-subtitle" data-t="dashboard_subtitle">نظام دراسة بسيط — اختر مادة للبدء أو أضف مادة جديدة</p>
                     <div id="dashboardDueBanner"></div>
                     <div class="subjects-grid" id="subjectsGrid"></div>
                     <div style="text-align:center;margin-top:20px">
@@ -615,7 +613,7 @@
                         <!-- Options row -->
                         <div class="input-row" style="margin:12px 0 10px">
                             <div class="input-group">
-                                <label data-t="quiz_name">اسم الملخص</label>
+                            <label>اسم الملخص</label>
                                 <input id="summaryNameInput" placeholder="مثلاً: ملخص الفصل الأول" oninput="ls('app_sumName',this.value)">
                             </div>
                             <div class="input-group">
@@ -682,13 +680,6 @@
                     <h1 class="page-title" data-t="my_cards_title">بطاقاتي</h1>
                     <p class="page-subtitle" data-t="decks_subtitle">مجموعات البطاقات التعليمية للمراجعة المتباعدة</p>
                     <div id="decksList"></div>
-                    <div class="section-label" style="margin-top:28px" data-t="add_deck">إضافة مجموعة</div>
-                    <div class="input-group" style="margin-bottom:10px"><label data-t="deck_name">اسم المجموعة</label><input id="newDeckName" placeholder="..."></div>
-                    <button class="btn btn-sm" onclick="document.getElementById('ndJsonArea').classList.toggle('hidden')" style="margin-bottom:10px" data-t="add_from_json">+ إضافة من JSON</button>
-                    <div id="ndJsonArea" class="hidden">
-                        <textarea id="ndJson" rows="4" placeholder='[{"question":"...","answer":"..."}]' style="font-family:var(--mono);font-size:11px;margin-bottom:6px"></textarea>
-                        <button class="btn btn-primary btn-sm" onclick="createDeckFromJSON()" data-t="create">إنشاء</button>
-                    </div>
                 </div>
 
                 <!-- HISTORY PANEL -->
@@ -697,16 +688,10 @@
                     <p class="page-subtitle" data-t="history_subtitle">سجل اختباراتك السابقة</p>
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="replayLast()" data-t="review_last">مراجعة آخر اختبار</button>
-                        <button class="btn btn-sm" onclick="document.getElementById('histImpArea').classList.toggle('hidden')" data-t="import_json">استيراد JSON</button>
-                    </div>
-                    <div id="histImpArea" class="hidden" style="margin-bottom:14px">
-                        <textarea id="histImpInput" rows="4" placeholder="Paste MCQ JSON..." style="font-family:var(--mono);font-size:11px;margin-bottom:6px"></textarea>
-                        <button class="btn btn-primary btn-sm" onclick="startFromHistImport()" data-t="start">بدء</button>
                     </div>
                     <div class="chip-row" id="histSort"></div>
                     <div id="histList"></div>
                     <div class="btn-group" style="margin-top:14px">
-                        <button class="btn btn-sm" onclick="exportHistory()" data-t="export">تصدير</button>
                         <button class="btn btn-danger btn-sm" onclick="clearHistory()" data-t="clear_all">مسح الكل</button>
                     </div>
                 </div>
@@ -812,7 +797,7 @@
             learning:'التعلم', gen_pdf:'توليد من PDF', todo:'المحاضرات', library:'المكتبة',
             my_cards:'بطاقاتي', history:'السجل', error_bank:'بنك الأخطاء', analytics:'التحليل',
             stats:'الإحصاءات', progress:'التقدم', system:'النظام', settings:'الإعدادات',
-            zero_protocol:'بروتوكول الصفر',
+            zero_protocol:'zStudy',
             dashboard_subtitle:'نظام دراسة بسيط — اختر مادة للبدء أو أضف مادة جديدة',
             add_subject:'+ إضافة مادة جديدة', gen_pdf_title:'توليد من PDF',
             gen_pdf_subtitle:'استخرج النصوص وحوّلها إلى أسئلة باستخدام الذكاء الاصطناعي',
@@ -895,7 +880,7 @@
             learning:'Learning', gen_pdf:'Generate from PDF', todo:'Lectures', library:'Library',
             my_cards:'My Cards', history:'History', error_bank:'Error Bank', analytics:'Analytics',
             stats:'Statistics', progress:'Progress', system:'System', settings:'Settings',
-            zero_protocol:'Zero Protocol',
+            zero_protocol:'zStudy',
             dashboard_subtitle:'A minimal study system — pick a subject or add a new one',
             add_subject:'+ Add New Subject', gen_pdf_title:'Generate from PDF',
             gen_pdf_subtitle:'Extract text and convert to questions using AI',
@@ -1027,7 +1012,7 @@
         root.style.setProperty('--accent', dark?'#3b82f6':'#2563eb');
         root.style.setProperty('--accent-light', dark?'#1e3a5f':'#dbeafe');
         root.style.setProperty('--accent-dark', dark?'#60a5fa':'#1d4ed8');
-        $('topbarLogo').textContent = 'Zero';
+        $('topbarLogo').textContent = 'zStudy';
         hide($('topbarSubject'));
         hide($('topbarBack'));
     }
@@ -1231,7 +1216,7 @@
         if (!force && now - lastNotif < 3600000) return; // max 1 per hour
         ls('last_notif_time', String(now));
         try {
-            new Notification('Zero — ' + (currentLang==='ar'?'وقت المراجعة':'Time to Review'), {
+            new Notification('zStudy — ' + (currentLang==='ar'?'وقت المراجعة':'Time to Review'), {
                 body: currentLang==='ar'
                     ? `لديك ${dueCount} بطاقة مستحقة للمراجعة`
                     : `You have ${dueCount} card${dueCount!==1?'s':''} due for review`,
