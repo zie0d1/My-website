@@ -403,7 +403,7 @@
         .sum-ai-btn svg { width: 22px; height: 22px; }
         .sum-ai-panel {
             position: fixed; bottom: 86px; left: 24px; z-index: 510;
-            width: 420px; max-height: 580px;
+            width: 480px; max-height: 620px;
             background: var(--surface); border: 1px solid var(--border);
             box-shadow: 0 8px 32px rgba(0,0,0,.18);
             display: flex; flex-direction: column;
@@ -414,36 +414,36 @@
             display: flex; align-items: center; gap: 10px;
             background: var(--surface2);
         }
-        .sum-ai-header-title { font-size: 14px; font-weight: 700; flex: 1; color: var(--text); letter-spacing: -0.3px; }
+        .sum-ai-header-title { font-size: 15px; font-weight: 700; flex: 1; color: var(--text); letter-spacing: -0.3px; }
         .sum-ai-close { background: none; border: none; cursor: pointer; color: var(--text3); padding: 4px; display: flex; align-items: center; justify-content: center; transition: color var(--transition); }
         .sum-ai-close:hover { color: var(--text); }
         .sum-ai-messages {
             flex: 1; overflow-y: auto; padding: 16px; display: flex;
-            flex-direction: column; gap: 12px; max-height: 380px;
-        }
-        .sum-ai-msg { font-size: 13.5px; line-height: 1.75; padding: 11px 15px; max-width: 94%; }
-        .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; font-size: 13px; }
-        .sum-ai-msg.assistant {
-            background: var(--surface2); border: 1px solid var(--border);
-            color: var(--text2); align-self: flex-start; white-space: normal;
-            unicode-bidi: plaintext; overflow-x: auto; max-width: 100%;
-            animation: msgSlideIn 220ms cubic-bezier(.34,1.2,.64,1) both;
+            flex-direction: column; gap: 12px; max-height: 440px;
         }
         @keyframes msgSlideIn {
-            from { opacity:0; transform: translateY(8px) scale(0.97); }
+            from { opacity:0; transform: translateY(10px) scale(0.97); }
             to   { opacity:1; transform: translateY(0) scale(1); }
         }
-        .sum-ai-msg.assistant code { font-family:var(--mono); font-size:11.5px; background:var(--bg); padding:2px 6px; border:1px solid var(--border); color:var(--accent); }
-        .sum-ai-msg.assistant .sum-table-wrap { margin: 8px -4px; }
-        .sum-ai-msg.assistant .sum-table th { font-size:10.5px; padding:8px 11px; }
-        .sum-ai-msg.assistant .sum-table td { padding:9px 11px; font-size:12.5px; }
+        .sum-ai-msg { font-size: 15px; line-height: 1.8; padding: 13px 17px; max-width: 94%; }
+        .sum-ai-msg.animating { animation: msgSlideIn 240ms cubic-bezier(.34,1.2,.64,1) both; }
+        .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; font-size: 14px; }
+        .sum-ai-msg.assistant {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text); align-self: flex-start; white-space: normal;
+            unicode-bidi: plaintext; overflow-x: auto; max-width: 100%;
+            font-size: 15px;
+        }
+        .sum-ai-msg.assistant code { font-family:var(--mono); font-size:13px; background:var(--bg); padding:2px 7px; border:1px solid var(--border); color:var(--accent); }
+        .sum-ai-msg.assistant .sum-table-wrap { margin: 10px -4px; }
+        .sum-ai-msg.assistant .sum-table th { font-size:12px; padding:9px 13px; }
+        .sum-ai-msg.assistant .sum-table td { padding:10px 13px; font-size:14px; }
 
         /* Typing animation */
         .sum-ai-msg.typing {
             display: flex; align-items: center; gap: 5px;
             background: var(--surface2); border: 1px solid var(--border);
             align-self: flex-start; padding: 14px 18px;
-            animation: msgSlideIn 220ms ease both;
         }
         .sum-ai-msg.typing .dot {
             width: 7px; height: 7px; background: var(--accent);
@@ -458,15 +458,15 @@
         }
 
         .sum-ai-quick { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; background: var(--surface2); }
-        .sum-ai-quick-btn { font-size: 11px; padding: 5px 11px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); font-family: var(--mono); transition: all var(--transition); white-space: nowrap; }
+        .sum-ai-quick-btn { font-size: 12px; padding: 6px 13px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); font-family: var(--mono); transition: all var(--transition); white-space: nowrap; }
         .sum-ai-quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
         .sum-ai-input-row { display: flex; gap: 0; border-top: 1px solid var(--border); }
-        .sum-ai-input { flex: 1; border: none; background: var(--surface); padding: 12px 14px; font-size: 13px; color: var(--text); outline: none; resize: none; font-family: var(--sans); line-height: 1.5; }
+        .sum-ai-input { flex: 1; border: none; background: var(--surface); padding: 14px 16px; font-size: 15px; color: var(--text); outline: none; resize: none; font-family: var(--sans); line-height: 1.5; }
         .sum-ai-input::placeholder { color: var(--text4); }
-        .sum-ai-send { width: 44px; flex-shrink: 0; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
+        .sum-ai-send { width: 50px; flex-shrink: 0; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
         .sum-ai-send:hover { background: var(--accent-dark); }
-        .sum-ai-send svg { width: 16px; height: 16px; }
-        @media (max-width: 480px) {
+        .sum-ai-send svg { width: 18px; height: 18px; }
+        @media (max-width: 520px) {
             .sum-ai-panel { width: calc(100vw - 24px); left: 12px; bottom: 76px; max-height: 70vh; }
             .sum-ai-btn { bottom: 16px; left: 12px; }
         }
@@ -2107,7 +2107,7 @@ ${textSlice}`;
                     <div style="flex:1;overflow-y:auto;padding:24px 28px" id="summaryViewScroll">
                         <div id="summaryViewContent" style="max-width:700px;margin:0 auto"></div>
                     </div>
-                    <div id="sumAIPanel" style="width:380px;flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease">
+                    <div id="sumAIPanel" style="width:440px;flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease">
                         <div class="sum-ai-header">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             <span class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</span>
@@ -3439,6 +3439,8 @@ ${pdfText}`;
         if (!msgs) return;
         const div = document.createElement('div');
         div.className = `sum-ai-msg ${role}`;
+        div.classList.add('animating');
+        div.addEventListener('animationend', () => div.classList.remove('animating'), { once: true });
         if (role === 'assistant') {
             div.innerHTML = renderMsgMarkdown(text);
         } else {
@@ -3455,6 +3457,8 @@ ${pdfText}`;
         // typing indicator
         const typing = document.createElement('div');
         typing.className = 'sum-ai-msg typing';
+        typing.classList.add('animating');
+        typing.addEventListener('animationend', () => typing.classList.remove('animating'), { once: true });
         typing.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
         msgs.appendChild(typing);
         msgs.scrollTop = msgs.scrollHeight;
