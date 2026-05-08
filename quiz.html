@@ -425,13 +425,13 @@
             from { opacity:0; transform: translateY(10px) scale(0.97); }
             to   { opacity:1; transform: translateY(0) scale(1); }
         }
-        .sum-ai-msg { font-size: 15px; line-height: 1.8; padding: 13px 17px; max-width: 94%; }
+        .sum-ai-msg { font-size: 15px; line-height: 1.8; padding: 13px 17px; }
         .sum-ai-msg.animating { animation: msgSlideIn 240ms cubic-bezier(.34,1.2,.64,1) both; }
-        .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; font-size: 14px; }
+        .sum-ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; font-size: 14px; max-width: 85%; word-break: break-word; }
         .sum-ai-msg.assistant {
             background: var(--surface2); border: 1px solid var(--border);
-            color: var(--text); align-self: flex-start; white-space: normal;
-            unicode-bidi: plaintext; overflow-x: auto; max-width: 100%;
+            color: var(--text); align-self: stretch; white-space: normal;
+            unicode-bidi: plaintext; overflow-x: auto; width: 100%; box-sizing: border-box;
             font-size: 15px;
         }
         .sum-ai-msg.assistant code { font-family:var(--mono); font-size:13px; background:var(--bg); padding:2px 7px; border:1px solid var(--border); color:var(--accent); }
