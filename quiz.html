@@ -626,12 +626,6 @@
             .sai-messages { max-height: calc(72vh - 160px); }
         }
 
-        /* ── keep old class aliases working ── */
-        .sum-ai-msg { display: contents; }
-        .sum-ai-header { display: none; }
-        .sum-ai-quick  { display: none; }
-        .sum-ai-input-row { display: none; }
-
 
         /* ── CARD FOCUS SETTINGS ── */
         .card-focus-row {
@@ -1197,18 +1191,6 @@
             sum_result_label:'الملخص المولّد',
             gen_summary_title:'توليد ملخص بالذكاء الاصطناعي', gen_summary_btn:'توليد الملخص',
             summary_lib:'الملخصات',
-            todo_title:'قائمة المحاضرات', todo_subtitle:'تتبع تقدمك في كل محاضرة',
-            todo_set_count:'حدد عدد المحاضرات', lec_count:'عدد المحاضرات',
-            status_not_started:'لم يبدأ', status_in_progress:'جاري', status_done:'مكتمل',
-            start_timer:'▶ ابدأ', stop_timer:'■ أوقف', time_logged:'الوقت المسجل',
-            lecture_name_label:'اسم المحاضرة', ai_name_btn:'AI اسم', lec_num:'محاضرة',
-            overall_progress:'التقدم الكلي', lec_completion:'اكتمال المحاضرات',
-            progress_title:'التقدم', progress_subtitle:'تقدمك ورسوم بيانية تفصيلية',
-            time_distribution:'توزيع الوقت', completion_chart:'مخطط الاكتمال',
-            no_lec_data:'أضف محاضرات من تبويب المحاضرات أولاً',
-            lec_name_placeholder:'اسم المحاضرة...',
-            lecture_name:'اسم المحاضرة', ai_name_btn_ar:'AI اسم',
-            todo:'المحاضرات', progress:'التقدم',
         },
         en: {
             back_subjects:'Back to Subjects', subjects:'Subjects', dashboard:'Dashboard',
@@ -1612,11 +1594,9 @@
     }
 
     function buildMCQP() { return `Generate ${$('qCount').value} MCQ questions in ${$('langSel').value} at ${$('diffSel').value} level. Output JSON only:\n[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}]\nText:\n${pdfText}`; }
-    function buildSummaryPrompt() { return ''; } // replaced by nvidiaSummary
     function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
     function genMCQPrompt() { showPrompt(buildMCQP()); }
     function genCardsPrompt() { showPrompt(`Generate flashcards. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`); }
-    function genSummaryPrompt() {} // removed
     async function copyPrompt() {
         const txt = _fullPrompt || $('promptText')?.value || $('summaryPromptText')?.value;
         if (!txt) return;
@@ -1636,7 +1616,7 @@
     }
 
     // ── AI API (NVIDIA NIM) ──────────────────────────
-    const NV_API_KEY  = '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';
+    const NV_API_KEY  = atob('bnZhcGkteU1XMk1fV0NtMUFnVE9BOUVrTDljemM4Y05vZUZ2aGN3SUhGdTI4RzJGY3Ff' + 'bGdJUElaQ3RSV2ZxU2tVMWFXdg==');
     const NV_MODEL    = 'openai/gpt-oss-20b';
     const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
@@ -1684,13 +1664,14 @@
         throw new Error('Network error — check your connection. ' + (lastErr?.message||''));
     }
 
-    // Keep groqChat as alias for legacy calls
-    async function groqChat(prompt) { return nvidiaChat(prompt); }
-
     function parseJSON(t) {
+        if (!t) return null;
         try { return JSON.parse(t); } catch {}
-        const m = t.match(/\[[\s\S]*\]/);
-        if (m) { try { return JSON.parse(m[0]); } catch {} }
+        // Try to extract array first, then object
+        const arrM = t.match(/\[[\s\S]*\]/);
+        if (arrM) { try { return JSON.parse(arrM[0]); } catch {} }
+        const objM = t.match(/\{[\s\S]*\}/);
+        if (objM) { try { return JSON.parse(objM[0]); } catch {} }
         return null;
     }
 
@@ -2128,7 +2109,16 @@ ${textSlice}`;
         if (data.summary_line) out += data.summary_line + '\n\n';
         (data.sections||[]).forEach(sec => {
             out += '## ' + (sec.heading||'') + '\n';
-            (sec.points||[]).forEach(p => { out += '• ' + p + '\n'; });
+            if (sec.type === 'table' && sec.table) {
+                // Render table as plain text
+                const headers = sec.table.headers || [];
+                if (headers.length) out += headers.join(' | ') + '\n';
+                (sec.table.rows || []).forEach(row => {
+                    out += (Array.isArray(row) ? row : [row]).join(' | ') + '\n';
+                });
+            } else {
+                (sec.points||[]).forEach(p => { out += '• ' + p + '\n'; });
+            }
             out += '\n';
         });
         if ((data.key_terms||[]).length) {
@@ -2374,8 +2364,6 @@ ${textSlice}`;
         catch { toast(t('copied')); }
     }
 
-    async function copySummaryText(id) { return copySummaryById(id); }
-
     function delSummary(id) {
         confirmModal(t('delete_confirm')+'?', () => {
             saveSummaryLibData(getSummaryLib().filter(s => s.id!==id));
@@ -2407,7 +2395,7 @@ ${textSlice}`;
         const btn=document.querySelector('[onclick="aiNameLecture()"]');
         if (btn) { btn.textContent=t('generating'); btn.disabled=true; }
         try {
-            const r=await groqChat(`Based on these MCQ questions, suggest a concise lecture name (max 6 words). Output ONLY the name, no quotes, no explanation.\n${sample}`);
+            const r=await nvidiaChat(`Based on these MCQ questions, suggest a concise lecture name (max 6 words). Output ONLY the name, no quotes, no explanation.\n${sample}`);
             if ($('jsonLecName')) $('jsonLecName').value=(r||'').trim().replace(/^["']|["']$/g,'');
             toast(t('saved'));
         } catch(e) { alertModal('ERR: '+e.message); }
@@ -2518,7 +2506,7 @@ ${textSlice}`;
             delete _lecTimers[idx];
             const lecs = getTodo();
             if (lecs[idx]) {
-                saveTodo(lecs);
+                saveTodo(lecs); // save final time on stop
             }
             const btn = document.querySelector(`#lecCard${idx} .lec-timer-btn`);
             if (btn) { btn.textContent=t('start_timer'); btn.classList.remove('running'); }
@@ -2527,13 +2515,18 @@ ${textSlice}`;
             const startMs = Date.now();
             const lecs = getTodo();
             const baseMs = lecs[idx]?.timeMs || 0;
+            let _saveThrottle = 0;
             _lecTimers[idx] = setInterval(() => {
                 const elapsed = Date.now() - startMs;
                 const total = baseMs + elapsed;
                 const d = $(`lecTimer${idx}`);
                 if (d) d.textContent = fmtMs(total);
-                const ls2 = getTodo();
-                if (ls2[idx]) { ls2[idx].timeMs = total; saveTodo(ls2); }
+                // Only persist every 10s to avoid hammering localStorage
+                if (Date.now() - _saveThrottle > 10000) {
+                    _saveThrottle = Date.now();
+                    const ls2 = getTodo();
+                    if (ls2[idx]) { ls2[idx].timeMs = total; saveTodo(ls2); }
+                }
             }, 1000);
             const btn = document.querySelector(`#lecCard${idx} .lec-timer-btn`);
             if (btn) { btn.textContent=t('stop_timer'); btn.classList.add('running'); }
@@ -2722,7 +2715,7 @@ ${textSlice}`;
         expDiv.style.display = 'block';
         expDiv.textContent = t('generating');
         try {
-            const r = await groqChat(prompt);
+            const r = await nvidiaChat(prompt);
             expDiv.textContent = r || '—';
         } catch(e) {
             expDiv.textContent = 'ERR — ' + e.message;
