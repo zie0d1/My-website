@@ -1839,9 +1839,14 @@
     }
 
     // How many chunks do we need for this text?
-    function calcChunkCount(text) {
-        const MAX_CHUNK = 7000; // safe input per call (leaves room for prompt + output)
-        return Math.max(1, Math.ceil(text.length / MAX_CHUNK));
+    function calcChunkCount(text, count) {
+        const MAX_CHUNK_CHARS = 6000; // safe input per API call
+        // Chunks needed for text length
+        const byText = Math.ceil(text.length / MAX_CHUNK_CHARS);
+        // Chunks needed so each one has at most 10 questions (sweet spot for accuracy)
+        const byCount = Math.ceil(count / 10);
+        // Use the larger of the two so neither text nor question count overflows
+        return Math.max(byText, byCount, 1);
     }
 
     function buildMCQP(text, count, lang, diff) {
@@ -1888,26 +1893,29 @@ ${text}`;
         const diff  = $('diffSel').value || 'medium';
 
         try {
-            const numChunks = calcChunkCount(pdfText);
+            const numChunks = calcChunkCount(pdfText, count);
             const chunks    = splitTextIntoChunks(pdfText, numChunks);
             const actual    = chunks.length;
 
-            // Distribute questions evenly across chunks (last chunk gets remainder)
-            const perChunk  = Math.max(3, Math.floor(count / actual));
-            const lastExtra = count - perChunk * (actual - 1);
+            // Exact distribution: base per chunk + distribute remainder one-by-one
+            const base      = Math.floor(count / actual);
+            const remainder = count - base * actual;
+            const qPerChunk = chunks.map((_, i) => base + (i < remainder ? 1 : 0));
 
             setAIStatus(
                 currentLang === 'ar'
-                    ? `🔀 إرسال ${actual} أجزاء بالتوازي…`
-                    : `🔀 Sending ${actual} chunks in parallel…`
+                    ? `🔀 إرسال ${actual} أجزاء بالتوازي… (${count} سؤال)`
+                    : `🔀 Sending ${actual} chunks in parallel… (${count} Qs)`
             );
 
             // Fire all chunks simultaneously, track per-chunk progress
             let done = 0;
             const results = await Promise.all(
                 chunks.map((chunk, i) => {
-                    const qForThis = (i === actual - 1) ? lastExtra : perChunk;
-                    return nvidiaChat(buildMCQP(chunk, qForThis, lang, diff), MCQ_SYSTEM, Math.min(qForThis * 130 + 400, 4000), 0.2)
+                    const qForThis = qPerChunk[i];
+                    // Each question ~130 tokens output, plus 400 buffer
+                    const maxTok = qForThis * 130 + 400;
+                    return nvidiaChat(buildMCQP(chunk, qForThis, lang, diff), MCQ_SYSTEM, maxTok, 0.2)
                         .then(raw => {
                             done++;
                             setAIStatus(
@@ -1952,7 +1960,7 @@ ${text}`;
 
 
     function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
-    function genMCQPrompt() { const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText)); showPrompt(buildMCQP(chunks[0], parseInt($('qCount').value)||10)); }
+    function genMCQPrompt() { const cnt = parseInt($('qCount').value)||10; const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText, cnt)); showPrompt(buildMCQP(chunks[0], cnt)); }
     function genCardsPrompt() { showPrompt(`Generate flashcards. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`); }
     async function copyPrompt() {
         const txt = _fullPrompt || $('promptText')?.value || $('summaryPromptText')?.value;
