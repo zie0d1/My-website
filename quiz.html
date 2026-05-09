@@ -390,6 +390,41 @@
 
         .hidden { display:none !important; }
 
+        /* ── CLAUDE-THEME DESIGN TOKENS (scoped to AI panel) ── */
+        .sum-ai-panel, #sumAIPanel {
+            --cl-bg:       #f7f5f2;
+            --cl-surface:  #ffffff;
+            --cl-border:   #e8e3dc;
+            --cl-text:     #1a1815;
+            --cl-text2:    #4a4540;
+            --cl-text3:    #8a8078;
+            --cl-accent:   #d97706;  /* Claude orange-amber */
+            --cl-accent2:  #b45309;
+            --cl-accent-bg:#fef3c7;
+            --cl-user-bg:  #f0ede8;
+            --cl-ai-bg:    #ffffff;
+            --cl-input-bg: #ffffff;
+            --cl-shadow:   0 2px 12px rgba(0,0,0,.08);
+            --cl-radius:   16px;
+            --cl-radius-sm:10px;
+        }
+        [data-theme="dark"] .sum-ai-panel,
+        [data-theme="dark"] #sumAIPanel {
+            --cl-bg:       #1a1815;
+            --cl-surface:  #222018;
+            --cl-border:   #2e2b26;
+            --cl-text:     #f5f0ea;
+            --cl-text2:    #c5bdb4;
+            --cl-text3:    #7a7068;
+            --cl-accent:   #f59e0b;
+            --cl-accent2:  #fbbf24;
+            --cl-accent-bg:#292318;
+            --cl-user-bg:  #2a2722;
+            --cl-ai-bg:    #222018;
+            --cl-input-bg: #1e1c19;
+            --cl-shadow:   0 2px 16px rgba(0,0,0,.4);
+        }
+
         /* ── AI SUMMARY ASSISTANT ── */
         .sum-ai-btn {
             position: fixed; bottom: 24px; left: 24px; z-index: 510;
@@ -399,150 +434,194 @@
             box-shadow: 0 4px 16px rgba(37,99,235,.45);
             transition: all var(--transition);
         }
-        .sum-ai-btn:hover { background: var(--accent-dark); transform: scale(1.08); }
+        .sum-ai-btn:hover { background: #b45309; transform: scale(1.08); }
         .sum-ai-btn svg { width: 22px; height: 22px; }
 
         /* Floating popup panel */
         .sum-ai-panel {
             position: fixed; bottom: 86px; left: 24px; z-index: 510;
             width: min(480px, calc(100vw - 32px));
-            max-height: min(620px, 80vh);
-            background: var(--surface); border: 1px solid var(--border);
-            box-shadow: 0 8px 32px rgba(0,0,0,.18);
+            max-height: min(640px, 82vh);
+            background: var(--cl-bg); border: 1px solid var(--cl-border);
+            box-shadow: 0 8px 40px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
             display: flex; flex-direction: column;
-            overflow: hidden;
-            animation: fadeIn 200ms ease;
+            overflow: hidden; border-radius: 20px;
+            animation: fadeIn 180ms ease;
         }
 
-        /* Shared header */
+        /* Header — Claude top bar style */
         .sum-ai-header {
-            padding: 13px 16px; border-bottom: 1px solid var(--border);
+            padding: 14px 16px 12px; border-bottom: 1px solid var(--cl-border);
             display: flex; align-items: center; gap: 10px;
-            background: var(--surface2); flex-shrink: 0;
-            min-width: 0;
+            background: var(--cl-bg); flex-shrink: 0; min-width: 0;
         }
-        .sum-ai-header-title { font-size: 15px; font-weight: 700; flex: 1; min-width: 0; color: var(--text); letter-spacing: -0.3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .sum-ai-close { background: none; border: none; cursor: pointer; color: var(--text3); padding: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: color var(--transition); }
-        .sum-ai-close:hover { color: var(--text); }
+        .sum-ai-header-icon {
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+            background: linear-gradient(135deg, #c2410c 0%, #f59e0b 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sum-ai-header-icon svg { width: 15px; height: 15px; }
+        .sum-ai-header-title {
+            font-size: 14px; font-weight: 600; flex: 1; min-width: 0;
+            color: var(--cl-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .sum-ai-close {
+            background: none; border: none; cursor: pointer; color: var(--cl-text3);
+            padding: 6px; border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; flex-shrink: 0; transition: background 150ms, color 150ms;
+        }
+        .sum-ai-close:hover { background: var(--cl-user-bg); color: var(--cl-text); }
 
         /* Messages list */
         .sum-ai-messages {
             flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
-            padding: 14px; display: flex;
-            flex-direction: column; gap: 10px;
-            min-height: 0;
+            padding: 18px 16px; display: flex;
+            flex-direction: column; gap: 16px;
+            min-height: 0; background: var(--cl-bg);
         }
+        .sum-ai-messages::-webkit-scrollbar { width: 3px; }
+        .sum-ai-messages::-webkit-scrollbar-track { background: transparent; }
+        .sum-ai-messages::-webkit-scrollbar-thumb { background: var(--cl-border); border-radius: 2px; }
 
         /* Message animations */
         @keyframes msgSlideIn {
-            from { opacity:0; transform: translateY(10px) scale(0.97); }
-            to   { opacity:1; transform: translateY(0) scale(1); }
+            from { opacity:0; transform: translateY(8px); }
+            to   { opacity:1; transform: translateY(0); }
         }
 
         /* Base bubble */
         .sum-ai-msg {
-            font-size: 14px; line-height: 1.75; padding: 11px 14px;
+            font-size: 14px; line-height: 1.75;
             max-width: 100%; box-sizing: border-box;
             word-break: break-word; overflow-wrap: anywhere;
         }
-        .sum-ai-msg.animating { animation: msgSlideIn 240ms cubic-bezier(.34,1.2,.64,1) both; }
+        .sum-ai-msg.animating { animation: msgSlideIn 250ms ease both; }
 
-        /* User bubble — right aligned, capped width */
+        /* User bubble — warm pill, right side */
         .sum-ai-msg.user {
-            background: var(--accent); color: #fff;
+            background: var(--cl-user-bg);
+            color: var(--cl-text);
             align-self: flex-end;
-            max-width: min(85%, 360px);
-            word-break: break-word;
+            max-width: min(82%, 340px);
+            padding: 10px 16px;
+            border-radius: 18px 18px 4px 18px;
+            border: 1px solid var(--cl-border);
+            font-size: 14px; font-weight: 400;
         }
 
-        /* Assistant bubble — full width */
+        /* Assistant bubble — white card, left side */
         .sum-ai-msg.assistant {
-            background: var(--surface2); border: 1px solid var(--border);
-            color: var(--text); align-self: stretch;
+            background: var(--cl-ai-bg);
+            border: 1px solid var(--cl-border);
+            color: var(--cl-text);
+            align-self: stretch;
+            padding: 14px 16px;
+            border-radius: 4px 18px 18px 18px;
             white-space: normal; overflow-x: auto;
             width: 100%; box-sizing: border-box;
-            unicode-bidi: plaintext;
+            unicode-bidi: plaintext; font-size: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.05);
         }
         .sum-ai-msg.assistant > * { max-width: 100%; }
+        .sum-ai-msg.assistant b, .sum-ai-msg.assistant strong { font-weight: 600; }
         .sum-ai-msg.assistant code {
-            font-family:var(--mono); font-size:12px;
-            background:var(--bg); padding:2px 6px;
-            border:1px solid var(--border); color:var(--accent);
-            word-break: break-all;
+            font-family: var(--mono); font-size: 12px;
+            background: var(--cl-user-bg); padding: 2px 7px;
+            border: 1px solid var(--cl-border); color: var(--cl-accent2);
+            border-radius: 5px; word-break: break-all;
         }
-        .sum-ai-msg.assistant .sum-table-wrap { margin: 8px 0; max-width: 100%; overflow-x: auto; }
-        .sum-ai-msg.assistant .sum-table { min-width: 0; }
-        .sum-ai-msg.assistant .sum-table th { font-size:11px; padding:7px 10px; }
-        .sum-ai-msg.assistant .sum-table td { padding:8px 10px; font-size:13px; word-break: break-word; }
+        .sum-ai-msg.assistant .sum-table-wrap {
+            margin: 10px 0; max-width: 100%; overflow-x: auto;
+            border-radius: 10px; border: 1px solid var(--cl-border);
+        }
+        .sum-ai-msg.assistant .sum-table { min-width: 0; border-collapse: collapse; }
+        .sum-ai-msg.assistant .sum-table th { font-size: 11px; padding: 8px 12px; background: var(--cl-user-bg); color: var(--cl-text3); border: none; border-bottom: 1px solid var(--cl-border); text-transform: uppercase; letter-spacing: .5px; }
+        .sum-ai-msg.assistant .sum-table td { padding: 9px 12px; font-size: 13px; border: none; border-bottom: 1px solid var(--cl-border); color: var(--cl-text2); word-break: break-word; }
+        .sum-ai-msg.assistant .sum-table tr:last-child td { border-bottom: none; }
+        .sum-ai-msg.assistant .sum-table tr:hover td { background: var(--cl-accent-bg); }
 
-        /* RTL text alignment for Arabic */
-        .sum-ai-msg[dir="rtl"], [dir="rtl"] .sum-ai-msg.assistant { text-align: right; }
-
-        /* Typing dots */
+        /* Typing dots — amber Claude style */
         .sum-ai-msg.typing {
             display: flex; align-items: center; gap: 5px;
-            background: var(--surface2); border: 1px solid var(--border);
-            align-self: flex-start; padding: 14px 18px; width: auto;
+            background: var(--cl-ai-bg); border: 1px solid var(--cl-border);
+            padding: 14px 18px; align-self: flex-start; width: auto;
+            border-radius: 4px 18px 18px 18px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.05);
         }
         .sum-ai-msg.typing .dot {
-            width: 7px; height: 7px; background: var(--accent);
-            border-radius: 50%; opacity: 0.3; flex-shrink: 0;
+            width: 7px; height: 7px; background: var(--cl-accent);
+            border-radius: 50%; opacity: 0.4; flex-shrink: 0;
             animation: typingBounce 1.2s ease-in-out infinite;
         }
-        .sum-ai-msg.typing .dot:nth-child(2) { animation-delay: 0.2s; }
-        .sum-ai-msg.typing .dot:nth-child(3) { animation-delay: 0.4s; }
+        .sum-ai-msg.typing .dot:nth-child(2) { animation-delay: 0.18s; }
+        .sum-ai-msg.typing .dot:nth-child(3) { animation-delay: 0.36s; }
         @keyframes typingBounce {
-            0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
-            40%            { transform: translateY(-6px); opacity: 1; }
+            0%, 70%, 100% { transform: translateY(0); opacity: 0.4; }
+            35%            { transform: translateY(-6px); opacity: 1; }
         }
 
-        /* Quick action buttons — always wrap */
+        /* Quick chips — Claude prompt suggestion pills */
         .sum-ai-quick {
-            padding: 9px 12px; border-top: 1px solid var(--border);
-            display: flex; gap: 5px; flex-wrap: wrap;
-            background: var(--surface2); flex-shrink: 0;
+            padding: 10px 14px 8px; border-top: 1px solid var(--cl-border);
+            display: flex; gap: 6px; flex-wrap: wrap;
+            background: var(--cl-bg); flex-shrink: 0;
         }
         .sum-ai-quick-btn {
-            font-size: 11px; padding: 5px 11px;
-            border: 1px solid var(--border); background: var(--surface);
-            cursor: pointer; color: var(--text3); font-family: var(--mono);
-            transition: all var(--transition); white-space: nowrap;
-            flex-shrink: 0;
+            font-size: 12px; padding: 6px 14px;
+            border: 1px solid var(--cl-border);
+            background: var(--cl-surface);
+            cursor: pointer; color: var(--cl-text2);
+            font-family: var(--sans); font-weight: 500;
+            border-radius: 20px; transition: all 150ms;
+            white-space: nowrap; flex-shrink: 0;
         }
-        .sum-ai-quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+        .sum-ai-quick-btn:hover {
+            border-color: var(--cl-accent);
+            color: var(--cl-accent2);
+            background: var(--cl-accent-bg);
+        }
 
-        /* Input row */
+        /* Input area — Claude composer */
         .sum-ai-input-row {
-            display: flex; border-top: 1px solid var(--border);
-            flex-shrink: 0; min-width: 0;
+            display: flex; flex-direction: column; gap: 8px;
+            border-top: 1px solid var(--cl-border); flex-shrink: 0;
+            background: var(--cl-bg); padding: 12px 14px 14px;
         }
         .sum-ai-input {
-            flex: 1; min-width: 0; border: none;
-            background: var(--surface); padding: 13px 14px;
-            font-size: 14px; color: var(--text); outline: none;
-            resize: none; font-family: var(--sans); line-height: 1.5;
+            width: 100%; min-width: 0; border: 1.5px solid var(--cl-border);
+            background: var(--cl-input-bg); padding: 11px 14px;
+            font-size: 14px; color: var(--cl-text); outline: none;
+            resize: none; font-family: var(--sans); line-height: 1.55;
+            border-radius: 12px; transition: border-color 150ms, box-shadow 150ms;
         }
-        .sum-ai-input::placeholder { color: var(--text4); }
+        .sum-ai-input:focus {
+            border-color: var(--cl-accent);
+            box-shadow: 0 0 0 3px rgba(217,119,6,.13);
+        }
+        .sum-ai-input::placeholder { color: var(--cl-text3); }
+        /* Send button row */
+        .sum-ai-input-actions { display: flex; justify-content: flex-end; }
         .sum-ai-send {
-            width: 46px; flex-shrink: 0; border: none;
-            background: var(--accent); color: #fff; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background var(--transition);
+            height: 34px; padding: 0 18px; flex-shrink: 0; border: none;
+            background: var(--cl-accent); color: #fff; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            border-radius: 20px; font-size: 13px; font-weight: 600;
+            font-family: var(--sans); transition: background 150ms, transform 100ms;
         }
-        .sum-ai-send:hover { background: var(--accent-dark); }
-        .sum-ai-send svg { width: 17px; height: 17px; }
+        .sum-ai-send:hover { background: var(--cl-accent2); }
+        .sum-ai-send:active { transform: scale(0.97); }
+        .sum-ai-send svg { width: 13px; height: 13px; }
 
-        /* Mobile: floating panel goes full-width at bottom */
+        /* Mobile */
         @media (max-width: 540px) {
             .sum-ai-panel {
-                left: 0; right: 0; bottom: 0;
-                width: 100%; max-height: 75vh;
+                left: 0; right: 0; bottom: 0; width: 100%;
+                max-height: 80vh; border-radius: 20px 20px 0 0;
                 border-left: none; border-right: none; border-bottom: none;
             }
             .sum-ai-btn { bottom: 16px; left: 16px; }
-            .sum-ai-msg { font-size: 13px; padding: 10px 12px; }
-            .sum-ai-input { font-size: 13px; padding: 12px 12px; }
-            .sum-ai-quick-btn { font-size: 11px; padding: 5px 9px; }
+            .sum-ai-msg { font-size: 13px; }
+            .sum-ai-input { font-size: 13px; }
         }
 
         /* ── CARD FOCUS SETTINGS ── */
@@ -2159,7 +2238,7 @@ ${textSlice}`;
                 document.body.appendChild(overlay);
             }
             overlay.innerHTML = `
-                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;min-width:0;overflow:hidden">
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--cl-border);background:var(--cl-bg);flex-shrink:0;min-width:0;overflow:hidden">
                     <button class="btn btn-sm" onclick="document.getElementById('summaryViewOverlay').remove();closeSumAI()" style="flex-shrink:0">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                         ${currentLang==='ar'?'رجوع':'Back'}
@@ -2170,7 +2249,6 @@ ${textSlice}`;
                     </div>
                     <button class="btn btn-sm" onclick="copySummaryById(${id})" style="flex-shrink:0">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        <span style="display:none" class="btn-label-wide">${currentLang==='ar'?'نسخ':'Copy'}</span>
                     </button>
                     <button class="btn btn-sm" onclick="toggleSumAISide()" id="sumAIToggleBtn" style="flex-shrink:0;gap:4px;font-size:11px;font-family:var(--mono)">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -2181,10 +2259,15 @@ ${textSlice}`;
                     <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:20px;min-width:0" id="summaryViewScroll">
                         <div id="summaryViewContent" style="max-width:700px;margin:0 auto;width:100%"></div>
                     </div>
-                    <div id="sumAIPanel" style="width:min(440px,45vw);flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease;min-width:0;min-height:0;height:100%">
+                    <div id="sumAIPanel" style="width:min(440px,45vw);flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--cl-border);background:var(--cl-bg);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease;min-width:0;min-height:0;height:100%">
                         <div class="sum-ai-header">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            <span class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</span>
+                            <div class="sum-ai-header-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="15" height="15"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</div>
+                                <div class="sum-ai-header-sub">Claude</div>
+                            </div>
                         </div>
                         <div class="sum-ai-quick">
                             <button class="sum-ai-quick-btn" onclick="sumAIQuick('explain_all')">${currentLang==='ar'?'اشرح':'Explain'}</button>
@@ -2193,12 +2276,17 @@ ${textSlice}`;
                             <button class="sum-ai-quick-btn" onclick="sumAIQuick('simplify')">${currentLang==='ar'?'بسّط':'Simplify'}</button>
                             <button class="sum-ai-quick-btn" onclick="sumAIQuick('fix_json')">${currentLang==='ar'?'إصلاح JSON':'Fix JSON'}</button>
                         </div>
-                        <div class="sum-ai-messages" id="sumAIMessages" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden">
+                        <div class="sum-ai-messages" id="sumAIMessages" style="flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden">
                             <div class="sum-ai-msg assistant">${currentLang==='ar'?'مرحباً! اسألني عن أي شيء في هذا الملخص.':'Hello! Ask me anything about this summary.'}</div>
                         </div>
                         <div class="sum-ai-input-row">
                             <textarea class="sum-ai-input" id="sumAIInput" rows="1" placeholder="${currentLang==='ar'?'اكتب سؤالك...':'Ask anything...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSumAI()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
-                            <button class="sum-ai-send" onclick="sendSumAI()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                            <div class="sum-ai-input-actions">
+                                <button class="sum-ai-send" onclick="sendSumAI()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    ${currentLang==='ar'?'إرسال':'Send'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2206,8 +2294,8 @@ ${textSlice}`;
                     @media (max-width: 640px) {
                         #summaryViewBody { flex-direction: column !important; }
                         #summaryViewScroll { flex: none !important; max-height: 45vh; padding: 14px !important; }
-                        #sumAIPanel { width: 100% !important; border-left: none !important; border-right: none !important; border-top: 1px solid var(--border); min-height: 0; max-height: 55vh; height: auto !important; }
-                        #sumAIPanel .sum-ai-messages { max-height: none; flex: 1 1 auto; min-height: 0; }
+                        #sumAIPanel { width: 100% !important; border-left: none !important; border-right: none !important; border-top: 1px solid var(--cl-border); min-height: 0; max-height: 55vh; height: auto !important; }
+                        #sumAIPanel .sum-ai-messages { flex: 1 1 auto; min-height: 0; }
                     }
                 </style>`;
             // Store current summary data for AI context
