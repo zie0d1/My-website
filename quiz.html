@@ -1898,17 +1898,29 @@ ${text}`;
 
             setAIStatus(
                 currentLang === 'ar'
-                    ? `🔀 تقسيم النص إلى ${actual} أجزاء…`
-                    : `🔀 Splitting into ${actual} chunks…`
+                    ? `🔀 إرسال ${actual} أجزاء بالتوازي…`
+                    : `🔀 Sending ${actual} chunks in parallel…`
             );
 
-            // Run each chunk sequentially (avoids rate limits)
-            let allQuestions = [];
-            for (let i = 0; i < actual; i++) {
-                const qForThis = (i === actual - 1) ? lastExtra : perChunk;
-                const qs = await mcqForChunk(chunks[i], qForThis, lang, diff, i + 1, actual);
-                allQuestions = allQuestions.concat(qs);
-            }
+            // Fire all chunks simultaneously, track per-chunk progress
+            let done = 0;
+            const results = await Promise.all(
+                chunks.map((chunk, i) => {
+                    const qForThis = (i === actual - 1) ? lastExtra : perChunk;
+                    return nvidiaChat(buildMCQP(chunk, qForThis, lang, diff), MCQ_SYSTEM, Math.min(qForThis * 130 + 400, 4000), 0.2)
+                        .then(raw => {
+                            done++;
+                            setAIStatus(
+                                currentLang === 'ar'
+                                    ? `✏️ اكتمل ${done}/${actual} أجزاء…`
+                                    : `✏️ ${done}/${actual} chunks done…`
+                            );
+                            return extractMCQJson(raw) || [];
+                        })
+                        .catch(() => []);
+                })
+            );
+            const allQuestions = results.flat();
 
             // Validate & deduplicate
             const seen = new Set();
