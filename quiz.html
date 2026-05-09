@@ -1838,22 +1838,15 @@
         return chunks;
     }
 
-    // How many chunks do we need for this text?
-    function calcChunkCount(text, count) {
-        const MAX_CHUNK_CHARS = 6000; // safe input per API call
-        // Chunks needed for text length
-        const byText = Math.ceil(text.length / MAX_CHUNK_CHARS);
-        // Chunks needed so each one has at most 10 questions (sweet spot for accuracy)
-        const byCount = Math.ceil(count / 10);
-        // Use the larger of the two so neither text nor question count overflows
-        return Math.max(byText, byCount, 1);
+    // How many chunks to split the text into (by size only)
+    function calcChunkCount(text) {
+        return Math.max(1, Math.ceil(text.length / 6000));
     }
 
     function buildMCQP(text, count, lang, diff) {
         count = count || $('qCount').value || 10;
         lang  = lang  || $('langSel').value || 'English';
         diff  = diff  || $('diffSel').value || 'medium';
-
         return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty ONLY from the text below.
 
 RULES:
@@ -1873,14 +1866,8 @@ ${text}`;
     const MCQ_SYSTEM = 'You output ONLY a valid JSON array of MCQ objects. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
 
     // Generate MCQ for a single chunk, returns array of question objects
-    async function mcqForChunk(chunkText, perChunk, lang, diff, chunkIdx, totalChunks) {
-        setAIStatus(
-            currentLang === 'ar'
-                ? `✏️ توليد الأسئلة… (${chunkIdx}/${totalChunks})`
-                : `✏️ Generating… chunk ${chunkIdx}/${totalChunks}`
-        );
-        const tokens = Math.min(perChunk * 130 + 400, 4000);
-        const raw = await nvidiaChat(buildMCQP(chunkText, perChunk, lang, diff), MCQ_SYSTEM, tokens, 0.2);
+    async function mcqForChunk(chunkText, count, lang, diff) {
+        const raw = await nvidiaChat(buildMCQP(chunkText, count, lang, diff), MCQ_SYSTEM, 8000, 0.2);
         return extractMCQJson(raw) || [];
     }
 
@@ -1893,61 +1880,55 @@ ${text}`;
         const diff  = $('diffSel').value || 'medium';
 
         try {
-            const numChunks = calcChunkCount(pdfText, count);
-            const chunks    = splitTextIntoChunks(pdfText, numChunks);
-            const actual    = chunks.length;
-
-            // Exact distribution: base per chunk + distribute remainder one-by-one
-            const base      = Math.floor(count / actual);
-            const remainder = count - base * actual;
-            const qPerChunk = chunks.map((_, i) => base + (i < remainder ? 1 : 0));
+            // ── 1. Split text into chunks ──────────────────────────────────
+            const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
+            const total  = chunks.length;
 
             setAIStatus(
                 currentLang === 'ar'
-                    ? `🔀 إرسال ${actual} أجزاء بالتوازي… (${count} سؤال)`
-                    : `🔀 Sending ${actual} chunks in parallel… (${count} Qs)`
+                    ? `🔀 ${total} أجزاء — جاري الإرسال…`
+                    : `🔀 ${total} chunks — sending all in parallel…`
             );
 
-            // Fire all chunks simultaneously, track per-chunk progress
+            // ── 2. Every chunk generates its own share of questions (all in parallel) ─
+            const perChunk = Math.ceil(count / total); // e.g. 60 ÷ 10 = 6 per chunk
             let done = 0;
             const results = await Promise.all(
-                chunks.map((chunk, i) => {
-                    const qForThis = qPerChunk[i];
-                    // Each question ~130 tokens output, plus 400 buffer
-                    const maxTok = qForThis * 130 + 400;
-                    return nvidiaChat(buildMCQP(chunk, qForThis, lang, diff), MCQ_SYSTEM, maxTok, 0.2)
-                        .then(raw => {
+                chunks.map(chunk =>
+                    mcqForChunk(chunk, perChunk, lang, diff)
+                        .then(qs => {
                             done++;
                             setAIStatus(
                                 currentLang === 'ar'
-                                    ? `✏️ اكتمل ${done}/${actual} أجزاء…`
-                                    : `✏️ ${done}/${actual} chunks done…`
+                                    ? `✏️ ${done}/${total} اكتمل…`
+                                    : `✏️ ${done}/${total} done…`
                             );
-                            return extractMCQJson(raw) || [];
+                            return qs;
                         })
-                        .catch(() => []);
-                })
+                        .catch(() => [])
+                )
             );
-            const allQuestions = results.flat();
 
-            // Validate & deduplicate
+            // ── 3. Merge all JSONs into one, deduplicate ───────────────────
             const seen = new Set();
-            const valid = allQuestions.filter(q => {
+            const merged = results.flat().filter(q => {
                 if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
                 const ci = Number(q.correct);
                 if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
-                // Deduplicate by question text (normalised)
                 const key = q.question.trim().toLowerCase().slice(0, 80);
                 if (seen.has(key)) return false;
                 seen.add(key);
                 return true;
             });
 
-            if (!valid.length) throw new Error('No valid questions generated');
+            if (!merged.length) throw new Error('No valid questions generated');
 
-            setAIStatus('✓ ' + valid.length + ' ' + (currentLang === 'ar' ? 'سؤال جاهز' : 'questions ready'), true);
+            // ── 4. Trim to exactly the requested count ─────────────────────
+            const final = merged.slice(0, count);
+
+            setAIStatus('✓ ' + final.length + '/' + count + ' ' + (currentLang === 'ar' ? 'سؤال جاهز' : 'questions ready'), true);
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
-            setTimeout(() => { setAIStatus(''); startQuiz(valid, quizName); }, 600);
+            setTimeout(() => { setAIStatus(''); startQuiz(final, quizName); }, 600);
 
         } catch(e) {
             setAIStatus('✗ ' + e.message, false, true);
@@ -1960,7 +1941,7 @@ ${text}`;
 
 
     function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
-    function genMCQPrompt() { const cnt = parseInt($('qCount').value)||10; const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText, cnt)); showPrompt(buildMCQP(chunks[0], cnt)); }
+    function genMCQPrompt() { const cnt = parseInt($('qCount').value)||10; const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText)); showPrompt(buildMCQP(chunks[0], cnt)); }
     function genCardsPrompt() { showPrompt(`Generate flashcards. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`); }
     async function copyPrompt() {
         const txt = _fullPrompt || $('promptText')?.value || $('summaryPromptText')?.value;
