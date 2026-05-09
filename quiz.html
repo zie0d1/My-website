@@ -129,6 +129,9 @@
         .subject-card .sc-delete { position:absolute; top:8px; left:8px; background:rgba(0,0,0,.25); border:none; color:#fff; width:26px; height:26px; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity var(--transition); font-family:var(--mono); }
         .subject-card:hover .sc-delete { opacity:1; }
         .subject-card .sc-delete:hover { background:var(--danger); }
+        .subject-card .sc-edit { position:absolute; top:8px; left:38px; background:rgba(0,0,0,.25); border:none; color:#fff; width:26px; height:26px; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity var(--transition); }
+        .subject-card:hover .sc-edit { opacity:1; }
+        .subject-card .sc-edit:hover { background:var(--accent); }
         .add-subject-card { background:var(--surface); border:2px dashed var(--border); padding:20px; cursor:pointer; transition:all var(--transition); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:150px; }
         .add-subject-card:hover { border-color:var(--accent); background:var(--accent-light); }
         .add-subject-card .add-icon { font-size:26px; color:var(--text4); font-weight:300; }
@@ -615,15 +618,23 @@
             #sumAIPanel {
                 position: fixed !important;
                 left: 0 !important; right: 0 !important; bottom: 0 !important;
-                width: 100% !important; height: auto !important;
-                max-height: 72vh; border-top: 1px solid var(--ai-border);
+                width: 100% !important; height: 70vh !important;
+                max-height: 70vh; border-top: 2px solid var(--accent);
                 border-left: none !important; border-right: none !important;
                 z-index: 520;
                 transform: translateY(100%);
                 transition: transform 250ms cubic-bezier(.4,0,.2,1);
+                display: flex; flex-direction: column;
             }
             #sumAIPanel.sai-open { transform: translateY(0); }
-            .sai-messages { max-height: calc(72vh - 160px); }
+            #sumAIPanel .sai-messages { flex: 1; min-height: 0; max-height: none; overflow-y: auto; }
+            #sumAIPanel .sai-composer { flex-shrink: 0; }
+            #sumAIPanel .sai-chips { padding: 8px 10px 0; }
+            #sumAIPanel .sai-chip { font-size: 10px; padding: 3px 9px; }
+            #sumAIPanel .sai-input-row { padding: 8px 10px 10px; }
+            #sumAIPanel .sai-input { font-size: 14px; padding: 10px 12px; }
+            /* Prevent body scroll when AI open */
+            body.sai-body-lock { overflow: hidden; }
         }
 
 
@@ -751,6 +762,10 @@
                 <span class="si-label" data-t="progress">التقدم</span>
             </button>
             <div class="sidebar-section" data-t="system">النظام</div>
+            <button class="sidebar-item" data-panel="howto" onclick="switchPanel('howto')">
+                <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg></span>
+                <span class="si-label" data-t="howto">كيف تعمل الأداة</span>
+            </button>
             <button class="sidebar-item" data-panel="settings" onclick="switchPanel('settings')">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
                 <span class="si-label" data-t="settings">الإعدادات</span>
@@ -776,15 +791,10 @@
                     <p class="page-subtitle" data-t="gen_pdf_subtitle">استخرج النصوص وحوّلها إلى أسئلة باستخدام الذكاء الاصطناعي</p>
                     <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleDrop(event)">
                         <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
-                        <div class="drop-hint">PDF - 25 pages max</div>
+                        <div class="drop-hint">PDF · 25 pages max · يمكن رفع عدة ملفات / Multiple PDFs supported</div>
                     </div>
-                    <input type="file" id="pdfInput" accept=".pdf" class="hidden" onchange="setPDF(this.files[0])">
-                    <div id="filePill" class="card hidden" style="display:flex;align-items:center;gap:10px;padding:10px 14px">
-                        <span id="fileName" style="flex:1;font-family:var(--mono);font-size:12px"></span>
-                        <button class="btn btn-sm btn-ghost" onclick="clearPDF()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                    </div>
+                    <input type="file" id="pdfInput" accept=".pdf" class="hidden" multiple onchange="addPDFs(this.files)">
+                    <div id="filePillList" style="margin-bottom:8px"></div>
                     <div class="input-row">
                         <div class="input-group">
                             <label data-t="q_count">عدد الأسئلة</label>
@@ -1072,6 +1082,104 @@
                     </div>
                 </div>
 
+                <!-- HOW IT WORKS PANEL -->
+                <div class="panel" id="panel-howto">
+                    <h1 class="page-title" data-t="howto_title">كيف تعمل zStudy</h1>
+                    <p class="page-subtitle" data-t="howto_subtitle">دليل شامل لجميع الميزات</p>
+
+                    <!-- Step 1 -->
+                    <div class="card" style="margin-bottom:14px;border-right:4px solid var(--accent)">
+                        <div class="card-header" style="margin-bottom:10px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
+                                <span style="width:28px;height:28px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">1</span>
+                                <span data-t="howto_step1_title">إنشاء مادة دراسية — Create a Subject</span>
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step1_body">من الصفحة الرئيسية، انقر على <b>+ إضافة مادة جديدة</b> لإنشاء مادة. اختر اسماً ولوناً مميزاً. كل مادة تملك فضاءها المستقل من الأسئلة والبطاقات والملخصات. From the dashboard, click <b>+ Add New Subject</b> to create a subject. Each subject has its own isolated space for questions, cards, and summaries.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="card" style="margin-bottom:14px;border-right:4px solid var(--success)">
+                        <div class="card-header" style="margin-bottom:10px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
+                                <span style="width:28px;height:28px;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">2</span>
+                                <span data-t="howto_step2_title">رفع ملف PDF — Upload PDF</span>
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step2_body">انتقل إلى تبويب <b>توليد من PDF</b> واسحب ملف PDF أو انقر لاختياره. يمكنك رفع عدة ملفات PDF وسيتم دمج نصوصها تلقائياً. يدعم حتى 25 صفحة لكل ملف. Go to <b>Generate from PDF</b>, drag & drop or click to upload. Multiple PDFs can be combined. Up to 25 pages per file are extracted.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="card" style="margin-bottom:14px;border-right:4px solid var(--warning)">
+                        <div class="card-header" style="margin-bottom:10px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
+                                <span style="width:28px;height:28px;background:var(--warning);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">3</span>
+                                <span data-t="howto_step3_title">توليد أسئلة MCQ — Generate MCQ</span>
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step3_body">بعد رفع PDF، اضبط عدد الأسئلة (10-30) ومستوى الصعوبة واللغة، ثم انقر <b>توليد MCQ</b>. سيبدأ الاختبار تلقائياً مع تتبع النتيجة والوقت ومستوى الثقة. After uploading, set question count (10–30), difficulty, and language, then click <b>Generate MCQ</b>. The quiz starts automatically with score, timer, and confidence tracking.</p>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="card" style="margin-bottom:14px;border-right:4px solid var(--accent)">
+                        <div class="card-header" style="margin-bottom:10px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
+                                <span style="width:28px;height:28px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">4</span>
+                                <span data-t="howto_step4_title">البطاقات التعليمية — Flashcards</span>
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step4_body">انقر <b>توليد بطاقات</b> لإنشاء بطاقات تعليمية من PDF. تُحفظ في <b>بطاقاتي</b> وتستخدم نظام المراجعة المتباعدة (SM-2). انقر على البطاقة للكشف عن الإجابة وقيّم مستوى تذكرك. Click <b>Generate Cards</b> to create flashcards from the PDF. They're saved in <b>My Cards</b> using the SM-2 spaced repetition algorithm. Flip cards and rate your recall.</p>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="card" style="margin-bottom:14px;border-right:4px solid #8b5cf6">
+                        <div class="card-header" style="margin-bottom:10px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
+                                <span style="width:28px;height:28px;background:#8b5cf6;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">5</span>
+                                <span data-t="howto_step5_title">مساعد AI للملخصات — Summary AI</span>
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step5_body">في تبويب <b>الملخصات</b>، ارفع PDF أو الصق نصاً لتوليد ملخص منظم بالذكاء الاصطناعي. عند عرض الملخص، انقر <b>AI</b> لفتح مساعد <b>zStudy AI</b> الذي يجيب على أسئلتك عن المحتوى. In <b>Summaries</b>, upload a PDF or paste text to generate a structured AI summary. When viewing a summary, click <b>AI</b> to open <b>zStudy AI</b> — it answers your questions about the content.</p>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div class="card" style="margin-bottom:14px;border-right:4px solid var(--danger)">
+                        <div class="card-header" style="margin-bottom:10px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
+                                <span style="width:28px;height:28px;background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">6</span>
+                                <span data-t="howto_step6_title">السجل وبنك الأخطاء — History & Error Bank</span>
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step6_body"><b>السجل</b> يحفظ جميع اختباراتك السابقة مع النتائج. <b>بنك الأخطاء</b> يجمع الأسئلة التي أخطأت بها تلقائياً لمراجعتها لاحقاً. <b>History</b> saves all past quizzes with scores. <b>Error Bank</b> automatically collects wrong answers for targeted review.</p>
+                    </div>
+
+                    <!-- Step 7 -->
+                    <div class="card" style="margin-bottom:14px;border-right:4px solid var(--success)">
+                        <div class="card-header" style="margin-bottom:10px">
+                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
+                                <span style="width:28px;height:28px;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">7</span>
+                                <span data-t="howto_step7_title">المحاضرات والتقدم — Lectures & Progress</span>
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step7_body">تبويب <b>المحاضرات</b> يتيح تتبع تقدمك في كل محاضرة مع مؤقت وقت مدمج. تبويب <b>التقدم</b> يعرض رسوماً بيانية للإتمام وتوزيع الوقت. <b>Lectures</b> lets you track progress per lecture with a built-in timer. <b>Progress</b> shows completion charts and time distribution graphs.</p>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="card" style="background:var(--accent-light);border-color:var(--accent);margin-bottom:14px">
+                        <div class="card-title" style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span data-t="howto_tips_title">نصائح سريعة — Quick Tips</span>
+                        </div>
+                        <div style="font-size:12px;color:var(--text2);line-height:2;font-family:var(--mono)" data-t="howto_tips_body">
+                            ▶ زر 🌐 لتغيير اللغة بين العربية والإنجليزية / Toggle 🌐 to switch AR ↔ EN<br>
+                            ▶ زر ☀/🌙 لتغيير المظهر / Toggle ☀/🌙 for dark/light mode<br>
+                            ▶ يمكن دمج عدة PDFs لسؤال أوسع / Combine multiple PDFs for broader questions<br>
+                            ▶ مستوى الثقة يساعدك تقييم معرفتك / Confidence level tracks how well you really know it<br>
+                            ▶ كل البيانات محفوظة محلياً على جهازك / All data is stored locally on your device
+                        </div>
+                    </div>
+                </div>
+
                 <!-- QUIZ AREA -->
                 <div class="panel" id="quizArea">
                     <div class="quiz-header">
@@ -1126,8 +1234,7 @@
             learning:'التعلم', gen_pdf:'توليد من PDF', todo:'المحاضرات', library:'المكتبة',
             my_cards:'بطاقاتي', history:'السجل', error_bank:'بنك الأخطاء', analytics:'التحليل',
             stats:'الإحصاءات', progress:'التقدم', system:'النظام', settings:'الإعدادات',
-            zero_protocol:'zStudy',
-            dashboard_subtitle:'نظام دراسة بسيط — اختر مادة للبدء أو أضف مادة جديدة',
+            howto:'كيف تعمل الأداة', howto_title:'كيف تعمل zStudy', howto_subtitle:'دليل شامل لجميع الميزات',
             add_subject:'+ إضافة مادة جديدة', gen_pdf_title:'توليد من PDF',
             gen_pdf_subtitle:'استخرج النصوص وحوّلها إلى أسئلة باستخدام الذكاء الاصطناعي',
             todo_title:'قائمة المحاضرات', todo_subtitle:'تتبع تقدمك في كل محاضرة',
@@ -1197,8 +1304,7 @@
             learning:'Learning', gen_pdf:'Generate from PDF', todo:'Lectures', library:'Library',
             my_cards:'My Cards', history:'History', error_bank:'Error Bank', analytics:'Analytics',
             stats:'Statistics', progress:'Progress', system:'System', settings:'Settings',
-            zero_protocol:'zStudy',
-            dashboard_subtitle:'A minimal study system — pick a subject or add a new one',
+            howto:'How It Works', howto_title:'How zStudy Works', howto_subtitle:'A complete guide to all features',
             add_subject:'+ Add New Subject', gen_pdf_title:'Generate from PDF',
             gen_pdf_subtitle:'Extract text and convert to questions using AI',
             todo_title:'Lecture List', todo_subtitle:'Track your progress on each lecture',
@@ -1370,7 +1476,7 @@
     }
 
     function switchPanel(panelId) {
-        if (!getCurrentSubjectId() && !['dashboard','settings'].includes(panelId)) {
+        if (!getCurrentSubjectId() && !['dashboard','settings','howto'].includes(panelId)) {
             toast(t('choose_subject')); return;
         }
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1422,6 +1528,9 @@
             }));
             return `<div class="subject-card" onclick="enterSubject('${s.id}')">
                 <button class="sc-delete" onclick="event.stopPropagation();deleteSubject('${s.id}')">X</button>
+                <button class="sc-edit" onclick="event.stopPropagation();editSubjectName('${s.id}')" title="${currentLang==='ar'?'تعديل الاسم':'Edit name'}">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
                 <div class="sc-color" style="background:${s.color}">${info.label}</div>
                 <div class="sc-name">${esc(s.name)}</div>
                 <div class="sc-meta">
@@ -1495,6 +1604,41 @@
         renderDashboard();
     }
 
+    function editSubjectName(id) {
+        const subj = getSubjects().find(s => s.id===id);
+        if (!subj) return;
+        const swatches = COLOR_PALETTE.map(c =>
+            `<div class="color-swatch${c.base===subj.color?' selected':''}" style="background:${c.base}" data-color="${c.base}" onclick="selectSwatch(this,'${c.base}')"></div>`
+        ).join('');
+        modal(`<div class="modal-title">${currentLang==='ar'?'تعديل المادة':'Edit Subject'}</div>
+            <div class="input-group" style="margin-bottom:14px">
+                <label>${t('subj_name_label')}</label>
+                <input id="editSubjName" value="${esc(subj.name)}" placeholder="${t('subj_name_placeholder')}">
+            </div>
+            <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">${t('select_color')}</label>
+            <div class="color-grid">${swatches}</div>
+            <input type="hidden" id="selectedColor" value="${subj.color}">`,
+            `<button class="btn btn-primary" onclick="saveSubjectEdit('${id}')">${t('save')}</button><button class="btn" onclick="closeModal()">${t('cancel')}</button>`);
+        setTimeout(() => { const inp=$('editSubjName'); if(inp){inp.focus();inp.select();} }, 200);
+    }
+
+    function saveSubjectEdit(id) {
+        const name = ($('editSubjName')?.value||'').trim();
+        if (!name) { alertModal(t('enter_subj_name')); return; }
+        const color = $('selectedColor')?.value || COLOR_PALETTE[0].base;
+        const subs = getSubjects();
+        const idx = subs.findIndex(s => s.id===id);
+        if (idx < 0) return;
+        subs[idx].name = name;
+        subs[idx].color = color;
+        saveSubjects(subs);
+        closeModal();
+        // If currently inside this subject, update topbar
+        if (getCurrentSubjectId()===id) applySubjectTheme(color);
+        renderDashboard();
+        toast(t('saved'));
+    }
+
     function deleteSubject(id) {
         const subj = getSubjects().find(s => s.id===id);
         if (!subj) return;
@@ -1544,34 +1688,83 @@
         } catch(e) {}
     }
 
-    // ── PDF ─────────────────────────────────────────
+    // ── PDF (multi-file support) ─────────────────────────────────────────
     let pdfText = '', pdfFile = '';
-    async function setPDF(file) {
-        if (!file || !file.name.endsWith('.pdf')) return;
-        pdfFile = file.name;
-        $('fileName').textContent = file.name;
-        show($('filePill'));
+    let _pdfFiles = []; // {name, text, pages}
+
+    function renderFilePills() {
+        const list = document.getElementById('filePillList');
+        if (!list) return;
+        if (!_pdfFiles.length) { list.innerHTML = ''; show($('dropZone')); return; }
         hide($('dropZone'));
-        toast(t('generating'));
-        try {
-            const ab = await file.arrayBuffer();
-            const doc = await pdfjsLib.getDocument({data:ab}).promise;
-            let txt = '';
-            for (let i=1; i<=Math.min(doc.numPages,25); i++) {
-                const page = await doc.getPage(i);
-                const tc = await page.getTextContent();
-                txt += tc.items.map(it=>it.str).join(' ') + '\n';
-            }
-            pdfText = txt.trim();
-            toast('OK — '+pdfText.length.toLocaleString()+' chars · '+doc.numPages+' pages');
-            ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled=false; });
-        } catch(e) { alertModal(t('error')+': '+e.message); clearPDF(); }
+        list.innerHTML = _pdfFiles.map((f, i) => `
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid var(--border);background:var(--surface2);margin-bottom:4px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span style="flex:1;font-family:var(--mono);font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--text4)">${f.pages}p · ${(f.text.length/1000).toFixed(1)}k</span>
+                <button class="btn btn-sm btn-ghost" onclick="removePDF(${i})" style="padding:3px 7px">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>`).join('') +
+            `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 4px">
+                <span style="font-size:11px;font-family:var(--mono);color:var(--text4)">${_pdfFiles.length} ${currentLang==='ar'?'ملف':'file(s)'} · ${(pdfText.length/1000).toFixed(1)}k ${currentLang==='ar'?'حرف':'chars'}</span>
+                <div style="display:flex;gap:6px">
+                    <button class="btn btn-sm" onclick="document.getElementById('pdfInput').click()" style="font-size:10px">+ ${currentLang==='ar'?'إضافة':'Add PDF'}</button>
+                    <button class="btn btn-danger btn-sm" onclick="clearPDF()" style="font-size:10px">${currentLang==='ar'?'مسح الكل':'Clear All'}</button>
+                </div>
+            </div>`;
+    }
+
+    async function addPDFs(files) {
+        if (!files || !files.length) return;
+        const newFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+        if (!newFiles.length) return;
+        // Show drop zone as loading
+        $('dropZone') && ($('dropZone').querySelector('.drop-title').textContent = currentLang==='ar'?'جاري القراءة...':'Reading...');
+        for (const file of newFiles) {
+            if (_pdfFiles.find(f => f.name === file.name)) continue; // skip duplicate
+            try {
+                const ab = await file.arrayBuffer();
+                const doc = await pdfjsLib.getDocument({data:ab}).promise;
+                let txt = '';
+                for (let i=1; i<=Math.min(doc.numPages,25); i++) {
+                    const page = await doc.getPage(i);
+                    const tc = await page.getTextContent();
+                    txt += tc.items.map(it=>it.str).join(' ') + '\n';
+                }
+                _pdfFiles.push({name:file.name, text:txt.trim(), pages:doc.numPages});
+                toast('✓ '+file.name+' — '+doc.numPages+'p');
+            } catch(e) { alertModal(t('error')+': '+e.message+' ('+file.name+')'); }
+        }
+        $('pdfInput').value = '';
+        // Rebuild combined text
+        pdfText = _pdfFiles.map(f=>f.text).join('\n\n---\n\n').trim();
+        pdfFile = _pdfFiles.map(f=>f.name.replace(/\.pdf$/i,'')).join(' + ');
+        renderFilePills();
+        ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+        // restore drop zone title
+        $('dropZone') && ($('dropZone').querySelector('.drop-title').textContent = t('drop_zone_title'));
+    }
+
+    function removePDF(idx) {
+        _pdfFiles.splice(idx, 1);
+        pdfText = _pdfFiles.map(f=>f.text).join('\n\n---\n\n').trim();
+        pdfFile = _pdfFiles.map(f=>f.name.replace(/\.pdf$/i,'')).join(' + ');
+        renderFilePills();
+        if (!_pdfFiles.length) show($('dropZone'));
+        ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+    }
+
+    // Keep backward compat for single-file drop
+    async function setPDF(file) {
+        if (!file) return;
+        await addPDFs([file]);
     }
 
     function clearPDF() {
-        pdfText=''; pdfFile='';
-        if ($('filePill')) hide($('filePill'));
-        if ($('dropZone')) show($('dropZone'));
+        pdfText=''; pdfFile=''; _pdfFiles=[];
+        renderFilePills();
+        show($('dropZone'));
         hide($('promptWrap'));
         if ($('groqStatus')) hide($('groqStatus'));
         ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled=true; });
@@ -1581,7 +1774,8 @@
     function handleDrop(e) {
         e.preventDefault();
         e.currentTarget.style.borderColor=''; e.currentTarget.style.background='';
-        setPDF(e.dataTransfer.files[0]);
+        const files = Array.from(e.dataTransfer.files).filter(f=>f.name.toLowerCase().endsWith('.pdf'));
+        if (files.length) addPDFs(files);
     }
 
     // ── PROMPTS ─────────────────────────────────────
@@ -2279,7 +2473,7 @@ ${textSlice}`;
                             </div>
                             <div class="sai-header-info">
                                 <div class="sai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</div>
-                                <div class="sai-header-sub">claude-sonnet · ${currentLang==='ar'?'جاهز':'ready'}</div>
+                                <div class="sai-header-sub">zStudy AI · ${currentLang==='ar'?'جاهز':'ready'}</div>
                             </div>
                             <button class="sai-header-close" onclick="toggleSumAISide()" title="Close">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2328,14 +2522,17 @@ ${textSlice}`;
                 <style>
                     @media (max-width: 640px) {
                         #summaryViewBody { flex-direction: column !important; }
-                        #summaryViewScroll { max-height: 40vh; padding: 14px !important; }
+                        #summaryViewScroll { flex: 0 0 auto; max-height: 38vh; padding: 14px !important; overflow-y: auto; }
                         #sumAIPanel {
+                            flex: 1 1 auto !important;
                             width: 100% !important;
+                            height: auto !important;
+                            max-height: none !important;
+                            transform: none !important;
                             border-left: none !important; border-right: none !important;
-                            border-top: 1px solid var(--border);
-                            max-height: 60vh; height: auto !important;
+                            border-top: 2px solid var(--accent);
                         }
-                        .sai-messages { max-height: calc(60vh - 130px); }
+                        #sumAIPanel .sai-messages { flex: 1; overflow-y: auto; }
                     }
                 </style>`;
             // Store current summary data for AI context
@@ -3529,6 +3726,7 @@ ${pdfText}`;
         if (isMobile) {
             const isOpen = panel.classList.contains('sai-open');
             panel.classList.toggle('sai-open', !isOpen);
+            document.body.classList.toggle('sai-body-lock', !isOpen);
             if (btn) btn.innerHTML = isOpen ? ICON_CHAT : ICON_CLOSE;
             if (!isOpen) setTimeout(() => document.getElementById('sumAIInput')?.focus(), 280);
         } else {
