@@ -427,10 +427,10 @@
 
         /* Messages list */
         .sum-ai-messages {
-            flex: 1; overflow-y: auto; overflow-x: hidden;
+            flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
             padding: 14px; display: flex;
             flex-direction: column; gap: 10px;
-            min-height: 0; /* critical for flex shrink */
+            min-height: 0;
         }
 
         /* Message animations */
@@ -2181,7 +2181,7 @@ ${textSlice}`;
                     <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:20px;min-width:0" id="summaryViewScroll">
                         <div id="summaryViewContent" style="max-width:700px;margin:0 auto;width:100%"></div>
                     </div>
-                    <div id="sumAIPanel" style="width:min(440px,45vw);flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease;min-width:0">
+                    <div id="sumAIPanel" style="width:min(440px,45vw);flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease;min-width:0;min-height:0;height:100%">
                         <div class="sum-ai-header">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             <span class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</span>
@@ -2206,8 +2206,8 @@ ${textSlice}`;
                     @media (max-width: 640px) {
                         #summaryViewBody { flex-direction: column !important; }
                         #summaryViewScroll { flex: none !important; max-height: 45vh; padding: 14px !important; }
-                        #sumAIPanel { width: 100% !important; border-left: none !important; border-right: none !important; border-top: 1px solid var(--border); min-height: 0; max-height: 55vh; }
-                        #sumAIPanel .sum-ai-messages { max-height: none; }
+                        #sumAIPanel { width: 100% !important; border-left: none !important; border-right: none !important; border-top: 1px solid var(--border); min-height: 0; max-height: 55vh; height: auto !important; }
+                        #sumAIPanel .sum-ai-messages { max-height: none; flex: 1 1 auto; min-height: 0; }
                     }
                 </style>`;
             // Store current summary data for AI context
