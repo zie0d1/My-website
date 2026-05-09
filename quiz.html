@@ -1787,7 +1787,36 @@
         ls('app_qCount', el.dataset.val);
     }
 
-    function buildMCQP() { return `Generate ${$('qCount').value} MCQ questions in ${$('langSel').value} at ${$('diffSel').value} level. Output JSON only:\n[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}]\nText:\n${pdfText}`; }
+    function buildMCQP() {
+        const count  = $('qCount').value  || 10;
+        const lang   = $('langSel').value  || 'English';
+        const diff   = $('diffSel').value  || 'medium';
+        const text   = pdfText.slice(0, 28000); // cap to avoid token overflow
+
+        return `You are a strict academic quiz generator. Your ONLY job is to produce ${count} multiple-choice questions from the EXACT text below — no outside knowledge, no invention.
+
+STRICT RULES — violating ANY rule makes the output useless:
+1. Every question AND every correct answer MUST be explicitly stated in the provided text. Do NOT infer, assume, or use general knowledge.
+2. Wrong options (distractors) must be plausible but clearly incorrect based on the text — do NOT make the correct answer ambiguous.
+3. Each question must have EXACTLY 4 options (A, B, C, D).
+4. The "correct" field is the 0-based index of the ONLY correct option (0=A, 1=B, 2=C, 3=D).
+5. The "explanation" field must quote or closely paraphrase the exact sentence(s) from the text that prove the answer is correct.
+6. Difficulty: ${diff}. Language: ${lang}. Cover different parts of the text — do NOT cluster questions on one section.
+7. OUTPUT: A single valid JSON array. No markdown, no code fences, no extra text before or after.
+
+JSON format (follow EXACTLY):
+[
+  {
+    "question": "...",
+    "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
+    "correct": 0,
+    "explanation": "From the text: '...'"
+  }
+]
+
+TEXT TO USE (source of truth — answers must come from here):
+${text}`;}
+
     function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
     function genMCQPrompt() { showPrompt(buildMCQP()); }
     function genCardsPrompt() { showPrompt(`Generate flashcards. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`); }
@@ -1821,12 +1850,12 @@
         url => `https://cors-anywhere.herokuapp.com/${url}`,
     ];
 
-    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=3000) {
+    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=3000, temperature=0.2) {
         const body = JSON.stringify({
             model: NV_MODEL,
             messages:[{role:'system',content:system},{role:'user',content:prompt}],
             max_tokens: maxTokens,
-            temperature: 0.5
+            temperature: temperature
         });
         const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
 
@@ -1885,10 +1914,18 @@
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
         setAIStatus(t('generating'));
         try {
-            const r = await nvidiaChat(buildMCQP());
+        const MCQ_SYSTEM = 'You are a precise academic quiz validator. You output ONLY valid JSON arrays. Never invent facts. Every answer must be directly supported by the provided text. Never output anything outside the JSON array.';
+            const r = await nvidiaChat(buildMCQP(), MCQ_SYSTEM, 4000);
             const qs = parseJSON(r);
             if (!qs||!Array.isArray(qs)) throw new Error(t('json_invalid'));
-            const v = qs.filter(q => q.question&&Array.isArray(q.options)&&q.correct!==undefined);
+            const v = qs.filter(q => {
+                if (!q.question || !Array.isArray(q.options) || q.correct === undefined) return false;
+                if (q.options.length < 4) return false;
+                // correct index must be valid
+                const ci = Number(q.correct);
+                if (ci < 0 || ci >= q.options.length || isNaN(ci)) return false;
+                return true;
+            });
             if (!v.length) throw new Error('No valid questions parsed');
             setAIStatus('✓ ' + v.length + ' ' + (currentLang==='ar'?'سؤال جاهز':'questions ready'), true);
             const quizName = $('quizNameInput').value.trim()||pdfFile||'MCQ Quiz';
