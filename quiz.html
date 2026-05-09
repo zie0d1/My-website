@@ -390,239 +390,248 @@
 
         .hidden { display:none !important; }
 
-        /* ── CLAUDE-THEME DESIGN TOKENS (scoped to AI panel) ── */
-        .sum-ai-panel, #sumAIPanel {
-            --cl-bg:       #f7f5f2;
-            --cl-surface:  #ffffff;
-            --cl-border:   #e8e3dc;
-            --cl-text:     #1a1815;
-            --cl-text2:    #4a4540;
-            --cl-text3:    #8a8078;
-            --cl-accent:   #d97706;  /* Claude orange-amber */
-            --cl-accent2:  #b45309;
-            --cl-accent-bg:#fef3c7;
-            --cl-user-bg:  #f0ede8;
-            --cl-ai-bg:    #ffffff;
-            --cl-input-bg: #ffffff;
-            --cl-shadow:   0 2px 12px rgba(0,0,0,.08);
-            --cl-radius:   16px;
-            --cl-radius-sm:10px;
-        }
-        [data-theme="dark"] .sum-ai-panel,
-        [data-theme="dark"] #sumAIPanel {
-            --cl-bg:       #1a1815;
-            --cl-surface:  #222018;
-            --cl-border:   #2e2b26;
-            --cl-text:     #f5f0ea;
-            --cl-text2:    #c5bdb4;
-            --cl-text3:    #7a7068;
-            --cl-accent:   #f59e0b;
-            --cl-accent2:  #fbbf24;
-            --cl-accent-bg:#292318;
-            --cl-user-bg:  #2a2722;
-            --cl-ai-bg:    #222018;
-            --cl-input-bg: #1e1c19;
-            --cl-shadow:   0 2px 16px rgba(0,0,0,.4);
-        }
+        /* ══════════════════════════════════════════════════════
+           SUMMARY AI — Design System
+           Philosophy: match host app's sharp, minimal aesthetic.
+           AI responses = plain text, no bubble. User = right pill.
+           ══════════════════════════════════════════════════════ */
 
-        /* ── AI SUMMARY ASSISTANT ── */
-        .sum-ai-btn {
-            position: fixed; bottom: 24px; left: 24px; z-index: 510;
-            width: 48px; height: 48px; border-radius: 50%;
-            background: var(--accent); color: #fff; border: none;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 16px rgba(37,99,235,.45);
-            transition: all var(--transition);
+        /* Scoped tokens — light */
+        #sumAIPanel, .sum-ai-popup {
+            --ai-bg:       var(--bg);
+            --ai-surface:  var(--surface);
+            --ai-surface2: var(--surface2);
+            --ai-border:   var(--border);
+            --ai-text:     var(--text);
+            --ai-text2:    var(--text2);
+            --ai-text3:    var(--text3);
+            --ai-text4:    var(--text4);
+            --ai-accent:   var(--accent);
+            --ai-accent-lt:var(--accent-light);
+            --ai-user-bg:  var(--surface2);
         }
-        .sum-ai-btn:hover { background: #b45309; transform: scale(1.08); }
-        .sum-ai-btn svg { width: 22px; height: 22px; }
+        /* Dark inherits automatically via var(--*) */
 
-        /* Floating popup panel */
-        .sum-ai-panel {
-            position: fixed; bottom: 86px; left: 24px; z-index: 510;
-            width: min(480px, calc(100vw - 32px));
-            max-height: min(640px, 82vh);
-            background: var(--cl-bg); border: 1px solid var(--cl-border);
-            box-shadow: 0 8px 40px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
+        /* ── Panel shell (side panel inside overlay) ── */
+        #sumAIPanel {
             display: flex; flex-direction: column;
-            overflow: hidden; border-radius: 20px;
-            animation: fadeIn 180ms ease;
+            overflow: hidden; min-height: 0; height: 100%;
+            background: var(--ai-bg);
+            transition: width 200ms cubic-bezier(.4,0,.2,1);
         }
 
-        /* Header — Claude top bar style */
-        .sum-ai-header {
-            padding: 14px 16px 12px; border-bottom: 1px solid var(--cl-border);
+        /* ── Panel header ── */
+        .sai-header {
             display: flex; align-items: center; gap: 10px;
-            background: var(--cl-bg); flex-shrink: 0; min-width: 0;
+            padding: 0 16px; height: 48px; flex-shrink: 0;
+            border-bottom: 1px solid var(--ai-border);
+            background: var(--ai-surface);
         }
-        .sum-ai-header-icon {
-            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-            background: linear-gradient(135deg, #c2410c 0%, #f59e0b 100%);
+        .sai-header-logo {
+            width: 22px; height: 22px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
         }
-        .sum-ai-header-icon svg { width: 15px; height: 15px; }
-        .sum-ai-header-title {
-            font-size: 14px; font-weight: 600; flex: 1; min-width: 0;
-            color: var(--cl-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        /* Claude-style hexagonal logo mark */
+        .sai-header-logo svg { width: 22px; height: 22px; }
+        .sai-header-info { flex: 1; min-width: 0; }
+        .sai-header-title {
+            font-size: 13px; font-weight: 600; color: var(--ai-text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            line-height: 1.2;
         }
-        .sum-ai-close {
-            background: none; border: none; cursor: pointer; color: var(--cl-text3);
-            padding: 6px; border-radius: 8px; display: flex; align-items: center;
-            justify-content: center; flex-shrink: 0; transition: background 150ms, color 150ms;
+        .sai-header-sub {
+            font-size: 10px; color: var(--ai-text4);
+            font-family: var(--mono); line-height: 1;
+            margin-top: 2px;
         }
-        .sum-ai-close:hover { background: var(--cl-user-bg); color: var(--cl-text); }
+        .sai-header-close {
+            width: 28px; height: 28px; border: none; background: none;
+            cursor: pointer; color: var(--ai-text3); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: color 120ms, background 120ms;
+        }
+        .sai-header-close:hover { color: var(--ai-text); background: var(--ai-surface2); }
 
-        /* Messages list */
-        .sum-ai-messages {
-            flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
-            padding: 18px 16px; display: flex;
-            flex-direction: column; gap: 16px;
-            min-height: 0; background: var(--cl-bg);
+        /* ── Messages area ── */
+        .sai-messages {
+            flex: 1 1 auto; min-height: 0;
+            overflow-y: auto; overflow-x: hidden;
+            padding: 20px 18px; display: flex;
+            flex-direction: column; gap: 0;
+            background: var(--ai-bg);
+            scroll-behavior: smooth;
         }
-        .sum-ai-messages::-webkit-scrollbar { width: 3px; }
-        .sum-ai-messages::-webkit-scrollbar-track { background: transparent; }
-        .sum-ai-messages::-webkit-scrollbar-thumb { background: var(--cl-border); border-radius: 2px; }
+        .sai-messages::-webkit-scrollbar { width: 3px; }
+        .sai-messages::-webkit-scrollbar-track { background: transparent; }
+        .sai-messages::-webkit-scrollbar-thumb { background: var(--ai-border); }
 
-        /* Message animations */
-        @keyframes msgSlideIn {
-            from { opacity:0; transform: translateY(8px); }
-            to   { opacity:1; transform: translateY(0); }
+        /* ── Message entry animation ── */
+        @keyframes saiMsgIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Base bubble */
-        .sum-ai-msg {
-            font-size: 14px; line-height: 1.75;
-            max-width: 100%; box-sizing: border-box;
+        /* ── Message group (avatar + content) ── */
+        .sai-msg-group {
+            display: flex; flex-direction: column;
+            margin-bottom: 22px;
+        }
+        .sai-msg-group:last-child { margin-bottom: 0; }
+        .sai-msg-group.animating { animation: saiMsgIn 220ms ease both; }
+
+        /* User message — compact right-aligned pill */
+        .sai-msg-group.user {
+            align-items: flex-end;
+        }
+        .sai-msg-user {
+            background: var(--ai-surface2);
+            border: 1px solid var(--ai-border);
+            color: var(--ai-text);
+            padding: 9px 14px;
+            font-size: 13.5px; line-height: 1.6;
+            max-width: 84%; word-break: break-word;
+            unicode-bidi: plaintext;
+        }
+
+        /* AI message — no bubble, just labelled text block */
+        .sai-msg-group.ai {
+            align-items: flex-start;
+        }
+        .sai-msg-label {
+            display: flex; align-items: center; gap: 7px;
+            margin-bottom: 8px;
+        }
+        .sai-msg-label-dot {
+            width: 18px; height: 18px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sai-msg-label-dot svg { width: 18px; height: 18px; }
+        .sai-msg-label-name {
+            font-size: 11px; font-weight: 600; color: var(--ai-text3);
+            font-family: var(--mono); text-transform: uppercase; letter-spacing: .6px;
+        }
+        .sai-msg-ai {
+            color: var(--ai-text2);
+            font-size: 14px; line-height: 1.8;
             word-break: break-word; overflow-wrap: anywhere;
+            unicode-bidi: plaintext; width: 100%;
         }
-        .sum-ai-msg.animating { animation: msgSlideIn 250ms ease both; }
-
-        /* User bubble — warm pill, right side */
-        .sum-ai-msg.user {
-            background: var(--cl-user-bg);
-            color: var(--cl-text);
-            align-self: flex-end;
-            max-width: min(82%, 340px);
-            padding: 10px 16px;
-            border-radius: 18px 18px 4px 18px;
-            border: 1px solid var(--cl-border);
-            font-size: 14px; font-weight: 400;
-        }
-
-        /* Assistant bubble — white card, left side */
-        .sum-ai-msg.assistant {
-            background: var(--cl-ai-bg);
-            border: 1px solid var(--cl-border);
-            color: var(--cl-text);
-            align-self: stretch;
-            padding: 14px 16px;
-            border-radius: 4px 18px 18px 18px;
-            white-space: normal; overflow-x: auto;
-            width: 100%; box-sizing: border-box;
-            unicode-bidi: plaintext; font-size: 14px;
-            box-shadow: 0 1px 4px rgba(0,0,0,.05);
-        }
-        .sum-ai-msg.assistant > * { max-width: 100%; }
-        .sum-ai-msg.assistant b, .sum-ai-msg.assistant strong { font-weight: 600; }
-        .sum-ai-msg.assistant code {
+        /* Inline markdown styles inside AI response */
+        .sai-msg-ai b, .sai-msg-ai strong { color: var(--ai-text); font-weight: 600; }
+        .sai-msg-ai em { font-style: italic; }
+        .sai-msg-ai code {
             font-family: var(--mono); font-size: 12px;
-            background: var(--cl-user-bg); padding: 2px 7px;
-            border: 1px solid var(--cl-border); color: var(--cl-accent2);
-            border-radius: 5px; word-break: break-all;
+            background: var(--ai-surface2); border: 1px solid var(--ai-border);
+            padding: 1px 6px; color: var(--ai-accent);
         }
-        .sum-ai-msg.assistant .sum-table-wrap {
-            margin: 10px 0; max-width: 100%; overflow-x: auto;
-            border-radius: 10px; border: 1px solid var(--cl-border);
-        }
-        .sum-ai-msg.assistant .sum-table { min-width: 0; border-collapse: collapse; }
-        .sum-ai-msg.assistant .sum-table th { font-size: 11px; padding: 8px 12px; background: var(--cl-user-bg); color: var(--cl-text3); border: none; border-bottom: 1px solid var(--cl-border); text-transform: uppercase; letter-spacing: .5px; }
-        .sum-ai-msg.assistant .sum-table td { padding: 9px 12px; font-size: 13px; border: none; border-bottom: 1px solid var(--cl-border); color: var(--cl-text2); word-break: break-word; }
-        .sum-ai-msg.assistant .sum-table tr:last-child td { border-bottom: none; }
-        .sum-ai-msg.assistant .sum-table tr:hover td { background: var(--cl-accent-bg); }
+        .sai-msg-ai .sai-h1 { font-size: 15px; font-weight: 700; color: var(--ai-text); margin: 12px 0 5px; }
+        .sai-msg-ai .sai-h2 { font-size: 13px; font-weight: 700; color: var(--ai-text); margin: 10px 0 4px; }
+        .sai-msg-ai .sai-h3 { font-size: 12px; font-weight: 600; color: var(--ai-text); margin: 8px 0 3px; }
+        .sai-msg-ai .sai-bullet { display: flex; gap: 8px; align-items: flex-start; margin: 3px 0; }
+        .sai-msg-ai .sai-bullet-dot { color: var(--ai-accent); font-size: 9px; margin-top: 6px; flex-shrink: 0; }
+        .sai-msg-ai .sai-num { display: flex; gap: 8px; align-items: flex-start; margin: 3px 0; }
+        .sai-msg-ai .sai-num-n { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--ai-accent); flex-shrink: 0; margin-top: 3px; min-width: 16px; }
+        .sai-msg-ai .sai-spacer { height: 6px; }
+        /* Table inside AI response */
+        .sai-msg-ai .sum-table-wrap { margin: 10px 0; overflow-x: auto; border: 1px solid var(--ai-border); }
+        .sai-msg-ai .sum-table { border-collapse: collapse; width: 100%; min-width: 0; }
+        .sai-msg-ai .sum-table th { font-size: 10px; padding: 7px 10px; background: var(--ai-surface2); color: var(--ai-text3); border: none; border-bottom: 1px solid var(--ai-border); text-transform: uppercase; letter-spacing: .5px; font-family: var(--mono); }
+        .sai-msg-ai .sum-table td { padding: 8px 10px; font-size: 13px; border: none; border-bottom: 1px solid var(--ai-border); color: var(--ai-text2); word-break: break-word; }
+        .sai-msg-ai .sum-table tr:last-child td { border-bottom: none; }
+        .sai-msg-ai .sum-table tr:hover td { background: var(--ai-surface2); }
 
-        /* Typing dots — amber Claude style */
-        .sum-ai-msg.typing {
+        /* ── Typing indicator ── */
+        .sai-typing {
             display: flex; align-items: center; gap: 5px;
-            background: var(--cl-ai-bg); border: 1px solid var(--cl-border);
-            padding: 14px 18px; align-self: flex-start; width: auto;
-            border-radius: 4px 18px 18px 18px;
-            box-shadow: 0 1px 4px rgba(0,0,0,.05);
+            padding: 4px 0;
         }
-        .sum-ai-msg.typing .dot {
-            width: 7px; height: 7px; background: var(--cl-accent);
-            border-radius: 50%; opacity: 0.4; flex-shrink: 0;
-            animation: typingBounce 1.2s ease-in-out infinite;
+        .sai-typing .dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: var(--ai-text4); flex-shrink: 0;
+            animation: saiDotBounce 1.3s ease-in-out infinite;
         }
-        .sum-ai-msg.typing .dot:nth-child(2) { animation-delay: 0.18s; }
-        .sum-ai-msg.typing .dot:nth-child(3) { animation-delay: 0.36s; }
-        @keyframes typingBounce {
-            0%, 70%, 100% { transform: translateY(0); opacity: 0.4; }
-            35%            { transform: translateY(-6px); opacity: 1; }
+        .sai-typing .dot:nth-child(2) { animation-delay: .15s; }
+        .sai-typing .dot:nth-child(3) { animation-delay: .3s; }
+        @keyframes saiDotBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+            30%            { transform: translateY(-5px); opacity: 1; }
         }
 
-        /* Quick chips — Claude prompt suggestion pills */
-        .sum-ai-quick {
-            padding: 10px 14px 8px; border-top: 1px solid var(--cl-border);
-            display: flex; gap: 6px; flex-wrap: wrap;
-            background: var(--cl-bg); flex-shrink: 0;
+        /* ── Composer area ── */
+        .sai-composer {
+            flex-shrink: 0;
+            border-top: 1px solid var(--ai-border);
+            background: var(--ai-surface);
+            display: flex; flex-direction: column;
         }
-        .sum-ai-quick-btn {
-            font-size: 12px; padding: 6px 14px;
-            border: 1px solid var(--cl-border);
-            background: var(--cl-surface);
-            cursor: pointer; color: var(--cl-text2);
-            font-family: var(--sans); font-weight: 500;
-            border-radius: 20px; transition: all 150ms;
-            white-space: nowrap; flex-shrink: 0;
+        /* Quick chips row */
+        .sai-chips {
+            display: flex; gap: 5px; flex-wrap: wrap;
+            padding: 10px 14px 0;
         }
-        .sum-ai-quick-btn:hover {
-            border-color: var(--cl-accent);
-            color: var(--cl-accent2);
-            background: var(--cl-accent-bg);
+        .sai-chip {
+            font-size: 11px; padding: 4px 11px;
+            border: 1px solid var(--ai-border);
+            background: transparent; cursor: pointer;
+            color: var(--ai-text3); font-family: var(--mono);
+            transition: border-color 120ms, color 120ms, background 120ms;
+            white-space: nowrap;
         }
+        .sai-chip:hover {
+            border-color: var(--ai-accent);
+            color: var(--ai-accent);
+            background: var(--ai-accent-lt);
+        }
+        /* Input + send row */
+        .sai-input-row {
+            display: flex; align-items: flex-end; gap: 0;
+            padding: 10px 14px 12px;
+        }
+        .sai-input {
+            flex: 1; min-width: 0;
+            border: 1px solid var(--ai-border);
+            background: var(--ai-bg);
+            padding: 10px 13px;
+            font-size: 13.5px; color: var(--ai-text);
+            font-family: var(--sans); line-height: 1.55;
+            outline: none; resize: none;
+            transition: border-color 150ms;
+        }
+        .sai-input:focus { border-color: var(--ai-accent); }
+        .sai-input::placeholder { color: var(--ai-text4); }
+        .sai-send {
+            width: 38px; height: 38px; flex-shrink: 0;
+            border: 1px solid var(--ai-border); border-left: none;
+            background: var(--ai-accent); color: #fff;
+            cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+            transition: background 150ms;
+        }
+        .sai-send:hover { background: var(--accent-dark); }
+        .sai-send svg { width: 14px; height: 14px; }
 
-        /* Input area — Claude composer */
-        .sum-ai-input-row {
-            display: flex; flex-direction: column; gap: 8px;
-            border-top: 1px solid var(--cl-border); flex-shrink: 0;
-            background: var(--cl-bg); padding: 12px 14px 14px;
-        }
-        .sum-ai-input {
-            width: 100%; min-width: 0; border: 1.5px solid var(--cl-border);
-            background: var(--cl-input-bg); padding: 11px 14px;
-            font-size: 14px; color: var(--cl-text); outline: none;
-            resize: none; font-family: var(--sans); line-height: 1.55;
-            border-radius: 12px; transition: border-color 150ms, box-shadow 150ms;
-        }
-        .sum-ai-input:focus {
-            border-color: var(--cl-accent);
-            box-shadow: 0 0 0 3px rgba(217,119,6,.13);
-        }
-        .sum-ai-input::placeholder { color: var(--cl-text3); }
-        /* Send button row */
-        .sum-ai-input-actions { display: flex; justify-content: flex-end; }
-        .sum-ai-send {
-            height: 34px; padding: 0 18px; flex-shrink: 0; border: none;
-            background: var(--cl-accent); color: #fff; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
-            border-radius: 20px; font-size: 13px; font-weight: 600;
-            font-family: var(--sans); transition: background 150ms, transform 100ms;
-        }
-        .sum-ai-send:hover { background: var(--cl-accent2); }
-        .sum-ai-send:active { transform: scale(0.97); }
-        .sum-ai-send svg { width: 13px; height: 13px; }
-
-        /* Mobile */
-        @media (max-width: 540px) {
-            .sum-ai-panel {
-                left: 0; right: 0; bottom: 0; width: 100%;
-                max-height: 80vh; border-radius: 20px 20px 0 0;
-                border-left: none; border-right: none; border-bottom: none;
+        /* ── Mobile: full-width drawer from bottom ── */
+        @media (max-width: 640px) {
+            #sumAIPanel {
+                position: fixed !important;
+                left: 0 !important; right: 0 !important; bottom: 0 !important;
+                width: 100% !important; height: auto !important;
+                max-height: 72vh; border-top: 1px solid var(--ai-border);
+                border-left: none !important; border-right: none !important;
+                z-index: 520;
+                transform: translateY(100%);
+                transition: transform 250ms cubic-bezier(.4,0,.2,1);
             }
-            .sum-ai-btn { bottom: 16px; left: 16px; }
-            .sum-ai-msg { font-size: 13px; }
-            .sum-ai-input { font-size: 13px; }
+            #sumAIPanel.sai-open { transform: translateY(0); }
+            .sai-messages { max-height: calc(72vh - 160px); }
         }
+
+        /* ── keep old class aliases working ── */
+        .sum-ai-msg { display: contents; }
+        .sum-ai-header { display: none; }
+        .sum-ai-quick  { display: none; }
+        .sum-ai-input-row { display: none; }
+
 
         /* ── CARD FOCUS SETTINGS ── */
         .card-focus-row {
@@ -2238,64 +2247,105 @@ ${textSlice}`;
                 document.body.appendChild(overlay);
             }
             overlay.innerHTML = `
-                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--cl-border);background:var(--cl-bg);flex-shrink:0;min-width:0;overflow:hidden">
-                    <button class="btn btn-sm" onclick="document.getElementById('summaryViewOverlay').remove();closeSumAI()" style="flex-shrink:0">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                <!-- Overlay topbar -->
+                <div style="display:flex;align-items:center;gap:8px;padding:0 16px;height:48px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;min-width:0">
+                    <button class="btn btn-sm" onclick="document.getElementById('summaryViewOverlay').remove();closeSumAI()" style="flex-shrink:0;gap:6px">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                         ${currentLang==='ar'?'رجوع':'Back'}
                     </button>
-                    <div style="flex:1;min-width:0">
-                        <div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.name)}</div>
-                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono)">${s.date} · ✦ JSON</div>
+                    <div style="flex:1;min-width:0;overflow:hidden">
+                        <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">${esc(s.name)}</div>
+                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px">${s.date}</div>
                     </div>
                     <button class="btn btn-sm" onclick="copySummaryById(${id})" style="flex-shrink:0">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        ${currentLang==='ar'?'نسخ':'Copy'}
                     </button>
-                    <button class="btn btn-sm" onclick="toggleSumAISide()" id="sumAIToggleBtn" style="flex-shrink:0;gap:4px;font-size:11px;font-family:var(--mono)">
+                    <button id="sumAIToggleBtn" class="btn btn-sm" onclick="toggleSumAISide()" style="flex-shrink:0;gap:6px">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                         AI
                     </button>
                 </div>
+
+                <!-- Body: summary content + AI panel side by side -->
                 <div id="summaryViewBody" style="display:flex;flex:1;overflow:hidden;min-height:0">
-                    <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:20px;min-width:0" id="summaryViewScroll">
-                        <div id="summaryViewContent" style="max-width:700px;margin:0 auto;width:100%"></div>
+
+                    <!-- Summary content -->
+                    <div id="summaryViewScroll" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;min-width:0">
+                        <div id="summaryViewContent" style="max-width:680px;margin:0 auto;width:100%"></div>
                     </div>
-                    <div id="sumAIPanel" style="width:min(440px,45vw);flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--cl-border);background:var(--cl-bg);display:flex;flex-direction:column;overflow:hidden;transition:width 220ms ease;min-width:0;min-height:0;height:100%">
-                        <div class="sum-ai-header">
-                            <div class="sum-ai-header-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="15" height="15"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+
+                    <!-- AI Panel -->
+                    <div id="sumAIPanel" style="width:min(400px,42vw);flex-shrink:0;border-${currentLang==='ar'?'right':'left'}:1px solid var(--border)">
+
+                        <!-- Header -->
+                        <div class="sai-header">
+                            <div class="sai-header-logo">
+                                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" fill="var(--accent)" opacity="0.15"/>
+                                    <path d="M50 15 L82 32.5 L82 67.5 L50 85 L18 67.5 L18 32.5 Z" fill="var(--accent)" opacity="0.3"/>
+                                    <path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--accent)"/>
+                                </svg>
                             </div>
-                            <div style="flex:1;min-width:0">
-                                <div class="sum-ai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</div>
-                                <div class="sum-ai-header-sub">Claude</div>
+                            <div class="sai-header-info">
+                                <div class="sai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</div>
+                                <div class="sai-header-sub">claude-sonnet · ${currentLang==='ar'?'جاهز':'ready'}</div>
+                            </div>
+                            <button class="sai-header-close" onclick="toggleSumAISide()" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Messages -->
+                        <div class="sai-messages" id="sumAIMessages">
+                            <!-- Welcome message -->
+                            <div class="sai-msg-group ai">
+                                <div class="sai-msg-label">
+                                    <div class="sai-msg-label-dot">
+                                        <svg viewBox="0 0 100 100" fill="none"><path d="M50 15 L82 32.5 L82 67.5 L50 85 L18 67.5 L18 32.5 Z" fill="var(--accent)" opacity="0.4"/><path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--accent)"/></svg>
+                                    </div>
+                                    <span class="sai-msg-label-name">Claude</span>
+                                </div>
+                                <div class="sai-msg-ai">${currentLang==='ar'
+                                    ? 'مرحباً! أنا هنا لمساعدتك في فهم هذا الملخص. اسألني أي شيء.'
+                                    : 'Hello! I\'m here to help you understand this summary. Ask me anything.'
+                                }</div>
                             </div>
                         </div>
-                        <div class="sum-ai-quick">
-                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('explain_all')">${currentLang==='ar'?'اشرح':'Explain'}</button>
-                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('translate')">${currentLang==='ar'?'ترجم':'Translate'}</button>
-                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('key_terms')">${currentLang==='ar'?'المصطلحات':'Key Terms'}</button>
-                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('simplify')">${currentLang==='ar'?'بسّط':'Simplify'}</button>
-                            <button class="sum-ai-quick-btn" onclick="sumAIQuick('fix_json')">${currentLang==='ar'?'إصلاح JSON':'Fix JSON'}</button>
-                        </div>
-                        <div class="sum-ai-messages" id="sumAIMessages" style="flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden">
-                            <div class="sum-ai-msg assistant">${currentLang==='ar'?'مرحباً! اسألني عن أي شيء في هذا الملخص.':'Hello! Ask me anything about this summary.'}</div>
-                        </div>
-                        <div class="sum-ai-input-row">
-                            <textarea class="sum-ai-input" id="sumAIInput" rows="1" placeholder="${currentLang==='ar'?'اكتب سؤالك...':'Ask anything...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSumAI()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
-                            <div class="sum-ai-input-actions">
-                                <button class="sum-ai-send" onclick="sendSumAI()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                                    ${currentLang==='ar'?'إرسال':'Send'}
+
+                        <!-- Composer -->
+                        <div class="sai-composer">
+                            <div class="sai-chips">
+                                <button class="sai-chip" onclick="sumAIQuick('explain_all')">${currentLang==='ar'?'اشرح كل شيء':'Explain all'}</button>
+                                <button class="sai-chip" onclick="sumAIQuick('key_terms')">${currentLang==='ar'?'المصطلحات':'Key terms'}</button>
+                                <button class="sai-chip" onclick="sumAIQuick('simplify')">${currentLang==='ar'?'بسّط':'Simplify'}</button>
+                                <button class="sai-chip" onclick="sumAIQuick('translate')">${currentLang==='ar'?'ترجم':'Translate'}</button>
+                            </div>
+                            <div class="sai-input-row">
+                                <textarea class="sai-input" id="sumAIInput" rows="1"
+                                    placeholder="${currentLang==='ar'?'اسأل عن الملخص...':'Ask about this summary...'}"
+                                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSumAI()}"
+                                    oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"
+                                ></textarea>
+                                <button class="sai-send" onclick="sendSumAI()">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <style>
                     @media (max-width: 640px) {
                         #summaryViewBody { flex-direction: column !important; }
-                        #summaryViewScroll { flex: none !important; max-height: 45vh; padding: 14px !important; }
-                        #sumAIPanel { width: 100% !important; border-left: none !important; border-right: none !important; border-top: 1px solid var(--cl-border); min-height: 0; max-height: 55vh; height: auto !important; }
-                        #sumAIPanel .sum-ai-messages { flex: 1 1 auto; min-height: 0; }
+                        #summaryViewScroll { max-height: 40vh; padding: 14px !important; }
+                        #sumAIPanel {
+                            width: 100% !important;
+                            border-left: none !important; border-right: none !important;
+                            border-top: 1px solid var(--border);
+                            max-height: 60vh; height: auto !important;
+                        }
+                        .sai-messages { max-height: calc(60vh - 130px); }
                     }
                 </style>`;
             // Store current summary data for AI context
@@ -3477,30 +3527,23 @@ ${pdfText}`;
 
     function toggleSumAISide() {
         const panel = document.getElementById('sumAIPanel');
-        const btn = document.getElementById('sumAIToggleBtn');
+        const btn   = document.getElementById('sumAIToggleBtn');
         if (!panel) return;
         const isMobile = window.innerWidth <= 640;
-        const isOpen = panel.style.width !== '0px' && panel.style.maxHeight !== '0px' && panel.style.width !== '';
-        if (isOpen) {
-            if (isMobile) {
-                panel.style.maxHeight = '0px';
-                panel.style.overflow = 'hidden';
-            } else {
-                panel.style.width = '0px';
-                panel.style.overflow = 'hidden';
-            }
-            if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI`;
+        const ICON_CHAT = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI`;
+        const ICON_CLOSE = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> AI`;
+
+        if (isMobile) {
+            const isOpen = panel.classList.contains('sai-open');
+            panel.classList.toggle('sai-open', !isOpen);
+            if (btn) btn.innerHTML = isOpen ? ICON_CHAT : ICON_CLOSE;
+            if (!isOpen) setTimeout(() => document.getElementById('sumAIInput')?.focus(), 280);
         } else {
-            if (isMobile) {
-                panel.style.maxHeight = '55vh';
-                panel.style.overflow = 'hidden';
-                panel.style.width = '100%';
-            } else {
-                panel.style.width = 'min(440px, 45vw)';
-                panel.style.overflow = 'hidden';
-            }
-            if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI ✕`;
-            setTimeout(() => document.getElementById('sumAIInput')?.focus(), 250);
+            const isOpen = panel.style.width !== '0px' && panel.style.width !== '';
+            panel.style.width    = isOpen ? '0px' : 'min(400px, 42vw)';
+            panel.style.overflow = 'hidden';
+            if (btn) btn.innerHTML = isOpen ? ICON_CHAT : ICON_CLOSE;
+            if (!isOpen) setTimeout(() => document.getElementById('sumAIInput')?.focus(), 230);
         }
     }
 
@@ -3566,21 +3609,18 @@ ${pdfText}`;
         while (i < lines.length) {
             const line = lines[i];
 
-            // Markdown table: detect | --- | separator row
+            // Markdown table
             if (i + 1 < lines.length && /^\s*\|[\s\-|:]+\|\s*$/.test(lines[i+1])) {
-                // collect header, separator, and rows
                 const headerCells = line.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
-                i += 2; // skip header + separator
+                i += 2;
                 const tableRows = [];
                 while (i < lines.length && lines[i].trim().startsWith('|')) {
                     tableRows.push(lines[i].trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));
                     i++;
                 }
                 const ths = headerCells.map(h=>`<th>${parseBoldItalic(h)}</th>`).join('');
-                const trs = tableRows.map(row=>
-                    `<tr>${row.map((c,ci)=>`<td>${parseBoldItalic(c).replace(/\\n|<br\s*\/?>/gi,'<br>')}</td>`).join('')}</tr>`
-                ).join('');
-                html += `<div class="sum-table-wrap" style="margin:8px 0"><table class="sum-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+                const trs = tableRows.map(row=>`<tr>${row.map(c=>`<td>${parseBoldItalic(c).replace(/\\n|<br\s*\/?>/gi,'<br>')}</td>`).join('')}</tr>`).join('');
+                html += `<div class="sum-table-wrap"><table class="sum-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
                 continue;
             }
 
@@ -3588,26 +3628,25 @@ ${pdfText}`;
             const hm = line.match(/^(#{1,3})\s+(.*)/);
             if (hm) {
                 const lvl = hm[1].length;
-                const sz = lvl===1?'15px':lvl===2?'13px':'12px';
-                html += `<div style="font-weight:700;font-size:${sz};color:var(--text);margin:10px 0 4px;unicode-bidi:plaintext">${parseBoldItalic(hm[2])}</div>`;
+                html += `<div class="sai-h${lvl}">${parseBoldItalic(hm[2])}</div>`;
                 i++; continue;
             }
 
             // Bullet list
             if (/^\s*[•\-\*]\s+/.test(line)) {
-                html += `<div style="display:flex;gap:7px;align-items:flex-start;margin:3px 0;unicode-bidi:plaintext"><span style="color:var(--accent);font-size:10px;margin-top:4px;flex-shrink:0">●</span><span>${parseBoldItalic(line.replace(/^\s*[•\-\*]\s+/,''))}</span></div>`;
+                html += `<div class="sai-bullet"><span class="sai-bullet-dot">●</span><span>${parseBoldItalic(line.replace(/^\s*[•\-\*]\s+/,''))}</span></div>`;
                 i++; continue;
             }
 
             // Numbered list
             const nm = line.match(/^\s*(\d+)[.)]\s+(.*)/);
             if (nm) {
-                html += `<div style="display:flex;gap:7px;align-items:flex-start;margin:3px 0;unicode-bidi:plaintext"><span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-light);padding:1px 6px;flex-shrink:0;margin-top:1px">${nm[1]}</span><span>${parseBoldItalic(nm[2])}</span></div>`;
+                html += `<div class="sai-num"><span class="sai-num-n">${nm[1]}.</span><span>${parseBoldItalic(nm[2])}</span></div>`;
                 i++; continue;
             }
 
             // Blank line
-            if (line.trim() === '') { html += '<div style="height:6px"></div>'; i++; continue; }
+            if (line.trim() === '') { html += '<div class="sai-spacer"></div>'; i++; continue; }
 
             // Normal paragraph
             html += `<div style="unicode-bidi:plaintext;margin:2px 0">${parseBoldItalic(line)}</div>`;
@@ -3619,42 +3658,66 @@ ${pdfText}`;
     function _appendSumAIMsg(text, role) {
         const msgs = document.getElementById('sumAIMessages');
         if (!msgs) return;
-        const div = document.createElement('div');
-        div.className = `sum-ai-msg ${role}`;
-        div.classList.add('animating');
-        div.addEventListener('animationend', () => div.classList.remove('animating'), { once: true });
-        if (role === 'assistant') {
-            div.innerHTML = renderMsgMarkdown(text);
+
+        const group = document.createElement('div');
+        group.className = `sai-msg-group ${role === 'user' ? 'user' : 'ai'}`;
+        group.classList.add('animating');
+        group.addEventListener('animationend', () => group.classList.remove('animating'), { once: true });
+
+        if (role === 'user') {
+            const bubble = document.createElement('div');
+            bubble.className = 'sai-msg-user';
+            bubble.textContent = text;
+            group.appendChild(bubble);
         } else {
-            div.textContent = text;
+            const label = document.createElement('div');
+            label.className = 'sai-msg-label';
+            label.innerHTML = `
+                <div class="sai-msg-label-dot">
+                    <svg viewBox="0 0 100 100" fill="none"><path d="M50 15 L82 32.5 L82 67.5 L50 85 L18 67.5 L18 32.5 Z" fill="var(--accent)" opacity="0.4"/><path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--accent)"/></svg>
+                </div>
+                <span class="sai-msg-label-name">Claude</span>`;
+            const content = document.createElement('div');
+            content.className = 'sai-msg-ai';
+            content.innerHTML = renderMsgMarkdown(text);
+            group.appendChild(label);
+            group.appendChild(content);
         }
-        msgs.appendChild(div);
+
+        msgs.appendChild(group);
         msgs.scrollTop = msgs.scrollHeight;
+        return group;
     }
 
     async function _doSumAICall(userPrompt, systemOverride) {
         const msgs = document.getElementById('sumAIMessages');
         if (!msgs) return;
 
-        // typing indicator
-        const typing = document.createElement('div');
-        typing.className = 'sum-ai-msg typing';
-        typing.classList.add('animating');
-        typing.addEventListener('animationend', () => typing.classList.remove('animating'), { once: true });
-        typing.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
-        msgs.appendChild(typing);
+        // Typing indicator — same sai-msg-group structure
+        const typingGroup = document.createElement('div');
+        typingGroup.className = 'sai-msg-group ai animating';
+        typingGroup.addEventListener('animationend', () => typingGroup.classList.remove('animating'), { once: true });
+        typingGroup.innerHTML = `
+            <div class="sai-msg-label">
+                <div class="sai-msg-label-dot">
+                    <svg viewBox="0 0 100 100" fill="none"><path d="M50 15 L82 32.5 L82 67.5 L50 85 L18 67.5 L18 32.5 Z" fill="var(--accent)" opacity="0.4"/><path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--accent)"/></svg>
+                </div>
+                <span class="sai-msg-label-name">Claude</span>
+            </div>
+            <div class="sai-typing">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>`;
+        msgs.appendChild(typingGroup);
         msgs.scrollTop = msgs.scrollHeight;
 
-        // build history for context
         _sumAIChatHistory.push({ role: 'user', content: userPrompt });
-        const historyForAPI = _sumAIChatHistory.slice(-8); // keep last 8 turns
+        const historyForAPI = _sumAIChatHistory.slice(-8);
 
         const ctx = window._sumAIContext;
         const summaryText = ctx ? (ctx.structured ? structuredToPlainText(ctx.structured) : (ctx.text||'')) : '';
         const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
 
         try {
-            // Use multi-turn via the history
             const body = JSON.stringify({
                 model: NV_MODEL,
                 messages: [{ role:'system', content: system }, ...historyForAPI],
@@ -3683,11 +3746,24 @@ ${pdfText}`;
             if (!responseText) throw new Error('No response');
 
             _sumAIChatHistory.push({ role: 'assistant', content: responseText });
-            typing.className = 'sum-ai-msg assistant';
-            typing.innerHTML = renderMsgMarkdown(responseText);
+            // Replace typing indicator with real content
+            typingGroup.innerHTML = `
+                <div class="sai-msg-label">
+                    <div class="sai-msg-label-dot">
+                        <svg viewBox="0 0 100 100" fill="none"><path d="M50 15 L82 32.5 L82 67.5 L50 85 L18 67.5 L18 32.5 Z" fill="var(--accent)" opacity="0.4"/><path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--accent)"/></svg>
+                    </div>
+                    <span class="sai-msg-label-name">Claude</span>
+                </div>
+                <div class="sai-msg-ai">${renderMsgMarkdown(responseText)}</div>`;
         } catch(e) {
-            typing.className = 'sum-ai-msg assistant';
-            typing.textContent = '✗ ' + e.message;
+            typingGroup.innerHTML = `
+                <div class="sai-msg-label">
+                    <div class="sai-msg-label-dot">
+                        <svg viewBox="0 0 100 100" fill="none"><path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--danger)"/></svg>
+                    </div>
+                    <span class="sai-msg-label-name" style="color:var(--danger)">Error</span>
+                </div>
+                <div class="sai-msg-ai" style="color:var(--danger)">${e.message}</div>`;
         }
         msgs.scrollTop = msgs.scrollHeight;
     }
