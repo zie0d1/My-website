@@ -1855,25 +1855,53 @@
         return null;
     }
 
-    function buildMCQP(text) {
-        const count = $('qCount').value || 10;
-        const lang  = $('langSel').value || 'English';
-        const diff  = $('diffSel').value || 'medium';
+    function buildMCQP(text, count, lang, diff) {
+        count = count || $('qCount').value || 10;
+        lang  = lang  || $('langSel').value || 'English';
+        diff  = diff  || $('diffSel').value || 'medium';
 
-        return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty from the text below.
+        return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty from the study notes below.
 
 RULES (follow strictly):
-- Every answer must be directly supported by the provided text only.
+- Every answer must be directly supported by the provided notes only.
 - Each question has exactly 4 options labeled A, B, C, D.
 - "correct" = 0-based index of the right answer (0=A, 1=B, 2=C, 3=D).
-- "explanation" = the exact sentence from the text proving the answer.
-- Distribute questions across the whole text — not just the beginning.
+- "explanation" = the fact from the notes that proves the answer.
+- Distribute questions across ALL topics in the notes — not just the beginning.
 - Output ONLY a valid JSON array. No markdown, no code blocks, no extra text.
 
 [{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}]
 
-TEXT:
+STUDY NOTES:
 ${text}`;
+    }
+
+    // ── Step 1: Summarise the raw PDF text into focused study notes ──────
+    async function summariseForMCQ(text, lang, diff) {
+        const CHUNK = 22000; // safe input budget for summarisation step
+        // Evenly sample the document so every section is represented
+        let sourceText = text;
+        if (text.length > CHUNK) {
+            const step = Math.floor(text.length / 6);
+            const sliceSize = Math.floor(CHUNK / 6);
+            sourceText = Array.from({length:6}, (_,i) => text.slice(i*step, i*step+sliceSize)).join('\n\n[…]\n\n');
+        }
+
+        const SUM_SYSTEM = 'You are an academic study-notes writer. Output only structured notes — no preamble, no meta-commentary.';
+        const prompt = `Read the following text and extract the most important facts, definitions, concepts, dates, names, and relationships that a student must know.
+
+Write structured study notes in ${lang}. Cover every major topic in the document — do NOT focus only on the beginning. Use this structure:
+• Key concepts and definitions
+• Important facts and figures
+• Relationships between ideas
+• Any lists, processes, or sequences
+
+Keep it dense and factual — strip filler words. Aim for ~${Math.min(Math.ceil(text.length/500)*80, 3000)} words.
+
+TEXT:
+${sourceText}`;
+
+        return await nvidiaChat(prompt, SUM_SYSTEM, 4000, 0.2);
     }
 
     async function nvidiaMCQ() {
@@ -1881,45 +1909,51 @@ ${text}`;
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
 
         const count = parseInt($('qCount').value) || 10;
-        const MCQ_SYSTEM = 'You are a quiz generator. Output ONLY a valid JSON array of MCQ objects. No markdown. No explanation outside JSON. If the array would be cut off, stop at the last complete object and close the array with ].';
+        const lang  = $('langSel').value || 'English';
+        const diff  = $('diffSel').value || 'medium';
 
-        // Smart chunk text to fit model context
-        const smartText = chunkTextForMCQ(pdfText, count);
-        const textKb = (smartText.length / 1000).toFixed(1);
-
-        setAIStatus((currentLang==='ar'?'جاري التوليد':'Generating') + ` (${textKb}k chars)…`);
-
-        // Estimate needed output tokens: ~120 tokens per question
-        const neededTokens = Math.min(count * 120 + 500, 6000);
+        const MCQ_SYSTEM = 'You are a quiz generator. Output ONLY a valid JSON array of MCQ objects. No markdown, no text outside the JSON array. If output would be cut off, stop at the last complete object and close the array with ].';
 
         try {
-            let raw = await nvidiaChat(buildMCQP(smartText), MCQ_SYSTEM, neededTokens, 0.2);
+            // ── STEP 1: Summarise ──────────────────────────────────────────
+            const isLong = pdfText.length > 8000;
+            let studyNotes;
+
+            if (isLong) {
+                setAIStatus(currentLang==='ar' ? '📖 تلخيص المحتوى… (الخطوة 1/2)' : '📖 Summarising content… (step 1/2)');
+                studyNotes = await summariseForMCQ(pdfText, lang, diff);
+                if (!studyNotes || studyNotes.length < 100) throw new Error('Summary step returned empty');
+            } else {
+                // Short text — skip summary step, use directly
+                studyNotes = pdfText;
+            }
+
+            // ── STEP 2: Generate MCQ from clean study notes ────────────────
+            setAIStatus(currentLang==='ar' ? '✏️ توليد الأسئلة… (الخطوة 2/2)' : '✏️ Generating questions… (step 2/2)');
+
+            const neededTokens = Math.min(count * 130 + 600, 6000);
+            let raw = await nvidiaChat(buildMCQP(studyNotes, count, lang, diff), MCQ_SYSTEM, neededTokens, 0.2);
             let qs = extractMCQJson(raw);
 
-            // If truncated and got < 60% of requested, retry with fewer questions
+            // Auto-retry with fewer questions if truncated
             if (!qs || qs.length < Math.ceil(count * 0.6)) {
-                const fallbackCount = Math.max(5, Math.floor(count * 0.6));
-                setAIStatus((currentLang==='ar'?'إعادة المحاولة':'Retrying') + ` (${fallbackCount} Qs)…`);
-                const p2 = buildMCQP(smartText).replace(
-                    `Generate exactly ${count} MCQ`,
-                    `Generate exactly ${fallbackCount} MCQ`
-                );
-                raw = await nvidiaChat(p2, MCQ_SYSTEM, fallbackCount * 120 + 400, 0.2);
+                const fallback = Math.max(5, Math.floor(count * 0.6));
+                setAIStatus(currentLang==='ar' ? `↩️ إعادة بـ ${fallback} أسئلة…` : `↩️ Retrying with ${fallback} questions…`);
+                raw = await nvidiaChat(buildMCQP(studyNotes, fallback, lang, diff), MCQ_SYSTEM, fallback * 130 + 400, 0.2);
                 qs = extractMCQJson(raw);
             }
 
             if (!qs || !Array.isArray(qs)) throw new Error(t('json_invalid'));
 
             const v = qs.filter(q => {
-                if (!q.question || !Array.isArray(q.options)) return false;
-                if (q.options.length < 2) return false;
+                if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
                 const ci = Number(q.correct);
                 return !isNaN(ci) && ci >= 0 && ci < q.options.length;
             });
 
             if (!v.length) throw new Error('No valid questions parsed');
 
-            setAIStatus('✓ ' + v.length + ' ' + (currentLang==='ar'?'سؤال جاهز':'questions ready'), true);
+            setAIStatus('✓ ' + v.length + ' ' + (currentLang==='ar' ? 'سؤال جاهز' : 'questions ready'), true);
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
             setTimeout(() => { setAIStatus(''); startQuiz(v, quizName); }, 600);
 
