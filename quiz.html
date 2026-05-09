@@ -803,6 +803,8 @@
                                 <span class="chip active" data-val="15" onclick="setQCount(this)">15</span>
                                 <span class="chip" data-val="20" onclick="setQCount(this)">20</span>
                                 <span class="chip" data-val="30" onclick="setQCount(this)">30</span>
+                                <span class="chip" data-val="40" onclick="setQCount(this)">40</span>
+                                <span class="chip" data-val="60" onclick="setQCount(this)">60</span>
                             </div>
                             <input type="hidden" id="qCount" value="15">
                         </div>
@@ -1788,71 +1790,33 @@
     }
 
     // ── Smart text chunking for long PDFs ───────────────────────────────
-    function chunkTextForMCQ(text, count) {
-        // Each question needs ~400-600 chars of source material.
-        // Leave ~4000 chars for prompt overhead + JSON output room.
-        // Model context ~8k tokens ≈ ~30,000 chars total budget.
-        const OUTPUT_BUDGET = count * 250;   // estimated JSON output chars
-        const PROMPT_OVERHEAD = 2000;
-        const MAX_TEXT = Math.min(24000 - PROMPT_OVERHEAD - OUTPUT_BUDGET, text.length);
+    // ── MCQ split-and-merge engine ────────────────────────────────────────
 
-        if (text.length <= MAX_TEXT) return text;
-
-        // Instead of slicing from start, sample evenly across document
-        // so questions cover the whole material, not just first pages.
-        const chunkSize = Math.floor(MAX_TEXT / 5);
-        const step = Math.floor(text.length / 5);
-        let parts = [];
-        for (let i = 0; i < 5; i++) {
-            const start = i * step;
-            // Try to break on sentence boundary
-            let end = start + chunkSize;
-            const nextPeriod = text.indexOf('.', end);
-            if (nextPeriod !== -1 && nextPeriod - end < 200) end = nextPeriod + 1;
-            parts.push(text.slice(start, Math.min(end, text.length)));
+    // Split text into N even chunks, breaking on sentence boundaries
+    function splitTextIntoChunks(text, n) {
+        const chunkSize = Math.ceil(text.length / n);
+        const chunks = [];
+        let pos = 0;
+        for (let i = 0; i < n; i++) {
+            let end = pos + chunkSize;
+            if (end < text.length) {
+                // Try to break at sentence boundary within ±300 chars
+                const period = text.indexOf('. ', end - 150);
+                if (period !== -1 && period < end + 300) end = period + 2;
+            } else {
+                end = text.length;
+            }
+            const chunk = text.slice(pos, end).trim();
+            if (chunk.length > 100) chunks.push(chunk);
+            pos = end;
         }
-        return parts.join('\n\n[...]\n\n');
+        return chunks;
     }
 
-    // Robust JSON extraction — handles truncated arrays
-    function extractMCQJson(raw) {
-        if (!raw) return null;
-        // Strip markdown fences
-        let s = raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-
-        // 1. Try full parse
-        try { const r = JSON.parse(s); if (Array.isArray(r)) return r; } catch {}
-
-        // 2. Try regex-extracted array
-        const arrM = s.match(/\[[\s\S]*\]/);
-        if (arrM) { try { const r = JSON.parse(arrM[0]); if (Array.isArray(r)) return r; } catch {} }
-
-        // 3. Truncated — close the array and try again
-        // Find the last complete object by looking for the last '}' before truncation
-        const lastBrace = s.lastIndexOf('}');
-        if (lastBrace > 0) {
-            const truncFixed = s.slice(0, lastBrace + 1);
-            // Find where array starts
-            const arrStart = truncFixed.indexOf('[');
-            if (arrStart !== -1) {
-                try {
-                    const r = JSON.parse(truncFixed.slice(arrStart) + ']');
-                    if (Array.isArray(r) && r.length) return r;
-                } catch {}
-            }
-        }
-
-        // 4. Extract individual objects with regex
-        const objMatches = [...s.matchAll(/\{[^{}]*"question"[^{}]*"options"[\s\S]*?"correct"[\s\S]*?\}/g)];
-        if (objMatches.length) {
-            const items = [];
-            for (const m of objMatches) {
-                try { items.push(JSON.parse(m[0])); } catch {}
-            }
-            if (items.length) return items;
-        }
-
-        return null;
+    // How many chunks do we need for this text?
+    function calcChunkCount(text) {
+        const MAX_CHUNK = 7000; // safe input per call (leaves room for prompt + output)
+        return Math.max(1, Math.ceil(text.length / MAX_CHUNK));
     }
 
     function buildMCQP(text, count, lang, diff) {
@@ -1860,102 +1824,85 @@
         lang  = lang  || $('langSel').value || 'English';
         diff  = diff  || $('diffSel').value || 'medium';
 
-        return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty from the study notes below.
+        return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty ONLY from the text below.
 
-RULES (follow strictly):
-- Every answer must be directly supported by the provided notes only.
-- Each question has exactly 4 options labeled A, B, C, D.
-- "correct" = 0-based index of the right answer (0=A, 1=B, 2=C, 3=D).
-- "explanation" = the fact from the notes that proves the answer.
-- Distribute questions across ALL topics in the notes — not just the beginning.
-- Output ONLY a valid JSON array. No markdown, no code blocks, no extra text.
+RULES:
+- Every answer must be directly stated in the provided text. No outside knowledge.
+- Each question has exactly 4 options: A, B, C, D.
+- "correct" = 0-based index (0=A 1=B 2=C 3=D).
+- "explanation" = quote/paraphrase the text sentence that proves the answer.
+- Spread questions across the WHOLE text section, not just the start.
+- Output ONLY a raw JSON array — no markdown, no code fences, no extra text.
 
 [{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}]
 
-STUDY NOTES:
+TEXT SECTION:
 ${text}`;
     }
 
-    // ── Step 1: Summarise the raw PDF text into focused study notes ──────
-    async function summariseForMCQ(text, lang, diff) {
-        const CHUNK = 22000; // safe input budget for summarisation step
-        // Evenly sample the document so every section is represented
-        let sourceText = text;
-        if (text.length > CHUNK) {
-            const step = Math.floor(text.length / 6);
-            const sliceSize = Math.floor(CHUNK / 6);
-            sourceText = Array.from({length:6}, (_,i) => text.slice(i*step, i*step+sliceSize)).join('\n\n[…]\n\n');
-        }
+    const MCQ_SYSTEM = 'You output ONLY a valid JSON array of MCQ objects. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
 
-        const SUM_SYSTEM = 'You are an academic study-notes writer. Output only structured notes — no preamble, no meta-commentary.';
-        const prompt = `Read the following text and extract the most important facts, definitions, concepts, dates, names, and relationships that a student must know.
-
-Write structured study notes in ${lang}. Cover every major topic in the document — do NOT focus only on the beginning. Use this structure:
-• Key concepts and definitions
-• Important facts and figures
-• Relationships between ideas
-• Any lists, processes, or sequences
-
-Keep it dense and factual — strip filler words. Aim for ~${Math.min(Math.ceil(text.length/500)*80, 3000)} words.
-
-TEXT:
-${sourceText}`;
-
-        return await nvidiaChat(prompt, SUM_SYSTEM, 4000, 0.2);
+    // Generate MCQ for a single chunk, returns array of question objects
+    async function mcqForChunk(chunkText, perChunk, lang, diff, chunkIdx, totalChunks) {
+        setAIStatus(
+            currentLang === 'ar'
+                ? `✏️ توليد الأسئلة… (${chunkIdx}/${totalChunks})`
+                : `✏️ Generating… chunk ${chunkIdx}/${totalChunks}`
+        );
+        const tokens = Math.min(perChunk * 130 + 400, 4000);
+        const raw = await nvidiaChat(buildMCQP(chunkText, perChunk, lang, diff), MCQ_SYSTEM, tokens, 0.2);
+        return extractMCQJson(raw) || [];
     }
 
     async function nvidiaMCQ() {
-        const btns = ['btnGenMCQ','btnGenCards'];
+        const btns = ['btnGenMCQ', 'btnGenCards'];
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
 
         const count = parseInt($('qCount').value) || 10;
         const lang  = $('langSel').value || 'English';
         const diff  = $('diffSel').value || 'medium';
 
-        const MCQ_SYSTEM = 'You are a quiz generator. Output ONLY a valid JSON array of MCQ objects. No markdown, no text outside the JSON array. If output would be cut off, stop at the last complete object and close the array with ].';
-
         try {
-            // ── STEP 1: Summarise ──────────────────────────────────────────
-            const isLong = pdfText.length > 8000;
-            let studyNotes;
+            const numChunks = calcChunkCount(pdfText);
+            const chunks    = splitTextIntoChunks(pdfText, numChunks);
+            const actual    = chunks.length;
 
-            if (isLong) {
-                setAIStatus(currentLang==='ar' ? '📖 تلخيص المحتوى… (الخطوة 1/2)' : '📖 Summarising content… (step 1/2)');
-                studyNotes = await summariseForMCQ(pdfText, lang, diff);
-                if (!studyNotes || studyNotes.length < 100) throw new Error('Summary step returned empty');
-            } else {
-                // Short text — skip summary step, use directly
-                studyNotes = pdfText;
+            // Distribute questions evenly across chunks (last chunk gets remainder)
+            const perChunk  = Math.max(3, Math.floor(count / actual));
+            const lastExtra = count - perChunk * (actual - 1);
+
+            setAIStatus(
+                currentLang === 'ar'
+                    ? `🔀 تقسيم النص إلى ${actual} أجزاء…`
+                    : `🔀 Splitting into ${actual} chunks…`
+            );
+
+            // Run each chunk sequentially (avoids rate limits)
+            let allQuestions = [];
+            for (let i = 0; i < actual; i++) {
+                const qForThis = (i === actual - 1) ? lastExtra : perChunk;
+                const qs = await mcqForChunk(chunks[i], qForThis, lang, diff, i + 1, actual);
+                allQuestions = allQuestions.concat(qs);
             }
 
-            // ── STEP 2: Generate MCQ from clean study notes ────────────────
-            setAIStatus(currentLang==='ar' ? '✏️ توليد الأسئلة… (الخطوة 2/2)' : '✏️ Generating questions… (step 2/2)');
-
-            const neededTokens = Math.min(count * 130 + 600, 6000);
-            let raw = await nvidiaChat(buildMCQP(studyNotes, count, lang, diff), MCQ_SYSTEM, neededTokens, 0.2);
-            let qs = extractMCQJson(raw);
-
-            // Auto-retry with fewer questions if truncated
-            if (!qs || qs.length < Math.ceil(count * 0.6)) {
-                const fallback = Math.max(5, Math.floor(count * 0.6));
-                setAIStatus(currentLang==='ar' ? `↩️ إعادة بـ ${fallback} أسئلة…` : `↩️ Retrying with ${fallback} questions…`);
-                raw = await nvidiaChat(buildMCQP(studyNotes, fallback, lang, diff), MCQ_SYSTEM, fallback * 130 + 400, 0.2);
-                qs = extractMCQJson(raw);
-            }
-
-            if (!qs || !Array.isArray(qs)) throw new Error(t('json_invalid'));
-
-            const v = qs.filter(q => {
+            // Validate & deduplicate
+            const seen = new Set();
+            const valid = allQuestions.filter(q => {
                 if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
                 const ci = Number(q.correct);
-                return !isNaN(ci) && ci >= 0 && ci < q.options.length;
+                if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
+                // Deduplicate by question text (normalised)
+                const key = q.question.trim().toLowerCase().slice(0, 80);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
             });
 
-            if (!v.length) throw new Error('No valid questions parsed');
+            if (!valid.length) throw new Error('No valid questions generated');
 
-            setAIStatus('✓ ' + v.length + ' ' + (currentLang==='ar' ? 'سؤال جاهز' : 'questions ready'), true);
+            setAIStatus('✓ ' + valid.length + ' ' + (currentLang === 'ar' ? 'سؤال جاهز' : 'questions ready'), true);
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
-            setTimeout(() => { setAIStatus(''); startQuiz(v, quizName); }, 600);
+            setTimeout(() => { setAIStatus(''); startQuiz(valid, quizName); }, 600);
 
         } catch(e) {
             setAIStatus('✗ ' + e.message, false, true);
@@ -1966,8 +1913,9 @@ ${sourceText}`;
     }
 
 
+
     function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
-    function genMCQPrompt() { showPrompt(buildMCQP(chunkTextForMCQ(pdfText, parseInt($('qCount').value)||10))); }
+    function genMCQPrompt() { const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText)); showPrompt(buildMCQP(chunks[0], parseInt($('qCount').value)||10)); }
     function genCardsPrompt() { showPrompt(`Generate flashcards. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`); }
     async function copyPrompt() {
         const txt = _fullPrompt || $('promptText')?.value || $('summaryPromptText')?.value;
