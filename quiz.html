@@ -6,7 +6,7 @@
     <title>zStudy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         :root {
@@ -22,7 +22,7 @@
             --shadow: 0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
             --shadow-lg: 0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
             --transition: 150ms cubic-bezier(.4,0,.2,1);
-            --sans: 'Inter', sans-serif; --mono: 'JetBrains Mono', monospace;
+            --sans: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif; --mono: 'JetBrains Mono', 'IBM Plex Sans Arabic', monospace;
         }
         [data-theme="dark"] {
             --bg: #0a0a0a; --surface: #171717; --surface2: #1f1f1f;
@@ -38,7 +38,7 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         html { font-size:16px; scroll-behavior:smooth; }
-        body { font-family:var(--sans); background:var(--bg); color:var(--text); line-height:1.6; -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column; }
+        body { font-family:var(--sans); background:var(--bg); color:var(--text); line-height:1.8; -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column; }
         ::selection { background:var(--accent-light); color:var(--accent-dark); }
         ::-webkit-scrollbar { width:6px; }
         ::-webkit-scrollbar-track { background:transparent; }
@@ -1050,7 +1050,7 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                             NVIDIA AI — متصل
                         </span></div>
-                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b</div>
+                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: meta/llama-3.3-70b-instruct</div>
                         <div style="font-size:11px;padding:10px 12px;background:var(--success-bg);border:1px solid var(--success);color:var(--success);font-family:var(--mono)">
                             ✓ API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
                         </div>
@@ -1933,38 +1933,12 @@ ${text}`;
         const diff  = $('diffSel').value || 'medium';
 
         try {
-            // ── 1. Split text into chunks ──────────────────────────────────
-            const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
-            const total  = chunks.length;
+            setAIStatus(currentLang === 'ar' ? '🤖 جاري التوليد…' : '🤖 Generating questions…');
 
-            setAIStatus(
-                currentLang === 'ar'
-                    ? `🔀 ${total} أجزاء — جاري الإرسال…`
-                    : `🔀 ${total} chunks — sending all in parallel…`
-            );
+            const qs = await mcqForChunk(pdfText, count, lang, diff);
 
-            // ── 2. Every chunk generates its own share of questions (all in parallel) ─
-            const perChunk = Math.ceil(count / total); // e.g. 60 ÷ 10 = 6 per chunk
-            let done = 0;
-            const results = await Promise.all(
-                chunks.map(chunk =>
-                    mcqForChunk(chunk, perChunk, lang, diff)
-                        .then(qs => {
-                            done++;
-                            setAIStatus(
-                                currentLang === 'ar'
-                                    ? `✏️ ${done}/${total} اكتمل…`
-                                    : `✏️ ${done}/${total} done…`
-                            );
-                            return qs;
-                        })
-                        .catch(() => [])
-                )
-            );
-
-            // ── 3. Merge all JSONs into one, deduplicate ───────────────────
             const seen = new Set();
-            const merged = results.flat().filter(q => {
+            const merged = qs.filter(q => {
                 if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
                 const ci = Number(q.correct);
                 if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
@@ -1976,9 +1950,7 @@ ${text}`;
 
             if (!merged.length) throw new Error('No valid questions generated');
 
-            // ── 4. Trim to exactly the requested count ─────────────────────
             const final = merged.slice(0, count);
-
             setAIStatus('✓ ' + final.length + '/' + count + ' ' + (currentLang === 'ar' ? 'سؤال جاهز' : 'questions ready'), true);
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
             setTimeout(() => { setAIStatus(''); startQuiz(final, quizName); }, 600);
@@ -2015,16 +1987,9 @@ ${text}`;
     }
 
     // ── AI API (NVIDIA NIM) ──────────────────────────
-    const NV_API_KEY  = atob('bnZhcGkteU1XMk1fV0NtMUFnVE9BOUVrTDljemM4Y05vZUZ2aGN3SUhGdTI4RzJGY3Ff' + 'bGdJUElaQ3RSV2ZxU2tVMWFXdg==');
-    const NV_MODEL    = 'openai/gpt-oss-20b';
+    const NV_API_KEY  = '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';
+    const NV_MODEL    = 'meta/llama-3.3-70b-instruct';
     const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
-
-    // Multiple CORS proxies to try in order
-    const CORS_PROXIES = [
-        url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        url => `https://cors-anywhere.herokuapp.com/${url}`,
-    ];
 
     async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=3000, temperature=0.2) {
         const body = JSON.stringify({
@@ -2034,33 +1999,10 @@ ${text}`;
             temperature: temperature
         });
         const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
-
-        // 1. Try direct call first
-        try {
-            const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
-            if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
-            const d = await r.json().catch(()=>({}));
-            // Real API error (not CORS) — throw immediately
-            throw new Error(d.error?.message || ('HTTP '+r.status));
-        } catch(directErr) {
-            // Only continue to proxy if it's a network/CORS TypeError
-            if (directErr.name !== 'TypeError') throw directErr;
-        }
-
-        // 2. Try CORS proxies in sequence
-        let lastErr = null;
-        for (const makeProxy of CORS_PROXIES) {
-            try {
-                const proxyUrl = makeProxy(NV_ENDPOINT);
-                const r = await fetch(proxyUrl, {method:'POST', headers, body});
-                if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
-                const d = await r.json();
-                // allorigins wraps in {contents:...}
-                const parsed = d.contents ? JSON.parse(d.contents) : d;
-                return parsed.choices[0].message.content;
-            } catch(e) { lastErr = e; }
-        }
-        throw new Error('Network error — check your connection. ' + (lastErr?.message||''));
+        const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
+        if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
+        const d = await r.json().catch(()=>({}));
+        throw new Error(d.error?.message || ('HTTP '+r.status));
     }
 
     function parseJSON(t) {
@@ -4005,42 +3947,31 @@ ${text}`;
             const lang          = document.getElementById('langSel')?.value || 'عربي';
             const activeFocuses = [..._activeFocuses];
 
-            // ── Split text into chunks ─────────────────────────────────────
-            const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
-            const total  = chunks.length;
-
             if (_autoCard) {
-                // ── AUTO MODE: for each focus type, extract ALL from every chunk ──
-                // Total calls = activeFocuses.length × chunks.length, all in parallel
+                // ── AUTO MODE: for each focus type, extract ALL from full text ──
                 setAIStatus(currentLang === 'ar'
-                    ? `🤖 استخراج ${activeFocuses.length} نوع × ${total} أجزاء…`
-                    : `🤖 Extracting ${activeFocuses.length} type(s) × ${total} chunks…`);
+                    ? `🤖 استخراج ${activeFocuses.length} نوع…`
+                    : `🤖 Extracting ${activeFocuses.length} type(s)…`);
 
                 let done = 0;
-                const totalCalls = activeFocuses.length * total;
-
-                // For each focus, for each chunk → extract all cards of that type
                 const allResults = await Promise.all(
-                    activeFocuses.flatMap(focusKey =>
-                        chunks.map(chunk =>
-                            nvidiaChat(
-                                buildExtractPrompt(chunk, focusKey, lang),
-                                'You output ONLY a valid JSON array of flashcard objects with "question" and "answer" keys. If nothing found, output []. No markdown.',
-                                8000, 0.2
-                            )
-                            .then(raw => {
-                                done++;
-                                setAIStatus(currentLang === 'ar'
-                                    ? `✏️ ${done}/${totalCalls} اكتمل…`
-                                    : `✏️ ${done}/${totalCalls} done…`);
-                                return extractCardsJson(raw) || [];
-                            })
-                            .catch(() => [])
+                    activeFocuses.map(focusKey =>
+                        nvidiaChat(
+                            buildExtractPrompt(pdfText, focusKey, lang),
+                            'You output ONLY a valid JSON array of flashcard objects with "question" and "answer" keys. If nothing found, output []. No markdown.',
+                            8000, 0.2
                         )
+                        .then(raw => {
+                            done++;
+                            setAIStatus(currentLang === 'ar'
+                                ? `✏️ ${done}/${activeFocuses.length} اكتمل…`
+                                : `✏️ ${done}/${activeFocuses.length} done…`);
+                            return extractCardsJson(raw) || [];
+                        })
+                        .catch(() => [])
                     )
                 );
 
-                // Merge + deduplicate
                 const seen = new Set();
                 const merged = allResults.flat().filter(c => {
                     if (!c.question || !c.answer) return false;
@@ -4064,31 +3995,15 @@ ${text}`;
                 setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
 
             } else {
-                // ── MANUAL MODE: flat count split across chunks ────────────
-                const count    = _cardCount || 20;
-                const perChunk = Math.ceil(count / total);
+                // ── MANUAL MODE: single call with full text ────────────
+                const count = _cardCount || 20;
+                setAIStatus(currentLang === 'ar' ? '🤖 جاري التوليد…' : '🤖 Generating cards…');
 
-                setAIStatus(currentLang === 'ar'
-                    ? `🔀 ${total} أجزاء — ${perChunk} بطاقة/جزء…`
-                    : `🔀 ${total} chunks — ${perChunk} cards each…`);
-
-                let done = 0;
-                const results = await Promise.all(
-                    chunks.map(chunk =>
-                        nvidiaChat(buildCardsPromptWithFocus(chunk, perChunk), CARDS_SYSTEM, 8000, 0.2)
-                            .then(raw => {
-                                done++;
-                                setAIStatus(currentLang === 'ar'
-                                    ? `✏️ ${done}/${total} اكتمل…`
-                                    : `✏️ ${done}/${total} done…`);
-                                return extractCardsJson(raw) || [];
-                            })
-                            .catch(() => [])
-                    )
-                );
+                const raw = await nvidiaChat(buildCardsPromptWithFocus(pdfText, count), CARDS_SYSTEM, 8000, 0.2);
+                const cards = extractCardsJson(raw) || [];
 
                 const seen = new Set();
-                const merged = results.flat().filter(c => {
+                const merged = cards.filter(c => {
                     if (!c.question || !c.answer) return false;
                     const key = c.question.trim().toLowerCase().slice(0, 80);
                     if (seen.has(key)) return false;
@@ -4318,33 +4233,7 @@ ${text}`;
         const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
 
         try {
-            const body = JSON.stringify({
-                model: NV_MODEL,
-                messages: [{ role:'system', content: system }, ...historyForAPI],
-                max_tokens: 1000,
-                temperature: 0.5
-            });
-            const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+NV_API_KEY };
-            let responseText = '';
-            try {
-                const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body });
-                if (r.ok) { const d = await r.json(); responseText = d.choices[0].message.content; }
-                else throw new Error('HTTP ' + r.status);
-            } catch(e) {
-                if (e.name !== 'TypeError') throw e;
-                for (const makeProxy of CORS_PROXIES) {
-                    try {
-                        const r = await fetch(makeProxy(NV_ENDPOINT), { method:'POST', headers, body });
-                        if (!r.ok) throw new Error('HTTP ' + r.status);
-                        const d = await r.json();
-                        const parsed = d.contents ? JSON.parse(d.contents) : d;
-                        responseText = parsed.choices[0].message.content;
-                        break;
-                    } catch(pe) { /* try next */ }
-                }
-            }
-            if (!responseText) throw new Error('No response');
-
+            const responseText = await nvidiaChat(userPrompt, system, 1000, 0.5);
             _sumAIChatHistory.push({ role: 'assistant', content: responseText });
             // Replace typing indicator with real content
             typingGroup.innerHTML = `
