@@ -188,7 +188,7 @@
         .flashcard .fc-back { background:var(--text); color:var(--bg); opacity:0; transform:scale(0.95); pointer-events:none; }
         .flashcard.flipped .fc-front { opacity:0; transform:scale(0.95); pointer-events:none; }
         .flashcard.flipped .fc-back { opacity:1; transform:scale(1); pointer-events:auto; }
-        .flashcard .fc-text { font-size:18px; font-weight:500; text-align:center; line-height:1.6; }
+        .flashcard .fc-text { font-size:14px; font-weight:500; text-align:center; line-height:1.7; }
         .flashcard .fc-hint { position:absolute; bottom:14px; font-size:10px; color:var(--text4); font-family:var(--mono); }
         .rating-btns { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
         .rating-btn { flex:1; padding:10px; border:1px solid var(--border); cursor:pointer; font-size:11px; font-family:var(--mono); transition:all var(--transition); text-align:center; background:var(--surface); }
@@ -2075,7 +2075,7 @@ ${text}`;
             const valid = cards.filter(c=>c.question&&c.answer);
             if (!valid.length) throw new Error('No valid cards');
             // Auto-save to deck
-            const deckName = $('quizNameInput').value.trim() || pdfFile || 'Deck ' + (getDecks().length+1);
+            const deckName = $('quizNameInput').value.trim() || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
             const decks = getDecks();
             decks.push({name: deckName, cards: valid});
             saveDecks(decks);
@@ -3333,7 +3333,7 @@ ${textSlice}`;
     function createDeckFromJSON() {
         const raw=$('ndJson').value.trim(), cards=parseJSON(raw);
         if (!Array.isArray(cards)||!cards[0]?.question) { alertModal(t('json_invalid')); return; }
-        const name=$('newDeckName').value.trim()||'Deck '+(getDecks().length+1);
+        const name=$('newDeckName').value.trim()||`Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
         const d=getDecks(); d.push({name, cards:cards.filter(c=>c.question&&c.answer)});
         saveDecks(d); $('ndJson').value=''; $('newDeckName').value='';
         renderDecks(); toast(t('saved'));
@@ -3370,7 +3370,7 @@ ${textSlice}`;
         $('fContent').innerHTML = `
             <div class="flashcard ${fFlipped?'flipped':''}" id="fcCard" onclick="flipCard()">
                 <div class="fc-face fc-front"><div class="fc-text">${esc(c.question)}</div></div>
-                <div class="fc-face fc-back"><div class="fc-text" style="font-size:18px">${esc(c.answer)}</div></div>
+                <div class="fc-face fc-back"><div class="fc-text">${esc(c.answer)}</div></div>
                 <div class="fc-hint">${fFlipped?'':'▼ '+(currentLang==='ar'?'انقر للكشف':'Click to reveal')}</div>
             </div>
             <div style="font-size:10px;font-family:var(--mono);color:var(--text4);text-align:center;margin-bottom:8px">${nextInfo}</div>
@@ -3808,36 +3808,6 @@ ${textSlice}`;
         ls('app_card_count', String(_cardCount));
     }
 
-    function buildCardsPromptWithFocus(text, perChunk) {
-        const focusInstructions = {
-            general:     'Generate comprehensive flashcards covering all major concepts.',
-            definition:  'DEFINITIONS: each card front = a term, back = its precise definition.',
-            enumeration: 'ENUMERATIONS: front = "List the [N] types/causes/features of...", back = numbered list.',
-            concept:     'CONCEPTS: each card tests understanding of one key concept.',
-            mechanism:   'MECHANISMS: front = mechanism name or trigger, back = step-by-step process.',
-            comparison:  'COMPARISONS: front = "Compare X vs Y", back = clear differences.',
-            formula:     'FORMULAS: front = formula name/when to use, back = equation.',
-            clinical:    'CLINICAL: front = patient presentation or scenario, back = diagnosis/management.',
-        };
-        const focuses = [..._activeFocuses];
-        const focusText = focuses.map(f => focusInstructions[f] || '').filter(Boolean).join('\n');
-        const note = document.getElementById('cardExtraNote')?.value.trim() || '';
-        const lang = document.getElementById('langSel')?.value || 'عربي';
-        return `Generate exactly ${perChunk} flashcards in ${lang}.
-Focus types requested:
-${focusText}
-${note ? `Additional instruction: ${note}` : ''}
-RULES:
-- Every card must be based ONLY on the provided text section below.
-- Output ONLY a valid JSON array, no markdown, no code fences.
-- Spread cards across the whole section, not just the start.
-
-[{"question":"...","answer":"..."}]
-
-TEXT SECTION:
-${text}`;
-    }
-
     function _getFocusLabel() {
         return [..._activeFocuses].filter(f => f !== 'general').join('+') || '';
     }
@@ -3887,50 +3857,145 @@ ${text}`;
         return null;
     }
 
-    // Override nvidiaCards to use split-and-merge
+    // Per-focus descriptions used both for counting and prompting
+    const FOCUS_META = {
+        general:     { q: 'comprehensive concept',   desc: 'GENERAL: comprehensive flashcards covering all major concepts.' },
+        definition:  { q: 'definition',              desc: 'DEFINITIONS: front = a term, back = its precise definition.' },
+        enumeration: { q: 'enumeration/list',        desc: 'ENUMERATIONS: front = "List the [N] types/causes/features of...", back = a numbered list.' },
+        concept:     { q: 'key concept',             desc: 'CONCEPTS: each card tests understanding of one key concept.' },
+        mechanism:   { q: 'mechanism/process',       desc: 'MECHANISMS: front = mechanism name or trigger, back = step-by-step process.' },
+        comparison:  { q: 'comparison',              desc: 'COMPARISONS: front = "Compare X vs Y", back = clear differences.' },
+        formula:     { q: 'formula/equation',        desc: 'FORMULAS: front = formula name/when to use, back = the equation.' },
+        clinical:    { q: 'clinical case/scenario',  desc: 'CLINICAL: front = patient presentation or scenario, back = diagnosis/management.' },
+    };
+
+    // Ask AI: how many cards of a specific focus type does this text need?
+    async function detectFocusCount(focusKey, sample, totalChars) {
+        const meta = FOCUS_META[focusKey];
+        if (!meta) return 5;
+        const prompt = `You are analysing a study document (~${Math.round(totalChars/1000)}k characters total). Based on the sample below, estimate how many "${meta.q}" flashcards are needed to fully cover ALL such items in the ENTIRE document. Reply with a SINGLE INTEGER only — nothing else.\n\nSAMPLE:\n${sample}`;
+        try {
+            const raw = await nvidiaChat(prompt, 'Reply with a single integer only. No words, no punctuation.', 10, 0.1);
+            const n = parseInt(raw.trim().replace(/\D/g, ''));
+            return (n >= 1 && n <= 150) ? n : 5;
+        } catch { return 5; }
+    }
+
+    function buildCardsPromptWithFocus(text, focusBreakdown) {
+        // focusBreakdown: { definition: 3, enumeration: 4, ... } OR a flat number (legacy)
+        const note = document.getElementById('cardExtraNote')?.value.trim() || '';
+        const lang = document.getElementById('langSel')?.value || 'عربي';
+
+        let totalPerChunk, instructionLines;
+        if (typeof focusBreakdown === 'number') {
+            // Legacy flat call
+            totalPerChunk = focusBreakdown;
+            const focuses = [..._activeFocuses];
+            instructionLines = focuses.map(f => FOCUS_META[f]?.desc || '').filter(Boolean).join('\n');
+        } else {
+            // Per-focus breakdown: tell AI exactly how many of each type to make
+            totalPerChunk = Object.values(focusBreakdown).reduce((a,b) => a+b, 0);
+            instructionLines = Object.entries(focusBreakdown)
+                .filter(([,n]) => n > 0)
+                .map(([f, n]) => `- ${FOCUS_META[f]?.desc || f}: generate exactly ${n} card(s) of this type.`)
+                .join('\n');
+        }
+
+        return `Generate exactly ${totalPerChunk} flashcards in ${lang} from the text section below.
+
+CARD TYPE INSTRUCTIONS (follow exactly):
+${instructionLines}
+${note ? `\nAdditional instruction: ${note}` : ''}
+
+RULES:
+- Every card must be based ONLY on the text section provided. No outside knowledge.
+- Output ONLY a valid JSON array, no markdown, no code fences.
+- Spread cards across the whole section, not just the start.
+
+[{"question":"...","answer":"..."}]
+
+TEXT SECTION:
+${text}`;
+    }
+
     async function nvidiaCards() {
         const btns = ['btnGenMCQ','btnGenCards'];
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
 
         try {
-            // ── Auto Card: AI decides the ideal count ─────────────────────
-            let count = _cardCount || 20;
+            const activeFocuses = [..._activeFocuses];
+            const sample = pdfText.slice(0, 5000);
+            let count;
+            let focusBreakdown = null; // { focusKey: countPerChunk }
+
+            // ── Auto Card: ask AI per-focus how many cards are needed ──────
             if (_autoCard) {
-                setAIStatus(currentLang === 'ar' ? '🤖 تحديد عدد البطاقات المناسب…' : '🤖 Detecting ideal card count…');
-                const sample = pdfText.slice(0, 6000);
-                const autoPrompt = `Based on the following text sample (from a larger document of ~${Math.round(pdfText.length/1000)}k characters), estimate the ideal number of flashcards needed to comprehensively cover the ENTIRE document. Consider: unique concepts, definitions, mechanisms, and key facts. Reply with a SINGLE INTEGER only — nothing else.\n\nSAMPLE:\n${sample}`;
-                try {
-                    const raw = await nvidiaChat(autoPrompt, 'You reply with a single integer only.', 20, 0.1);
-                    const n = parseInt(raw.trim().replace(/\D/g,''));
-                    if (n >= 5 && n <= 200) { count = n; }
-                } catch {}
-                setAIStatus(currentLang === 'ar' ? `✨ Auto: ${count} بطاقة` : `✨ Auto: ${count} cards`);
-                await new Promise(r => setTimeout(r, 600));
+                setAIStatus(currentLang === 'ar'
+                    ? `🤖 تحليل المحتوى لـ ${activeFocuses.length} نوع…`
+                    : `🤖 Analysing ${activeFocuses.length} focus type(s)…`);
+
+                // Fire one count-detection call per active focus, all in parallel
+                const countResults = await Promise.all(
+                    activeFocuses.map(f => detectFocusCount(f, sample, pdfText.length))
+                );
+
+                // Build total count and a focus→count map
+                const focusTotals = {};
+                activeFocuses.forEach((f, i) => { focusTotals[f] = countResults[i]; });
+                count = Object.values(focusTotals).reduce((a,b) => a+b, 0);
+
+                // Cap sanity: max 150 cards
+                if (count > 150) {
+                    const scale = 150 / count;
+                    activeFocuses.forEach(f => { focusTotals[f] = Math.max(1, Math.round(focusTotals[f] * scale)); });
+                    count = Object.values(focusTotals).reduce((a,b) => a+b, 0);
+                }
+
+                // Build status line showing per-focus breakdown
+                const breakdown = activeFocuses.map(f => `${f}: ${focusTotals[f]}`).join(' · ');
+                setAIStatus(`✨ Auto: ${count} cards (${breakdown})`);
+                await new Promise(r => setTimeout(r, 800));
+
+                // Store for use in prompt builder (per chunk = scaled proportionally)
+                focusBreakdown = focusTotals;
+
+            } else {
+                count = _cardCount || 20;
             }
 
             // ── 1. Split text into chunks ──────────────────────────────────
-            const chunks   = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
-            const total    = chunks.length;
-            const perChunk = Math.ceil(count / total);
+            const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
+            const total  = chunks.length;
 
-            setAIStatus(
-                currentLang === 'ar'
-                    ? `🔀 ${total} أجزاء — ${perChunk} بطاقة/جزء…`
-                    : `🔀 ${total} chunks — ${perChunk} cards each…`
-            );
+            // Build per-chunk focus breakdown (each focus scaled to chunk share)
+            const perChunkBreakdown = focusBreakdown
+                ? (() => {
+                    const bd = {};
+                    activeFocuses.forEach(f => {
+                        bd[f] = Math.max(1, Math.ceil(focusBreakdown[f] / total));
+                    });
+                    return bd;
+                })()
+                : Math.ceil(count / total); // flat number for non-auto mode
+
+            const perChunkTotal = typeof perChunkBreakdown === 'number'
+                ? perChunkBreakdown
+                : Object.values(perChunkBreakdown).reduce((a,b) => a+b, 0);
+
+            setAIStatus(currentLang === 'ar'
+                ? `🔀 ${total} أجزاء — ${perChunkTotal} بطاقة/جزء…`
+                : `🔀 ${total} chunks — ${perChunkTotal} cards each…`);
 
             // ── 2. Every chunk generates its share in parallel ─────────────
             let done = 0;
             const results = await Promise.all(
                 chunks.map(chunk =>
-                    nvidiaChat(buildCardsPromptWithFocus(chunk, perChunk), CARDS_SYSTEM, 8000, 0.2)
+                    nvidiaChat(buildCardsPromptWithFocus(chunk, perChunkBreakdown), CARDS_SYSTEM, 8000, 0.2)
                         .then(raw => {
                             done++;
-                            setAIStatus(
-                                currentLang === 'ar'
-                                    ? `✏️ ${done}/${total} اكتمل…`
-                                    : `✏️ ${done}/${total} done…`
-                            );
+                            setAIStatus(currentLang === 'ar'
+                                ? `✏️ ${done}/${total} اكتمل…`
+                                : `✏️ ${done}/${total} done…`);
                             return extractCardsJson(raw) || [];
                         })
                         .catch(() => [])
@@ -3948,10 +4013,9 @@ ${text}`;
             });
 
             if (!merged.length) throw new Error('No valid cards generated');
-
             const final = merged.slice(0, count);
 
-            const deckName   = $('quizNameInput').value.trim() || pdfFile || 'Deck ' + (getDecks().length+1);
+            const deckName   = $('quizNameInput').value.trim() || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
             const focusLabel = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
             const autoLabel  = _autoCard ? ' ✨' : '';
             const decks = getDecks();
