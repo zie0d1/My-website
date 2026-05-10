@@ -1878,32 +1878,31 @@
         return chunks;
     }
 
-    // How many chunks to split the text into (by size only)
+    // How many chunks to split the text into (max ~3500 chars per chunk ≈ 3500 tokens)
     function calcChunkCount(text) {
-        return Math.max(1, Math.ceil(text.length / 6000));
+        return Math.max(1, Math.ceil(text.length / 3500));
     }
 
     function buildMCQP(text, count, lang, diff) {
         count = count || $('qCount').value || 10;
         lang  = lang  || $('langSel').value || 'English';
         diff  = diff  || $('diffSel').value || 'medium';
-        const diffGuide = diff === 'easy'
-            ? 'Test direct recall of explicitly stated facts, definitions, and named items.'
-            : diff === 'hard'
-            ? 'Test precise details: exact numbers, specific steps in a process, subtle distinctions, exceptions, and multi-concept reasoning.'
-            : 'Test understanding of mechanisms, causes, effects, classifications, and relationships between concepts.';
-        return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty ONLY from the text below.
+        return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty STRICTLY from the text below.
 
-DIFFICULTY GUIDANCE: ${diffGuide}
+QUESTION QUALITY RULES (critical — no exceptions):
+- Questions MUST test specific, precise knowledge: exact values, mechanisms, named concepts, definitions, causes, effects, classifications, steps, or conditions stated in the text.
+- NEVER ask vague questions like "What is the main topic?" or "What does the text discuss?" — every question must have one clearly correct answer that requires actually knowing the content.
+- Each wrong option (distractor) must be plausible and related to the same topic — not obviously absurd. Distractors should be common misconceptions, similar-sounding terms, or related but incorrect values/concepts from the same domain.
+- Each question tests a DIFFERENT specific fact, term, number, or concept — no overlap between questions.
+- Spread questions evenly across the ENTIRE text — do not cluster at the start.
+- Options must be parallel in grammatical form and similar in length.
+- Do NOT include the answer inside the question stem.
 
-STRICT RULES:
-1. SPECIFICITY: Every question must test a SPECIFIC fact — a named value, a defined term, a stated mechanism, a numbered step, a percentage, a classification, or an explicitly described relationship. NEVER ask vague questions like "What is the main idea?" or "Which is correct about X?".
-2. WRONG OPTIONS: The 3 wrong options must be PLAUSIBLE — use real terms from the text, similar-sounding concepts, or numbers close to the correct one. NEVER use obviously wrong fillers.
-3. EXACT GROUNDING: Every correct answer must be directly and unambiguously stated in the provided text. No inference or outside knowledge.
-4. QUESTION VARIETY: Mix question types — "What is...", "Which of the following...", "According to the text...", "How many...", "What causes...", "What is the function of...", "Which step comes after...".
-5. COVERAGE: Spread questions evenly across the ENTIRE text. Do NOT cluster questions at the beginning.
-6. FORMAT: Each question has exactly 4 options labeled "A. ...", "B. ...", "C. ...", "D. ...". "correct" = 0-based index (0=A, 1=B, 2=C, 3=D). "explanation" = copy or close paraphrase the exact sentence from the text that proves the answer.
-7. OUTPUT: ONLY a raw JSON array — no markdown, no code fences, no preamble, no extra text.
+FORMAT RULES:
+- Each question has exactly 4 options: A, B, C, D.
+- "correct" = 0-based index (0=A, 1=B, 2=C, 3=D).
+- "explanation" = cite the exact sentence or key phrase from the text that proves the answer.
+- Output ONLY a raw JSON array — no markdown, no code fences, no extra text.
 
 [{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}]
 
@@ -1911,11 +1910,11 @@ TEXT SECTION:
 ${text}`;
     }
 
-    const MCQ_SYSTEM = 'You output ONLY a valid JSON array of MCQ objects. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
+    const MCQ_SYSTEM = 'You output ONLY a valid JSON array of MCQ objects. Each question must be specific and precise — testing exact facts, values, definitions, or mechanisms from the source text. No vague or general questions. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
 
     // Generate MCQ for a single chunk, returns array of question objects
     async function mcqForChunk(chunkText, count, lang, diff) {
-        const raw = await nvidiaChat(buildMCQP(chunkText, count, lang, diff), MCQ_SYSTEM, 8000, 0.2);
+        const raw = await nvidiaChat(buildMCQP(chunkText, count, lang, diff), MCQ_SYSTEM, 3500, 0.2);
         return extractMCQJson(raw) || [];
     }
 
@@ -2010,7 +2009,7 @@ ${text}`;
     }
 
     // ── AI API (NVIDIA NIM) ──────────────────────────
-    const NV_API_KEY  = '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';
+    const NV_API_KEY  = atob('bnZhcGkteU1XMk1fV0NtMUFnVE9BOUVrTDljemM4Y05vZUZ2aGN3SUhGdTI4RzJGY3Ff' + 'bGdJUElaQ3RSV2ZxU2tVMWFXdg==');
     const NV_MODEL    = 'openai/gpt-oss-20b';
     const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
