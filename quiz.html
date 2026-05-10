@@ -278,7 +278,7 @@
         .weekly-chart .wb.today { opacity:1; border-top:2px solid var(--accent-dark); }
         .weekly-chart-labels { display:flex; gap:4px; margin-bottom:4px; }
         .weekly-chart-labels span { flex:1; text-align:center; font-size:9px; color:var(--text4); font-family:var(--mono); }
-        .streak-fire { display:inline-block; font-size:18px; margin-right:4px; }
+        .streak-fire { display:inline-flex; align-items:center; margin-right:4px; color:#f97316; }
         .topic-row { display:flex; gap:8px; padding:8px; border-bottom:1px solid var(--border); font-size:12px; align-items:center; }
         .topic-bar-bg { flex:1; height:4px; background:var(--surface2); overflow:hidden; }
         .topic-bar-fill { height:100%; background:var(--accent); transition:width 300ms; }
@@ -355,7 +355,7 @@
         .summary-card-dot { width:10px; height:10px; flex-shrink:0; }
         .summary-card-actions { display:flex; gap:6px; margin-top:12px; }
         .summary-empty { text-align:center; padding:48px 20px; color:var(--text4); }
-        .summary-empty-icon { font-size:40px; margin-bottom:12px; opacity:0.3; }
+        .summary-empty-icon { margin-bottom:12px; display:flex; justify-content:center; }
         .summary-empty-text { font-size:13px; }
         .summary-card-badge { font-size:9px; font-family:var(--mono); padding:2px 7px; border:1px solid var(--border); color:var(--text4); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
         .summary-card-badge.structured { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
@@ -664,6 +664,7 @@
             padding: 5px 11px; font-size: 11px; border: 1px solid var(--border);
             cursor: pointer; transition: all var(--transition);
             background: var(--surface); color: var(--text3); font-family: var(--mono);
+            display: inline-flex; align-items: center; gap: 5px;
         }
         .focus-chip:hover { border-color: var(--border-hover); color: var(--text); }
         .focus-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -1052,7 +1053,7 @@
                         </span></div>
                         <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b</div>
                         <div style="font-size:11px;padding:10px 12px;background:var(--success-bg);border:1px solid var(--success);color:var(--success);font-family:var(--mono)">
-                            ✓ API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
+                            API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
                         </div>
                     </div>
                     <div class="card">
@@ -1077,14 +1078,14 @@
 
                         <div class="card-settings-label" style="margin-bottom:8px">نوع التركيز — يمكن تحديد أكثر من واحد</div>
                         <div class="card-focus-row" id="focusChips">
-                            <span class="focus-chip active" data-focus="general" onclick="toggleFocusChip(this)">🔍 General</span>
-                            <span class="focus-chip" data-focus="definition" onclick="toggleFocusChip(this)">📖 Definitions</span>
-                            <span class="focus-chip" data-focus="enumeration" onclick="toggleFocusChip(this)">📋 Enumerations</span>
-                            <span class="focus-chip" data-focus="concept" onclick="toggleFocusChip(this)">💡 Concepts</span>
-                            <span class="focus-chip" data-focus="mechanism" onclick="toggleFocusChip(this)">⚙️ Mechanisms</span>
-                            <span class="focus-chip" data-focus="comparison" onclick="toggleFocusChip(this)">⚖️ Comparisons</span>
-                            <span class="focus-chip" data-focus="formula" onclick="toggleFocusChip(this)">🧮 Formulas</span>
-                            <span class="focus-chip" data-focus="clinical" onclick="toggleFocusChip(this)">🏥 Clinical / Cases</span>
+                            <span class="focus-chip active" data-focus="general" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> General</span>
+                            <span class="focus-chip" data-focus="definition" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Definitions</span>
+                            <span class="focus-chip" data-focus="enumeration" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6" stroke-width="3"/><line x1="3" y1="12" x2="3.01" y2="12" stroke-width="3"/><line x1="3" y1="18" x2="3.01" y2="18" stroke-width="3"/></svg> Enumerations</span>
+                            <span class="focus-chip" data-focus="concept" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg> Concepts</span>
+                            <span class="focus-chip" data-focus="mechanism" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> Mechanisms</span>
+                            <span class="focus-chip" data-focus="comparison" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Comparisons</span>
+                            <span class="focus-chip" data-focus="formula" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg> Formulas</span>
+                            <span class="focus-chip" data-focus="clinical" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Clinical / Cases</span>
                         </div>
 
                         <div class="card-settings-label" style="margin-top:16px;margin-bottom:8px">عدد البطاقات — Card Count</div>
@@ -1092,7 +1093,7 @@
                         <!-- Auto Card toggle -->
                         <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);background:var(--surface2);margin-bottom:10px">
                             <div>
-                                <div style="font-size:12px;font-weight:600;color:var(--text)">✨ Auto Card</div>
+                                <div style="font-size:12px;font-weight:600;color:var(--text)">Auto Card</div>
                                 <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px">AI decides the ideal card count to cover the whole PDF</div>
                                 <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px">الذكاء الاصطناعي يقرر العدد المناسب لتغطية كامل الـ PDF</div>
                             </div>
@@ -1208,11 +1209,11 @@
                             <span data-t="howto_tips_title">نصائح سريعة — Quick Tips</span>
                         </div>
                         <div style="font-size:12px;color:var(--text2);line-height:2;font-family:var(--mono)" data-t="howto_tips_body">
-                            ▶ زر 🌐 لتغيير اللغة بين العربية والإنجليزية / Toggle 🌐 to switch AR ↔ EN<br>
-                            ▶ زر ☀/🌙 لتغيير المظهر / Toggle ☀/🌙 for dark/light mode<br>
-                            ▶ يمكن دمج عدة PDFs لسؤال أوسع / Combine multiple PDFs for broader questions<br>
-                            ▶ مستوى الثقة يساعدك تقييم معرفتك / Confidence level tracks how well you really know it<br>
-                            ▶ كل البيانات محفوظة محلياً على جهازك / All data is stored locally on your device
+                            — زر اللغة لتغيير اللغة بين العربية والإنجليزية / Use the language button to switch AR ↔ EN<br>
+                            — زر المظهر لتغيير الوضع الليلي والنهاري / Use the theme button for dark/light mode<br>
+                            — يمكن دمج عدة PDFs لسؤال أوسع / Combine multiple PDFs for broader questions<br>
+                            — مستوى الثقة يساعدك تقييم معرفتك / Confidence level tracks how well you really know it<br>
+                            — كل البيانات محفوظة محلياً على جهازك / All data is stored locally on your device
                         </div>
                     </div>
                 </div>
@@ -1277,7 +1278,7 @@
             todo_title:'قائمة المحاضرات', todo_subtitle:'تتبع تقدمك في كل محاضرة',
             todo_set_count:'حدد عدد المحاضرات', lec_count:'عدد المحاضرات',
             status_not_started:'لم يبدأ', status_in_progress:'جاري', status_done:'تم',
-            start_timer:'▶ ابدأ', stop_timer:'■ أوقف', time_logged:'الوقت المسجل',
+            start_timer:'ابدأ', stop_timer:'أوقف', time_logged:'الوقت المسجل',
             lecture_name_label:'اسم المحاضرة', ai_name_btn:'تسمية AI', lec_num:'محاضرة',
             overall_progress:'التقدم العام', lec_completion:'إتمام المحاضرات',
             progress_title:'التقدم', progress_subtitle:'تقدمك ورسوم بيانية تفصيلية',
@@ -1319,7 +1320,7 @@
             notifications:'الإشعارات',
             notif_desc:'تفعيل إشعارات تذكير المراجعة اليومية للبطاقات',
             enable_notif:'تفعيل الإشعارات',
-            notif_granted:'الإشعارات مفعّلة ✓', notif_denied:'الإشعارات محجوبة',
+            notif_granted:'الإشعارات مفعّلة', notif_denied:'الإشعارات محجوبة',
             notif_default:'اضغط لتفعيل الإشعارات',
             confidence_label:'مستوى الثقة:', guessing:'تخمين', not_sure:'غير متأكد', sure:'متأكد',
             conf_matrix_title:'معايرة الثقة', conf_accuracy:'دقة عند', conf_answered:'إجابات',
@@ -1331,7 +1332,7 @@
             no_summaries:'لا توجد ملخصات محفوظة', view:'عرض',
             summary_library_title:'الملخصات', summary_lib_subtitle:'ملخصات ذكية من ملفات PDF',
             sum_style_label:'نوع الملخص', sum_detailed:'مفصّل', sum_bullets:'نقاط',
-            sum_concise:'مختصر', sum_academic:'أكاديمي', sum_structured:'✦ منظم JSON',
+            sum_concise:'مختصر', sum_academic:'أكاديمي', sum_structured:'منظم JSON',
             sum_result_label:'الملخص المولّد',
             gen_summary_title:'توليد ملخص بالذكاء الاصطناعي', gen_summary_btn:'توليد الملخص',
             summary_lib:'الملخصات',
@@ -1347,7 +1348,7 @@
             todo_title:'Lecture List', todo_subtitle:'Track your progress on each lecture',
             todo_set_count:'Set lecture count', lec_count:'Number of Lectures',
             status_not_started:'Not Started', status_in_progress:'In Progress', status_done:'Done',
-            start_timer:'▶ Start', stop_timer:'■ Stop', time_logged:'Time Logged',
+            start_timer:'Start', stop_timer:'Stop', time_logged:'Time Logged',
             lecture_name_label:'Lecture Name', ai_name_btn:'AI Name', lec_num:'Lecture',
             overall_progress:'Overall Progress', lec_completion:'Lecture Completion',
             progress_title:'Progress', progress_subtitle:'Your progress and detailed charts',
@@ -1390,7 +1391,7 @@
             notifications:'Notifications',
             notif_desc:'Enable daily review reminder notifications for flashcards',
             enable_notif:'Enable Notifications',
-            notif_granted:'Notifications enabled ✓', notif_denied:'Notifications blocked',
+            notif_granted:'Notifications enabled', notif_denied:'Notifications blocked',
             notif_default:'Click to enable notifications',
             confidence_label:'Confidence:', guessing:'Guessing', not_sure:'Not Sure', sure:'Sure',
             conf_matrix_title:'Confidence Calibration', conf_accuracy:'Accuracy when', conf_answered:'answers',
@@ -1402,7 +1403,7 @@
             no_summaries:'No saved summaries', view:'View',
             summary_library_title:'Summaries', summary_lib_subtitle:'AI-powered smart summaries from PDF files',
             sum_style_label:'Summary Type', sum_detailed:'Detailed', sum_bullets:'Bullets',
-            sum_concise:'Concise', sum_academic:'Academic', sum_structured:'✦ Structured JSON',
+            sum_concise:'Concise', sum_academic:'Academic', sum_structured:'Structured JSON',
             sum_result_label:'Generated Summary',
             gen_summary_title:'Generate AI Summary', gen_summary_btn:'Generate Summary',
             summary_lib:'Summaries',
@@ -1718,8 +1719,8 @@
                 body: currentLang==='ar'
                     ? `لديك ${dueCount} بطاقة مستحقة للمراجعة`
                     : `You have ${dueCount} card${dueCount!==1?'s':''} due for review`,
-                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📚</text></svg>',
-                badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📚</text></svg>',
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%232563eb" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+                badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%232563eb" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
                 tag: 'zero-due-cards',
             });
         } catch(e) {}
@@ -1775,7 +1776,7 @@
                     txt += tc.items.map(it=>it.str).join(' ') + '\n';
                 }
                 _pdfFiles.push({name:file.name, text:txt.trim(), pages:doc.numPages});
-                toast('✓ '+file.name+' — '+doc.numPages+'p');
+                toast(file.name+' — '+doc.numPages+'p');
             } catch(e) { alertModal(t('error')+': '+e.message+' ('+file.name+')'); }
         }
         $('pdfInput').value = '';
@@ -1931,54 +1932,71 @@ ${text}`;
             const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
             const total  = chunks.length;
 
-            setAIStatus(
-                currentLang === 'ar'
-                    ? `🔀 ${total} أجزاء — جاري الإرسال…`
-                    : `🔀 ${total} chunks — sending all in parallel…`
-            );
+            let merged;
 
-            // ── 2. Every chunk generates its own share of questions (all in parallel) ─
-            const perChunk = Math.ceil(count / total); // e.g. 60 ÷ 10 = 6 per chunk
-            let done = 0;
-            const results = await Promise.all(
-                chunks.map(chunk =>
-                    mcqForChunk(chunk, perChunk, lang, diff)
-                        .then(qs => {
-                            done++;
-                            setAIStatus(
-                                currentLang === 'ar'
-                                    ? `✏️ ${done}/${total} اكتمل…`
-                                    : `✏️ ${done}/${total} done…`
-                            );
-                            return qs;
-                        })
-                        .catch(() => [])
-                )
-            );
+            if (total === 1) {
+                // ── Small file: single direct call ─────────────────────────
+                setAIStatus(
+                    currentLang === 'ar'
+                        ? 'جاري توليد الأسئلة…'
+                        : 'Generating questions…'
+                );
+                const qs = await mcqForChunk(chunks[0], count, lang, diff);
+                merged = qs.filter(q => {
+                    if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
+                    const ci = Number(q.correct);
+                    return !isNaN(ci) && ci >= 0 && ci < q.options.length;
+                });
+            } else {
+                // ── Large file: parallel chunks, open only when ALL are done ─
+                setAIStatus(
+                    currentLang === 'ar'
+                        ? `${total} أجزاء — جاري الإرسال…`
+                        : `${total} chunks — sending all in parallel…`
+                );
 
-            // ── 3. Merge all JSONs into one, deduplicate ───────────────────
-            const seen = new Set();
-            const merged = results.flat().filter(q => {
-                if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
-                const ci = Number(q.correct);
-                if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
-                const key = q.question.trim().toLowerCase().slice(0, 80);
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            });
+                const perChunk = Math.ceil(count / total);
+                let done = 0;
+                const results = await Promise.all(
+                    chunks.map(chunk =>
+                        mcqForChunk(chunk, perChunk, lang, diff)
+                            .then(qs => {
+                                done++;
+                                setAIStatus(
+                                    currentLang === 'ar'
+                                        ? `${done}/${total} اكتمل…`
+                                        : `${done}/${total} done…`
+                                );
+                                return qs;
+                            })
+                            .catch(() => [])
+                    )
+                );
+
+                // ── Merge all results, deduplicate ─────────────────────────
+                const seen = new Set();
+                merged = results.flat().filter(q => {
+                    if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
+                    const ci = Number(q.correct);
+                    if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
+                    const key = q.question.trim().toLowerCase().slice(0, 80);
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            }
 
             if (!merged.length) throw new Error('No valid questions generated');
 
-            // ── 4. Trim to exactly the requested count ─────────────────────
+            // ── Trim to exactly the requested count ────────────────────────
             const final = merged.slice(0, count);
 
-            setAIStatus('✓ ' + final.length + '/' + count + ' ' + (currentLang === 'ar' ? 'سؤال جاهز' : 'questions ready'), true);
+            setAIStatus(final.length + '/' + count + ' ' + (currentLang === 'ar' ? 'سؤال جاهز' : 'questions ready'), true);
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
             setTimeout(() => { setAIStatus(''); startQuiz(final, quizName); }, 600);
 
         } catch(e) {
-            setAIStatus('✗ ' + e.message, false, true);
+            setAIStatus(e.message, false, true);
             setTimeout(() => setAIStatus(''), 5000);
         } finally {
             btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
@@ -2080,33 +2098,6 @@ ${text}`;
     }
 
 
-    async function nvidiaCards() {
-        const btns = ['btnGenMCQ','btnGenCards'];
-        btns.forEach(id => { if ($(id)) $(id).disabled = true; });
-        setAIStatus(currentLang==='ar'?'جاري توليد البطاقات...':'Generating flashcards...');
-        try {
-            const r = await nvidiaChat(
-                'Generate comprehensive flashcards in ' + $('langSel').value + '. Output JSON array ONLY, no markdown:\n[{"question":"...","answer":"..."}]\nText:\n' + pdfText
-            );
-            const cards = parseJSON(r);
-            if (!Array.isArray(cards)||!cards[0]?.question) throw new Error(t('json_invalid'));
-            const valid = cards.filter(c=>c.question&&c.answer);
-            if (!valid.length) throw new Error('No valid cards');
-            // Auto-save to deck
-            const deckName = $('quizNameInput').value.trim() || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
-            const decks = getDecks();
-            decks.push({name: deckName, cards: valid});
-            saveDecks(decks);
-            setAIStatus('✓ ' + valid.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
-            setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
-        } catch(e) {
-            setAIStatus('✗ ' + e.message, false, true);
-            setTimeout(()=>setAIStatus(''), 4000);
-        } finally {
-            btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
-        }
-    }
-
     // ── SUMMARY GLOBALS & COLORS ──────────────────────────────────────────
     let summaryPdfText = '', summaryPdfFile = '', summaryCurrentStyle = 'structured';
     let _currentSummaryResult = '', _currentSummaryData = null, sumCurrentTab = 'pdf';
@@ -2199,7 +2190,7 @@ ${text}`;
             $('btnGenSummary').disabled = false;
             if (!$('summaryNameInput').value)
                 $('summaryNameInput').value = file.name.replace(/\.pdf$/i,'');
-            toast('✓ ' + doc.numPages + (currentLang==='ar' ? ' صفحة' : ' pages'));
+            toast(doc.numPages + (currentLang==='ar' ? ' صفحة' : ' pages'));
         } catch(e) {
             hide($('summaryAiStatus'));
             alertModal(t('error') + ': ' + e.message);
@@ -2332,17 +2323,18 @@ ${textSlice}`;
             } catch(parseErr) {
                 _currentSummaryData = null;
                 $('summaryResultBox').innerHTML = `
-                    <div style="padding:10px 14px;background:var(--warning-bg);border:1px solid var(--warning);color:var(--warning);font-family:var(--mono);font-size:11px;margin-bottom:12px">
-                        ⚠ JSON parse failed — showing raw output
+                    <div style="padding:10px 14px;background:var(--warning-bg);border:1px solid var(--warning);color:var(--warning);font-family:var(--mono);font-size:11px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
+                        JSON parse failed — showing raw output
                     </div>
                     <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(raw)}</div>`;
             }
 
             show($('summaryResultArea'));
             hide($('summaryAiStatus'));
-            toast(currentLang==='ar' ? '✓ تم التوليد بنجاح' : '✓ Summary generated!');
+            toast(currentLang==='ar' ? 'تم التوليد بنجاح' : 'Summary generated!');
         } catch(e) {
-            $('summaryAiStatusText').textContent = '✗ ' + e.message;
+            $('summaryAiStatusText').textContent = e.message;
             setTimeout(()=>hide($('summaryAiStatus')), 5000);
         } finally {
             $('btnGenSummary').disabled = false;
@@ -2364,9 +2356,9 @@ ${textSlice}`;
                 // Rich cell renderer: parses **bold**, <br>/<br/>, numbered emoji steps
                 function renderCell(raw, isFirst) {
                     const text = String(raw || '');
-                    // Detect numbered/emoji step list: lines starting with emoji digit or 1️⃣ style
+                    // Detect numbered step list: lines starting with digits like "1." or "1)"
                     const stepLines = text.split(/\s*(?:<br\s*\/?>|\n)\s*/i).map(s => s.trim()).filter(Boolean);
-                    const isStepList = stepLines.length > 1 && stepLines.every(l => /^[\d1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟\u20e3]/.test(l) || /^\d+[.)]\s/.test(l));
+                    const isStepList = stepLines.length > 1 && stepLines.every(l => /^\d+[.)]\s/.test(l));
 
                     function parseBold(s) {
                         return s
@@ -2377,10 +2369,9 @@ ${textSlice}`;
                     if (isStepList) {
                         // Render as stacked step chips
                         const steps = stepLines.map(line => {
-                            // Extract leading emoji/number as badge
-                            const m = line.match(/^([1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟\d]+[️⃣\u20e3.)]*)\s*(.*)$/);
+                            const m = line.match(/^(\d+)[.)]\s*(.*)/s);
                             if (m) {
-                                const num = m[1].replace(/[.)]/g,'').trim();
+                                const num = m[1];
                                 const rest = parseBold(m[2]);
                                 return `<div class="tc-step"><span class="tc-step-num">${num}</span><span>${rest}</span></div>`;
                             }
@@ -2532,7 +2523,9 @@ ${textSlice}`;
         );
         if (!lib.length) {
             el.innerHTML = `<div class="summary-empty">
-                <div class="summary-empty-icon">📄</div>
+                <div class="summary-empty-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
                 <div class="summary-empty-text">${t('no_summaries')}</div>
             </div>`;
             return;
@@ -2541,7 +2534,7 @@ ${textSlice}`;
             const isStr = s.style === 'structured' && s.structured;
             const secs  = isStr ? (s.structured.sections||[]) : [];
             const badge = `<span class="summary-card-badge${isStr?' structured':''}">
-                ${isStr ? '✦ JSON' : (s.style||'plain')}
+                ${isStr ? 'JSON' : (s.style||'plain')}
             </span>`;
 
             // Colored section dots for structured cards
@@ -3042,7 +3035,7 @@ ${textSlice}`;
             <div class="confidence-row" style="margin-top:8px">
                 <span class="confidence-label">${t('confidence_label')}</span>
                 <span style="font-size:11px;font-family:var(--mono);padding:5px 12px;border:1px solid var(--border);color:var(--text3)">
-                    ${conf ? (conf==='guessing'?'🎲 '+t('guessing'):conf==='not-sure'?'❓ '+t('not_sure'):'✓ '+t('sure')) : '—'}
+                    ${conf ? (conf==='guessing'?t('guessing'):conf==='not-sure'?t('not_sure'):t('sure')) : '—'}
                 </span>
             </div>`;
 
@@ -3051,10 +3044,12 @@ ${textSlice}`;
             const ok = Ans[qi].selected === q.correct;
             const timeLabel = Ans[qi].timeMs > 0 ? ` · ${(Ans[qi].timeMs/1000).toFixed(1)}s` : '';
             exp = `<div class="explanation-box ${ok?'correct':'wrong'}" id="expBox${qi}">
-                <strong>${ok?'✓ '+t('correct'):'✗ '+t('wrong')}</strong>${!ok?`<br>${t('correct')}: ${L[q.correct]} — ${esc(q.options[q.correct])}`:''}${q.explanation?`<br>${esc(q.explanation)}`:''}
+                <strong>${ok?t('correct'):t('wrong')}</strong>${!ok?`<br>${t('correct')}: ${L[q.correct]} — ${esc(q.options[q.correct])}`:''}${q.explanation?`<br>${esc(q.explanation)}`:''}
                 <div style="font-size:10px;font-family:var(--mono);margin-top:6px;opacity:0.7">${timeLabel}</div>
                 <div style="margin-top:10px;border-top:1px solid currentColor;padding-top:10px;opacity:0.8">
-                    <button class="btn btn-sm" style="font-size:10px;opacity:0.9" onclick="groqExplainQ(${qi})">✦ ${t('explain_groq')}</button>
+                    <button class="btn btn-sm" style="font-size:10px;opacity:0.9" onclick="groqExplainQ(${qi})">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
+                        ${t('explain_groq')}</button>
                     <div id="groqExp${qi}" style="font-size:12px;line-height:1.7;margin-top:8px;display:none"></div>
                 </div>
             </div>`;
@@ -3140,9 +3135,9 @@ ${textSlice}`;
                     <div style="padding:10px;border:1px solid var(--border)"><div style="font-family:var(--mono);font-size:14px;font-weight:700">${(avgTime/1000).toFixed(1)}s</div><div style="font-size:10px;color:var(--text3)">${t('avg_time')}</div></div>
                 </div>
                 ${confidenceStats ? `<div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-align:start;border-top:1px solid var(--border);padding-top:10px;margin-top:6px">
-                    ${confidenceStats.sure.count>0?`✓ ${t('sure')}: ${confidenceStats.sure.pct}% (${confidenceStats.sure.count})<br>`:''}
-                    ${confidenceStats['not-sure'].count>0?`❓ ${t('not_sure')}: ${confidenceStats['not-sure'].pct}% (${confidenceStats['not-sure'].count})<br>`:''}
-                    ${confidenceStats.guessing.count>0?`🎲 ${t('guessing')}: ${confidenceStats.guessing.pct}% (${confidenceStats.guessing.count})`:''}
+                    ${confidenceStats.sure.count>0?`${t('sure')}: ${confidenceStats.sure.pct}% (${confidenceStats.sure.count})<br>`:''}
+                    ${confidenceStats['not-sure'].count>0?`${t('not_sure')}: ${confidenceStats['not-sure'].pct}% (${confidenceStats['not-sure'].count})<br>`:''}
+                    ${confidenceStats.guessing.count>0?`${t('guessing')}: ${confidenceStats.guessing.pct}% (${confidenceStats.guessing.count})`:''}
                 </div>`:''}</div>`,
             `<button class="btn btn-primary" onclick="closeModal();switchPanel('history')">${t('history')}</button><button class="btn" onclick="closeModal()">${t('exit')}</button>`
         );
@@ -3256,8 +3251,8 @@ ${textSlice}`;
                         <div style="display:flex;align-items:flex-start;gap:8px">
                             <div style="flex:1">
                                 <div style="font-size:13px;font-weight:500;unicode-bidi:plaintext;text-align:start;margin-bottom:6px">${esc(e.question)}</div>
-                                <div style="font-size:11px;color:var(--danger);font-family:var(--mono)">✗ ${L[e.wrongIdx]}) ${esc(e.options?.[e.wrongIdx]||'')}</div>
-                                <div style="font-size:11px;color:var(--success);font-family:var(--mono)">✓ ${L[e.correct]}) ${esc(e.options?.[e.correct]||'')}</div>
+                                <div style="font-size:11px;color:var(--danger);font-family:var(--mono)">${L[e.wrongIdx]}) ${esc(e.options?.[e.wrongIdx]||'')}</div>
+                                <div style="font-size:11px;color:var(--success);font-family:var(--mono)">${L[e.correct]}) ${esc(e.options?.[e.correct]||'')}</div>
                                 ${e.explanation?`<div style="font-size:11px;color:var(--text3);margin-top:4px;unicode-bidi:plaintext">${esc(e.explanation)}</div>`:''}
                             </div>
                             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
@@ -3309,7 +3304,7 @@ ${textSlice}`;
                     <span class="deck-name">${esc(d.name)}</span>
                     <span class="deck-badge">${d.cards.length} ${t('cards')}</span>
                     ${due>0?`<span class="deck-badge due">${due} ${t('due_now')}</span>`:''}
-                    ${mastered>0?`<span class="deck-badge" style="color:var(--success);border-color:var(--success)">${mastered} ✓</span>`:''}
+                    ${mastered>0?`<span class="deck-badge" style="color:var(--success);border-color:var(--success)">${mastered} ${currentLang==='ar'?'متقن':'mastered'}</span>`:''}
                     <button class="btn btn-sm" onclick="event.stopPropagation();renameDeck(${di})" title="Rename" style="padding:3px 8px">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
@@ -3594,7 +3589,7 @@ ${textSlice}`;
             <div class="stat-cell"><div class="stat-val">${masteryRate}%</div><div class="stat-lbl">${t('mastery')}</div></div>
             <div class="stat-cell"><div class="stat-val">${eb.length}</div><div class="stat-lbl">${t('error_bank')}</div></div>
             <div class="stat-cell">
-                <div class="stat-val">${streak}<span style="font-size:12px;font-weight:400"> ${currentLang==='ar'?'يوم':'d'}</span>${streak>=3?'<span class="streak-fire">🔥</span>':''}</div>
+                <div class="stat-val">${streak}<span style="font-size:12px;font-weight:400"> ${currentLang==='ar'?'يوم':'d'}</span>${streak>=3?`<span class="streak-fire"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#f97316"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" display="none"/><path d="M17.66 11.2C17.43 10.9 17.15 10.64 16.89 10.38C16.22 9.78 15.46 9.35 14.82 8.72C13.33 7.26 13 4.85 13.95 3C13 3.23 12.17 3.75 11.46 4.32C8.87 6.4 7.85 10.07 9.07 13.22C9.11 13.32 9.15 13.42 9.15 13.55C9.15 13.77 9 13.97 8.8 14.05C8.57 14.15 8.33 14.09 8.14 13.93C8.08 13.88 8.04 13.83 8 13.76C6.87 12.33 6.69 10.28 7.45 8.64C5.78 10 4.87 12.3 5 14.47C5.06 14.97 5.12 15.47 5.29 15.97C5.43 16.57 5.7 17.17 6 17.7C7.08 19.43 8.95 20.67 10.96 20.92C13.1 21.19 15.39 20.8 17.03 19.32C18.86 17.66 19.5 15 18.56 12.72L18.43 12.46C18.22 12 17.66 11.2 17.66 11.2Z" fill="currentColor"/></svg></span>`:''}</div>
                 <div class="stat-lbl">${t('streak')}</div>
             </div>
         </div>
@@ -3631,7 +3626,7 @@ ${textSlice}`;
                     const v=confTotals[k];
                     const pct=v.t>0?Math.round(v.c/v.t*100):0;
                     const col=pct>=70?'var(--success)':pct>=50?'var(--warning)':'var(--danger)';
-                    const icon=k==='sure'?'✓':k==='not-sure'?'❓':'🎲';
+                    const icon=k==='sure'?t('sure'):k==='not-sure'?t('not_sure'):t('guessing');
                     return `<div class="conf-cell">
                         <div class="cv" style="color:${v.t>0?col:'var(--text4)'}">${v.t>0?pct+'%':'—'}</div>
                         <div class="cl">${icon} ${t(k==='not-sure'?'not_sure':k)}</div>
@@ -3685,7 +3680,7 @@ ${textSlice}`;
                     <span style="flex:1;font-weight:500">${esc(d.name)}</span>
                     <span style="color:var(--text3)">${d.cards.length} ${t('cards')}</span>
                     ${dDue>0?`<span style="color:var(--danger)">${dDue} ${t('due_now')}</span>`:''}
-                    <span style="color:var(--success)">${dMastered} ✓ ${pct}%</span>
+                    <span style="color:var(--success)">${dMastered} ${currentLang==='ar'?'متقن':'mastered'} ${pct}%</span>
                 </div>`;
             }).join('')||`<div style="color:var(--text4);text-align:center;padding:12px">${t('no_decks')}</div>`}
         </div>`;
@@ -4005,15 +4000,12 @@ ${text}`;
 
             if (_autoCard) {
                 // ── AUTO MODE: for each focus type, extract ALL from every chunk ──
-                // Total calls = activeFocuses.length × chunks.length, all in parallel
+                const totalCalls = activeFocuses.length * total;
                 setAIStatus(currentLang === 'ar'
-                    ? `🤖 استخراج ${activeFocuses.length} نوع × ${total} أجزاء…`
-                    : `🤖 Extracting ${activeFocuses.length} type(s) × ${total} chunks…`);
+                    ? `استخراج ${activeFocuses.length} نوع × ${total} ${total === 1 ? 'جزء' : 'أجزاء'}…`
+                    : `Extracting ${activeFocuses.length} type(s)${total > 1 ? ` × ${total} chunks` : ''}…`);
 
                 let done = 0;
-                const totalCalls = activeFocuses.length * total;
-
-                // For each focus, for each chunk → extract all cards of that type
                 const allResults = await Promise.all(
                     activeFocuses.flatMap(focusKey =>
                         chunks.map(chunk =>
@@ -4024,9 +4016,9 @@ ${text}`;
                             )
                             .then(raw => {
                                 done++;
-                                setAIStatus(currentLang === 'ar'
-                                    ? `✏️ ${done}/${totalCalls} اكتمل…`
-                                    : `✏️ ${done}/${totalCalls} done…`);
+                                if (totalCalls > 1) setAIStatus(currentLang === 'ar'
+                                    ? `${done}/${totalCalls} اكتمل…`
+                                    : `${done}/${totalCalls} done…`);
                                 return extractCardsJson(raw) || [];
                             })
                             .catch(() => [])
@@ -4046,67 +4038,76 @@ ${text}`;
 
                 if (!merged.length) throw new Error('No cards extracted');
 
-                setAIStatus(currentLang==='ar'?'🏷️ توليد اسم المجموعة…':'🏷️ Naming deck…');
+                setAIStatus(currentLang==='ar'?'توليد اسم المجموعة…':'Naming deck…');
                 const userTyped  = $('quizNameInput').value.trim();
                 const focusLabel = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
                 const autoName   = userTyped || await aiDeckName(merged) || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
                 const decks = getDecks();
-                decks.push({ name: autoName + focusLabel + ' ✨', cards: merged });
+                decks.push({ name: autoName + focusLabel, cards: merged });
                 saveDecks(decks);
 
-                setAIStatus('✓ ' + merged.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+                setAIStatus(merged.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
                 setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
 
             } else {
                 // ── MANUAL MODE: flat count split across chunks ────────────
                 const count    = _cardCount || 20;
-                const perChunk = Math.ceil(count / total);
 
-                setAIStatus(currentLang === 'ar'
-                    ? `🔀 ${total} أجزاء — ${perChunk} بطاقة/جزء…`
-                    : `🔀 ${total} chunks — ${perChunk} cards each…`);
+                let merged;
+                if (total === 1) {
+                    // Small file: single direct call
+                    setAIStatus(currentLang === 'ar' ? 'جاري توليد البطاقات…' : 'Generating cards…');
+                    const raw = await nvidiaChat(buildCardsPromptWithFocus(chunks[0], count), CARDS_SYSTEM, 8000, 0.2);
+                    const cards = extractCardsJson(raw) || [];
+                    merged = cards.filter(c => c.question && c.answer).slice(0, count);
+                } else {
+                    // Large file: parallel chunks, open only when ALL are done
+                    const perChunk = Math.ceil(count / total);
+                    setAIStatus(currentLang === 'ar'
+                        ? `${total} أجزاء — ${perChunk} بطاقة/جزء…`
+                        : `${total} chunks — ${perChunk} cards each…`);
 
-                let done = 0;
-                const results = await Promise.all(
-                    chunks.map(chunk =>
-                        nvidiaChat(buildCardsPromptWithFocus(chunk, perChunk), CARDS_SYSTEM, 8000, 0.2)
-                            .then(raw => {
-                                done++;
-                                setAIStatus(currentLang === 'ar'
-                                    ? `✏️ ${done}/${total} اكتمل…`
-                                    : `✏️ ${done}/${total} done…`);
-                                return extractCardsJson(raw) || [];
-                            })
-                            .catch(() => [])
-                    )
-                );
+                    let done = 0;
+                    const results = await Promise.all(
+                        chunks.map(chunk =>
+                            nvidiaChat(buildCardsPromptWithFocus(chunk, perChunk), CARDS_SYSTEM, 8000, 0.2)
+                                .then(raw => {
+                                    done++;
+                                    setAIStatus(currentLang === 'ar'
+                                        ? `${done}/${total} اكتمل…`
+                                        : `${done}/${total} done…`);
+                                    return extractCardsJson(raw) || [];
+                                })
+                                .catch(() => [])
+                        )
+                    );
 
-                const seen = new Set();
-                const merged = results.flat().filter(c => {
-                    if (!c.question || !c.answer) return false;
-                    const key = c.question.trim().toLowerCase().slice(0, 80);
-                    if (seen.has(key)) return false;
-                    seen.add(key);
-                    return true;
-                });
+                    const seen = new Set();
+                    merged = results.flat().filter(c => {
+                        if (!c.question || !c.answer) return false;
+                        const key = c.question.trim().toLowerCase().slice(0, 80);
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return true;
+                    }).slice(0, count);
+                }
 
                 if (!merged.length) throw new Error('No valid cards generated');
-                const final = merged.slice(0, count);
 
-                setAIStatus(currentLang==='ar'?'🏷️ توليد اسم المجموعة…':'🏷️ Naming deck…');
+                setAIStatus(currentLang==='ar'?'توليد اسم المجموعة…':'Naming deck…');
                 const userTyped2  = $('quizNameInput').value.trim();
-                const deckName    = userTyped2 || await aiDeckName(final) || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
+                const deckName    = userTyped2 || await aiDeckName(merged) || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
                 const focusLabel  = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
                 const decks = getDecks();
-                decks.push({ name: deckName + focusLabel, cards: final });
+                decks.push({ name: deckName + focusLabel, cards: merged });
                 saveDecks(decks);
 
-                setAIStatus('✓ ' + final.length + '/' + count + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+                setAIStatus(merged.length + '/' + count + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
                 setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
             }
 
         } catch(e) {
-            setAIStatus('✗ ' + e.message, false, true);
+            setAIStatus(e.message, false, true);
             setTimeout(()=>setAIStatus(''), 4000);
         } finally {
             btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
