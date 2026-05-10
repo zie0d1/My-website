@@ -129,7 +129,14 @@
         .subject-card .sc-delete { position:absolute; top:8px; left:8px; background:rgba(0,0,0,.25); border:none; color:#fff; width:26px; height:26px; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity var(--transition); font-family:var(--mono); }
         .subject-card:hover .sc-delete { opacity:1; }
         .subject-card .sc-delete:hover { background:var(--danger); }
-        .subject-card .sc-edit { position:absolute; top:8px; left:38px; background:rgba(0,0,0,.25); border:none; color:#fff; width:26px; height:26px; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity var(--transition); }
+        .file-pill-list { max-height:160px; overflow-y:auto; margin-bottom:6px; border:1px solid var(--border); }
+        .file-pill-list:empty { display:none; border:none; }
+        .file-pill { display:flex; align-items:center; gap:8px; padding:6px 10px; background:var(--surface2); border-bottom:1px solid var(--border); }
+        .file-pill:last-child { border-bottom:none; }
+        .file-pill-name { flex:1; font-family:var(--mono); font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+        .file-pill-meta { font-family:var(--mono); font-size:10px; color:var(--text4); flex-shrink:0; }
+        .file-pill-footer { display:flex; align-items:center; justify-content:space-between; padding:5px 2px; margin-bottom:8px; }
+
         .subject-card:hover .sc-edit { opacity:1; }
         .subject-card .sc-edit:hover { background:var(--accent); }
         .add-subject-card { background:var(--surface); border:2px dashed var(--border); padding:20px; cursor:pointer; transition:all var(--transition); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:150px; }
@@ -1070,12 +1077,29 @@
                         </div>
 
                         <div class="card-settings-label" style="margin-top:16px;margin-bottom:8px">عدد البطاقات — Card Count</div>
+
+                        <!-- Auto Card toggle -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);background:var(--surface2);margin-bottom:10px">
+                            <div>
+                                <div style="font-size:12px;font-weight:600;color:var(--text)">✨ Auto Card</div>
+                                <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px">AI decides the ideal card count to cover the whole PDF</div>
+                                <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px">الذكاء الاصطناعي يقرر العدد المناسب لتغطية كامل الـ PDF</div>
+                            </div>
+                            <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+                                <input type="checkbox" id="autoCardToggle" style="opacity:0;width:0;height:0" onchange="toggleAutoCard(this)">
+                                <span id="autoCardSlider" style="position:absolute;inset:0;background:var(--border);cursor:pointer;transition:.3s;border-radius:22px"></span>
+                                <span id="autoCardKnob" style="position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;transition:.3s;border-radius:50%"></span>
+                            </label>
+                        </div>
+
+                        <div id="cardCountChipsWrap">
                         <div class="card-count-row" id="cardCountChips">
                             <span class="card-count-chip" data-val="10" onclick="setCardCount(this)">10</span>
                             <span class="card-count-chip active" data-val="20" onclick="setCardCount(this)">20</span>
                             <span class="card-count-chip" data-val="30" onclick="setCardCount(this)">30</span>
                             <span class="card-count-chip" data-val="40" onclick="setCardCount(this)">40</span>
                             <span class="card-count-chip" data-val="50" onclick="setCardCount(this)">50</span>
+                        </div>
                         </div>
 
                         <div class="card-settings-label" style="margin-top:16px;margin-bottom:6px">ملاحظة إضافية للـ AI (اختياري)</div>
@@ -1699,22 +1723,27 @@
         if (!list) return;
         if (!_pdfFiles.length) { list.innerHTML = ''; show($('dropZone')); return; }
         hide($('dropZone'));
-        list.innerHTML = _pdfFiles.map((f, i) => `
-            <div style="display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid var(--border);background:var(--surface2);margin-bottom:4px">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <span style="flex:1;font-family:var(--mono);font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
-                <span style="font-family:var(--mono);font-size:10px;color:var(--text4)">${f.pages}p · ${(f.text.length/1000).toFixed(1)}k</span>
-                <button class="btn btn-sm btn-ghost" onclick="removePDF(${i})" style="padding:3px 7px">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+
+        const pills = _pdfFiles.map((f, i) => `
+            <div class="file-pill">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span class="file-pill-name" title="${esc(f.name)}">${esc(f.name)}</span>
+                <span class="file-pill-meta">${f.pages}p · ${(f.text.length/1000).toFixed(1)}k</span>
+                <button class="btn btn-sm btn-ghost" onclick="removePDF(${i})" style="padding:2px 6px;flex-shrink:0">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
-            </div>`).join('') +
-            `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 4px">
-                <span style="font-size:11px;font-family:var(--mono);color:var(--text4)">${_pdfFiles.length} ${currentLang==='ar'?'ملف':'file(s)'} · ${(pdfText.length/1000).toFixed(1)}k ${currentLang==='ar'?'حرف':'chars'}</span>
-                <div style="display:flex;gap:6px">
-                    <button class="btn btn-sm" onclick="document.getElementById('pdfInput').click()" style="font-size:10px">+ ${currentLang==='ar'?'إضافة':'Add PDF'}</button>
-                    <button class="btn btn-danger btn-sm" onclick="clearPDF()" style="font-size:10px">${currentLang==='ar'?'مسح الكل':'Clear All'}</button>
+            </div>`).join('');
+
+        const footer = `
+            <div class="file-pill-footer">
+                <span style="font-size:10px;font-family:var(--mono);color:var(--text4)">${_pdfFiles.length} ${currentLang==='ar'?'ملف':'file(s)'} · ${(pdfText.length/1000).toFixed(1)}k</span>
+                <div style="display:flex;gap:5px">
+                    <button class="btn btn-sm" onclick="document.getElementById('pdfInput').click()" style="font-size:10px">+ ${currentLang==='ar'?'إضافة':'Add'}</button>
+                    <button class="btn btn-danger btn-sm" onclick="clearPDF()" style="font-size:10px">${currentLang==='ar'?'مسح':'Clear'}</button>
                 </div>
             </div>`;
+
+        list.innerHTML = `<div class="file-pill-list">${pills}</div>${footer}`;
     }
 
     async function addPDFs(files) {
@@ -3758,6 +3787,20 @@ ${textSlice}`;
     // Legacy single-select kept as alias (not used in new UI)
     function setFocusChip(el) { toggleFocusChip(el); }
 
+    let _autoCard = false;
+
+    function toggleAutoCard(el) {
+        _autoCard = el.checked;
+        ls('app_auto_card', _autoCard ? '1' : '0');
+        const slider = document.getElementById('autoCardSlider');
+        const knob   = document.getElementById('autoCardKnob');
+        const wrap   = document.getElementById('cardCountChipsWrap');
+        if (slider) slider.style.background = _autoCard ? 'var(--accent)' : 'var(--border)';
+        if (knob)   knob.style.transform    = _autoCard ? 'translateX(18px)' : 'translateX(0)';
+        if (wrap)   wrap.style.opacity      = _autoCard ? '0.35' : '1';
+        if (wrap)   wrap.style.pointerEvents = _autoCard ? 'none' : '';
+    }
+
     function setCardCount(el) {
         document.querySelectorAll('#cardCountChips .card-count-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
@@ -3765,7 +3808,7 @@ ${textSlice}`;
         ls('app_card_count', String(_cardCount));
     }
 
-    function buildCardsPromptWithFocus() {
+    function buildCardsPromptWithFocus(text, perChunk) {
         const focusInstructions = {
             general:     'Generate comprehensive flashcards covering all major concepts.',
             definition:  'DEFINITIONS: each card front = a term, back = its precise definition.',
@@ -3780,15 +3823,19 @@ ${textSlice}`;
         const focusText = focuses.map(f => focusInstructions[f] || '').filter(Boolean).join('\n');
         const note = document.getElementById('cardExtraNote')?.value.trim() || '';
         const lang = document.getElementById('langSel')?.value || 'عربي';
-        const count = _cardCount;
-        return `Generate exactly ${count} flashcards in ${lang}.
+        return `Generate exactly ${perChunk} flashcards in ${lang}.
 Focus types requested:
 ${focusText}
 ${note ? `Additional instruction: ${note}` : ''}
-Output ONLY a valid JSON array, no markdown, no code fences:
+RULES:
+- Every card must be based ONLY on the provided text section below.
+- Output ONLY a valid JSON array, no markdown, no code fences.
+- Spread cards across the whole section, not just the start.
+
 [{"question":"...","answer":"..."}]
-Text:
-${pdfText}`;
+
+TEXT SECTION:
+${text}`;
     }
 
     function _getFocusLabel() {
@@ -3811,29 +3858,109 @@ ${pdfText}`;
                 c.classList.toggle('active', c.dataset.val === savedCount);
             });
         }
+        // Restore auto card toggle
+        const savedAuto = lg('app_auto_card');
+        if (savedAuto === '1') {
+            _autoCard = true;
+            const el = document.getElementById('autoCardToggle');
+            if (el) { el.checked = true; toggleAutoCard(el); }
+        }
         const lbl = document.getElementById('focusActiveLabel');
         if (lbl) lbl.textContent = 'التركيز الحالي: ' + [..._activeFocuses].join(' · ');
     }
 
-    // Override nvidiaCards to use focus settings
+    const CARDS_SYSTEM = 'You output ONLY a valid JSON array of flashcard objects with "question" and "answer" keys. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
+
+    function extractCardsJson(raw) {
+        if (!raw) return null;
+        let s = raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+        try { const r = JSON.parse(s); if (Array.isArray(r)) return r; } catch {}
+        const arrM = s.match(/\[[\s\S]*\]/);
+        if (arrM) { try { const r = JSON.parse(arrM[0]); if (Array.isArray(r)) return r; } catch {} }
+        const lastBrace = s.lastIndexOf('}');
+        if (lastBrace > 0) {
+            const arrStart = s.indexOf('[');
+            if (arrStart !== -1) {
+                try { const r = JSON.parse(s.slice(arrStart, lastBrace+1) + ']'); if (Array.isArray(r) && r.length) return r; } catch {}
+            }
+        }
+        return null;
+    }
+
+    // Override nvidiaCards to use split-and-merge
     async function nvidiaCards() {
         const btns = ['btnGenMCQ','btnGenCards'];
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
-        setAIStatus(currentLang==='ar'?'جاري توليد البطاقات...':'Generating flashcards...');
+
         try {
-            const prompt = buildCardsPromptWithFocus();
-            const r = await nvidiaChat(prompt, 'You are a flashcard generator. Output only valid JSON array. No markdown.', 4000);
-            const cards = parseJSON(r);
-            if (!Array.isArray(cards)||!cards[0]?.question) throw new Error(t('json_invalid'));
-            const valid = cards.filter(c=>c.question&&c.answer);
-            if (!valid.length) throw new Error('No valid cards');
-            const deckName = $('quizNameInput').value.trim() || pdfFile || 'Deck ' + (getDecks().length+1);
+            // ── Auto Card: AI decides the ideal count ─────────────────────
+            let count = _cardCount || 20;
+            if (_autoCard) {
+                setAIStatus(currentLang === 'ar' ? '🤖 تحديد عدد البطاقات المناسب…' : '🤖 Detecting ideal card count…');
+                const sample = pdfText.slice(0, 6000);
+                const autoPrompt = `Based on the following text sample (from a larger document of ~${Math.round(pdfText.length/1000)}k characters), estimate the ideal number of flashcards needed to comprehensively cover the ENTIRE document. Consider: unique concepts, definitions, mechanisms, and key facts. Reply with a SINGLE INTEGER only — nothing else.\n\nSAMPLE:\n${sample}`;
+                try {
+                    const raw = await nvidiaChat(autoPrompt, 'You reply with a single integer only.', 20, 0.1);
+                    const n = parseInt(raw.trim().replace(/\D/g,''));
+                    if (n >= 5 && n <= 200) { count = n; }
+                } catch {}
+                setAIStatus(currentLang === 'ar' ? `✨ Auto: ${count} بطاقة` : `✨ Auto: ${count} cards`);
+                await new Promise(r => setTimeout(r, 600));
+            }
+
+            // ── 1. Split text into chunks ──────────────────────────────────
+            const chunks   = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
+            const total    = chunks.length;
+            const perChunk = Math.ceil(count / total);
+
+            setAIStatus(
+                currentLang === 'ar'
+                    ? `🔀 ${total} أجزاء — ${perChunk} بطاقة/جزء…`
+                    : `🔀 ${total} chunks — ${perChunk} cards each…`
+            );
+
+            // ── 2. Every chunk generates its share in parallel ─────────────
+            let done = 0;
+            const results = await Promise.all(
+                chunks.map(chunk =>
+                    nvidiaChat(buildCardsPromptWithFocus(chunk, perChunk), CARDS_SYSTEM, 8000, 0.2)
+                        .then(raw => {
+                            done++;
+                            setAIStatus(
+                                currentLang === 'ar'
+                                    ? `✏️ ${done}/${total} اكتمل…`
+                                    : `✏️ ${done}/${total} done…`
+                            );
+                            return extractCardsJson(raw) || [];
+                        })
+                        .catch(() => [])
+                )
+            );
+
+            // ── 3. Merge, deduplicate, trim to exact count ─────────────────
+            const seen = new Set();
+            const merged = results.flat().filter(c => {
+                if (!c.question || !c.answer) return false;
+                const key = c.question.trim().toLowerCase().slice(0, 80);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            if (!merged.length) throw new Error('No valid cards generated');
+
+            const final = merged.slice(0, count);
+
+            const deckName   = $('quizNameInput').value.trim() || pdfFile || 'Deck ' + (getDecks().length+1);
             const focusLabel = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
+            const autoLabel  = _autoCard ? ' ✨' : '';
             const decks = getDecks();
-            decks.push({name: deckName + focusLabel, cards: valid});
+            decks.push({name: deckName + focusLabel + autoLabel, cards: final});
             saveDecks(decks);
-            setAIStatus('✓ ' + valid.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+
+            setAIStatus('✓ ' + final.length + '/' + count + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
             setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
+
         } catch(e) {
             setAIStatus('✗ ' + e.message, false, true);
             setTimeout(()=>setAIStatus(''), 4000);
