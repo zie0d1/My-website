@@ -1991,6 +1991,12 @@ ${text}`;
     const NV_MODEL    = 'meta/llama-3.3-70b-instruct';
     const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
+    const CORS_PROXIES = [
+        url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        url => `https://cors-anywhere.herokuapp.com/${url}`,
+    ];
+
     async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=3000, temperature=0.2) {
         const body = JSON.stringify({
             model: NV_MODEL,
@@ -1999,10 +2005,30 @@ ${text}`;
             temperature: temperature
         });
         const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
-        const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
-        if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
-        const d = await r.json().catch(()=>({}));
-        throw new Error(d.error?.message || ('HTTP '+r.status));
+
+        // 1. Try direct call first
+        try {
+            const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
+            if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
+            const d = await r.json().catch(()=>({}));
+            throw new Error(d.error?.message || ('HTTP '+r.status));
+        } catch(directErr) {
+            if (directErr.name !== 'TypeError') throw directErr;
+        }
+
+        // 2. Try CORS proxies in sequence
+        let lastErr = null;
+        for (const makeProxy of CORS_PROXIES) {
+            try {
+                const proxyUrl = makeProxy(NV_ENDPOINT);
+                const r = await fetch(proxyUrl, {method:'POST', headers, body});
+                if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
+                const d = await r.json();
+                const parsed = d.contents ? JSON.parse(d.contents) : d;
+                return parsed.choices[0].message.content;
+            } catch(e) { lastErr = e; }
+        }
+        throw new Error('Failed to fetch — check your connection or API key. ' + (lastErr?.message||''));
     }
 
     function parseJSON(t) {
@@ -4233,7 +4259,36 @@ ${text}`;
         const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
 
         try {
-            const responseText = await nvidiaChat(userPrompt, system, 1000, 0.5);
+            const body = JSON.stringify({
+                model: NV_MODEL,
+                messages: [{ role:'system', content: system }, ...historyForAPI],
+                max_tokens: 1000,
+                temperature: 0.5
+            });
+            const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
+
+            let responseText = '';
+            // Try direct first
+            try {
+                const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
+                if (r.ok) { const d=await r.json(); responseText = d.choices[0].message.content; }
+                else throw new Error('HTTP ' + r.status);
+            } catch(e) {
+                if (e.name !== 'TypeError') throw e;
+                // Try CORS proxies
+                for (const makeProxy of CORS_PROXIES) {
+                    try {
+                        const r = await fetch(makeProxy(NV_ENDPOINT), {method:'POST', headers, body});
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        const d = await r.json();
+                        const parsed = d.contents ? JSON.parse(d.contents) : d;
+                        responseText = parsed.choices[0].message.content;
+                        break;
+                    } catch(pe) { /* try next */ }
+                }
+            }
+            if (!responseText) throw new Error('No response');
+
             _sumAIChatHistory.push({ role: 'assistant', content: responseText });
             // Replace typing indicator with real content
             typingGroup.innerHTML = `
