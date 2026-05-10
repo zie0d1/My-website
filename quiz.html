@@ -181,15 +181,26 @@
         .confidence-chip.selected-after { opacity:0.5; }
 
         /* FLASHCARD */
-        .flashcard { background:var(--surface); border:1px solid var(--border); min-height:220px; cursor:pointer; position:relative; overflow:hidden; margin:14px 0; transition:all var(--transition); }
+        .flashcard { background:var(--surface); border:1px solid var(--border); cursor:pointer; position:relative; margin:0 0 10px 0; transition:all var(--transition); min-height:160px; display:flex; align-items:stretch; }
         .flashcard:hover { box-shadow:var(--shadow-lg); }
-        .flashcard .fc-face { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:36px; transition:all 200ms ease; }
+        .flashcard .fc-face { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 28px; transition:opacity 180ms ease, transform 180ms ease; overflow-y:auto; max-height:280px; }
         .flashcard .fc-front { background:var(--surface); opacity:1; transform:scale(1); }
-        .flashcard .fc-back { background:var(--text); color:var(--bg); opacity:0; transform:scale(0.95); pointer-events:none; }
-        .flashcard.flipped .fc-front { opacity:0; transform:scale(0.95); pointer-events:none; }
+        .flashcard .fc-back { background:var(--text); color:var(--bg); opacity:0; transform:scale(0.97); pointer-events:none; position:absolute; inset:0; overflow-y:auto; max-height:100%; }
+        .flashcard.flipped .fc-front { opacity:0; transform:scale(0.97); pointer-events:none; }
         .flashcard.flipped .fc-back { opacity:1; transform:scale(1); pointer-events:auto; }
-        .flashcard .fc-text { font-size:14px; font-weight:500; text-align:center; line-height:1.7; }
-        .flashcard .fc-hint { position:absolute; bottom:14px; font-size:10px; color:var(--text4); font-family:var(--mono); }
+        .flashcard .fc-text { font-size:14px; font-weight:500; text-align:center; line-height:1.75; white-space:pre-wrap; word-break:break-word; }
+        .flashcard .fc-hint { position:absolute; bottom:10px; right:0; left:0; text-align:center; font-size:10px; color:var(--text4); font-family:var(--mono); pointer-events:none; }
+        .rating-btns { display:flex; gap:6px; margin-top:0; }
+        .rating-btn { flex:1; padding:10px 4px 8px; border:1px solid var(--border); background:var(--surface); cursor:pointer; font-size:12px; font-weight:600; color:var(--text2); transition:all var(--transition); line-height:1.3; text-align:center; }
+        .rating-btn:hover { background:var(--surface2); }
+        .rating-btn .rb-time { display:block; font-size:9px; font-weight:400; opacity:0.55; font-family:var(--mono); margin-top:2px; }
+        .rating-btn.again:hover { background:#fee2e2; color:#dc2626; border-color:#fca5a5; }
+        .rating-btn.hard:hover  { background:#fef3c7; color:#d97706; border-color:#fcd34d; }
+        .rating-btn.good:hover  { background:#d1fae5; color:#059669; border-color:#6ee7b7; }
+        .rating-btn.easy:hover  { background:#dbeafe; color:#2563eb; border-color:#93c5fd; }
+        .fc-area-wrap { display:flex; flex-direction:column; height:100%; }
+        .fc-card-zone { flex:1; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+        .fc-footer { flex-shrink:0; padding-top:8px; }
         .rating-btns { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
         .rating-btn { flex:1; padding:10px; border:1px solid var(--border); cursor:pointer; font-size:11px; font-family:var(--mono); transition:all var(--transition); text-align:center; background:var(--surface); }
         .rating-btn:hover { transform:translateY(-1px); }
@@ -3365,28 +3376,29 @@ ${textSlice}`;
         $('flashLabel').textContent=fDeckName;
         $('fCounter').textContent=(fci+1)+' / '+fCards.length;
         $('fProg').style.width=((fci+1)/fCards.length*100)+'%';
-        // SM-2 interval info
         const nextInfo = s ? `${Math.round(s.interval/60000)}m · ef ${s.ef.toFixed(1)} · ${s.reps} reps` : 'new card';
         $('fContent').innerHTML = `
-            <div class="flashcard ${fFlipped?'flipped':''}" id="fcCard" onclick="flipCard()">
-                <div class="fc-face fc-front"><div class="fc-text">${esc(c.question)}</div></div>
+            <div class="flashcard ${fFlipped?'flipped':''}" id="fcCard" onclick="flipCard()" style="min-height:160px">
+                <div class="fc-face fc-front"><div class="fc-text">${esc(c.question)}</div><div class="fc-hint">${fFlipped?'':'▼ '+(currentLang==='ar'?'انقر للكشف':'tap to reveal')}</div></div>
                 <div class="fc-face fc-back"><div class="fc-text">${esc(c.answer)}</div></div>
-                <div class="fc-hint">${fFlipped?'':'▼ '+(currentLang==='ar'?'انقر للكشف':'Click to reveal')}</div>
             </div>
-            <div style="font-size:10px;font-family:var(--mono);color:var(--text4);text-align:center;margin-bottom:8px">${nextInfo}</div>
-            <div class="rating-btns" style="display:${fFlipped?'flex':'none'}">
-                <button class="rating-btn again" onclick="rateCard('again')" title="< 1min">${currentLang==='ar'?'مجدداً':'Again'}<br><span style="font-size:9px;opacity:0.6">&lt;1m</span></button>
-                <button class="rating-btn hard" onclick="rateCard('hard')" title="~5min">${currentLang==='ar'?'صعب':'Hard'}<br><span style="font-size:9px;opacity:0.6">~5m</span></button>
-                <button class="rating-btn good" onclick="rateCard('good')" title="1 day+">${currentLang==='ar'?'جيد':'Good'}<br><span style="font-size:9px;opacity:0.6">1d+</span></button>
-                <button class="rating-btn easy" onclick="rateCard('easy')" title="4 days+">${currentLang==='ar'?'سهل':'Easy'}<br><span style="font-size:9px;opacity:0.6">4d+</span></button>
+            <div style="font-size:10px;font-family:var(--mono);color:var(--text4);text-align:center;margin:6px 0 8px">${nextInfo}</div>
+            <div class="rating-btns" id="ratingBtns" style="display:${fFlipped?'flex':'none'}">
+                <button class="rating-btn again" onclick="rateCard('again')">${currentLang==='ar'?'مجدداً':'Again'}<span class="rb-time">&lt;1m</span></button>
+                <button class="rating-btn hard"  onclick="rateCard('hard')">${currentLang==='ar'?'صعب':'Hard'}<span class="rb-time">~5m</span></button>
+                <button class="rating-btn good"  onclick="rateCard('good')">${currentLang==='ar'?'جيد':'Good'}<span class="rb-time">1d+</span></button>
+                <button class="rating-btn easy"  onclick="rateCard('easy')">${currentLang==='ar'?'سهل':'Easy'}<span class="rb-time">4d+</span></button>
             </div>`;
     }
 
     function flipCard() {
         fFlipped=!fFlipped;
         $('fcCard')?.classList.toggle('flipped', fFlipped);
-        const rb=document.querySelector('.rating-btns');
+        const rb=$('ratingBtns');
         if (rb) rb.style.display=fFlipped?'flex':'none';
+        // hide hint on front when flipped
+        const hint=$('fcCard')?.querySelector('.fc-hint');
+        if (hint) hint.style.opacity = fFlipped ? '0' : '1';
     }
 
     // SM-2 Algorithm (faithful Anki implementation)
@@ -3910,6 +3922,19 @@ TEXT SECTION:
 ${text}`;
     }
 
+    // Ask AI to generate a concise deck name from the first few cards
+    async function aiDeckName(cards) {
+        const sample = cards.slice(0, 5).map((c,i) => `Q${i+1}: ${c.question}`).join('\n');
+        try {
+            const raw = await nvidiaChat(
+                `Based on these flashcard questions, generate a short concise deck name (3-6 words max) that describes the topic. Reply with the name ONLY — no quotes, no punctuation at end.\n\n${sample}`,
+                'You reply with a short deck name only. No quotes. No extra text.',
+                30, 0.3
+            );
+            return raw.trim().replace(/^["']|["']$/g,'').slice(0, 60) || null;
+        } catch { return null; }
+    }
+
     async function nvidiaCards() {
         const btns = ['btnGenMCQ','btnGenCards'];
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
@@ -3965,10 +3990,12 @@ ${text}`;
 
                 if (!merged.length) throw new Error('No cards extracted');
 
+                setAIStatus(currentLang==='ar'?'🏷️ توليد اسم المجموعة…':'🏷️ Naming deck…');
+                const userTyped  = $('quizNameInput').value.trim();
                 const focusLabel = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
-                const deckName   = $('quizNameInput').value.trim() || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
+                const autoName   = userTyped || await aiDeckName(merged) || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
                 const decks = getDecks();
-                decks.push({ name: deckName + focusLabel + ' ✨', cards: merged });
+                decks.push({ name: autoName + focusLabel + ' ✨', cards: merged });
                 saveDecks(decks);
 
                 setAIStatus('✓ ' + merged.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
@@ -4010,8 +4037,10 @@ ${text}`;
                 if (!merged.length) throw new Error('No valid cards generated');
                 const final = merged.slice(0, count);
 
-                const deckName   = $('quizNameInput').value.trim() || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
-                const focusLabel = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
+                setAIStatus(currentLang==='ar'?'🏷️ توليد اسم المجموعة…':'🏷️ Naming deck…');
+                const userTyped2  = $('quizNameInput').value.trim();
+                const deckName    = userTyped2 || await aiDeckName(final) || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
+                const focusLabel  = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
                 const decks = getDecks();
                 decks.push({ name: deckName + focusLabel, cards: final });
                 saveDecks(decks);
