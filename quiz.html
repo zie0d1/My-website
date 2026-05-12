@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="light">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y95T2H1BP5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-Y95T2H1BP5');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Google Analytics -->
@@ -171,7 +162,7 @@
         /* QUIZ */
         .quiz-header { display:flex; align-items:center; gap:12px; padding:14px; background:var(--surface); border:1px solid var(--border); margin-bottom:16px; flex-wrap:wrap; }
         .quiz-stat { font-size:12px; font-family:var(--mono); color:var(--text3); }
-        .progress-bar { height:3px; background:var(--surface2); margin-bottom:20px; overflow:hidden; }
+        .progress-bar { height:6px; background:var(--surface2); margin-bottom:20px; overflow:hidden; border-radius:3px; }
         .progress-fill { height:100%; background:var(--accent); transition:width 300ms ease; }
         .question-text { font-size:17px; font-weight:500; line-height:1.7; margin-bottom:16px; unicode-bidi:plaintext; text-align:start; }
         .options-list { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
@@ -206,7 +197,8 @@
         .flashcard.flipped .fc-front { opacity:0; transform:scale(0.97); pointer-events:none; }
         .flashcard.flipped .fc-back { opacity:1; transform:scale(1); pointer-events:auto; }
         .flashcard .fc-text { font-size:14px; font-weight:500; text-align:center; line-height:1.75; white-space:pre-wrap; word-break:break-word; }
-        .flashcard .fc-hint { position:absolute; bottom:10px; right:0; left:0; text-align:center; font-size:10px; color:var(--text4); font-family:var(--mono); pointer-events:none; }
+        .flashcard .fc-hint { position:absolute; bottom:10px; right:0; left:0; text-align:center; font-size:11px; color:var(--text3); font-family:var(--mono); pointer-events:none; animation: fc-pulse 2s ease-in-out infinite; }
+        @keyframes fc-pulse { 0%,100%{ opacity:0.5; transform:translateY(0); } 50%{ opacity:1; transform:translateY(-3px); } }
         .rating-btns { display:flex; gap:6px; margin-top:0; }
         .rating-btn { flex:1; padding:10px 4px 8px; border:1px solid var(--border); background:var(--surface); cursor:pointer; font-size:12px; font-weight:600; color:var(--text2); transition:all var(--transition); line-height:1.3; text-align:center; }
         .rating-btn:hover { background:var(--surface2); }
@@ -358,6 +350,12 @@
 
         /* SPINNER */
         @keyframes spin { to { transform:rotate(360deg); } }
+        @keyframes skeleton-shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        .skeleton { background:linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%); background-size:400px 100%; animation:skeleton-shimmer 1.4s ease infinite; border-radius:2px; }
+        .skeleton-line { height:12px; margin-bottom:8px; }
+        .skeleton-line.w80 { width:80%; }
+        .skeleton-line.w60 { width:60%; }
+        .skeleton-line.w90 { width:90%; }
 
         /* SUMMARY CARD STYLES */
         .summary-card { background:var(--surface); border:1px solid var(--border); padding:18px; margin-bottom:10px; transition:all var(--transition); position:relative; cursor:pointer; }
@@ -719,6 +717,8 @@
             .subjects-grid { grid-template-columns:1fr; }
             .quiz-header { gap:6px; padding:10px; }
             .page-title { font-size:18px; }
+            #langToggleBtn { display:none; }
+            .toast { bottom:80px; }
         }
     </style>
 </head>
@@ -761,39 +761,39 @@
                 <span class="si-label" data-t="dashboard">لوحة المواد</span>
             </button>
             <div class="sidebar-section subject-only hidden" id="sidebarSectionLearn" data-t="learning">التعلم</div>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="gen" id="sidebarGen" onclick="switchPanel('gen')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="gen" id="sidebarGen" onclick="switchPanel('gen')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></span>
                 <span class="si-label" data-t="gen_pdf">توليد من PDF</span>
             </button>
 
-            <button class="sidebar-item disabled subject-only hidden" data-panel="todo" id="sidebarTodo" onclick="switchPanel('todo')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="todo" id="sidebarTodo" onclick="switchPanel('todo')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="1"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="16" x2="9.01" y2="16" stroke-width="3"/><polyline points="12 14 15 17 20 12"/></svg></span>
                 <span class="si-label" data-t="todo">المحاضرات</span>
             </button>
             <div class="sidebar-section subject-only hidden" id="sidebarSectionLib" data-t="library">المكتبة</div>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="summary" id="sidebarSummary" onclick="switchPanel('summary')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="summary" id="sidebarSummary" onclick="switchPanel('summary')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
                 <span class="si-label" data-t="summary_lib">الملخصات</span>
             </button>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="decks" id="sidebarDecks" onclick="switchPanel('decks')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="decks" id="sidebarDecks" onclick="switchPanel('decks')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
                 <span class="si-label" data-t="my_cards">بطاقاتي</span>
             </button>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="history" id="sidebarHistory" onclick="switchPanel('history')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="history" id="sidebarHistory" onclick="switchPanel('history')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
                 <span class="si-label" data-t="history">السجل</span>
                 <span class="si-badge" id="sidebarDueBadge">0</span>
             </button>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="errors" id="sidebarErrors" onclick="switchPanel('errors')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="errors" id="sidebarErrors" onclick="switchPanel('errors')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
                 <span class="si-label" data-t="error_bank">بنك الأخطاء</span>
             </button>
             <div class="sidebar-section subject-only hidden" id="sidebarSectionAnalytics" data-t="analytics">التحليل</div>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="stats" id="sidebarStats" onclick="switchPanel('stats')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="stats" id="sidebarStats" onclick="switchPanel('stats')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
                 <span class="si-label" data-t="stats">الإحصاءات</span>
             </button>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="progress" id="sidebarProgress" onclick="switchPanel('progress')">
+            <button class="sidebar-item disabled subject-only hidden" data-panel="progress" id="sidebarProgress" onclick="switchPanel('progress')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20" stroke-dasharray="4 2"/><polyline points="12 6 12 12 16 14"/></svg></span>
                 <span class="si-label" data-t="progress">التقدم</span>
             </button>
@@ -1566,7 +1566,12 @@
             }
         }
         if (!subs.length) {
-            grid.innerHTML = `<div style="text-align:center;padding:36px;color:var(--text4);grid-column:1/-1"><div style="font-size:36px;margin-bottom:10px;opacity:0.3">[ ]</div>${t('no_subjects')}</div>`;
+            grid.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3);grid-column:1/-1">
+                <div style="font-size:52px;margin-bottom:16px;opacity:0.25;line-height:1">📚</div>
+                <div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:8px">${currentLang==='ar'?'ابدأ رحلتك الدراسية':'Start your study journey'}</div>
+                <div style="font-size:12px;color:var(--text4);margin-bottom:20px;font-family:var(--mono)">${currentLang==='ar'?'أضف مادتك الأولى وابدأ التعلم بالذكاء الاصطناعي':'Add your first subject and start learning with AI'}</div>
+                <button class="btn btn-primary" onclick="showAddSubjectModal()" style="font-size:13px;padding:10px 24px">${t('add_subject')}</button>
+            </div>`;
             return;
         }
         grid.innerHTML = subs.map(s => {
@@ -2112,6 +2117,20 @@ ${text}`;
         txt.textContent = msg;
         txt.style.color = error ? 'var(--danger)' : done ? 'var(--success)' : 'var(--text3)';
         if (spinner) spinner.style.display = (done||error) ? 'none' : 'block';
+        // Show skeleton lines while loading
+        let skeletonWrap = $('aiSkeletonWrap');
+        if (!done && !error) {
+            if (!skeletonWrap) {
+                skeletonWrap = document.createElement('div');
+                skeletonWrap.id = 'aiSkeletonWrap';
+                skeletonWrap.style.cssText = 'padding:12px 0 4px';
+                skeletonWrap.innerHTML = '<div class="skeleton skeleton-line w90"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w60"></div>';
+                wrap.appendChild(skeletonWrap);
+            }
+            skeletonWrap.style.display = 'block';
+        } else if (skeletonWrap) {
+            skeletonWrap.style.display = 'none';
+        }
     }
 
 
@@ -3730,10 +3749,19 @@ ${textSlice}`;
     }
 
     function clearAllData() {
-        confirmModal(t('danger_zone_warning'), ()=>{
-            localStorage.clear(); toast(t('cleared'));
-            setTimeout(()=>location.reload(), 1000);
-        });
+        const isAr = currentLang === 'ar';
+        const confirmWord = isAr ? 'حذف' : 'delete';
+        modal(
+            `<div class="modal-title" style="color:var(--danger)">${isAr?'⚠️ تحذير — لا يمكن التراجع':'⚠️ Warning — Cannot be undone'}</div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.7">${isAr?'سيتم مسح جميع المواد والاختبارات والبطاقات والسجلات نهائياً.':'All subjects, quizzes, flashcards, and history will be permanently deleted.'}</p>
+            <div class="input-group">
+                <label style="color:var(--danger);font-size:11px">${isAr?`اكتب كلمة "${confirmWord}" للتأكيد`:`Type "${confirmWord}" to confirm`}</label>
+                <input id="deleteConfirmInput" placeholder="${confirmWord}" oninput="document.getElementById('btnConfirmDelete').disabled=this.value!=='${confirmWord}'" style="border-color:var(--danger)">
+            </div>`,
+            `<button class="btn btn-danger" id="btnConfirmDelete" disabled onclick="closeModal();localStorage.clear();toast('${isAr?'تم المسح':'Cleared'}');setTimeout(()=>location.reload(),1000)">${isAr?'مسح كل البيانات':'Delete All Data'}</button>
+            <button class="btn" onclick="closeModal()">${t('cancel')}</button>`
+        );
+        setTimeout(() => $('deleteConfirmInput')?.focus(), 200);
     }
 
     // ── MOBILE MENU ────────────────────────────────
@@ -3827,6 +3855,41 @@ ${textSlice}`;
 
         // Refresh badge every minute
         setInterval(updateDueBadge, 60000);
+
+        // ── Keyboard shortcuts ──────────────────────────────────────────
+        document.addEventListener('keydown', (e) => {
+            // Don't fire if user is typing in an input/textarea
+            if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+
+            // MCQ shortcuts: 1-4 to select option
+            if (qLive && $('quizArea') && !$('quizArea').classList.contains('hidden')) {
+                if (['1','2','3','4'].includes(e.key)) {
+                    const idx = parseInt(e.key) - 1;
+                    const opts = document.querySelectorAll('.option-btn:not([disabled])');
+                    if (opts[idx]) opts[idx].click();
+                    return;
+                }
+                if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    if (e.key === 'ArrowRight') nextQ(); else prevQ();
+                    return;
+                }
+            }
+
+            // Flashcard shortcuts: Space to flip, arrows to navigate
+            if ($('flashArea') && !$('flashArea').classList.contains('hidden')) {
+                if (e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    flipCard();
+                    return;
+                }
+                if (e.key === 'ArrowRight') { e.preventDefault(); document.querySelector('[onclick="fcNext()"]')?.click(); return; }
+                if (e.key === 'ArrowLeft')  { e.preventDefault(); document.querySelector('[onclick="fcPrev()"]')?.click(); return; }
+                if (e.key === '1') { e.preventDefault(); document.querySelector('[onclick="rateCard(1)"]')?.click(); return; }
+                if (e.key === '2') { e.preventDefault(); document.querySelector('[onclick="rateCard(2)"]')?.click(); return; }
+                if (e.key === '3') { e.preventDefault(); document.querySelector('[onclick="rateCard(3)"]')?.click(); return; }
+            }
+        });
 
         // Init card focus settings
         setTimeout(initCardSettings, 100);
