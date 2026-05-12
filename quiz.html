@@ -721,64 +721,81 @@
             .toast { bottom:80px; }
         }
 
-        /* ── MCQ LOADING SCREEN ───────────────────────────── */
+        /* ── MCQ LOADING SCREEN ─────────────────────────── */
+        #mcqLoadingScreen {
+            position: fixed !important;
+            inset: 0 !important; z-index: 9999 !important;
+            display: none;
+            background: var(--bg);
+            overflow: hidden;
+        }
         .mcq-loading-wrap {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; min-height: 70vh;
-            padding: 40px 20px; text-align: center;
-            animation: fadeIn 0.4s ease;
-        }
-        .mcq-loading-orb {
-            position: relative; width: 96px; height: 96px;
-            margin-bottom: 32px; display: flex; align-items: center; justify-content: center;
-        }
-        .mcq-orb-ring {
-            position: absolute; inset: 0; border-radius: 50%;
-            border: 2px solid transparent;
-        }
-        .mcq-orb-ring.r1 { border-top-color: var(--accent); animation: orb-spin 1.2s linear infinite; }
-        .mcq-orb-ring.r2 { inset: 10px; border-right-color: var(--accent); opacity: 0.6; animation: orb-spin 1.8s linear infinite reverse; }
-        .mcq-orb-ring.r3 { inset: 20px; border-bottom-color: var(--accent); opacity: 0.35; animation: orb-spin 2.4s linear infinite; }
-        .mcq-orb-core {
             position: relative; z-index: 2;
-            width: 48px; height: 48px; background: var(--accent-light); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            animation: orb-pulse 2s ease-in-out infinite;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; width: 100%; height: 100%;
+            padding: 24px 20px; text-align: center; gap: 0;
+            animation: fadeIn 0.35s ease;
         }
-        @keyframes orb-spin  { to { transform: rotate(360deg); } }
-        @keyframes orb-pulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
-
-        .mcq-loading-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
-        .mcq-loading-sub   { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-bottom: 28px; min-height: 18px; transition: all 0.3s ease; }
-
-        .mcq-steps { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
+        /* Spinner */
+        .mcq-spinner-ring {
+            width: 52px; height: 52px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 28px;
+        }
+        /* Title */
+        .mcq-loading-title {
+            font-size: 16px; font-weight: 700; color: var(--text);
+            margin-bottom: 6px; letter-spacing: -0.3px;
+            transition: opacity 0.25s ease;
+        }
+        .mcq-loading-sub {
+            font-size: 11px; color: var(--text4); font-family: var(--mono);
+            margin-bottom: 32px; min-height: 16px; letter-spacing: 0.3px;
+        }
+        /* Steps */
+        .mcq-steps {
+            width: 100%; max-width: 320px;
+            display: flex; flex-direction: column; gap: 4px;
+            margin-bottom: 28px;
+        }
         .mcq-step {
-            display: flex; align-items: center; gap: 12px;
-            padding: 10px 14px;
-            background: var(--surface2); border: 1px solid var(--border);
-            transition: all 0.35s ease; opacity: 0.3;
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease; opacity: 0.3;
         }
-        .mcq-step.active { opacity: 1; border-color: var(--accent); background: var(--accent-light); }
-        .mcq-step.done   { opacity: 0.8; border-color: var(--success); background: var(--success-bg); }
-        .mcq-step-icon {
-            width: 28px; height: 28px; flex-shrink: 0;
+        .mcq-step.active { opacity: 1; border-color: var(--border); background: var(--surface2); }
+        .mcq-step.done   { opacity: 0.6; }
+        .mcq-step-num {
+            width: 20px; height: 20px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 50%; color: var(--text3); transition: all 0.35s ease;
+            font-size: 10px; font-family: var(--mono); font-weight: 700;
+            color: var(--text4); transition: all 0.3s;
         }
-        .mcq-step.active .mcq-step-icon { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
-        .mcq-step.done   .mcq-step-icon { color: var(--success); border-color: var(--success); background: var(--success-bg); }
-        .mcq-step-body { flex: 1; text-align: start; }
-        .mcq-step-label { font-size: 12px; font-weight: 600; color: var(--text); }
-        .mcq-step.active .mcq-step-label { color: var(--accent); }
-        .mcq-step.done   .mcq-step-label { color: var(--success); }
-        .mcq-step-desc   { font-size: 10px; color: var(--text4); font-family: var(--mono); margin-top: 1px; }
-        .mcq-step-status { width: 18px; height: 18px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
-        .mcq-step-spinner { width:14px; height:14px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.7s linear infinite; }
-
-        .mcq-loading-bar-wrap { width:100%; max-width:360px; height:4px; background:var(--surface2); border:1px solid var(--border); overflow:hidden; border-radius:2px; }
-        .mcq-loading-bar { height:100%; background:var(--accent); width:0%; transition:width 0.6s cubic-bezier(.4,0,.2,1); border-radius:2px; }
-        .mcq-loading-count { font-size:11px; font-family:var(--mono); color:var(--text4); margin-top:8px; min-height:16px; }
+        .mcq-step.active .mcq-step-num { color: var(--accent); }
+        .mcq-step.done   .mcq-step-num { color: var(--success); }
+        .mcq-step-label { font-size: 12px; color: var(--text3); flex: 1; text-align: start; transition: color 0.3s; }
+        .mcq-step.active .mcq-step-label { color: var(--text); font-weight: 500; }
+        .mcq-step.done   .mcq-step-label { color: var(--text4); }
+        .mcq-step-check { width: 14px; height: 14px; color: var(--success); opacity: 0; transition: opacity 0.3s; }
+        .mcq-step.done .mcq-step-check { opacity: 1; }
+        .mcq-step-spinner-sm { width: 12px; height: 12px; border: 1.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        .mcq-step.active .mcq-step-spinner-sm { display: block; }
+        .mcq-step.active .mcq-step-check { display: none; }
+        /* Progress bar */
+        .mcq-bar-outer { width: 100%; max-width: 320px; height: 2px; background: var(--surface2); overflow: hidden; }
+        .mcq-bar-fill  { height: 100%; width: 0%; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+        .mcq-loading-pct { font-size: 11px; font-family: var(--mono); color: var(--text4); margin-top: 8px; }
+        /* Cancel */
+        .mcq-cancel-btn {
+            margin-top: 24px; font-size: 11px; font-family: var(--mono);
+            color: var(--text4); background: none; border: none; cursor: pointer;
+            padding: 4px 8px; transition: color 0.2s;
+        }
+        .mcq-cancel-btn:hover { color: var(--danger); }
     </style>
 </head>
 <body>
@@ -1296,73 +1313,46 @@
 
                 <!-- QUIZ AREA -->
                 <!-- MCQ LOADING SCREEN -->
-                <div class="panel" id="mcqLoadingScreen">
+                <div id="mcqLoadingScreen">
                     <div class="mcq-loading-wrap">
-                        <div class="mcq-loading-orb">
-                            <div class="mcq-orb-ring r1"></div>
-                            <div class="mcq-orb-ring r2"></div>
-                            <div class="mcq-orb-ring r3"></div>
-                            <div class="mcq-orb-core">
-                                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-                                    <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" fill="var(--accent)" opacity="0.15"/>
-                                    <path d="M50 15 L82 32.5 L82 67.5 L50 85 L18 67.5 L18 32.5 Z" fill="var(--accent)" opacity="0.35"/>
-                                    <path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--accent)"/>
-                                </svg>
-                            </div>
-                        </div>
+                        <div class="mcq-spinner-ring"></div>
 
-                        <div class="mcq-loading-title" id="mcqLoadTitle">جاري الإعداد…</div>
-                        <div class="mcq-loading-sub" id="mcqLoadSub">يتم تحليل المحتوى وصياغة الأسئلة</div>
+                        <div class="mcq-loading-title" id="mcqLoadTitle">—</div>
+                        <div class="mcq-loading-sub"   id="mcqLoadSub"></div>
 
-                        <div class="mcq-steps" id="mcqSteps">
+                        <div class="mcq-steps">
                             <div class="mcq-step" id="mcqStep0">
-                                <div class="mcq-step-icon">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                </div>
-                                <div class="mcq-step-body">
-                                    <div class="mcq-step-label">قراءة الـ PDF</div>
-                                    <div class="mcq-step-desc">استخراج النصوص وتقسيمها</div>
-                                </div>
-                                <div class="mcq-step-status"></div>
+                                <div class="mcq-step-num">01</div>
+                                <div class="mcq-step-label" id="mcqStepLabel0">—</div>
+                                <div class="mcq-step-spinner-sm"></div>
+                                <svg class="mcq-step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
                             <div class="mcq-step" id="mcqStep1">
-                                <div class="mcq-step-icon">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                                </div>
-                                <div class="mcq-step-body">
-                                    <div class="mcq-step-label">إرسال إلى الذكاء الاصطناعي</div>
-                                    <div class="mcq-step-desc" id="mcqStep1Desc">إرسال المحتوى للنموذج</div>
-                                </div>
-                                <div class="mcq-step-status"></div>
+                                <div class="mcq-step-num">02</div>
+                                <div class="mcq-step-label" id="mcqStepLabel1">—</div>
+                                <div class="mcq-step-spinner-sm"></div>
+                                <svg class="mcq-step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
                             <div class="mcq-step" id="mcqStep2">
-                                <div class="mcq-step-icon">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
-                                </div>
-                                <div class="mcq-step-body">
-                                    <div class="mcq-step-label">توليد الأسئلة</div>
-                                    <div class="mcq-step-desc" id="mcqStep2Desc">صياغة الأسئلة والخيارات</div>
-                                </div>
-                                <div class="mcq-step-status"></div>
+                                <div class="mcq-step-num">03</div>
+                                <div class="mcq-step-label" id="mcqStepLabel2">—</div>
+                                <div class="mcq-step-spinner-sm"></div>
+                                <svg class="mcq-step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
                             <div class="mcq-step" id="mcqStep3">
-                                <div class="mcq-step-icon">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                </div>
-                                <div class="mcq-step-body">
-                                    <div class="mcq-step-label">مراجعة ومعالجة النتائج</div>
-                                    <div class="mcq-step-desc">التحقق من جودة الأسئلة</div>
-                                </div>
-                                <div class="mcq-step-status"></div>
+                                <div class="mcq-step-num">04</div>
+                                <div class="mcq-step-label" id="mcqStepLabel3">—</div>
+                                <div class="mcq-step-spinner-sm"></div>
+                                <svg class="mcq-step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
                         </div>
 
-                        <div class="mcq-loading-bar-wrap">
-                            <div class="mcq-loading-bar" id="mcqLoadBar"></div>
+                        <div class="mcq-bar-outer">
+                            <div class="mcq-bar-fill" id="mcqLoadBar"></div>
                         </div>
-                        <div class="mcq-loading-count" id="mcqLoadCount"></div>
+                        <div class="mcq-loading-pct" id="mcqLoadPct">0%</div>
 
-                        <button class="btn btn-sm" style="margin-top:24px;opacity:0.5;font-size:11px" onclick="cancelMCQLoad()">إلغاء</button>
+                        <button class="mcq-cancel-btn" onclick="cancelMCQLoad()" id="mcqCancelBtn">—</button>
                     </div>
                 </div>
 
@@ -2071,116 +2061,133 @@ ${text}`;
         return extractMCQJson(raw) || [];
     }
 
-    // ── MCQ Loading Screen helpers ─────────────────────────────────────────
+    // ── MCQ LOADING SCREEN ────────────────────────────────────────────────
     let _mcqCancelled = false;
+
+    const MCQ_LABELS = {
+        ar: {
+            titles:  ['قراءة الملف', 'الإرسال للذكاء الاصطناعي', 'توليد الأسئلة', 'المراجعة النهائية'],
+            steps:   ['استخراج النص وتقسيمه', 'إرسال المحتوى للنموذج', 'صياغة الأسئلة والخيارات', 'التحقق من الجودة'],
+            init:    'جاري الإعداد…',
+            sub:     'يتم تحليل المحتوى',
+            ready:   '✓ جاهز',
+            readySub: 'تم توليد الأسئلة بنجاح',
+            cancel:  'إلغاء',
+        },
+        en: {
+            titles:  ['Reading File', 'Sending to AI', 'Generating Questions', 'Final Review'],
+            steps:   ['Extract & split text', 'Send content to model', 'Craft questions & options', 'Validate quality'],
+            init:    'Preparing…',
+            sub:     'Analyzing content',
+            ready:   '✓ Ready',
+            readySub: 'Questions generated',
+            cancel:  'Cancel',
+        }
+    };
+
+    function _L(isAr) { return isAr ? MCQ_LABELS.ar : MCQ_LABELS.en; }
 
     function showMCQLoader(isAr) {
         _mcqCancelled = false;
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        const screen = $('mcqLoadingScreen');
-        screen.classList.add('active'); show(screen);
-        // Reset all steps
-        [0,1,2,3].forEach(i => {
-            const s = $('mcqStep'+i);
-            if (s) { s.classList.remove('active','done'); s.querySelector('.mcq-step-status').innerHTML = ''; }
+        const L = _L(isAr);
+        const screen = document.getElementById('mcqLoadingScreen');
+        screen.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        document.getElementById('mcqLoadTitle').textContent = L.init;
+        document.getElementById('mcqLoadSub').textContent   = L.sub;
+        document.getElementById('mcqCancelBtn').textContent = L.cancel;
+
+        L.steps.forEach((s, i) => {
+            const el = document.getElementById('mcqStepLabel' + i);
+            if (el) el.textContent = s;
         });
-        $('mcqLoadBar').style.width = '0%';
-        $('mcqLoadCount').textContent = '';
-        $('mcqLoadTitle').textContent = isAr ? 'جاري الإعداد…' : 'Preparing…';
-        $('mcqLoadSub').textContent = isAr ? 'يتم تحليل المحتوى وصياغة الأسئلة' : 'Analyzing content and crafting questions';
-        window.scrollTo({top:0,behavior:'smooth'});
+
+        [0,1,2,3].forEach(i => {
+            const el = document.getElementById('mcqStep' + i);
+            if (el) el.classList.remove('active', 'done');
+        });
+
+        mcqLoaderProgress(0);
+        window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     function hideMCQLoader() {
-        const screen = $('mcqLoadingScreen');
-        if (screen) { screen.classList.remove('active'); hide(screen); }
+        const screen = document.getElementById('mcqLoadingScreen');
+        if (screen) screen.style.display = 'none';
+        document.body.style.overflow = '';
     }
 
-    function mcqLoaderStep(stepIdx, state, descText) {
-        // state: 'active' | 'done'
-        const el = $('mcqStep'+stepIdx);
+    function mcqLoaderStep(stepIdx, state) {
+        const el = document.getElementById('mcqStep' + stepIdx);
         if (!el) return;
-        el.classList.remove('active','done');
-        el.classList.add(state);
-        const statusEl = el.querySelector('.mcq-step-status');
-        if (state === 'active') {
-            statusEl.innerHTML = '<div class="mcq-step-spinner"></div>';
-        } else if (state === 'done') {
-            statusEl.innerHTML = '<svg class="mcq-step-check" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-        }
-        if (descText) {
-            const desc = el.querySelector('.mcq-step-desc, #mcqStep'+stepIdx+'Desc');
-            if (desc) desc.textContent = descText;
-        }
+        el.classList.remove('active', 'done');
+        if (state) el.classList.add(state);
     }
 
-    function mcqLoaderProgress(pct, countText) {
-        $('mcqLoadBar').style.width = pct + '%';
-        if (countText) $('mcqLoadCount').textContent = countText;
+    function mcqLoaderProgress(pct) {
+        const bar   = document.getElementById('mcqLoadBar');
+        const pctEl = document.getElementById('mcqLoadPct');
+        if (bar)   bar.style.width = pct + '%';
+        if (pctEl) pctEl.textContent = Math.round(pct) + '%';
     }
 
     function cancelMCQLoad() {
         _mcqCancelled = true;
         hideMCQLoader();
-        switchPanel('gen');
     }
 
     async function nvidiaMCQ() {
         const btns = ['btnGenMCQ', 'btnGenCards'];
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
 
-        const count  = parseInt($('qCount').value) || 10;
-        const lang   = $('langSel').value || 'English';
-        const diff   = $('diffSel').value || 'medium';
-        const isAr   = currentLang === 'ar';
+        const count = parseInt($('qCount').value)  || 10;
+        const lang  = $('langSel').value            || 'English';
+        const diff  = $('diffSel').value            || 'medium';
+        const isAr  = currentLang === 'ar';
+        const L     = _L(isAr);
 
         showMCQLoader(isAr);
 
         try {
-            // ── Step 0: Read & split PDF ──────────────────────────────────
+            // Step 0: Parse PDF
             mcqLoaderStep(0, 'active');
-            $('mcqLoadTitle').textContent  = isAr ? 'قراءة الملف…'      : 'Reading file…';
-            $('mcqLoadSub').textContent    = isAr ? 'تقسيم المحتوى إلى أجزاء' : 'Splitting content into chunks';
+            document.getElementById('mcqLoadTitle').textContent = L.titles[0];
             mcqLoaderProgress(8);
-            await new Promise(r => setTimeout(r, 320)); // brief visual pause
+            await new Promise(r => setTimeout(r, 250));
 
             const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
             const total  = chunks.length;
             mcqLoaderStep(0, 'done');
-            mcqLoaderProgress(18, isAr ? `${total} ${total===1?'جزء':'أجزاء'}` : `${total} chunk${total>1?'s':''}`);
-
+            mcqLoaderProgress(18);
             if (_mcqCancelled) return;
 
-            // ── Step 1: Send to AI ────────────────────────────────────────
-            mcqLoaderStep(1, 'active', isAr ? `إرسال ${total} ${total===1?'جزء':'أجزاء'} للنموذج` : `Sending ${total} chunk${total>1?'s':''} to model`);
-            $('mcqLoadTitle').textContent = isAr ? 'الإرسال إلى الذكاء الاصطناعي…' : 'Sending to AI…';
-            $('mcqLoadSub').textContent   = isAr ? 'يتم إرسال المحتوى للمعالجة' : 'Content is being processed';
-            mcqLoaderProgress(28);
+            // Step 1: Send to AI
+            mcqLoaderStep(1, 'active');
+            document.getElementById('mcqLoadTitle').textContent = L.titles[1];
+            document.getElementById('mcqLoadSub').textContent   = isAr ? `${total} ${total===1?'جزء':'أجزاء'}` : `${total} chunk${total>1?'s':''}`;
+            mcqLoaderProgress(26);
 
             let merged;
 
             if (total === 1) {
-                // ── Step 2: Single call ──────────────────────────────────
                 mcqLoaderStep(1, 'done');
-                mcqLoaderStep(2, 'active', isAr ? 'صياغة الأسئلة والخيارات…' : 'Crafting questions and options…');
-                $('mcqLoadTitle').textContent = isAr ? 'توليد الأسئلة…' : 'Generating questions…';
-                $('mcqLoadSub').textContent   = isAr ? `يتم توليد ${count} سؤال بمستوى ${diff}` : `Generating ${count} questions at ${diff} level`;
-                mcqLoaderProgress(45);
+                mcqLoaderStep(2, 'active');
+                document.getElementById('mcqLoadTitle').textContent = L.titles[2];
+                document.getElementById('mcqLoadSub').textContent   = isAr ? `${count} سؤال · ${diff}` : `${count} questions · ${diff}`;
+                mcqLoaderProgress(44);
 
                 const qs = await mcqForChunk(chunks[0], count, lang, diff);
                 merged = qs.filter(q => {
                     if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
-                    const ci = Number(q.correct);
-                    return !isNaN(ci) && ci >= 0 && ci < q.options.length;
+                    const ci = Number(q.correct); return !isNaN(ci) && ci >= 0 && ci < q.options.length;
                 });
-                mcqLoaderProgress(80, isAr ? `${merged.length} سؤال` : `${merged.length} questions`);
+                mcqLoaderProgress(80);
 
             } else {
-                // ── Step 2: Parallel chunks ───────────────────────────────
                 mcqLoaderStep(1, 'done');
-                mcqLoaderStep(2, 'active', isAr ? `معالجة ${total} أجزاء بشكل متوازٍ` : `Processing ${total} chunks in parallel`);
-                $('mcqLoadTitle').textContent = isAr ? 'توليد الأسئلة…' : 'Generating questions…';
-                $('mcqLoadSub').textContent   = isAr ? `${total} طلب متوازٍ جاري المعالجة` : `${total} parallel requests in progress`;
+                mcqLoaderStep(2, 'active');
+                document.getElementById('mcqLoadTitle').textContent = L.titles[2];
 
                 const perChunk = Math.ceil(count / total);
                 let done = 0;
@@ -2189,15 +2196,15 @@ ${text}`;
                         mcqForChunk(chunk, perChunk, lang, diff)
                             .then(qs => {
                                 done++;
-                                const pct = 28 + Math.round((done / total) * 50);
-                                mcqLoaderProgress(pct, isAr ? `${done}/${total} اكتمل` : `${done}/${total} done`);
-                                $('mcqLoadSub').textContent = isAr ? `${done} من ${total} أجزاء اكتملت` : `${done} of ${total} chunks done`;
+                                mcqLoaderProgress(26 + Math.round((done / total) * 52));
+                                document.getElementById('mcqLoadSub').textContent = isAr
+                                    ? `${done} / ${total} أجزاء`
+                                    : `${done} / ${total} chunks`;
                                 return qs;
                             })
                             .catch(() => [])
                     )
                 );
-
                 const seen = new Set();
                 merged = results.flat().filter(q => {
                     if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
@@ -2205,31 +2212,30 @@ ${text}`;
                     if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
                     const key = q.question.trim().toLowerCase().slice(0, 80);
                     if (seen.has(key)) return false;
-                    seen.add(key);
-                    return true;
+                    seen.add(key); return true;
                 });
             }
 
             if (_mcqCancelled) return;
-            if (!merged.length) throw new Error(isAr ? 'لم يتم توليد أسئلة صالحة' : 'No valid questions generated');
+            if (!merged.length) throw new Error(isAr ? 'لم يتم توليد أسئلة' : 'No questions generated');
 
-            // ── Step 3: Review & finalize ─────────────────────────────────
+            // Step 3: Finalize
             mcqLoaderStep(2, 'done');
             mcqLoaderStep(3, 'active');
-            $('mcqLoadTitle').textContent = isAr ? 'مراجعة النتائج…' : 'Reviewing results…';
-            $('mcqLoadSub').textContent   = isAr ? 'التحقق من جودة الأسئلة وترتيبها' : 'Verifying question quality';
+            document.getElementById('mcqLoadTitle').textContent = L.titles[3];
+            document.getElementById('mcqLoadSub').textContent   = isAr ? `${merged.length} سؤال` : `${merged.length} questions`;
             mcqLoaderProgress(92);
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 350));
 
             const final = merged.slice(0, count);
             mcqLoaderStep(3, 'done');
-            mcqLoaderProgress(100, isAr ? `${final.length} سؤال جاهز ✓` : `${final.length} questions ready ✓`);
-            $('mcqLoadTitle').textContent = isAr ? 'جاهز!' : 'Ready!';
-            $('mcqLoadSub').textContent   = isAr ? `تم توليد ${final.length} سؤال بنجاح` : `${final.length} questions generated successfully`;
+            mcqLoaderProgress(100);
+            document.getElementById('mcqLoadTitle').textContent = L.ready;
+            document.getElementById('mcqLoadSub').textContent   = L.readySub;
 
-            await new Promise(r => setTimeout(r, 600));
-
+            await new Promise(r => setTimeout(r, 550));
             if (_mcqCancelled) return;
+
             hideMCQLoader();
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
             startQuiz(final, quizName);
@@ -2243,6 +2249,7 @@ ${text}`;
             btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
         }
     }
+
 
 
 
