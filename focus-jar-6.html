@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Jar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --ink: #18160f;
+    --ink-2: #5a5650;
+    --ink-3: #9e9990;
+    --amber: #c8820a;
+    --amber-pale: #fdf3e0;
+    --green: #2a7048;
+    --green-pale: #e6f3ec;
+    --red: #b03a3a;
+    --red-pale: #fdf0f0;
+    --border: rgba(24,22,15,0.09);
+    --border-md: rgba(24,22,15,0.16);
+    --shadow: 0 2px 24px rgba(24,22,15,0.07);
+    --r: 14px;
+    --r-sm: 9px;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    direction: rtl;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 0 18px 88px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 0 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 9px; }
+
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--ink);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-mark svg { width: 17px; height: 17px; }
+
+  .logo-name { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; }
+  .logo-name span { font-weight: 300; color: var(--ink-2); }
+
+  .pts-chip {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--amber-pale);
+    border: 1px solid rgba(200,130,10,0.22);
+    border-radius: 24px;
+    padding: 5px 13px 5px 10px;
+  }
+  .pts-chip svg { width: 13px; height: 13px; color: var(--amber); flex-shrink: 0; }
+  .pts-num { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500; color: var(--amber); }
+  .pts-lbl { font-size: 11px; color: var(--amber); font-weight: 500; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 3px; margin-bottom: 20px; gap: 3px;
+  }
+
+  .tab {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 8px;
+    border-radius: 11px; border: none; background: transparent;
+    font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 500;
+    color: var(--ink-2); cursor: pointer; transition: all 0.18s;
+  }
+  .tab svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .tab.active { background: var(--ink); color: white; }
+
+  /* Screens */
+  .screen { display: none; animation: fadeIn 0.18s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+  /* Reward banner */
+  .reward-banner {
+    display: none; align-items: center; justify-content: space-between;
+    background: var(--green-pale);
+    border: 1px solid rgba(42,112,72,0.2);
+    border-radius: var(--r-sm);
+    padding: 12px 14px; margin-bottom: 14px;
+  }
+  .reward-banner.visible { display: flex; }
+
+  .rb-left { display: flex; align-items: center; gap: 10px; }
+  .rb-icon {
+    width: 34px; height: 34px;
+    background: rgba(42,112,72,0.12);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rb-icon svg { width: 16px; height: 16px; color: var(--green); }
+  .rb-name { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 1px; }
+  .rb-time { font-family: 'IBM Plex Mono', monospace; font-size: 19px; font-weight: 400; color: var(--green); letter-spacing: -0.5px; }
+
+  .rb-end {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 13px; border-radius: 20px;
+    border: 1px solid rgba(42,112,72,0.25); background: white; color: var(--green);
+    font-family: 'Tajawal', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .rb-end svg { width: 12px; height: 12px; }
+  .rb-end:hover { background: var(--green); color: white; }
+
+  /* Timer card */
+  .timer-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 28px 24px 24px;
+    margin-bottom: 14px; text-align: center;
+    box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+  }
+  .timer-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 10%, var(--amber) 50%, transparent 90%);
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .timer-card.running-state::before { opacity: 1; }
+
+  .card-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+    color: var(--ink-3); text-transform: uppercase; margin-bottom: 22px;
+  }
+
+  /* Jar */
+  .jar-container { position: relative; display: inline-block; margin-bottom: 24px; }
+  .jar-svg-el {
+    width: 88px; height: 112px; display: block;
+    filter: drop-shadow(0 6px 16px rgba(200,130,10,0.10));
+  }
+  .jar-pts-label {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500;
+    color: var(--amber); white-space: nowrap; display: none;
+  }
+
+  /* Timer digits */
+  .timer-digits {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 60px; font-weight: 300; letter-spacing: -2px;
+    line-height: 1; color: var(--ink); margin-bottom: 6px; transition: color 0.4s;
+  }
+  .timer-digits.t-running { color: var(--amber); }
+  .timer-digits.t-paused  { color: var(--ink-3); }
+
+  .timer-status {
+    font-size: 12px; color: var(--ink-3); margin-bottom: 24px;
+    min-height: 18px; display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--amber); flex-shrink: 0;
+    animation: pulse 1.4s ease-in-out infinite; display: none;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+  /* Duration picker */
+  .dur-presets {
+    display: flex; gap: 5px; justify-content: center; margin-bottom: 16px;
+  }
+  .preset-btn {
+    padding: 5px 13px; border-radius: 20px;
+    border: 1px solid var(--border-md); background: var(--surface);
+    font-family: 'Tajawal', sans-serif; font-size: 13px; color: var(--ink-2);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .preset-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .preset-btn.sel { background: var(--amber-pale); border-color: var(--amber); color: var(--amber); }
+
+  .dur-stepper { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .dur-step-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border-md); background: var(--surface);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--ink); transition: all 0.15s;
+  }
+  .dur-step-btn svg { width: 14px; height: 14px; }
+  .dur-step-btn:hover { background: var(--ink); color: white; border-color: var(--ink); }
+  .dur-val { font-family: 'IBM Plex Mono', monospace; font-size: 18px; color: var(--ink); min-width: 68px; text-align: center; }
+
+  /* Progress bar */
+  .prog-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-top: 18px; overflow: hidden; }
+  .prog-bar { height: 100%; background: var(--amber); border-radius: 2px; transition: width 1s linear; width: 0%; }
+  .prog-bar.g { background: var(--green); }
+
+  /* Buttons */
+  .main-btn {
+    width: 100%; padding: 15px; border-radius: var(--r-sm); border: none;
+    font-family: 'Tajawal', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.18s; background: var(--ink); color: white;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .main-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .main-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(24,22,15,0.18); }
+  .main-btn:active { transform: translateY(0); box-shadow: none; }
+
+  .btn-row { display: flex; gap: 9px; margin-top: 9px; }
+  .sec-btn {
+    flex: 1; padding: 12px; border-radius: var(--r-sm);
+    border: 1px solid var(--border-md); background: var(--surface);
+    font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 500;
+    color: var(--ink-2); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .sec-btn svg { width: 14px; height: 14px; }
+  .sec-btn:hover { color: var(--ink); border-color: var(--ink-2); }
+  .sec-btn.danger { color: var(--red); border-color: rgba(176,58,58,0.2); }
+  .sec-btn.danger:hover { background: var(--red-pale); }
+
+  /* Section header */
+  .sec-hdr {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.1px;
+    color: var(--ink-3); text-transform: uppercase; margin-bottom: 10px; margin-top: 4px;
+  }
+
+  /* Reward list */
+  .reward-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+  .rw-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-sm); padding: 13px 14px;
+    display: flex; align-items: center; gap: 12px;
+    transition: border-color 0.15s; position: relative; overflow: hidden;
+  }
+  .rw-item::after {
+    content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--cat-color, var(--border-md));
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  }
+  .rw-item:hover { border-color: var(--border-md); }
+  .rw-item.locked { opacity: 0.5; }
+  .rw-item.active-rw { border-color: rgba(42,112,72,0.3); background: var(--green-pale); }
+
+  .rw-icon-box {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .rw-icon-box svg { width: 17px; height: 17px; }
+
+  .rw-body { flex: 1; min-width: 0; }
+  .rw-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rw-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-3); }
+  .rw-cost { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); font-weight: 500; display: flex; align-items: center; gap: 3px; }
+  .rw-cost svg { width: 10px; height: 10px; }
+  .rw-sep { color: var(--border-md); }
+
+  .rw-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .use-btn {
+    padding: 6px 13px; border-radius: 20px; border: 1px solid var(--amber);
+    background: transparent; color: var(--amber);
+    font-family: 'Tajawal', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.14s; white-space: nowrap;
+  }
+  .use-btn:hover { background: var(--amber); color: white; }
+  .lock-icon { display: flex; align-items: center; color: var(--ink-3); }
+  .lock-icon svg { width: 14px; height: 14px; }
+  .active-badge { font-size: 11px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 3px; }
+  .active-badge svg { width: 11px; height: 11px; }
+  .del-btn {
+    font-size: 11px; color: var(--ink-3); cursor: pointer; background: none;
+    border: none; font-family: 'Tajawal', sans-serif; padding: 0;
+    display: flex; align-items: center; gap: 2px; transition: color 0.12s;
+  }
+  .del-btn:hover { color: var(--red); }
+  .del-btn svg { width: 11px; height: 11px; }
+
+  /* Add reward form */
+  .add-card {
+    background: var(--surface); border: 1.5px dashed var(--border-md);
+    border-radius: var(--r-sm); padding: 16px; margin-bottom: 20px;
+  }
+  .add-card-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--ink-2);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+  }
+  .add-card-title svg { width: 13px; height: 13px; }
+
+  .form-row { display: flex; gap: 7px; margin-bottom: 7px; }
+  .f-inp {
+    flex: 1; padding: 9px 11px;
+    border: 1px solid var(--border); border-radius: var(--r-sm);
+    font-family: 'Tajawal', sans-serif; font-size: 13px; color: var(--ink);
+    background: var(--bg); outline: none; transition: border 0.14s; direction: rtl;
+  }
+  .f-inp:focus { border-color: var(--amber); }
+  .f-inp::placeholder { color: var(--ink-3); }
+  .f-inp.sm { flex: 0 0 76px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+
+  .cat-select { display: flex; gap: 5px; }
+  .cat-opt {
+    width: 32px; height: 32px; border-radius: 7px;
+    border: 1.5px solid var(--border); background: var(--bg);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.14s;
+  }
+  .cat-opt svg { width: 14px; height: 14px; }
+  .cat-opt:hover { border-color: var(--amber); }
+  .cat-opt.c-sel { border-color: var(--amber); background: var(--amber-pale); }
+
+  .add-submit {
+    width: 100%; padding: 10px; border-radius: var(--r-sm); border: none;
+    background: var(--amber); color: white;
+    font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.14s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .add-submit svg { width: 13px; height: 13px; }
+  .add-submit:hover { background: #a86d08; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 18px; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 14px 16px; }
+  .stat-box.hi { background: var(--amber-pale); border-color: rgba(200,130,10,0.2); }
+  .stat-icon { margin-bottom: 8px; }
+  .stat-icon svg { width: 16px; height: 16px; color: var(--ink-3); }
+  .stat-box.hi .stat-icon svg { color: var(--amber); }
+  .stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 400; color: var(--ink); line-height: 1; margin-bottom: 3px; }
+  .stat-box.hi .stat-val { color: var(--amber); }
+  .stat-lbl { font-size: 11px; color: var(--ink-3); }
+
+  .hist-list { display: flex; flex-direction: column; gap: 7px; }
+  .hist-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .hist-left { display: flex; align-items: center; gap: 10px; }
+  .hist-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+  .hist-date { font-size: 13px; font-weight: 500; }
+  .hist-mins { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+  .hist-pts { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; color: var(--amber); display: flex; align-items: center; gap: 3px; }
+  .hist-pts svg { width: 11px; height: 11px; }
+
+  /* Empty */
+  .empty { text-align: center; padding: 36px 20px; color: var(--ink-3); }
+  .empty-icon { width: 44px; height: 44px; border: 1px solid var(--border-md); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+  .empty-icon svg { width: 20px; height: 20px; }
+  .empty p { font-size: 13px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--ink); color: white;
+    padding: 10px 18px; border-radius: 40px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap; z-index: 999;
+    display: flex; align-items: center; gap: 6px;
+    max-width: calc(100vw - 40px);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  /* Cat sub-label */
+  .cat-sub { font-size: 11px; color: var(--ink-3); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.4px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3h8M7 7h10l1 13a1 1 0 01-1 1H7a1 1 0 01-1-1L7 7z"/>
+          <path d="M9 7V3M15 7V3"/>
+        </svg>
+      </div>
+      <span class="logo-name">Focus <span>Jar</span></span>
+    </div>
+    <div class="pts-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+      <span class="pts-num" id="totalPoints">0</span>
+      <span class="pts-lbl">نقطة</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" onclick="switchTab('timer',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      المؤقت
+    </button>
+    <button class="tab" onclick="switchTab('rewards',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+      المكافآت
+    </button>
+    <button class="tab" onclick="switchTab('stats',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      الإحصائيات
+    </button>
+  </nav>
+
+  <!-- TIMER -->
+  <div class="screen active" id="screen-timer">
+
+    <div class="reward-banner" id="rewardBanner">
+      <div class="rb-left">
+        <div class="rb-icon">
+          <svg id="bannerIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <div class="rb-name" id="bannerName">مكافأة نشطة</div>
+          <div class="rb-time" id="bannerTime">00:00</div>
+        </div>
+      </div>
+      <button class="rb-end" onclick="endReward()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        إنهاء
+      </button>
+    </div>
+
+    <div class="timer-card" id="timerCard">
+      <div class="card-label" id="cardLabel">جلسة التركيز</div>
+
+      <div class="jar-container">
+        <svg class="jar-svg-el" viewBox="0 0 88 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="jc">
+              <path d="M13 18 Q11 22 10 42 L9 96 Q9 106 18 108 L70 108 Q79 106 79 96 L78 42 Q77 22 75 18 Z"/>
+            </clipPath>
+          </defs>
+          <rect x="26" y="5" width="36" height="9" rx="3" fill="#18160f" opacity="0.12"/>
+          <rect x="30" y="1" width="28" height="7" rx="2" fill="#18160f" opacity="0.08"/>
+          <path d="M13 18 Q11 22 10 42 L9 96 Q9 106 18 108 L70 108 Q79 106 79 96 L78 42 Q77 22 75 18 Z" fill="white" stroke="#18160f" stroke-width="1.5" stroke-opacity="0.12"/>
+          <rect id="jarFill" x="9" y="108" width="70" height="0" clip-path="url(#jc)" fill="#c8820a" opacity="0.22"/>
+          <path id="jarWave" d="M9 108 Q44 105 79 108" fill="none" stroke="#c8820a" stroke-width="1.2" stroke-opacity="0" clip-path="url(#jc)"/>
+          <path d="M19 26 Q17 54 18 88" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.45"/>
+          <path d="M25 22 Q24 32 24 38" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+        </svg>
+        <div class="jar-pts-label" id="jarPtsLabel">+<span id="sessionPts">0</span></div>
+      </div>
+
+      <div class="timer-digits" id="timerDigits">25:00</div>
+
+      <div class="timer-status" id="timerStatus">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">اضبط مدة الجلسة</span>
+      </div>
+
+      <div id="durationPicker">
+        <div class="dur-presets">
+          <button class="preset-btn sel" onclick="setPreset(25,this)">٢٥ د</button>
+          <button class="preset-btn" onclick="setPreset(50,this)">٥٠ د</button>
+          <button class="preset-btn" onclick="setPreset(90,this)">٩٠ د</button>
+        </div>
+        <div class="dur-stepper">
+          <button class="dur-step-btn" onclick="adjDur(-5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="dur-val"><span id="durVal">25</span> د</div>
+          <button class="dur-step-btn" onclick="adjDur(5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-bar" id="progBar"></div>
+      </div>
+    </div>
+
+    <button class="main-btn" id="mainBtn" onclick="handleMain()">
+      <svg id="mainBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+      <span id="mainBtnText">ابدأ التركيز</span>
+    </button>
+
+    <div class="btn-row" id="secBtns" style="display:none">
+      <button class="sec-btn" id="pauseBtn" onclick="togglePause()">
+        <svg id="pauseIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+        </svg>
+        <span id="pauseText">إيقاف مؤقت</span>
+      </button>
+      <button class="sec-btn danger" onclick="stopTimer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+        </svg>
+        إنهاء الجلسة
+      </button>
+    </div>
+
+  </div>
+
+  <!-- REWARDS -->
+  <div class="screen" id="screen-rewards">
+    <div class="sec-hdr">مكافآتي</div>
+    <div class="reward-list" id="rewardList"></div>
+
+    <div class="add-card">
+      <div class="add-card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إضافة مكافأة جديدة
+      </div>
+
+      <div class="cat-sub">النوع</div>
+      <div class="cat-select" id="catSelect" style="margin-bottom:8px">
+        <button class="cat-opt c-sel" data-cat="0" onclick="selectCat(0,this)" title="ترفيه">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+        </button>
+        <button class="cat-opt" data-cat="1" onclick="selectCat(1,this)" title="طعام">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </button>
+        <button class="cat-opt" data-cat="2" onclick="selectCat(2,this)" title="ألعاب">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15.5" cy="11.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="13.5" r=".5" fill="currentColor"/><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        </button>
+        <button class="cat-opt" data-cat="3" onclick="selectCat(3,this)" title="راحة">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+        <button class="cat-opt" data-cat="4" onclick="selectCat(4,this)" title="تواصل اجتماعي">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+      </div>
+
+      <div class="form-row">
+        <input class="f-inp" id="newName" type="text" placeholder="اسم المكافأة...">
+      </div>
+      <div class="form-row">
+        <input class="f-inp sm" id="newCost" type="number" placeholder="النقاط" min="1">
+        <input class="f-inp sm" id="newMinutes" type="number" placeholder="الدقائق" min="1">
+        <span style="flex:1;display:flex;align-items:center;font-size:11px;color:var(--ink-3);padding-right:2px">نقطة / مدة المكافأة</span>
+      </div>
+      <button class="add-submit" onclick="addReward()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إضافة
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="screen" id="screen-stats">
+    <div class="stats-grid">
+      <div class="stat-box hi">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <div class="stat-val" id="statPoints">0</div>
+        <div class="stat-lbl">نقاط متاحة</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-val" id="statTotal">0</div>
+        <div class="stat-lbl">إجمالي الدقائق</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="stat-val" id="statSessions">0</div>
+        <div class="stat-lbl">جلسة مكتملة</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div class="stat-val" id="statStreak">0</div>
+        <div class="stat-lbl">يوم متتالي</div>
+      </div>
+    </div>
+    <div class="sec-hdr">سجل الجلسات</div>
+    <div class="hist-list" id="histList"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Category config
+const CATS = [
+  { name:'ترفيه',  color:'#7c5cbf', pale:'#f3effa',
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>` },
+  { name:'طعام',   color:'#b06020', pale:'#fdf0e6',
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>` },
+  { name:'ألعاب',  color:'#2a6e9e', pale:'#e8f2fa',
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15.5" cy="11.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="13.5" r=".5" fill="currentColor"/><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>` },
+  { name:'راحة',   color:'#4a8c6a', pale:'#e8f4ee',
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>` },
+  { name:'تواصل',  color:'#7a6040', pale:'#f4f0e8',
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>` },
+];
+
+// State
+let S = {
+  points:0, totalMinutes:0, sessions:0, history:[],
+  rewards:[
+    {id:1,cat:0,name:'مشاهدة حلقة مسلسل',   cost:50,minutes:45},
+    {id:2,cat:4,name:'ربع ساعة سوشيال ميديا',cost:15,minutes:15},
+    {id:3,cat:1,name:'قطعة شوكولاتة',        cost:10,minutes:10},
+    {id:4,cat:2,name:'ألعاب فيديو',          cost:30,minutes:30},
+  ]
+};
+
+let timerState='idle', durSecs=25*60, remSecs=25*60, totalDur=25*60;
+let sessionPts=0, iv=null;
+let rewardRem=0, rewardIv=null, activeRw=null;
+let selectedCat=0;
+
+function load(){try{const d=localStorage.getItem('fj2');if(d)S={...S,...JSON.parse(d)};}catch(e){}}
+function save(){try{localStorage.setItem('fj2',JSON.stringify(S));}catch(e){}}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  if(name==='rewards')renderRewards();
+  if(name==='stats')renderStats();
+}
+
+function setPreset(mins,btn){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  durSecs=mins*60;totalDur=durSecs;remSecs=durSecs;
+  document.getElementById('durVal').textContent=mins;
+  refreshDigits();
+}
+
+function adjDur(d){
+  const cur=Math.round(durSecs/60);
+  const nv=Math.max(5,Math.min(180,cur+d));
+  durSecs=nv*60;totalDur=durSecs;remSecs=durSecs;
+  document.getElementById('durVal').textContent=nv;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  refreshDigits();
+}
+
+function handleMain(){
+  if(timerState==='idle')startTimer();
+  else if(timerState==='running')pauseTimer();
+  else if(timerState==='paused')resumeTimer();
+}
+
+function startTimer(){
+  timerState='running';sessionPts=0;remSecs=durSecs;totalDur=durSecs;
+  document.getElementById('durationPicker').style.display='none';
+  setMainBtn('pause');
+  document.getElementById('secBtns').style.display='flex';
+  document.getElementById('timerDigits').classList.add('t-running');
+  document.getElementById('timerCard').classList.add('running-state');
+  document.getElementById('statusDot').style.display='block';
+  document.getElementById('jarPtsLabel').style.display='block';
+  setStatus('التركيز جارٍ');
+  tick();iv=setInterval(tick,1000);
+}
+
+function pauseTimer(){
+  timerState='paused';clearInterval(iv);
+  setMainBtn('resume');
+  document.getElementById('timerDigits').classList.remove('t-running');
+  document.getElementById('timerDigits').classList.add('t-paused');
+  document.getElementById('statusDot').style.display='none';
+  setStatus('متوقف مؤقتاً');
+  setPauseBtn(false);
+}
+
+function resumeTimer(){
+  timerState='running';
+  setMainBtn('pause');
+  document.getElementById('timerDigits').classList.remove('t-paused');
+  document.getElementById('timerDigits').classList.add('t-running');
+  document.getElementById('statusDot').style.display='block';
+  setStatus('التركيز جارٍ');
+  setPauseBtn(true);
+  iv=setInterval(tick,1000);
+}
+
+function stopTimer(){
+  clearInterval(iv);
+  const earned=Math.floor((totalDur-remSecs)/60);
+  if(earned>0){
+    S.points+=earned;S.totalMinutes+=earned;S.sessions++;
+    S.history.unshift({date:new Date().toLocaleDateString('ar-SA'),mins:earned,pts:earned});
+    if(S.history.length>30)S.history.pop();
+    save();showToast('check','أضفت '+earned+' نقطة');
+  }
+  resetTimer();
+}
+
+function tick(){
+  if(remSecs<=0){finishTimer();return;}
+  remSecs--;
+  sessionPts=Math.floor((totalDur-remSecs)/60);
+  refreshDigits();updateJar();
+}
+
+function finishTimer(){
+  clearInterval(iv);
+  const earned=Math.floor(totalDur/60);
+  S.points+=earned;S.totalMinutes+=earned;S.sessions++;
+  S.history.unshift({date:new Date().toLocaleDateString('ar-SA'),mins:earned,pts:earned});
+  if(S.history.length>30)S.history.pop();
+  save();
+  document.getElementById('totalPoints').textContent=S.points;
+  showToast('star','رائع! كسبت '+earned+' نقطة');
+  resetTimer();
+}
+
+function resetTimer(){
+  timerState='idle';clearInterval(iv);
+  remSecs=durSecs;sessionPts=0;
+  document.getElementById('timerDigits').className='timer-digits';
+  document.getElementById('timerCard').classList.remove('running-state');
+  document.getElementById('durationPicker').style.display='block';
+  document.getElementById('secBtns').style.display='none';
+  document.getElementById('statusDot').style.display='none';
+  document.getElementById('jarPtsLabel').style.display='none';
+  document.getElementById('progBar').style.width='0%';
+  document.getElementById('jarFill').setAttribute('height','0');
+  document.getElementById('jarFill').setAttribute('y','108');
+  document.getElementById('jarWave').setAttribute('stroke-opacity','0');
+  document.getElementById('totalPoints').textContent=S.points;
+  setMainBtn('start');setStatus('اضبط مدة الجلسة');refreshDigits();
+}
+
+function refreshDigits(){
+  const m=Math.floor(remSecs/60).toString().padStart(2,'0');
+  const s=(remSecs%60).toString().padStart(2,'0');
+  document.getElementById('timerDigits').textContent=m+':'+s;
+  document.getElementById('sessionPts').textContent=sessionPts;
+  const pct=totalDur>0?(totalDur-remSecs)/totalDur*100:0;
+  document.getElementById('progBar').style.width=pct+'%';
+}
+
+function updateJar(){
+  const pct=totalDur>0?(totalDur-remSecs)/totalDur:0;
+  const h=Math.floor(pct*86),y=108-h;
+  document.getElementById('jarFill').setAttribute('height',h);
+  document.getElementById('jarFill').setAttribute('y',y);
+  if(h>4){
+    document.getElementById('jarWave').setAttribute('stroke-opacity','0.5');
+    document.getElementById('jarWave').setAttribute('d','M9 '+y+' Q44 '+(y-3)+' 79 '+y);
+  }
+}
+
+const ICONS={
+  start:`<polygon points="5 3 19 12 5 21 5 3"/>`,
+  pause:`<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`,
+  resume:`<polygon points="5 3 19 12 5 21 5 3"/>`,
+};
+const LABELS={start:'ابدأ التركيز',pause:'إيقاف مؤقت',resume:'استئناف'};
+
+function setMainBtn(t){
+  document.getElementById('mainBtnIcon').innerHTML=ICONS[t];
+  document.getElementById('mainBtnText').textContent=LABELS[t];
+}
+function setPauseBtn(running){
+  document.getElementById('pauseIcon').innerHTML=running
+    ?`<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`
+    :`<polygon points="5 3 19 12 5 21 5 3"/>`;
+  document.getElementById('pauseText').textContent=running?'إيقاف مؤقت':'استئناف';
+}
+function togglePause(){
+  if(timerState==='running')pauseTimer();
+  else if(timerState==='paused')resumeTimer();
+}
+function setStatus(t){document.getElementById('statusText').textContent=t;}
+
+// Rewards
+function selectCat(i,btn){
+  selectedCat=i;
+  document.querySelectorAll('.cat-opt').forEach(b=>b.classList.remove('c-sel'));
+  btn.classList.add('c-sel');
+}
+
+function renderRewards(){
+  const list=document.getElementById('rewardList');
+  if(!S.rewards.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></div><p>لم تضف مكافآت بعد</p></div>`;
+    return;
+  }
+  list.innerHTML=S.rewards.map(r=>{
+    const cat=CATS[r.cat]||CATS[0];
+    const can=S.points>=r.cost;
+    const isAct=activeRw&&activeRw.id===r.id;
+    return `<div class="rw-item ${!can?'locked':''} ${isAct?'active-rw':''}" style="--cat-color:${cat.color}">
+      <div class="rw-icon-box" style="background:${cat.pale};color:${cat.color}">${cat.svg}</div>
+      <div class="rw-body">
+        <div class="rw-name">${r.name}</div>
+        <div class="rw-meta">
+          <span class="rw-cost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${r.cost}</span>
+          <span class="rw-sep">·</span><span>${r.minutes} د</span>
+        </div>
+      </div>
+      <div class="rw-right">
+        ${can&&!isAct
+          ?`<button class="use-btn" onclick="useReward(${r.id})">استخدام</button>`
+          :isAct
+            ?`<span class="active-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>نشط</span>`
+            :`<span class="lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>`
+        }
+        <button class="del-btn" onclick="deleteReward(${r.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/></svg>حذف
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function useReward(id){
+  const rw=S.rewards.find(r=>r.id===id);if(!rw)return;
+  if(S.points<rw.cost){showToast('lock','نقاطك غير كافية');return;}
+  if(timerState==='running'||timerState==='paused'){showToast('clock','أكمل الجلسة أولاً');return;}
+  S.points-=rw.cost;save();
+  document.getElementById('totalPoints').textContent=S.points;
+  activeRw=rw;
+  const cat=CATS[rw.cat]||CATS[0];
+  document.getElementById('bannerIcon').innerHTML=cat.svg;
+  document.getElementById('bannerIcon').style.color=cat.color;
+  document.getElementById('bannerName').textContent=rw.name;
+  document.getElementById('rewardBanner').classList.add('visible');
+  rewardRem=rw.minutes*60;
+  updateBanner();
+  switchTab('timer',document.querySelectorAll('.tab')[0]);
+  rewardIv=setInterval(()=>{
+    rewardRem--;
+    if(rewardRem<=0){endReward(true);return;}
+    updateBanner();
+  },1000);
+  showToast('play','استمتع بـ '+rw.name);
+}
+
+function updateBanner(){
+  const m=Math.floor(rewardRem/60).toString().padStart(2,'0');
+  const s=(rewardRem%60).toString().padStart(2,'0');
+  document.getElementById('bannerTime').textContent=m+':'+s;
+}
+
+function endReward(auto=false){
+  clearInterval(rewardIv);activeRw=null;
+  document.getElementById('rewardBanner').classList.remove('visible');
+  if(auto)showToast('clock','انتهى وقت المكافأة');
+  renderRewards();
+}
+
+function addReward(){
+  const name=document.getElementById('newName').value.trim();
+  const cost=parseInt(document.getElementById('newCost').value);
+  const mins=parseInt(document.getElementById('newMinutes').value);
+  if(!name||isNaN(cost)||isNaN(mins)||cost<1||mins<1){showToast('x','يرجى ملء جميع الحقول');return;}
+  S.rewards.push({id:Date.now(),cat:selectedCat,name,cost,minutes:mins});
+  save();
+  document.getElementById('newName').value='';
+  document.getElementById('newCost').value='';
+  document.getElementById('newMinutes').value='';
+  renderRewards();
+  showToast('check','تمت إضافة المكافأة');
+}
+
+function deleteReward(id){
+  S.rewards=S.rewards.filter(r=>r.id!==id);save();renderRewards();
+}
+
+function renderStats(){
+  document.getElementById('statPoints').textContent=S.points;
+  document.getElementById('statTotal').textContent=S.totalMinutes;
+  document.getElementById('statSessions').textContent=S.sessions;
+  document.getElementById('statStreak').textContent=Math.min(S.history.length,7);
+  const list=document.getElementById('histList');
+  if(!S.history.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div><p>لا يوجد سجل بعد</p></div>`;
+    return;
+  }
+  list.innerHTML=S.history.map(h=>`
+    <div class="hist-item">
+      <div class="hist-left">
+        <div class="hist-dot"></div>
+        <div><div class="hist-date">${h.date}</div><div class="hist-mins">${h.mins} دقيقة تركيز</div></div>
+      </div>
+      <div class="hist-pts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        +${h.pts}
+      </div>
+    </div>`).join('');
+}
+
+// Toast
+const TOAST_ICONS={
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  star:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  lock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`,
+  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  play:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+  x:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+};
+
+let toastTimer=null;
+function showToast(icon,msg){
+  const t=document.getElementById('toast');
+  t.innerHTML=(TOAST_ICONS[icon]||'')+msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+load();
+document.getElementById('totalPoints').textContent=S.points;
+refreshDigits();
+</script>
+</body>
+</html>
