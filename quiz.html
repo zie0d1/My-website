@@ -4669,6 +4669,231 @@ ${text}`;
         msgs.scrollTop = msgs.scrollHeight;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ZSTUDY ACTIVITY TRACKER — uploads all user actions to JSONBin
+    // ══════════════════════════════════════════════════════════════
+    const TRACKER = (() => {
+        const BIN_ID   = '6825f81f8960c979a589bed4'; // JSONBin bin ID
+        const API_KEY  = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
+        const BASE_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+
+        // Session info
+        const SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+        const SESSION_START = new Date().toISOString();
+
+        let _queue = [];
+        let _flushTimer = null;
+        let _isFlushing = false;
+        let _cachedLog = null;
+
+        function _ts() { return new Date().toISOString(); }
+
+        // Read current bin
+        async function _readBin() {
+            if (_cachedLog) return _cachedLog;
+            try {
+                const r = await fetch(BASE_URL + '/latest', {
+                    headers: { 'X-Master-Key': API_KEY, 'X-Bin-Meta': 'false' }
+                });
+                if (!r.ok) return { sessions: [], events: [] };
+                const d = await r.json();
+                _cachedLog = d && d.sessions ? d : { sessions: [], events: [] };
+                return _cachedLog;
+            } catch { return { sessions: [], events: [] }; }
+        }
+
+        // Write to bin
+        async function _writeBin(data) {
+            _cachedLog = data;
+            await fetch(BASE_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                body: JSON.stringify(data)
+            });
+        }
+
+        // Flush queued events to JSONBin
+        async function _flush() {
+            if (_isFlushing || !_queue.length) return;
+            _isFlushing = true;
+            const batch = [..._queue];
+            _queue = [];
+            try {
+                const log = await _readBin();
+                // Keep last 500 events to avoid bin bloat
+                log.events = [...(log.events || []), ...batch].slice(-500);
+                // Upsert session record
+                const si = (log.sessions || []).findIndex(s => s.id === SESSION_ID);
+                const sessionData = {
+                    id: SESSION_ID,
+                    start: SESSION_START,
+                    lastActive: _ts(),
+                    eventCount: (log.events || []).filter(e => e.session === SESSION_ID).length
+                };
+                if (si >= 0) log.sessions[si] = sessionData;
+                else log.sessions = [...(log.sessions || []).slice(-50), sessionData];
+                await _writeBin(log);
+            } catch(e) {
+                // Put events back on failure
+                _queue = [...batch, ..._queue];
+            } finally {
+                _isFlushing = false;
+            }
+        }
+
+        // Schedule a flush
+        function _scheduleFlush(delay = 2000) {
+            clearTimeout(_flushTimer);
+            _flushTimer = setTimeout(_flush, delay);
+        }
+
+        // Track an event
+        function track(type, data = {}) {
+            _queue.push({
+                type,
+                ts: _ts(),
+                session: SESSION_ID,
+                subject: getCurrentSubjectId() || null,
+                subjectName: getCurrentSubject()?.name || null,
+                lang: (typeof currentLang !== 'undefined') ? currentLang : 'ar',
+                ...data
+            });
+            _scheduleFlush(data._immediate ? 500 : 2000);
+        }
+
+        // ── Patch app functions to emit events ──────────────
+
+        // Page/panel switches
+        const _origSwitchPanel = window.switchPanel;
+        window.switchPanel = function(panelId) {
+            track('page_view', { panel: panelId });
+            return _origSwitchPanel.apply(this, arguments);
+        };
+
+        // Subject enter/exit
+        const _origEnterSubject = window.enterSubject;
+        window.enterSubject = function(id) {
+            const subj = getSubjects().find(s => s.id === id);
+            track('subject_enter', { subjectId: id, subjectName: subj?.name });
+            return _origEnterSubject.apply(this, arguments);
+        };
+        const _origExitSubject = window.exitSubject;
+        window.exitSubject = function() {
+            track('subject_exit');
+            return _origExitSubject.apply(this, arguments);
+        };
+
+        // Subject created / deleted
+        const _origCreateSubject = window.createSubject;
+        window.createSubject = function() {
+            // name will be read inside function, track after
+            const result = _origCreateSubject.apply(this, arguments);
+            track('subject_created');
+            return result;
+        };
+        const _origDeleteSubject = window.deleteSubject;
+        window.deleteSubject = function(id) {
+            const subj = getSubjects().find(s => s.id === id);
+            track('subject_deleted', { subjectName: subj?.name });
+            return _origDeleteSubject.apply(this, arguments);
+        };
+
+        // Quiz start
+        const _origStartQuiz = window.startQuiz;
+        window.startQuiz = function(questions, src) {
+            track('quiz_start', { quizName: src, questionCount: questions.length });
+            return _origStartQuiz.apply(this, arguments);
+        };
+
+        // Answer selected
+        const _origSelOpt = window.selOpt;
+        window.selOpt = function(i) {
+            const q = Qs[qi];
+            const correct = i === q?.correct;
+            track('quiz_answer', {
+                questionIndex: qi,
+                questionText: q?.question?.slice(0, 100),
+                selectedOption: i,
+                correctOption: q?.correct,
+                isCorrect: correct,
+                confidence: Ans[qi]?.confidence || null,
+                elapsedMs: Date.now() - qStartTime
+            });
+            return _origSelOpt.apply(this, arguments);
+        };
+
+        // Quiz finish
+        const _origFinishMCQ = window.finishMCQ;
+        window.finishMCQ = function() {
+            const c = Ans.reduce((n,x,i)=>n+(x.selected===Qs[i]?.correct?1:0),0);
+            const total = Qs.length;
+            track('quiz_finish', {
+                quizName: qSource,
+                score: Math.round(c/total*100),
+                correct: c,
+                total,
+                durationSecs: qSecs,
+                _immediate: true
+            });
+            return _origFinishMCQ.apply(this, arguments);
+        };
+
+        // AI MCQ generation
+        const _origNvidiaMCQ = window.nvidiaMCQ;
+        window.nvidiaMCQ = function() {
+            track('ai_generate_mcq', {
+                questionCount: parseInt(document.getElementById('qCount')?.value) || 10,
+                difficulty: document.getElementById('diffSel')?.value,
+                language: document.getElementById('langSel')?.value
+            });
+            return _origNvidiaMCQ.apply(this, arguments);
+        };
+
+        // AI Summary generation
+        const _origNvidiaSummary = window.nvidiaSummary;
+        window.nvidiaSummary = function() {
+            track('ai_generate_summary', { style: typeof summaryCurrentStyle !== 'undefined' ? summaryCurrentStyle : 'structured' });
+            return _origNvidiaSummary.apply(this, arguments);
+        };
+
+        // Flashcard review (SM2 rating)
+        const _origSm2Rate = window.sm2Rate;
+        if (_origSm2Rate) window.sm2Rate = function(rating) {
+            track('flashcard_rated', { rating });
+            return _origSm2Rate.apply(this, arguments);
+        };
+
+        // Panel navigation tracking on sidebar clicks
+        document.addEventListener('click', function(e) {
+            const si = e.target.closest('.sidebar-item');
+            if (si) {
+                const panel = si.getAttribute('data-panel');
+                if (panel) track('sidebar_click', { panel });
+            }
+            // Theme toggle
+            if (e.target.closest('#themeBtn, [onclick*="toggleTheme"]')) track('theme_toggle');
+            // Language toggle
+            if (e.target.closest('[onclick*="toggleLang"]')) track('language_toggle');
+        });
+
+        // Page visibility (tab focus/blur)
+        document.addEventListener('visibilitychange', () => {
+            track('page_' + (document.hidden ? 'hidden' : 'visible'), { _immediate: true });
+        });
+
+        // Session start event
+        track('session_start', { userAgent: navigator.userAgent.slice(0, 80), _immediate: true });
+
+        // Flush on page unload
+        window.addEventListener('beforeunload', () => {
+            track('session_end', { _immediate: true });
+            _flush();
+        });
+
+        return { track, flush: _flush };
+    })();
+    // ══════════════════════════════════════════════════════════════
+
     init();
 </script>
 </body>
