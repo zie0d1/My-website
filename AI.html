@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Debate Arena · Real NVIDIA AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <title>Debate · AI vs AI · مناظرة بالعربية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&family=Cairo:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -14,602 +13,620 @@
     }
 
     :root {
-      --bg: #0a0a0a;
-      --surface: #111;
-      --border: #222;
-      --alpha: #e8ff00;
-      --beta: #00d4ff;
-      --text: #e8e8e8;
-      --muted: #555;
-      --mono: 'IBM Plex Mono', monospace;
-      --sans: 'Syne', sans-serif;
+      --bg: #0c0c0c;
+      --surface: #121212;
+      --surface-hover: #1a1a1a;
+      --border: #2a2a2a;
+      --text-primary: #ededed;
+      --text-secondary: #8e8e8e;
+      --alpha: #a3e635;
+      --beta: #2dd4bf;
+      --judge: #f472b6;
+      --accent-subtle: #2a2a2a;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-arabic: 'Cairo', 'Inter', sans-serif;
     }
 
     body {
       background: var(--bg);
-      color: var(--text);
-      font-family: var(--mono);
-      padding: 40px 20px;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      padding: 2.5rem 2rem;
+      line-height: 1.5;
+    }
+
+    /* when Arabic language is active */
+    body.arabic {
+      font-family: var(--font-arabic);
+    }
+    body.arabic input, 
+    body.arabic textarea, 
+    body.arabic select,
+    body.arabic .message,
+    body.arabic button {
+      font-family: var(--font-arabic);
+    }
+
+    /* RTL for Arabic messages */
+    .rtl {
+      direction: rtl;
+      text-align: right;
+    }
+
+    .debate-container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* header with language toggle */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 0.5rem;
     }
-
-    .container {
-      max-width: 860px;
-      width: 100%;
+    .header h1 {
+      font-weight: 500;
+      font-size: 2.2rem;
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, #e5e5e5 0%, #a0a0a0 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
-
-    header {
-      text-align: center;
-      margin-bottom: 40px;
+    .lang-toggle {
+      display: flex;
+      gap: 0.5rem;
+      background: #1a1a1a;
+      padding: 0.2rem;
+      border-radius: 40px;
+      border: 1px solid var(--border);
     }
-
-    header h1 {
-      font-family: var(--sans);
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    header h1 span.a { color: var(--alpha); }
-    header h1 span.b { color: var(--beta); }
-
-    .sub {
+    .lang-btn {
+      background: transparent;
+      border: none;
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
       font-size: 0.7rem;
-      color: var(--muted);
-      margin-top: 8px;
-      text-transform: uppercase;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: 0.1s;
+    }
+    .lang-btn.active {
+      background: var(--alpha);
+      color: #000;
+    }
+    .header p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
     }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      padding: 24px;
-      margin-bottom: 24px;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
     }
-
-    .card-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
+    .card-title {
+      font-size: 0.7rem;
       text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      font-weight: 500;
     }
 
     input, textarea, select {
       width: 100%;
-      background: var(--bg);
+      background: #0a0a0a;
       border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--mono);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
       font-size: 0.85rem;
-      padding: 10px 14px;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
       outline: none;
-      margin-bottom: 8px;
+      transition: 0.1s ease;
+    }
+    body.arabic input, body.arabic textarea, body.arabic select {
+      font-family: var(--font-arabic);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
     }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: #444;
+    .agents-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
     }
-
-    .agents-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
     .agent-card {
-      border: 1px solid var(--border);
-      padding: 16px;
+      flex: 1;
       background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
     }
-
-    .alpha-card { border-top: 2px solid var(--alpha); }
-    .beta-card { border-top: 2px solid var(--beta); }
-
-    .agent-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
+    .agent-alpha .agent-header { color: var(--alpha); }
+    .agent-beta .agent-header { color: var(--beta); }
+    .agent-header {
+      font-size: 0.7rem;
       text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .alpha-card .agent-label { color: var(--alpha); }
-    .beta-card .agent-label { color: var(--beta); }
-
-    .api-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-      align-items: flex-end;
-    }
-
-    .api-row input {
-      flex: 3;
-      margin-bottom: 0;
-    }
-
-    .controls-row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    button {
-      font-family: var(--mono);
-      font-size: 0.8rem;
+      letter-spacing: 0.12em;
       font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 10px 24px;
-      border: none;
-      transition: opacity 0.2s;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
     }
-
-    #btn-start {
-      background: var(--alpha);
-      color: #000;
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
     }
-
-    #btn-stop {
+    .buttons-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+    button {
       background: transparent;
       border: 1px solid var(--border);
-      color: var(--muted);
-      display: none;
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s linear;
+      color: var(--text-primary);
     }
-
-    button:disabled {
+    button.primary {
+      background: var(--alpha);
+      color: #000;
+      border-color: var(--alpha);
+      font-weight: 600;
+    }
+    button.primary:disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
-
-    .rounds-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    #arena {
+    .arena {
       display: none;
-      flex-direction: column;
-      margin-top: 10px;
+      margin-top: 1rem;
     }
-
     .arena-header {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 10px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 8px;
     }
-
-    #arena-topic-label {
-      font-size: 0.7rem;
-      color: #bbb;
-      max-width: 70%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .topic-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: #1e1e1e;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      color: var(--text-secondary);
     }
-
-    #round-indicator {
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    #messages {
-      max-height: 540px;
+    .messages {
+      max-height: 520px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 0.75rem;
+      padding-right: 0.5rem;
     }
-
-    .msg {
-      padding: 18px 20px;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      animation: fadeIn 0.3s ease;
+    .message {
+      background: #0e0e0e;
+      border-left: 2px solid;
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
     }
-
-    .msg.alpha {
-      background: #111400;
-      border-left: 2px solid var(--alpha);
-    }
-
-    .msg.beta {
-      background: #001418;
-      border-left: 2px solid var(--beta);
-    }
-
-    .msg-agent {
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
+    .message.alpha { border-left-color: var(--alpha); background: #0f1307; }
+    .message.beta { border-left-color: var(--beta); background: #071512; }
+    .message.judge { border-left-color: var(--judge); background: #130c10; font-size: 0.8rem; }
+    .message-header {
+      font-size: 0.65rem;
       text-transform: uppercase;
-      margin-bottom: 6px;
+      letter-spacing: 0.08em;
       font-weight: 500;
+      margin-bottom: 0.35rem;
+      opacity: 0.8;
     }
-
-    .msg.alpha .msg-agent { color: var(--alpha); }
-    .msg.beta .msg-agent { color: var(--beta); }
-
-    .msg-text {
-      color: #ddd;
-      white-space: pre-wrap;
-    }
-
     .typing {
-      padding: 18px 20px;
+      background: #0e0e0e;
+      border-left: 2px solid #444;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 0.6rem;
     }
-
-    .typing.alpha { background: #111400; border-left: 2px solid var(--alpha); }
-    .typing.beta { background: #001418; border-left: 2px solid var(--beta); }
-
-    .typing-label {
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      color: var(--muted);
+    .status-bar {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
     }
-
-    .dots {
-      display: flex;
-      gap: 5px;
-    }
-
-    .dots i {
-      width: 5px;
-      height: 5px;
-      background: #777;
-      border-radius: 50%;
-      display: block;
-      animation: pulse 1s infinite;
-    }
-
-    .dots i:nth-child(2) { animation-delay: 0.2s; }
-    .dots i:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    #error-msg {
-      background: #1a0303;
-      border: 1px solid #ff5555;
-      color: #ff8888;
-      padding: 12px;
+    .error {
+      background: #1f0e0e;
+      border: 1px solid #ff5a5a;
+      color: #ff9e9e;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
       font-size: 0.75rem;
       display: none;
-      margin-bottom: 16px;
+      margin-bottom: 1rem;
     }
-
-    #status-bar {
-      font-size: 0.65rem;
-      text-align: center;
-      color: var(--muted);
-      padding-top: 16px;
-      margin-top: 16px;
-      border-top: 1px solid var(--border);
-      display: none;
-    }
-
-    #status-bar.visible { display: block; }
-
-    @media (max-width: 640px) {
-      .agents-grid { grid-template-columns: 1fr; }
-      .arena-header { flex-direction: column; }
-      #arena-topic-label { white-space: normal; max-width: 100%; }
+    @media (max-width: 800px) {
+      body { padding: 1.2rem; }
+      .agents-row { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1><span class="a">DE</span><span class="b">BA</span>TE</h1>
-    <div class="sub">NVIDIA AI · openai/gpt-oss-20b · real-time arguments</div>
-  </header>
-
-  <div class="card">
-    <div class="card-label">🗣️ Debate Topic</div>
-    <input type="text" id="topic" value="Artificial general intelligence will be achieved by 2030" placeholder="e.g. AI safety cannot be guaranteed">
-  </div>
-
-  <div class="agents-grid">
-    <div class="agent-card alpha-card">
-      <div class="agent-label">◈ AGENT ALPHA</div>
-      <input type="text" id="alpha-name" value="Dr. Sterling">
-      <textarea id="alpha-persona" rows="2">Pragmatic rationalist, data-driven, focuses on empirical evidence and incentives.</textarea>
-      <select id="alpha-stance">
-        <option value="FOR">Stance: FOR</option>
-        <option value="AGAINST">Stance: AGAINST</option>
-      </select>
+<div class="debate-container">
+  <div class="header">
+    <h1 id="mainTitle">debate</h1>
+    <div class="lang-toggle">
+      <button id="langEn" class="lang-btn active">EN</button>
+      <button id="langAr" class="lang-btn">العربية</button>
     </div>
-    <div class="agent-card beta-card">
-      <div class="agent-label">◈ AGENT BETA</div>
-      <input type="text" id="beta-name" value="Prof. Vesper">
-      <textarea id="beta-persona" rows="2">Philosophical idealist, questions assumptions, focuses on ethics and human values.</textarea>
-      <select id="beta-stance">
-        <option value="AGAINST" selected>Stance: AGAINST</option>
-        <option value="FOR">Stance: FOR</option>
-      </select>
-    </div>
+    <p id="subtitle">AI vs AI · real arguments · NVIDIA GPT-OSS-20B</p>
   </div>
 
   <div class="card">
-    <div class="card-label">🔑 NVIDIA API (your key)</div>
-    <div class="api-row">
-      <input type="text" id="api-key" value="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" placeholder="nvapi-...">
+    <div class="card-title" id="motionLabel">Motion</div>
+    <input type="text" id="topic" value="Universal basic income would solve more problems than it creates">
+  </div>
+
+  <div class="agents-row">
+    <div class="agent-card agent-alpha">
+      <div class="agent-header" id="alphaHeader">⟡ Agent Alpha</div>
+      <input type="text" id="alphaName" value="Dr. Sterling" placeholder="Name">
+      <textarea id="alphaPersona" rows="2" placeholder="Persona">Pragmatic rationalist, economist. Data-driven, focus on incentives & empirical evidence.</textarea>
+      <select id="alphaStance">
+        <option value="FOR" id="alphaFor">Stance: FOR</option>
+        <option value="AGAINST" id="alphaAgainst">Stance: AGAINST</option>
+      </select>
+    </div>
+    <div class="agent-card agent-beta">
+      <div class="agent-header" id="betaHeader">⟡ Agent Beta</div>
+      <input type="text" id="betaName" value="Prof. Vesper" placeholder="Name">
+      <textarea id="betaPersona" rows="2" placeholder="Persona">Philosophical idealist, humanist. Questions structural assumptions, focuses on wellbeing.</textarea>
+      <select id="betaStance">
+        <option value="AGAINST" selected id="betaAgainst">Stance: AGAINST</option>
+        <option value="FOR" id="betaFor">Stance: FOR</option>
+      </select>
     </div>
   </div>
 
-  <div class="controls-row">
-    <button id="btn-start">⚡ INITIATE DEBATE</button>
-    <button id="btn-stop">■ STOP</button>
-    <div class="rounds-wrap">
-      Rounds
-      <input type="range" id="rounds-slider" min="2" max="8" value="4">
-      <span id="rounds-display">4</span>
+  <div class="card">
+    <div class="card-title" id="apiLabel">NVIDIA API</div>
+    <input type="password" id="apiKey" value="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" style="margin-bottom: 1rem;">
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: flex-end;">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem;"><span style="color:var(--text-secondary);">temp</span><input type="range" id="temp" min="0.2" max="1.2" step="0.05" value="0.8" style="width: 90px;"><span id="tempVal">0.80</span></label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem;"><span style="color:var(--text-secondary);">top_p</span><input type="range" id="topP" min="0.5" max="1" step="0.02" value="0.95" style="width: 90px;"><span id="topPVal">0.95</span></label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem;"><span style="color:var(--text-secondary);">max tokens</span><input type="number" id="maxTokens" value="280" step="10" min="120" max="500" style="width: 80px;"></label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem;"><span style="color:var(--text-secondary);" id="judgeLabel">judge</span><select id="judgeEnabled" style="width: auto; padding: 0.3rem;"><option value="yes" id="judgeOn">on</option><option value="no" id="judgeOff">off</option></select></label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem;"><span style="color:var(--text-secondary);" id="roundsLabel">rounds</span><input type="range" id="rounds" min="2" max="6" value="3" style="width: 100px;"><span id="roundsVal">3</span></label>
+      </div>
     </div>
   </div>
 
-  <div id="error-msg"></div>
+  <div class="controls-bar">
+    <div class="buttons-group">
+      <button id="startBtn" class="primary" id="startBtnText">⟳ start debate</button>
+      <button id="stopBtn" class="secondary" disabled id="stopBtnText">■ stop</button>
+      <button id="exportBtn" class="secondary" id="exportBtnText">⎘ export</button>
+    </div>
+  </div>
 
-  <div id="arena">
+  <div id="errorMsg" class="error"></div>
+
+  <div id="arena" class="arena">
     <div class="arena-header">
-      <span id="arena-topic-label"></span>
-      <span id="round-indicator">—</span>
+      <span class="topic-badge" id="topicDisplay"></span>
+      <span class="round-counter" id="roundIndicator">—</span>
     </div>
-    <div id="messages"></div>
-    <div id="status-bar"></div>
+    <div id="messages" class="messages"></div>
+    <div id="statusBar" class="status-bar"></div>
   </div>
 </div>
 
 <script>
-  // ---------- REAL NVIDIA AI INTEGRATION ----------
-  let activeAbortController = null;
+  // ---------- CORS proxy + NVIDIA API ----------
+  const CORS_PROXY = "https://corsproxy.io/";
+  const NVIDIA_ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions";
   let stopFlag = false;
+  let abortController = null;
+  let transcript = [];
+  let currentLang = "en"; // 'en' or 'ar'
 
-  const nvidiaEndpoint = "https://integrate.api.nvidia.com/v1/chat/completions";
+  // DOM elements
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const arenaDiv = document.getElementById('arena');
+  const messagesDiv = document.getElementById('messages');
+  const statusDiv = document.getElementById('statusBar');
+  const errorDiv = document.getElementById('errorMsg');
+  const topicDisplaySpan = document.getElementById('topicDisplay');
+  const roundIndicatorSpan = document.getElementById('roundIndicator');
 
-  async function callNvidiaAI(systemPrompt, conversationHistory, apiKey, model = "openai/gpt-oss-20b") {
-    // conversationHistory: array of { role, content }
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...conversationHistory
-    ];
+  // Translation strings
+  const strings = {
+    en: {
+      mainTitle: "debate",
+      subtitle: "AI vs AI · real arguments · NVIDIA GPT-OSS-20B",
+      motion: "Motion",
+      api: "NVIDIA API",
+      judge: "judge",
+      rounds: "rounds",
+      judgeOn: "on",
+      judgeOff: "off",
+      start: "⟳ start debate",
+      stop: "■ stop",
+      export: "⎘ export",
+      alphaHeader: "⟡ Agent Alpha",
+      betaHeader: "⟡ Agent Beta",
+      alphaFor: "Stance: FOR",
+      alphaAgainst: "Stance: AGAINST",
+      betaFor: "Stance: FOR",
+      betaAgainst: "Stance: AGAINST",
+      // system prompts (will be used in debate)
+      alphaSystemEn: (name, persona, stance, topic) => `You are ${name}. ${persona} Your stance is ${stance} on "${topic}". Keep under 100 words. Argue persuasively, rebut opponent. No bullet points.`,
+      betaSystemEn: (name, persona, stance, topic) => `You are ${name}. ${persona} Your stance is ${stance} on "${topic}". Keep under 100 words. Argue persuasively, rebut opponent. No bullet points.`,
+      judgeSystemEn: "Impartial debate judge.",
+      judgePromptEn: (alphaName, betaName, alphaArg, betaArg, topic) => `You are a debate judge. Evaluate the last exchange between "${alphaName}" and "${betaName}" on topic: "${topic}". Give scores out of 10, declare a winner. Max 80 words.`,
+      alphaUserOpenEn: (topic) => `Open the debate on "${topic}". State your opening argument.`,
+      alphaUserCounterEn: (opponentName, lastArg) => `${opponentName} said: "${lastArg}". Counter directly.`,
+      betaUserOpenEn: (alphaName, alphaArg) => `${alphaName} opened: "${alphaArg}". Respond and state your position.`,
+      betaUserCounterEn: (alphaName, alphaArg) => `${alphaName} argued: "${alphaArg}". Counter.`,
+    },
+    ar: {
+      mainTitle: "مناظرة",
+      subtitle: "ذكاء اصطناعي ضد ذكاء اصطناعي · مناظرات حقيقية · NVIDIA GPT-OSS-20B",
+      motion: "الموضوع",
+      api: "مفتاح NVIDIA API",
+      judge: "حكم",
+      rounds: "الجولات",
+      judgeOn: "تشغيل",
+      judgeOff: "إيقاف",
+      start: "⟳ بدء المناظرة",
+      stop: "■ إيقاف",
+      export: "⎘ تصدير",
+      alphaHeader: "⟡ الوكيل ألفا",
+      betaHeader: "⟡ الوكيل بيتا",
+      alphaFor: "الموقف: مؤيد",
+      alphaAgainst: "الموقف: معارض",
+      betaFor: "الموقف: مؤيد",
+      betaAgainst: "الموقف: معارض",
+      // Arabic prompts
+      alphaSystemAr: (name, persona, stance, topic) => `أنت ${name}. ${persona} موقفك هو ${stance === "FOR" ? "مؤيد" : "معارض"} للموضوع: "${topic}". حافظ على ردودك أقل من 100 كلمة. جادل بإقناع، ورد على الخصم مباشرة. لا تستخدم نقاط تعداد.`,
+      betaSystemAr: (name, persona, stance, topic) => `أنت ${name}. ${persona} موقفك هو ${stance === "FOR" ? "مؤيد" : "معارض"} للموضوع: "${topic}". حافظ على ردودك أقل من 100 كلمة. جادل بإقناع، ورد على الخصم مباشرة. لا تستخدم نقاط تعداد.`,
+      judgeSystemAr: "حكم مناظرة محايد.",
+      judgePromptAr: (alphaName, betaName, alphaArg, betaArg, topic) => `أنت حكم مناظرة. قيّم آخر تبادل بين "${alphaName}" و "${betaName}" حول الموضوع: "${topic}". أعطِ درجات من 10 لكل منهما، وحدد الفائز. الحد الأقصى 80 كلمة.`,
+      alphaUserOpenAr: (topic) => `افتح المناظرة حول "${topic}". اطرح حجتك الافتتاحية.`,
+      alphaUserCounterAr: (opponentName, lastArg) => `قال ${opponentName}: "${lastArg}". رد مباشرة.`,
+      betaUserOpenAr: (alphaName, alphaArg) => `افتتح ${alphaName} بـ: "${alphaArg}". رد وبيّن موقفك.`,
+      betaUserCounterAr: (alphaName, alphaArg) => `جادل ${alphaName} بـ: "${alphaArg}". رد عليه مباشرة.`,
+    }
+  };
 
-    const response = await fetch(nvidiaEndpoint, {
+  function applyLanguage(lang) {
+    currentLang = lang;
+    const t = strings[lang];
+    document.getElementById('mainTitle').innerText = t.mainTitle;
+    document.getElementById('subtitle').innerText = t.subtitle;
+    document.getElementById('motionLabel').innerText = t.motion;
+    document.getElementById('apiLabel').innerText = t.api;
+    document.getElementById('judgeLabel').innerText = t.judge;
+    document.getElementById('roundsLabel').innerText = t.rounds;
+    document.getElementById('judgeOn').innerText = t.judgeOn;
+    document.getElementById('judgeOff').innerText = t.judgeOff;
+    document.getElementById('startBtnText').innerText = t.start;
+    document.getElementById('stopBtnText').innerText = t.stop;
+    document.getElementById('exportBtnText').innerText = t.export;
+    document.getElementById('alphaHeader').innerText = t.alphaHeader;
+    document.getElementById('betaHeader').innerText = t.betaHeader;
+    document.getElementById('alphaFor').innerText = t.alphaFor;
+    document.getElementById('alphaAgainst').innerText = t.alphaAgainst;
+    document.getElementById('betaFor').innerText = t.betaFor;
+    document.getElementById('betaAgainst').innerText = t.betaAgainst;
+
+    // set RTL on body for Arabic
+    if (lang === 'ar') {
+      document.body.classList.add('arabic');
+      document.body.style.direction = 'rtl';
+      document.querySelectorAll('.message, .typing, .arena-header, .controls-bar').forEach(el => el.classList.add('rtl'));
+    } else {
+      document.body.classList.remove('arabic');
+      document.body.style.direction = 'ltr';
+      document.querySelectorAll('.message, .typing, .arena-header, .controls-bar').forEach(el => el.classList.remove('rtl'));
+    }
+  }
+
+  // Event listeners for language toggle
+  document.getElementById('langEn').onclick = () => { applyLanguage('en'); document.getElementById('langEn').classList.add('active'); document.getElementById('langAr').classList.remove('active'); };
+  document.getElementById('langAr').onclick = () => { applyLanguage('ar'); document.getElementById('langAr').classList.add('active'); document.getElementById('langEn').classList.remove('active'); };
+
+  function showError(msg) { errorDiv.textContent = msg; errorDiv.style.display = 'block'; setTimeout(() => errorDiv.style.display = 'none', 6000); }
+  function setStatus(msg) { statusDiv.textContent = msg; }
+  function clearMessages() { messagesDiv.innerHTML = ''; transcript = []; }
+  function addMessage(role, agentName, text) {
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    if (currentLang === 'ar') div.classList.add('rtl');
+    div.innerHTML = `<div class="message-header">${escapeHtml(agentName || role.toUpperCase())}</div><div>${escapeHtml(text)}</div>`;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    transcript.push({ role, agent: agentName || role, text, time: new Date().toISOString() });
+  }
+  function showTyping(agent, name) { removeTyping(); const t = document.createElement('div'); t.className = `typing ${agent}`; if (currentLang === 'ar') t.classList.add('rtl'); t.id = 'typingEl'; t.innerHTML = `<div style="font-size:0.7rem;">${escapeHtml(name)}</div><div class="typing-dots"><span></span><span></span><span></span></div>`; messagesDiv.appendChild(t); messagesDiv.scrollTop = messagesDiv.scrollHeight; }
+  function removeTyping() { const el = document.getElementById('typingEl'); if (el) el.remove(); }
+  function escapeHtml(s) { return s.replace(/[&<>]/g, function(c){ if(c==='&') return '&amp;'; if(c==='<') return '&lt;'; if(c==='>') return '&gt;'; return c;}); }
+
+  async function callNvidia(system, messagesArr, apiKey, temp, topP, maxTokens) {
+    const payload = {
+      model: "openai/gpt-oss-20b",
+      messages: [{ role: "system", content: system }, ...messagesArr],
+      temperature: temp,
+      top_p: topP,
+      max_tokens: maxTokens,
+      stream: false
+    };
+    const controller = new AbortController();
+    abortController = controller;
+    const proxyUrl = `${CORS_PROXY}?url=${encodeURIComponent(NVIDIA_ENDPOINT)}`;
+    const res = await fetch(proxyUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-        temperature: 0.75,
-        top_p: 0.95,
-        max_tokens: 280,
-        stream: false
-      })
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+      body: JSON.stringify(payload),
+      signal: controller.signal
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`NVIDIA API error (${response.status}): ${errorText.substring(0, 200)}`);
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`API ${res.status}: ${errText.substring(0, 150)}`);
     }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error("Empty response from AI");
-    return content.trim();
-  }
-
-  // UI helpers
-  function showTyping(side, name) {
-    removeTyping();
-    const el = document.createElement("div");
-    el.className = `typing ${side}`;
-    el.id = "typing-indicator";
-    el.innerHTML = `<span class="typing-label">${name}</span><div class="dots"><i></i><i></i><i></i></div>`;
-    document.getElementById("messages").appendChild(el);
-    el.scrollIntoView({ behavior: "smooth", block: "end" });
-  }
-
-  function removeTyping() {
-    const old = document.getElementById("typing-indicator");
-    if (old) old.remove();
-  }
-
-  function appendMessage(side, name, text) {
-    removeTyping();
-    const div = document.createElement("div");
-    div.className = `msg ${side}`;
-    div.innerHTML = `<div class="msg-agent">${escapeHtml(name)}</div><div class="msg-text">${escapeHtml(text)}</div>`;
-    document.getElementById("messages").appendChild(div);
-    div.scrollIntoView({ behavior: "smooth", block: "end" });
-  }
-
-  function setStatus(text) {
-    const bar = document.getElementById("status-bar");
-    bar.textContent = text;
-    bar.classList.toggle("visible", !!text);
-  }
-
-  function showError(msg) {
-    const errDiv = document.getElementById("error-msg");
-    errDiv.textContent = msg;
-    errDiv.style.display = "block";
-    setTimeout(() => {
-      if (errDiv.style.display === "block") errDiv.style.display = "none";
-    }, 7000);
-  }
-
-  function hideError() {
-    document.getElementById("error-msg").style.display = "none";
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-      return c;
-    });
-  }
-
-  function stopDebate() {
-    stopFlag = true;
-    if (activeAbortController) {
-      activeAbortController.abort();
-      activeAbortController = null;
-    }
-    setStatus("⏹️ Debate stopped by user.");
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content?.trim() || "";
   }
 
   async function startDebate() {
-    // get values
-    const topic = document.getElementById("topic").value.trim();
-    if (!topic) { showError("Please enter a debate topic."); return; }
-    const apiKey = document.getElementById("api-key").value.trim();
-    if (!apiKey) { showError("Please enter your NVIDIA API key."); return; }
-
-    const alphaName = document.getElementById("alpha-name").value.trim() || "Agent Alpha";
-    const alphaPersona = document.getElementById("alpha-persona").value.trim();
-    const alphaStance = document.getElementById("alpha-stance").value;
-    const betaName = document.getElementById("beta-name").value.trim() || "Agent Beta";
-    const betaPersona = document.getElementById("beta-persona").value.trim();
-    const betaStance = document.getElementById("beta-stance").value;
-    const rounds = parseInt(document.getElementById("rounds-slider").value);
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) { showError(currentLang === 'ar' ? "الموضوع مطلوب." : "Topic required."); return; }
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey) { showError(currentLang === 'ar' ? "مفتاح NVIDIA API مطلوب." : "NVIDIA API key required."); return; }
+    const alphaName = document.getElementById('alphaName').value.trim() || (currentLang === 'ar' ? "ألفا" : "Alpha");
+    const alphaPersona = document.getElementById('alphaPersona').value.trim();
+    const alphaStance = document.getElementById('alphaStance').value;
+    const betaName = document.getElementById('betaName').value.trim() || (currentLang === 'ar' ? "بيتا" : "Beta");
+    const betaPersona = document.getElementById('betaPersona').value.trim();
+    const betaStance = document.getElementById('betaStance').value;
+    const rounds = parseInt(document.getElementById('rounds').value);
+    const temp = parseFloat(document.getElementById('temp').value);
+    const topP = parseFloat(document.getElementById('topP').value);
+    const maxTokens = parseInt(document.getElementById('maxTokens').value);
+    const judgeEnabled = document.getElementById('judgeEnabled').value === 'yes';
 
     stopFlag = false;
-    if (activeAbortController) activeAbortController.abort();
-    activeAbortController = new AbortController();
-
-    // clear UI
-    document.getElementById("messages").innerHTML = "";
-    document.getElementById("arena").style.display = "flex";
-    document.getElementById("arena-topic-label").innerHTML = `“${escapeHtml(topic)}”`;
-    document.getElementById("round-indicator").innerHTML = "—";
-    hideError();
-    setStatus("Connecting to NVIDIA AI ...");
-
-    // enable/disable buttons
-    const startBtn = document.getElementById("btn-start");
-    const stopBtn = document.getElementById("btn-stop");
+    if (abortController) abortController.abort();
+    clearMessages();
+    arenaDiv.style.display = 'block';
+    topicDisplaySpan.textContent = topic;
+    roundIndicatorSpan.textContent = `0/${rounds}`;
+    setStatus(currentLang === 'ar' ? "جاري التهيئة..." : "initializing...");
     startBtn.disabled = true;
-    stopBtn.style.display = "inline-block";
+    stopBtn.disabled = false;
 
-    // Build system prompts
-    const alphaSystem = `You are ${alphaName}. ${alphaPersona}
-You are debating the topic: "${topic}"
-Your fixed stance is ${alphaStance} this topic. Never waver or concede ground.
-Keep responses concise (max 90 words). Be incisive and directly counter your opponent.
-Write in flowing prose, no bullet points.`;
+    const t = strings[currentLang];
+    let alphaSystem, betaSystem, judgeSystem, judgePromptTemplate;
+    if (currentLang === 'ar') {
+      alphaSystem = t.alphaSystemAr(alphaName, alphaPersona, alphaStance, topic);
+      betaSystem = t.betaSystemAr(betaName, betaPersona, betaStance, topic);
+      judgeSystem = t.judgeSystemAr;
+      judgePromptTemplate = t.judgePromptAr;
+    } else {
+      alphaSystem = t.alphaSystemEn(alphaName, alphaPersona, alphaStance, topic);
+      betaSystem = t.betaSystemEn(betaName, betaPersona, betaStance, topic);
+      judgeSystem = t.judgeSystemEn;
+      judgePromptTemplate = t.judgePromptEn;
+    }
 
-    const betaSystem = `You are ${betaName}. ${betaPersona}
-You are debating the topic: "${topic}"
-Your fixed stance is ${betaStance} this topic. Never waver or concede ground.
-Keep responses concise (max 90 words). Be incisive and directly counter your opponent.
-Write in flowing prose, no bullet points.`;
-
-    let alphaHistory = []; // OpenAI format messages (user/assistant)
-    let betaHistory = [];
+    let alphaHistory = [], betaHistory = [];
+    let lastAlpha = "", lastBeta = "";
 
     try {
       for (let r = 0; r < rounds; r++) {
         if (stopFlag) break;
-
-        document.getElementById("round-indicator").innerHTML = `Round ${r+1} / ${rounds}`;
-
-        // ----- ALPHA TURN -----
-        setStatus(`${alphaName} is formulating argument ...`);
+        roundIndicatorSpan.textContent = `${r+1}/${rounds}`;
+        
+        // Alpha turn
+        setStatus(currentLang === 'ar' ? `${alphaName} يفكر...` : `${alphaName} thinking...`);
         showTyping("alpha", alphaName);
-
-        let alphaUserPrompt;
+        let alphaPrompt;
         if (r === 0) {
-          alphaUserPrompt = `Open the debate on: "${topic}". State your opening argument clearly.`;
+          alphaPrompt = currentLang === 'ar' ? t.alphaUserOpenAr(topic) : t.alphaUserOpenEn(topic);
         } else {
-          const lastBetaReply = betaHistory[betaHistory.length-1]?.content || "No previous argument";
-          alphaUserPrompt = `${betaName} argued: "${lastBetaReply}"\n\nRespond and counter directly. Defend your stance.`;
+          alphaPrompt = currentLang === 'ar' ? t.alphaUserCounterAr(betaName, lastBeta) : t.alphaUserCounterEn(betaName, lastBeta);
         }
-
-        alphaHistory.push({ role: "user", content: alphaUserPrompt });
-        const alphaReply = await callNvidiaAI(alphaSystem, alphaHistory, apiKey);
+        alphaHistory.push({ role: "user", content: alphaPrompt });
+        const alphaReply = await callNvidia(alphaSystem, alphaHistory, apiKey, temp, topP, maxTokens);
         if (stopFlag) { removeTyping(); break; }
         alphaHistory.push({ role: "assistant", content: alphaReply });
-        appendMessage("alpha", alphaName, alphaReply);
-
+        lastAlpha = alphaReply;
+        removeTyping();
+        addMessage("alpha", alphaName, alphaReply);
         if (stopFlag) break;
 
-        // ----- BETA TURN -----
-        setStatus(`${betaName} is formulating counter‑argument ...`);
+        // Beta turn
+        setStatus(currentLang === 'ar' ? `${betaName} يفكر...` : `${betaName} thinking...`);
         showTyping("beta", betaName);
-
-        let betaUserPrompt;
+        let betaPrompt;
         if (r === 0) {
-          betaUserPrompt = `${alphaName} opened with: "${alphaReply}"\n\nRespond and present your opening counter‑argument.`;
+          betaPrompt = currentLang === 'ar' ? t.betaUserOpenAr(alphaName, lastAlpha) : t.betaUserOpenEn(alphaName, lastAlpha);
         } else {
-          betaUserPrompt = `${alphaName} argued: "${alphaReply}"\n\nRespond directly and counter their points.`;
+          betaPrompt = currentLang === 'ar' ? t.betaUserCounterAr(alphaName, lastAlpha) : t.betaUserCounterEn(alphaName, lastAlpha);
         }
-
-        betaHistory.push({ role: "user", content: betaUserPrompt });
-        const betaReply = await callNvidiaAI(betaSystem, betaHistory, apiKey);
+        betaHistory.push({ role: "user", content: betaPrompt });
+        const betaReply = await callNvidia(betaSystem, betaHistory, apiKey, temp, topP, maxTokens);
         if (stopFlag) { removeTyping(); break; }
         betaHistory.push({ role: "assistant", content: betaReply });
-        appendMessage("beta", betaName, betaReply);
-      }
+        lastBeta = betaReply;
+        removeTyping();
+        addMessage("beta", betaName, betaReply);
 
-      if (!stopFlag) {
-        setStatus("✅ Debate concluded.");
-      } else {
-        setStatus("⏹️ Debate stopped early.");
+        if (judgeEnabled && !stopFlag) {
+          setStatus(currentLang === 'ar' ? "الحكم يقيم..." : "Judge evaluating...");
+          const judgeUserMsg = judgePromptTemplate(alphaName, betaName, lastAlpha, lastBeta, topic);
+          const judgeMessages = [{ role: "user", content: judgeUserMsg }];
+          const judgeFeedback = await callNvidia(judgeSystem, judgeMessages, apiKey, 0.6, 0.95, 140);
+          addMessage("judge", currentLang === 'ar' ? "⚖️ الحكم" : "⚖️ Judge", judgeFeedback);
+        }
       }
+      setStatus(stopFlag ? (currentLang === 'ar' ? "تم إيقاف المناظرة." : "stopped.") : (currentLang === 'ar' ? "انتهت المناظرة." : "debate finished."));
     } catch (err) {
-      if (err.name === "AbortError") {
-        setStatus("Debate aborted.");
-      } else {
-        console.error(err);
-        showError(`AI call failed: ${err.message}. Check API key or network.`);
-        setStatus("Error — debate stopped.");
-      }
+      if (err.name === "AbortError") setStatus(currentLang === 'ar' ? "تم الإلغاء." : "aborted.");
+      else { showError(`${currentLang === 'ar' ? "خطأ: " : "error: "}${err.message}`); setStatus(currentLang === 'ar' ? "حدث خطأ." : "error occurred."); }
     } finally {
       startBtn.disabled = false;
-      stopBtn.style.display = "none";
-      activeAbortController = null;
+      stopBtn.disabled = true;
+      abortController = null;
       removeTyping();
     }
   }
 
-  // attach event listeners
-  document.getElementById("btn-start").onclick = startDebate;
-  document.getElementById("btn-stop").onclick = stopDebate;
-  const slider = document.getElementById("rounds-slider");
-  const roundsDisplay = document.getElementById("rounds-display");
-  slider.oninput = () => { roundsDisplay.textContent = slider.value; };
-  roundsDisplay.textContent = slider.value;
+  function stopDebate() { stopFlag = true; if (abortController) abortController.abort(); setStatus(currentLang === 'ar' ? "جاري الإيقاف..." : "stopping..."); startBtn.disabled = false; stopBtn.disabled = true; removeTyping(); }
+  function exportTranscript() { if (transcript.length === 0) { showError(currentLang === 'ar' ? "لا توجد مناظرة للتصدير." : "no debate to export."); return; } const blob = new Blob([transcript.map(m => `[${m.time}] ${m.agent}:\n${m.text}`).join('\n\n')], { type: 'text/plain' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `debate_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); }
+
+  startBtn.onclick = startDebate;
+  stopBtn.onclick = stopDebate;
+  exportBtn.onclick = exportTranscript;
+  document.getElementById('temp').oninput = () => document.getElementById('tempVal').innerText = parseFloat(document.getElementById('temp').value).toFixed(2);
+  document.getElementById('topP').oninput = () => document.getElementById('topPVal').innerText = parseFloat(document.getElementById('topP').value).toFixed(2);
+  document.getElementById('rounds').oninput = () => document.getElementById('roundsVal').innerText = document.getElementById('rounds').value;
+  document.getElementById('tempVal').innerText = document.getElementById('temp').value;
+  document.getElementById('topPVal').innerText = document.getElementById('topP').value;
+  document.getElementById('roundsVal').innerText = document.getElementById('rounds').value;
+
+  // Initialize English
+  applyLanguage('en');
 </script>
 </body>
 </html>
