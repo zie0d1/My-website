@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zStudy Activity Dashboard</title>
+<style>
+  :root {
+    --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424;
+    --border: #2e2e2e; --text: #f0f0f0; --text2: #b0b0b0; --text3: #6b6b6b;
+    --accent: #3b82f6; --accent-bg: #1e3a5f;
+    --success: #10b981; --success-bg: #064e3b;
+    --danger: #ef4444; --danger-bg: #3f0a0a;
+    --warning: #f59e0b; --warning-bg: #3f2500;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--sans); background:var(--bg); color:var(--text); min-height:100vh; }
+
+  .topbar {
+    background:var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; height:52px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+  }
+  .topbar-title { font-size:16px; font-weight:700; letter-spacing:-0.3px; display:flex; align-items:center; gap:10px; }
+  .dot { width:8px; height:8px; background:var(--success); border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .topbar-right { display:flex; align-items:center; gap:10px; }
+  .btn { padding:7px 14px; font-size:12px; font-family:var(--mono); border:1px solid var(--border);
+    background:var(--surface2); color:var(--text2); cursor:pointer; transition:all 150ms; }
+  .btn:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .btn-primary:hover { background:#2563eb; color:#fff; }
+  .last-updated { font-size:11px; color:var(--text3); font-family:var(--mono); }
+
+  .container { max-width:1200px; margin:0 auto; padding:24px; }
+
+  /* STAT CARDS */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:14px; margin-bottom:24px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); padding:16px 18px; }
+  .stat-val { font-size:28px; font-weight:700; font-family:var(--mono); margin-bottom:4px; }
+  .stat-lbl { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; }
+
+  /* SECTIONS */
+  .section { background:var(--surface); border:1px solid var(--border); margin-bottom:18px; }
+  .section-head { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .section-title { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text2); font-family:var(--mono); }
+  .section-body { padding:18px; }
+
+  /* EVENT LOG */
+  .event-log { display:flex; flex-direction:column; gap:1px; max-height:420px; overflow-y:auto; }
+  .event-row { display:grid; grid-template-columns:140px 120px 1fr 120px; gap:10px; align-items:center;
+    padding:8px 12px; background:var(--surface2); font-size:12px; }
+  .event-row:nth-child(even) { background:var(--surface); }
+  .event-time { font-family:var(--mono); color:var(--text3); font-size:11px; }
+  .event-type { font-family:var(--mono); font-size:11px; }
+  .badge { display:inline-block; padding:2px 8px; font-size:10px; font-family:var(--mono); font-weight:700; border:1px solid; }
+  .badge-quiz_start    { background:var(--accent-bg); color:var(--accent); border-color:var(--accent); }
+  .badge-quiz_finish   { background:var(--success-bg); color:var(--success); border-color:var(--success); }
+  .badge-quiz_answer   { background:#1e2a1e; color:#6ee7b7; border-color:#064e3b; }
+  .badge-page_view     { background:var(--surface2); color:var(--text3); border-color:var(--border); }
+  .badge-subject_enter { background:#2a1a2a; color:#c4b5fd; border-color:#4c1d95; }
+  .badge-subject_exit  { background:#1a1a2a; color:#a5b4fc; border-color:#312e81; }
+  .badge-ai_generate_mcq  { background:#2a2a00; color:#fcd34d; border-color:#78350f; }
+  .badge-ai_generate_summary { background:#2a2000; color:#fbbf24; border-color:#92400e; }
+  .badge-session_start { background:#001a10; color:#6ee7b7; border-color:#065f46; }
+  .badge-session_end   { background:#1a0000; color:#fca5a5; border-color:#7f1d1d; }
+  .badge-default       { background:var(--surface2); color:var(--text2); border-color:var(--border); }
+  .event-detail { color:var(--text2); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .event-subject { font-family:var(--mono); font-size:10px; color:var(--text3); text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* QUIZ RESULTS */
+  .quiz-result-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px; }
+  .quiz-card { background:var(--surface2); border:1px solid var(--border); padding:14px; }
+  .quiz-card-name { font-size:13px; font-weight:600; margin-bottom:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .quiz-card-meta { font-size:10px; font-family:var(--mono); color:var(--text3); margin-bottom:10px; }
+  .score-bar-wrap { height:6px; background:var(--border); margin-bottom:6px; }
+  .score-bar-fill { height:100%; transition:width 600ms ease; }
+  .score-label { font-size:14px; font-weight:700; font-family:var(--mono); }
+
+  /* SESSIONS */
+  .sessions-list { display:flex; flex-direction:column; gap:4px; }
+  .session-row { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--surface2); font-size:12px; }
+  .session-id { font-family:var(--mono); font-size:10px; color:var(--text3); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .session-count { font-family:var(--mono); font-size:11px; background:var(--border); padding:2px 8px; }
+
+  /* MINI BAR CHART */
+  .mini-chart { display:flex; align-items:flex-end; gap:4px; height:60px; }
+  .mini-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .mini-bar { width:100%; background:var(--accent); transition:height 400ms ease; min-height:2px; }
+  .mini-bar-label { font-size:9px; font-family:var(--mono); color:var(--text3); }
+
+  /* ACTIVITY TYPE PIE (CSS only) */
+  .type-list { display:flex; flex-direction:column; gap:6px; }
+  .type-row { display:flex; align-items:center; gap:8px; font-size:12px; }
+  .type-dot { width:10px; height:10px; flex-shrink:0; }
+  .type-bar-wrap { flex:1; height:6px; background:var(--border); }
+  .type-bar { height:100%; }
+  .type-count { font-family:var(--mono); font-size:11px; color:var(--text3); min-width:32px; text-align:right; }
+
+  /* LOADING / EMPTY */
+  .loading { text-align:center; padding:60px 20px; color:var(--text3); }
+  .loading-spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent);
+    border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .empty { text-align:center; padding:32px 20px; color:var(--text3); font-family:var(--mono); font-size:12px; }
+
+  /* FILTER BAR */
+  .filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+  .filter-chip { padding:4px 12px; font-size:11px; font-family:var(--mono); border:1px solid var(--border);
+    background:transparent; color:var(--text3); cursor:pointer; transition:all 150ms; }
+  .filter-chip.active { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+  .filter-chip:hover:not(.active) { border-color:var(--text3); color:var(--text2); }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:768px) { .two-col { grid-template-columns:1fr; } .event-row { grid-template-columns:90px 90px 1fr; } .event-subject { display:none; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <div class="dot"></div>
+    zStudy Activity Dashboard
+  </div>
+  <div class="topbar-right">
+    <span class="last-updated" id="lastUpdated">Loading…</span>
+    <button class="btn btn-primary" onclick="loadData()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STAT CARDS -->
+  <div class="stat-grid" id="statGrid">
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">—</div><div class="stat-lbl">Total Events</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--success)">—</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--warning)">—</div><div class="stat-lbl">Quizzes Taken</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#a78bfa">—</div><div class="stat-lbl">Avg Score</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#fbbf24">—</div><div class="stat-lbl">AI Generations</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--text2)">—</div><div class="stat-lbl">Answers Given</div></div>
+  </div>
+
+  <!-- TWO-COL: event type breakdown + activity chart -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-head"><span class="section-title">Event Breakdown</span></div>
+      <div class="section-body"><div class="type-list" id="typeList"><div class="empty">Loading…</div></div></div>
+    </div>
+    <div class="section">
+      <div class="section-head"><span class="section-title">Hourly Activity (last 24h)</span></div>
+      <div class="section-body"><div class="mini-chart" id="hourChart"><div class="empty" style="width:100%">Loading…</div></div></div>
+    </div>
+  </div>
+
+  <!-- QUIZ RESULTS -->
+  <div class="section">
+    <div class="section-head"><span class="section-title">Quiz Results</span></div>
+    <div class="section-body">
+      <div class="quiz-result-grid" id="quizResults"><div class="empty">No quiz results yet</div></div>
+    </div>
+  </div>
+
+  <!-- EVENT LOG -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Live Event Log</span>
+      <span id="eventCount" style="font-family:var(--mono);font-size:11px;color:var(--text3)"></span>
+    </div>
+    <div class="section-body" style="padding:0">
+      <div class="filter-bar" style="padding:12px 18px 0">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">Filter:</span>
+        <button class="filter-chip active" data-type="all" onclick="setFilter('all',this)">All</button>
+        <button class="filter-chip" data-type="quiz" onclick="setFilter('quiz',this)">Quiz</button>
+        <button class="filter-chip" data-type="subject" onclick="setFilter('subject',this)">Subject</button>
+        <button class="filter-chip" data-type="ai" onclick="setFilter('ai',this)">AI</button>
+        <button class="filter-chip" data-type="page_view" onclick="setFilter('page_view',this)">Navigation</button>
+        <button class="filter-chip" data-type="session" onclick="setFilter('session',this)">Session</button>
+      </div>
+      <div class="event-log" id="eventLog" style="padding:12px 0">
+        <div class="loading"><div class="loading-spinner"></div>Fetching data from JSONBin…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSIONS -->
+  <div class="section">
+    <div class="section-head"><span class="section-title">Sessions</span></div>
+    <div class="section-body" style="padding:0">
+      <div class="sessions-list" id="sessionsList"><div class="empty" style="padding:20px">Loading…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BIN_ID  = '6825f81f8960c979a589bed4';
+const API_KEY = '$2a$10$bR.kR7EthTb/hbWtIYjVT.BD.aqHY.jef9knGNZZV7mMdZpMwyMxW';
+const URL     = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
+
+let _allEvents = [];
+let _currentFilter = 'all';
+
+// ── Fetch data ──────────────────────────────────────────────────────────────
+async function loadData() {
+  document.getElementById('lastUpdated').textContent = 'Refreshing…';
+  try {
+    const r = await fetch(URL, { headers: { 'X-Master-Key': API_KEY, 'X-Bin-Meta': 'false' } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const events   = (d.events   || []).slice().reverse(); // newest first
+    const sessions = d.sessions  || [];
+    _allEvents = events;
+    render(events, sessions);
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('lastUpdated').textContent = 'Error: ' + e.message;
+    document.getElementById('eventLog').innerHTML = `<div class="empty">⚠ Could not load data: ${e.message}</div>`;
+  }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function fmtTs(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB',{month:'short',day:'2-digit'}) + ' ' +
+         d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function badgeClass(type) {
+  const t = type.toLowerCase();
+  if (['quiz_start','quiz_finish','quiz_answer'].includes(t)) return 'badge-'+t;
+  if (t.startsWith('page_view')) return 'badge-page_view';
+  if (t.startsWith('subject_enter')) return 'badge-subject_enter';
+  if (t.startsWith('subject_exit'))  return 'badge-subject_exit';
+  if (t === 'ai_generate_mcq')     return 'badge-ai_generate_mcq';
+  if (t === 'ai_generate_summary') return 'badge-ai_generate_summary';
+  if (t === 'session_start')       return 'badge-session_start';
+  if (t === 'session_end')         return 'badge-session_end';
+  return 'badge-default';
+}
+
+function eventDetail(e) {
+  switch(e.type) {
+    case 'quiz_start':    return `"${(e.quizName||'').slice(0,40)}" · ${e.questionCount} Qs`;
+    case 'quiz_finish':   return `"${(e.quizName||'').slice(0,30)}" · Score: ${e.score}% · ${e.correct}/${e.total} · ${e.durationSecs}s`;
+    case 'quiz_answer':   return `Q${(e.questionIndex||0)+1}: ${e.isCorrect?'✓ Correct':'✗ Wrong'} · conf: ${e.confidence||'—'}`;
+    case 'page_view':     return `→ ${e.panel}`;
+    case 'sidebar_click': return `→ ${e.panel}`;
+    case 'subject_enter': return `${e.subjectName || e.subjectId}`;
+    case 'subject_exit':  return `Left subject`;
+    case 'subject_created': return `New subject`;
+    case 'subject_deleted': return `Deleted: ${e.subjectName}`;
+    case 'ai_generate_mcq': return `${e.questionCount} Qs · ${e.difficulty} · ${e.language}`;
+    case 'ai_generate_summary': return `style: ${e.style}`;
+    case 'flashcard_rated': return `Rating: ${e.rating}`;
+    case 'session_start': return e.userAgent ? e.userAgent.slice(0,60) : '—';
+    case 'session_end':   return 'Session ended';
+    default: return JSON.stringify(e).slice(0,80);
+  }
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function render(events, sessions) {
+  renderStats(events, sessions);
+  renderEventBreakdown(events);
+  renderHourChart(events);
+  renderQuizResults(events);
+  renderEventLog(events);
+  renderSessions(sessions, events);
+}
+
+function renderStats(events, sessions) {
+  const quizFinishes = events.filter(e => e.type === 'quiz_finish');
+  const avgScore = quizFinishes.length
+    ? Math.round(quizFinishes.reduce((s,e)=>s+(e.score||0),0)/quizFinishes.length)
+    : 0;
+  const aiGens = events.filter(e => e.type === 'ai_generate_mcq' || e.type === 'ai_generate_summary').length;
+  const answers = events.filter(e => e.type === 'quiz_answer').length;
+
+  const cells = document.getElementById('statGrid').querySelectorAll('.stat-val');
+  cells[0].textContent = events.length;
+  cells[1].textContent = sessions.length;
+  cells[2].textContent = quizFinishes.length;
+  cells[3].textContent = avgScore ? avgScore + '%' : '—';
+  cells[4].textContent = aiGens;
+  cells[5].textContent = answers;
+}
+
+function renderEventBreakdown(events) {
+  const counts = {};
+  events.forEach(e => { counts[e.type] = (counts[e.type]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+
+  const COLORS = {
+    quiz_answer:'#6ee7b7', quiz_finish:'#10b981', quiz_start:'#3b82f6',
+    page_view:'#6b6b6b', sidebar_click:'#4b5563', subject_enter:'#c4b5fd',
+    ai_generate_mcq:'#fcd34d', ai_generate_summary:'#fbbf24',
+    session_start:'#6ee7b7', session_end:'#fca5a5',
+  };
+
+  document.getElementById('typeList').innerHTML = sorted.slice(0,12).map(([type, count]) => {
+    const col = COLORS[type] || '#94a3b8';
+    const pct = Math.round(count/max*100);
+    return `<div class="type-row">
+      <div class="type-dot" style="background:${col}"></div>
+      <span style="min-width:140px;font-family:var(--mono);font-size:11px;color:var(--text2)">${type}</span>
+      <div class="type-bar-wrap"><div class="type-bar" style="width:${pct}%;background:${col}"></div></div>
+      <span class="type-count">${count}</span>
+    </div>`;
+  }).join('') || '<div class="empty">No events</div>';
+}
+
+function renderHourChart(events) {
+  const now = Date.now();
+  const hours = Array(24).fill(0);
+  events.forEach(e => {
+    const age = now - new Date(e.ts).getTime();
+    if (age < 86400000) {
+      const h = 23 - Math.floor(age / 3600000);
+      if (h >= 0 && h < 24) hours[h]++;
+    }
+  });
+  const max = Math.max(...hours, 1);
+  const el = document.getElementById('hourChart');
+  el.innerHTML = hours.map((v, i) => {
+    const pct = Math.round(v/max*100);
+    const label = i === 23 ? 'now' : (23-i)+'h';
+    return `<div class="mini-bar-wrap">
+      <div class="mini-bar" style="height:${pct}%;background:${v>0?'var(--accent)':'var(--border)'}"></div>
+      <span class="mini-bar-label">${i%6===0?label:''}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderQuizResults(events) {
+  const finishes = events.filter(e => e.type === 'quiz_finish').slice(0, 12);
+  const el = document.getElementById('quizResults');
+  if (!finishes.length) { el.innerHTML = '<div class="empty">No quiz results yet</div>'; return; }
+  el.innerHTML = finishes.map(e => {
+    const col = e.score>=70?'var(--success)':e.score>=50?'var(--warning)':'var(--danger)';
+    return `<div class="quiz-card">
+      <div class="quiz-card-name" title="${e.quizName||''}">${e.quizName||'Quiz'}</div>
+      <div class="quiz-card-meta">${fmtTs(e.ts)} · ${e.total} Qs · ${Math.floor(e.durationSecs/60)}m${e.durationSecs%60}s</div>
+      <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${e.score||0}%;background:${col}"></div></div>
+      <div class="score-label" style="color:${col}">${e.score||0}%</div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-top:4px">${e.correct||0}/${e.total||0} correct</div>
+    </div>`;
+  }).join('');
+}
+
+function renderEventLog(events) {
+  const filtered = filterEvents(events, _currentFilter);
+  document.getElementById('eventCount').textContent = filtered.length + ' events';
+  const el = document.getElementById('eventLog');
+  if (!filtered.length) { el.innerHTML = '<div class="empty">No events for this filter</div>'; return; }
+  el.innerHTML = filtered.slice(0, 200).map(e =>
+    `<div class="event-row">
+      <span class="event-time">${fmtTs(e.ts)}</span>
+      <span><span class="badge ${badgeClass(e.type)}">${e.type.replace(/_/g,' ')}</span></span>
+      <span class="event-detail">${eventDetail(e)}</span>
+      <span class="event-subject">${e.subjectName || (e.subject ? e.subject.slice(0,12) : '') || ''}</span>
+    </div>`
+  ).join('');
+}
+
+function renderSessions(sessions, events) {
+  const el = document.getElementById('sessionsList');
+  if (!sessions.length) { el.innerHTML = '<div class="empty" style="padding:20px">No sessions recorded</div>'; return; }
+  el.innerHTML = [...sessions].reverse().slice(0,20).map(s => {
+    const evCount = events.filter(e => e.session === s.id).length;
+    const start = fmtTs(s.start);
+    const last  = s.lastActive ? fmtTs(s.lastActive) : '—';
+    return `<div class="session-row">
+      <span class="session-id" title="${s.id}">${s.id}</span>
+      <span style="font-size:11px;font-family:var(--mono);color:var(--text3)">${start}</span>
+      <span style="font-size:11px;font-family:var(--mono);color:var(--text3)">last: ${last}</span>
+      <span class="session-count">${evCount} events</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Filter ──────────────────────────────────────────────────────────────────
+function filterEvents(events, f) {
+  if (f === 'all')     return events;
+  if (f === 'quiz')    return events.filter(e => e.type.startsWith('quiz'));
+  if (f === 'subject') return events.filter(e => e.type.startsWith('subject'));
+  if (f === 'ai')      return events.filter(e => e.type.startsWith('ai'));
+  if (f === 'session') return events.filter(e => e.type.startsWith('session'));
+  return events.filter(e => e.type === f);
+}
+
+function setFilter(type, btn) {
+  _currentFilter = type;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderEventLog(_allEvents);
+}
+
+// ── Auto-refresh every 30s ──────────────────────────────────────────────────
+loadData();
+setInterval(loadData, 30000);
+</script>
+</body>
+</html>
