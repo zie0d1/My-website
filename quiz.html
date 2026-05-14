@@ -769,7 +769,7 @@
         }
         .sum-section-head { display:flex; align-items:center; gap:10px; padding:13px 16px; background:var(--surface2); border-bottom:1px solid var(--border); }
         .sum-section-stripe { width:4px; height:20px; flex-shrink:0; border-radius:var(--radius-full); }
-        .sum-section-title { font-weight:700; font-size:14px; color:var(--text); flex:1; unicode-bidi:plaintext; text-align:start; }
+        .sum-section-title { font-weight:700; font-size:14px; color:var(--text); flex:1; }
         .sum-section-count { font-size:10px; font-family:var(--mono); color:var(--text4); padding:2px 8px; border:1px solid var(--border); border-radius:var(--radius-full); }
         .sum-points { padding:14px 16px; display:flex; flex-direction:column; gap:9px; }
         .sum-point { display:flex; align-items:flex-start; gap:10px; font-size:13px; line-height:1.65; color:var(--text2); unicode-bidi:plaintext; text-align:start; }
@@ -780,8 +780,8 @@
         .sum-terms-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text4); font-family:var(--mono); padding:12px 0 8px; border-top:1px solid var(--border); margin-bottom:10px; }
         .sum-term { padding:9px 0; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; }
         .sum-term:last-child { border-bottom:none; }
-        .sum-term-word { font-weight:700; font-size:12px; color:var(--text); min-width:100px; max-width:140px; flex-shrink:0; unicode-bidi:plaintext; text-align:start; }
-        .sum-term-def { font-size:12px; color:var(--text3); line-height:1.65; unicode-bidi:plaintext; text-align:start; }
+        .sum-term-word { font-weight:700; font-size:12px; color:var(--text); min-width:100px; max-width:140px; flex-shrink:0; }
+        .sum-term-def { font-size:12px; color:var(--text3); line-height:1.65; }
 
         /* ── SUMMARY TABLE ── */
         .sum-table-wrap { padding:0 0 2px; overflow-x:auto; }
@@ -3050,6 +3050,19 @@ ${textSlice}`;
         }
     }
 
+    // ── Language direction detection ──────────────────────────────────────
+    function detectDir(text) {
+        if (!text) return 'auto';
+        const ar = (text.match(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/g) || []).length;
+        const lat = (text.match(/[a-zA-Z]/g) || []).length;
+        if (ar === 0 && lat === 0) return 'auto';
+        return ar > lat ? 'rtl' : 'ltr';
+    }
+    function dirStr(text) {
+        const d = detectDir(text);
+        return d === 'auto' ? '' : ' dir="' + d + '"';
+    }
+
     // ── Structured JSON renderer ──────────────────────────────────────────
     function renderStructuredSummary(data, container) {
         if (!data || !container) return;
@@ -3114,7 +3127,7 @@ ${textSlice}`;
                 const pointsHTML = (sec.points || []).map(pt =>
                     `<div class="sum-point">
                         <div class="sum-point-bullet" style="background:${c.hex}"></div>
-                        <span>${esc(pt)}</span>
+                        <span dir="${detectDir(pt)}">${esc(pt)}</span>
                     </div>`
                 ).join('');
                 bodyHTML = `<div class="sum-points">${pointsHTML}</div>`;
@@ -3127,7 +3140,7 @@ ${textSlice}`;
             return `<div class="sum-section" style="border-color:${c.border};animation-delay:${i*60}ms">
                 <div class="sum-section-head" style="border-bottom-color:${c.border}">
                     <div class="sum-section-stripe" style="background:${c.hex}"></div>
-                    <div class="sum-section-title" style="color:${c.hex}">${esc(sec.heading||'')}</div>
+                    <div class="sum-section-title" style="color:${c.hex}" dir="${detectDir(sec.heading||'')}">${esc(sec.heading||'')}</div>
                     <div class="sum-section-count">${count}</div>
                 </div>
                 ${bodyHTML}
@@ -3144,15 +3157,15 @@ ${textSlice}`;
                 <div class="sum-terms">
                     ${data.key_terms.map(kt=>`
                         <div class="sum-term">
-                            <div class="sum-term-word">${esc(kt.term||'')}</div>
-                            <div class="sum-term-def">${esc(kt.definition||'')}</div>
+                            <div class="sum-term-word" dir="${detectDir(kt.term||'')}">${esc(kt.term||'')}</div>
+                            <div class="sum-term-def" dir="${detectDir(kt.definition||'')}">${esc(kt.definition||'')}</div>
                         </div>`).join('')}
                 </div>
             </div>` : '';
 
         container.innerHTML = `<div class="sum-render">
-            ${data.title ? `<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;unicode-bidi:plaintext;text-align:start">${esc(data.title)}</div>` : ''}
-            ${data.summary_line ? `<div class="sum-callout">${esc(data.summary_line)}</div>` : ''}
+            ${data.title ? `<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px" dir="${detectDir(data.title)}">${esc(data.title)}</div>` : ''}
+            ${data.summary_line ? `<div class="sum-callout" dir="${detectDir(data.summary_line)}">${esc(data.summary_line)}</div>` : ''}
             ${sections}
             ${termsHTML}
         </div>`;
@@ -5238,20 +5251,20 @@ ${text}`;
             const hm = line.match(/^(#{1,3})\s+(.*)/);
             if (hm) {
                 const lvl = hm[1].length;
-                html += `<div class="sai-h${lvl}">${parseBoldItalic(hm[2])}</div>`;
+                html += `<div class="sai-h${lvl}" dir="${detectDir(hm[2])}">${parseBoldItalic(hm[2])}</div>`;
                 i++; continue;
             }
 
             // Bullet list
             if (/^\s*[•\-\*]\s+/.test(line)) {
-                html += `<div class="sai-bullet"><span class="sai-bullet-dot">●</span><span>${parseBoldItalic(line.replace(/^\s*[•\-\*]\s+/,''))}</span></div>`;
+                const _bt = line.replace(/^\s*[•\-\*]\s+/,''); html += `<div class="sai-bullet" dir="${detectDir(_bt)}"><span class="sai-bullet-dot">●</span><span>${parseBoldItalic(_bt)}</span></div>`;
                 i++; continue;
             }
 
             // Numbered list
             const nm = line.match(/^\s*(\d+)[.)]\s+(.*)/);
             if (nm) {
-                html += `<div class="sai-num"><span class="sai-num-n">${nm[1]}.</span><span>${parseBoldItalic(nm[2])}</span></div>`;
+                html += `<div class="sai-num" dir="${detectDir(nm[2])}"><span class="sai-num-n">${nm[1]}.</span><span>${parseBoldItalic(nm[2])}</span></div>`;
                 i++; continue;
             }
 
@@ -5259,7 +5272,7 @@ ${text}`;
             if (line.trim() === '') { html += '<div class="sai-spacer"></div>'; i++; continue; }
 
             // Normal paragraph
-            html += `<div style="unicode-bidi:plaintext;margin:2px 0">${parseBoldItalic(line)}</div>`;
+            const _ld = detectDir(line); html += `<div style="margin:2px 0" dir="${_ld}">${parseBoldItalic(line)}</div>`;
             i++;
         }
         return html;
@@ -5276,7 +5289,7 @@ ${text}`;
 
         if (role === 'user') {
             const bubble = document.createElement('div');
-            bubble.className = 'sai-msg-user';
+            bubble.className = 'sai-msg-user';            bubble.setAttribute('dir', detectDir(text));
             bubble.textContent = text;
             group.appendChild(bubble);
         } else {
@@ -5288,7 +5301,7 @@ ${text}`;
                 </div>
                 <span class="sai-msg-label-name">Claude</span>`;
             const content = document.createElement('div');
-            content.className = 'sai-msg-ai';
+            content.className = 'sai-msg-ai';            content.setAttribute('dir', detectDir(text));
             content.innerHTML = renderMsgMarkdown(text);
             group.appendChild(label);
             group.appendChild(content);
