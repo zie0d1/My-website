@@ -2482,7 +2482,8 @@
 QUESTION QUALITY RULES (critical — no exceptions):
 - Questions MUST test specific, precise knowledge: exact values, mechanisms, named concepts, definitions, causes, effects, classifications, steps, or conditions stated in the text.
 - NEVER ask vague questions like "What is the main topic?" or "What does the text discuss?" — every question must have one clearly correct answer that requires actually knowing the content.
-- Each wrong option (distractor) must be plausible and related to the same topic — not obviously absurd. Distractors should be common misconceptions, similar-sounding terms, or related but incorrect values/concepts from the same domain.
+- CRITICAL — ONE CORRECT ANSWER ONLY: The 3 wrong options must be definitively INCORRECT — not "less correct" or "partially true." If using words like "primarily," "mainly," "most commonly," or "characteristic of," make absolutely sure only ONE option is truly correct and the other three are factually wrong for that specific context. NEVER create a question where multiple options are all valid answers to some degree (e.g., if asking which cell is "primarily" involved, the wrong options must be cell types that are NOT involved — not cell types that are also involved but less so).
+- Each wrong option (distractor) must be plausible and related to the same topic — not obviously absurd. Distractors should be common misconceptions, similar-sounding terms, or related but incorrect values/concepts from the same domain. But they must be FACTUALLY WRONG for the specific question asked.
 - Each question tests a DIFFERENT specific fact, term, number, or concept — no overlap between questions.
 - Spread questions evenly across the ENTIRE text — do not cluster at the start.
 - Options must be parallel in grammatical form and similar in length.
@@ -2491,7 +2492,7 @@ QUESTION QUALITY RULES (critical — no exceptions):
 FORMAT RULES:
 - Each question has exactly 4 options: A, B, C, D.
 - "correct" = 0-based index (0=A, 1=B, 2=C, 3=D).
-- "explanation" = cite the exact sentence or key phrase from the text that proves the answer.
+- "explanation" = cite the exact sentence or key phrase from the text that proves the answer, AND briefly state why the other options are wrong.
 - Output ONLY a raw JSON array — no markdown, no code fences, no extra text.
 
 [{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}]
@@ -2500,7 +2501,7 @@ TEXT SECTION:
 ${text}`;
     }
 
-    const MCQ_SYSTEM = 'You output ONLY a valid JSON array of MCQ objects. Each question must be specific and precise — testing exact facts, values, definitions, or mechanisms from the source text. No vague or general questions. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
+    const MCQ_SYSTEM = 'You output ONLY a valid JSON array of MCQ objects. Each question must have exactly ONE correct answer — the three wrong options must be factually incorrect, not just "less correct." Never create questions where multiple options could all be partially true. Each question must test exact facts, values, definitions, or mechanisms from the source text. No vague or general questions. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
 
     // Generate MCQ for a single chunk, returns array of question objects
     async function mcqForChunk(chunkText, count, lang, diff) {
