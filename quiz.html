@@ -1810,6 +1810,15 @@
     if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+    // ── ANALYTICS HELPER ──────────────────────────
+    function track(eventName, params) {
+        try {
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, params || {});
+            }
+        } catch(e) { /* silently ignore tracking errors */ }
+    }
+
     // ── LANGUAGE ──────────────────────────────────
     let currentLang = lg('app_lang') || 'ar';
     const TR = {
@@ -1962,6 +1971,7 @@
         ls('app_lang', currentLang);
         document.documentElement.lang = currentLang;
         document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        track('language_changed', { new_language: currentLang });
         updateAllTranslations();
         const activePanel = document.querySelector('.panel.active');
         if (activePanel) {
@@ -2032,6 +2042,7 @@
         updateSidebarForSubject(true);
         switchPanel('gen');
         updateDueBadge();
+        track('subject_entered', { subject_name: subj.name });
         toast(currentLang==='ar'?'دخلت مادة: '+subj.name:'Entered: '+subj.name);
     }
 
@@ -2043,6 +2054,7 @@
         hide($('flashArea'));
         switchPanel('dashboard');
         renderDashboard();
+        track('subject_exited', {});
         toast(t('back_subjects'));
     }
 
@@ -2063,6 +2075,7 @@
         if (!getCurrentSubjectId() && !['dashboard','settings','howto'].includes(panelId)) {
             toast(t('choose_subject')); return;
         }
+        track('panel_switched', { panel: panelId, subject: getCurrentSubject()?.name || 'none' });
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         const panel = $('panel-'+panelId);
         if (panel) panel.classList.add('active');
@@ -2227,6 +2240,7 @@
         subs.push({id, name, color, createdAt: new Date().toISOString()});
         saveSubjects(subs);
         closeModal();
+        track('subject_created', { subject_name: name, total_subjects: subs.length });
         enterSubject(id);
         renderDashboard();
     }
@@ -2277,6 +2291,7 @@
                 if (key && key.startsWith(id+'__')) localStorage.removeItem(key);
             }
             if (getCurrentSubjectId()===id) exitSubject();
+            track('subject_deleted', { subject_name: subj.name });
             renderDashboard();
             toast(t('cleared'));
         });
@@ -2350,6 +2365,7 @@
     async function addPDFs(files) {
         if (!files || !files.length) return;
         const newFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+        track('pdf_upload_started', { file_count: newFiles.length });
         if (!newFiles.length) return;
         // Show drop zone as loading
         $('dropZone') && ($('dropZone').querySelector('.drop-title').textContent = currentLang==='ar'?'جاري القراءة...':'Reading...');
@@ -2376,6 +2392,7 @@
         ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
         // restore drop zone title
         $('dropZone') && ($('dropZone').querySelector('.drop-title').textContent = t('drop_zone_title'));
+        if (pdfText) track('pdf_uploaded', { file_count: _pdfFiles.length, total_pages: _pdfFiles.reduce((s,f)=>s+f.pages,0), total_chars: pdfText.length });
     }
 
     function removePDF(idx) {
@@ -2686,6 +2703,7 @@ ${text}`;
 
             hideMCQLoader();
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
+            track('mcq_generated', { question_count: final.length, difficulty: $('diffSel').value, language: $('langSel').value, source: quizName });
             startQuiz(final, quizName);
 
         } catch(e) {
@@ -3042,6 +3060,7 @@ ${textSlice}`;
 
             show($('summaryResultArea'));
             hide($('summaryAiStatus'));
+            track('summary_generated', { style: summaryCurrentStyle, source_type: sumCurrentTab, language: $('summaryLangSel').value, subject: getCurrentSubject()?.name || 'none' });
             toast(currentLang==='ar' ? 'تم التوليد بنجاح' : 'Summary generated!');
         } catch(e) {
             $('summaryAiStatusText').textContent = e.message;
@@ -3968,6 +3987,7 @@ ${textSlice}`;
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         const qp = $('quizArea'); qp.classList.add('active'); show(qp);
         qStartTime = Date.now();
+        track('quiz_started', { question_count: Qs.length, source: src || 'Unknown', subject: getCurrentSubject()?.name || 'none' });
         renderQ();
         updateScore();
     }
@@ -4059,7 +4079,9 @@ ${textSlice}`;
         const elapsed = Date.now() - qStartTime;
         Ans[qi].selected = i;
         Ans[qi].timeMs = elapsed;
-        if (i !== Qs[qi].correct) addToErrorBank(Qs[qi], i, Ans[qi].confidence);
+        const isCorrect = i === Qs[qi].correct;
+        track('quiz_answer_selected', { question_index: qi + 1, is_correct: isCorrect, time_ms: elapsed, confidence: Ans[qi].confidence || 'none', source: qSource });
+        if (!isCorrect) addToErrorBank(Qs[qi], i, Ans[qi].confidence);
         renderQ();
         updateScore();
         qStartTime = Date.now(); // reset for next question
@@ -4084,6 +4106,8 @@ ${textSlice}`;
         const total = Qs.length;
         const pct = Math.round(c/total*100);
         const confidenceStats = buildConfidenceStats(Qs, Ans);
+        const answered = Ans.filter(a=>a.selected!==null).length;
+        track('quiz_completed', { score_pct: pct, correct: c, total, answered, duration_secs: qSecs, source: qSource, subject: getCurrentSubject()?.name || 'none' });
         saveHistory({name:qSource, score:pct, qCount:total, questions:[...Qs], answers:[...Ans], elapsed:Math.floor(qSecs/60)+'m '+qSecs%60+'s', confidenceStats});
         const col = pct>=70?'var(--success)':pct>=50?'var(--warning)':'var(--danger)';
         const avgTime = Ans.filter(a=>a.timeMs>0).reduce((s,a)=>s+a.timeMs,0) / Math.max(1,Ans.filter(a=>a.timeMs>0).length);
@@ -4246,7 +4270,7 @@ ${textSlice}`;
         saveEB(data); renderErrors();
     }
 
-    function reviewAllErrors() { const eb=getEB().sort((a,b)=>b.wrongCount-a.wrongCount); if (!eb.length) { alertModal(t('no_errors')); return; } startQuiz(eb, t('error_bank')); }
+    function reviewAllErrors() { const eb=getEB().sort((a,b)=>b.wrongCount-a.wrongCount); if (!eb.length) { alertModal(t('no_errors')); return; } track('error_bank_reviewed', { error_count: eb.length, subject: getCurrentSubject()?.name || 'none' }); startQuiz(eb, t('error_bank')); }
     function delError(key) { saveEB(getEB().filter(e=>e.question?.slice(0,80)!==key)); renderErrors(); }
     function exportErrors() { downloadJSON(getEB(),'errors'); }
     function clearErrors() { confirmModal(t('clear_all')+'?', ()=>{ localStorage.removeItem(subKey('error_bank')); renderErrors(); }); }
@@ -4320,6 +4344,7 @@ ${textSlice}`;
         const q=$('nq'+di).value.trim(), a=$('na'+di).value.trim();
         if (!q||!a) return;
         const d=getDecks(); d[di].cards.push({question:q,answer:a}); saveDecks(d);
+        track('card_added_manually', { deck_name: d[di].name, deck_size: d[di].cards.length });
         $('nq'+di).value=''; $('na'+di).value='';
         renderDecks(); $('dk'+di).classList.add('open');
     }
@@ -4379,6 +4404,7 @@ ${textSlice}`;
         const name=$('newDeckName').value.trim()||`Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
         const d=getDecks(); d.push({name, cards:cards.filter(c=>c.question&&c.answer)});
         saveDecks(d); $('ndJson').value=''; $('newDeckName').value='';
+        track('deck_created', { method: 'json_import', card_count: cards.length, subject: getCurrentSubject()?.name || 'none' });
         renderDecks(); toast(t('saved'));
     }
 
@@ -4398,6 +4424,7 @@ ${textSlice}`;
         fci=0; fFlipped=false;
         document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
         const fp=$('flashArea'); fp.classList.add('active'); show(fp);
+        track('flashcard_review_started', { deck_name: fDeckName, due_count: due.length, fresh_count: fresh.length, total_cards: fCards.length, subject: getCurrentSubject()?.name || 'none' });
         renderFC();
     }
 
@@ -4460,9 +4487,13 @@ ${textSlice}`;
         s.nextReview=now+s.interval;
         st[fCards[fci].id]=s;
         saveSM(st);
+        track('flashcard_rated', { rating: r, deck_name: fDeckName, card_index: fci + 1, total_cards: fCards.length });
         fci++;
         fFlipped=false;
-        if (fci>=fCards.length) { exitFlash(); updateDueBadge(); return; }
+        if (fci>=fCards.length) {
+            track('flashcard_review_completed', { deck_name: fDeckName, cards_reviewed: fCards.length, subject: getCurrentSubject()?.name || 'none' });
+            exitFlash(); updateDueBadge(); return;
+        }
         renderFC();
     }
 
@@ -4752,6 +4783,7 @@ ${textSlice}`;
         const dark=root.getAttribute('data-theme')==='dark';
         root.setAttribute('data-theme', dark?'light':'dark');
         ls('app_theme', dark?'light':'dark');
+        track('theme_toggled', { new_theme: dark ? 'light' : 'dark' });
         const themeIcon=$('themeIcon');
         if (themeIcon) {
             themeIcon.innerHTML = dark
@@ -5076,6 +5108,7 @@ ${text}`;
                 saveDecks(decks);
 
                 setAIStatus(merged.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+                track('cards_generated', { card_count: merged.length, mode: 'auto', focuses: activeFocuses.join(','), subject: getCurrentSubject()?.name || 'none' });
                 setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
 
             } else {
@@ -5132,6 +5165,7 @@ ${text}`;
                 saveDecks(decks);
 
                 setAIStatus(merged.length + '/' + count + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+                track('cards_generated', { card_count: merged.length, mode: 'manual', target_count: count, subject: getCurrentSubject()?.name || 'none' });
                 setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
             }
 
