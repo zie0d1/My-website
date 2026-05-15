@@ -1300,85 +1300,6 @@
                     <h1 class="page-title" data-t="todo_title">قائمة المحاضرات</h1>
                     <p class="page-subtitle" data-t="todo_subtitle">اضغط على المحاضرة للتبديل بين: لم يبدأ → جاري → مكتمل</p>
 
-                    <!-- STUDY PLAN CARD -->
-                    <div class="card" style="margin-bottom:18px;border-inline-start:4px solid var(--accent)">
-                        <div class="card-header" style="margin-bottom:12px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:8px">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
-                                خطة الدراسة بالـ AI
-                            </span>
-                            <button class="btn btn-sm btn-ghost" onclick="toggleStudyPlanCard()" id="studyPlanToggleBtn" style="font-size:11px;font-family:var(--mono)">▼ فتح</button>
-                        </div>
-                        <div id="studyPlanCardBody" class="hidden">
-                            <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">ارفع ملفات المادة — كل ملف يمثل محاضرة، والـAI سيقترح اسماً لكل محاضرة ويضيفها للقائمة</p>
-
-                            <!-- File upload area -->
-                            <div style="margin-bottom:14px">
-                                <label style="font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;font-family:var(--mono);display:block;margin-bottom:6px">ملفات المادة — كل PDF = محاضرة</label>
-                                <div id="planDropZone" class="drop-zone" style="padding:14px;text-align:center;cursor:pointer" onclick="document.getElementById('planPdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="event.preventDefault();this.style.borderColor=''" ondrop="handlePlanDrop(event)">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin-bottom:6px;opacity:0.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                    <div style="font-size:13px;color:var(--text3);font-weight:500">انقر أو اسحب ملفات PDF</div>
-                                    <div style="font-size:11px;color:var(--text4);margin-top:3px;font-family:var(--mono)">كل ملف سيُضاف كمحاضرة منفصلة</div>
-                                </div>
-                                <input type="file" id="planPdfInput" accept=".pdf" class="hidden" multiple onchange="addPlanPDFs(this.files)">
-
-                                <!-- Per-file naming list -->
-                                <div id="planFilePills" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
-
-                                <!-- AI name all button — shown after files added -->
-                                <div id="planNamingBar" class="hidden" style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                                    <button class="btn btn-sm btn-primary" onclick="aiNameAllLectures()" id="btnAiNameAll">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                                        سمّي بالـAI
-                                    </button>
-                                    <button class="btn btn-sm btn-success" onclick="addAllLecturesToTodo()" id="btnAddToTodo">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                        أضف للقائمة
-                                    </button>
-                                    <span id="planNamingStatus" style="font-size:10px;font-family:var(--mono);color:var(--text4)"></span>
-                                </div>
-                            </div>
-
-                            <!-- Exam date + hours per day -->
-                            <div class="input-row" style="margin-bottom:12px">
-                                <div class="input-group">
-                                    <label>يوم الامتحان</label>
-                                    <input type="date" id="planExamDate" oninput="updatePlanBtn()">
-                                </div>
-                                <div class="input-group">
-                                    <label>ساعات دراسة يومياً</label>
-                                    <select id="planHoursPerDay">
-                                        <option value="1">1 ساعة</option>
-                                        <option value="2" selected>2 ساعة</option>
-                                        <option value="3">3 ساعات</option>
-                                        <option value="4">4 ساعات</option>
-                                        <option value="6">6 ساعات</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label>اللغة</label>
-                                    <select id="planLang"><option value="عربي">عربي</option><option value="English">English</option></select>
-                                </div>
-                            </div>
-
-                            <!-- AI Status -->
-                            <div id="planAiStatus" class="hidden" style="margin-bottom:10px">
-                                <div style="background:var(--accent-light);border:1px solid var(--accent);padding:11px 14px;display:flex;align-items:center;gap:10px;border-radius:var(--radius)">
-                                    <div style="width:13px;height:13px;border:2px solid transparent;border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
-                                    <span style="font-family:var(--mono);font-size:12px;color:var(--accent)">جاري إعداد الخطة...</span>
-                                </div>
-                            </div>
-
-                            <button id="btnGenPlan" class="btn btn-primary btn-full" disabled onclick="generateStudyPlan()">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                                توليد خطة الدراسة بالـ AI
-                            </button>
-
-                            <!-- Plan Result -->
-                            <div id="planResult" class="hidden" style="margin-top:16px"></div>
-                        </div>
-                    </div>
-
                     <!-- Set lecture count -->
                     <div class="card" style="margin-bottom:16px">
                         <div class="card-header">
@@ -3011,21 +2932,129 @@ ${text}`;
         return (plain[summaryCurrentStyle] || plain.detailed) + '\n\nDocument:\n' + text;
     }
 
-    // ── AI call ───────────────────────────────────────────────────────────
+    // ── Chunk splitter (~3500 tokens ≈ 14000 chars) ──────────────────────
+    function splitTextIntoChunks(text, charsPerChunk = 13000) {
+        const chunks = [];
+        // Try to split on paragraph boundaries to avoid cutting mid-sentence
+        const paragraphs = text.split(/\n{2,}/);
+        let current = '';
+        for (const para of paragraphs) {
+            if ((current + para).length > charsPerChunk && current.length > 0) {
+                chunks.push(current.trim());
+                current = para;
+            } else {
+                current += (current ? '\n\n' : '') + para;
+            }
+        }
+        if (current.trim()) chunks.push(current.trim());
+        // If any single chunk still too big, hard-split it
+        const result = [];
+        for (const chunk of chunks) {
+            if (chunk.length <= charsPerChunk) {
+                result.push(chunk);
+            } else {
+                for (let i = 0; i < chunk.length; i += charsPerChunk) {
+                    result.push(chunk.slice(i, i + charsPerChunk));
+                }
+            }
+        }
+        return result;
+    }
+
+    function setSummaryProgress(pct, msg) {
+        const fill = $('summaryProgressFill');
+        const txt  = $('summaryAiStatusText');
+        if (fill) fill.style.width = pct + '%';
+        if (txt)  txt.textContent = msg;
+    }
+
+    function cleanJSON(raw) {
+        return raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    }
+
+    // ── Summarize a single chunk → plain bullet points ──────────────────
+    async function summarizeChunk(chunkText, chunkIdx, totalChunks, lang) {
+        const prompt = `You are summarizing part ${chunkIdx+1} of ${totalChunks} of a larger document.
+Extract the KEY POINTS from this section as a JSON array of strings.
+Each point must be a complete, informative sentence.
+Output ONLY a JSON array like: ["point 1", "point 2", ...]
+No markdown. No explanation. Write points in ${lang}.
+
+Section text:
+${chunkText}`;
+        const sys = 'Output ONLY a valid JSON array of strings. No markdown. No explanation.';
+        const raw = await nvidiaChat(prompt, sys, 1500, 0.3);
+        const cleaned = cleanJSON(raw);
+        try {
+            const parsed = JSON.parse(cleaned);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            // fallback: split by newline if not valid JSON
+            return cleaned.split('\n').map(l => l.replace(/^[-•*\d.]+\s*/,'')).filter(l => l.length > 10);
+        }
+    }
+
+    // ── Merge all chunk points → final structured JSON ───────────────────
+    async function mergeChunkSummaries(allPoints, docTitle, lang) {
+        const flatPoints = allPoints.flat();
+        const pointsText = flatPoints.map((p,i) => `${i+1}. ${p}`).join('\n');
+
+        const prompt = `You are an expert academic summarizer. Below are extracted key points from a full document.
+Organize them into a well-structured summary JSON.
+
+The JSON must follow this EXACT schema:
+{
+  "title": "string — document title",
+  "summary_line": "string — one powerful sentence capturing the whole document",
+  "sections": [
+    {
+      "heading": "string",
+      "color": "one of: blue | green | purple | orange | pink | teal | amber | red | indigo | cyan",
+      "type": "points OR table",
+      "points": ["string", "string"],
+      "table": { "headers": ["Col1","Col2"], "rows": [["cell","cell"]] }
+    }
+  ],
+  "key_terms": [{ "term": "string", "definition": "string" }]
+}
+
+Rules:
+- Write everything in ${lang}
+- 4–8 sections, group related points together logically
+- Use "table" type for comparisons/classifications, "points" for everything else
+- 5–10 key terms
+- Each section must have a DIFFERENT color
+- Output RAW JSON only. No markdown. No explanation.
+${docTitle ? `- Document title: "${docTitle}"` : ''}
+
+Key points to organize:
+${pointsText}`;
+
+        const sys = 'You are a JSON-only organizer. Output valid JSON and nothing else.';
+        const raw = await nvidiaChat(prompt, sys, 3500, 0.3);
+        return cleanJSON(raw);
+    }
+
+    // ── Main summary entry point ──────────────────────────────────────────
     async function nvidiaSummary() {
         const sourceText = sumCurrentTab === 'text'
             ? ($('summaryDirectText')?.value.trim() || '')
             : summaryPdfText;
         if (!sourceText) return;
-        summaryCurrentStyle = 'structured'; // always use beautiful structured format
+        summaryCurrentStyle = 'structured';
         $('btnGenSummary').disabled = true;
         show($('summaryAiStatus'));
-        $('summaryAiStatusText').textContent = currentLang==='ar' ? 'جاري توليد الملخص...' : 'Generating summary...';
         _currentSummaryData = null; _currentSummaryResult = '';
 
         const lang = $('summaryLangSel').value;
-        const textSlice = sourceText.slice(0, 12000);
-        const prompt = `You are an expert academic summarizer. Analyze the following document and return ONLY a valid JSON object — no markdown, no code fences, no extra text.
+        const isAr = currentLang === 'ar';
+        const chunks = splitTextIntoChunks(sourceText, 13000);
+
+        try {
+            if (chunks.length === 1) {
+                // ── Short document: single call (original fast path) ──────
+                setSummaryProgress(10, isAr ? 'جاري توليد الملخص...' : 'Generating summary...');
+                const prompt = `You are an expert academic summarizer. Analyze the following document and return ONLY a valid JSON object — no markdown, no code fences, no extra text.
 
 The JSON must follow this exact schema:
 {
@@ -3037,57 +3066,84 @@ The JSON must follow this exact schema:
       "color": "one of: blue | green | purple | orange | pink | teal | amber | red | indigo | cyan",
       "type": "points OR table",
       "points": ["string", "string"],
-      "table": {
-        "headers": ["Col1", "Col2", "Col3"],
-        "rows": [["cell", "cell", "cell"]]
-      }
+      "table": { "headers": ["Col1","Col2","Col3"], "rows": [["cell","cell","cell"]] }
     }
   ],
-  "key_terms": [
-    { "term": "string", "definition": "string" }
-  ]
+  "key_terms": [{ "term": "string", "definition": "string" }]
 }
 
 Rules:
 - Write everything in ${lang}
 - 4–8 sections total
-- For each section choose the BEST display type:
-  * Use "points" for narrative/process/explanation content (include "points" array, omit "table")
-  * Use "table" for comparisons, classifications, lifecycle stages, properties, or multi-attribute data (include "table" object with headers+rows, omit "points"). Bold key words inside cells using <b>word</b> tags.
-- Include at least 1–2 table sections when the document has comparative or structured data
+- Use "table" for comparisons/classifications, "points" for narrative/explanation
+- Include at least 1–2 table sections when document has comparative data
 - 5–12 key terms
 - Assign a DIFFERENT color to each section
-- Points must be complete, informative sentences — not single words
+- Points must be complete, informative sentences
 - Output RAW JSON only. No \`\`\`json wrapper. No explanation.
 
 Document:
-${textSlice}`;
+${chunks[0]}`;
+                const sys = 'You are a JSON-only summarizer. Output valid JSON and nothing else. No markdown. No explanation.';
+                const raw = await nvidiaChat(prompt, sys, 3000);
+                setSummaryProgress(100, isAr ? 'اكتمل!' : 'Done!');
+                _currentSummaryResult = raw;
+                _currentSummaryData = JSON.parse(cleanJSON(raw));
 
-        try {
-            const sys = 'You are a JSON-only summarizer. Output valid JSON and nothing else. No markdown. No explanation.';
-            const raw = await nvidiaChat(prompt, sys, 3000);
-            _currentSummaryResult = raw;
+            } else {
+                // ── Large document: parallel chunks → merge ───────────────
+                const total = chunks.length;
+                setSummaryProgress(5, isAr
+                    ? `تقسيم المستند إلى ${total} أجزاء...`
+                    : `Splitting into ${total} parts...`);
 
-            const cleaned = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-            try {
-                _currentSummaryData = JSON.parse(cleaned);
-                renderStructuredSummary(_currentSummaryData, $('summaryResultBox'));
-            } catch(parseErr) {
-                _currentSummaryData = null;
+                // Fire all chunk summarizations in parallel
+                setSummaryProgress(15, isAr
+                    ? `معالجة ${total} أجزاء بالتوازي...`
+                    : `Processing ${total} parts in parallel...`);
+
+                let completed = 0;
+                const chunkPromises = chunks.map((chunk, idx) =>
+                    summarizeChunk(chunk, idx, total, lang).then(points => {
+                        completed++;
+                        const pct = 15 + Math.round((completed / total) * 60);
+                        setSummaryProgress(pct, isAr
+                            ? `تم ${completed} من ${total} أجزاء...`
+                            : `Done ${completed} of ${total} parts...`);
+                        return points;
+                    })
+                );
+
+                const allChunkPoints = await Promise.all(chunkPromises);
+
+                // Merge into final structured summary
+                setSummaryProgress(80, isAr ? 'دمج وتنظيم الملخص...' : 'Merging & organizing...');
+                const docTitle = $('summaryNameInput')?.value.trim() || '';
+                const mergedRaw = await mergeChunkSummaries(allChunkPoints, docTitle, lang);
+                setSummaryProgress(100, isAr ? 'اكتمل!' : 'Done!');
+
+                _currentSummaryResult = mergedRaw;
+                _currentSummaryData = JSON.parse(mergedRaw);
+            }
+
+            renderStructuredSummary(_currentSummaryData, $('summaryResultBox'));
+            show($('summaryResultArea'));
+            hide($('summaryAiStatus'));
+            track('summary_generated', { style: summaryCurrentStyle, source_type: sumCurrentTab, language: lang, chunks: chunks.length, subject: getCurrentSubject()?.name || 'none' });
+            toast(isAr ? 'تم التوليد بنجاح ✓' : 'Summary generated! ✓');
+
+        } catch(e) {
+            // If JSON parse fails, show raw
+            if (_currentSummaryResult && !_currentSummaryData) {
                 $('summaryResultBox').innerHTML = `
                     <div style="padding:10px 14px;background:var(--warning-bg);border:1px solid var(--warning);color:var(--warning);font-family:var(--mono);font-size:11px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
                         JSON parse failed — showing raw output
                     </div>
-                    <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(raw)}</div>`;
+                    <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(_currentSummaryResult)}</div>`;
+                show($('summaryResultArea'));
             }
-
-            show($('summaryResultArea'));
-            hide($('summaryAiStatus'));
-            track('summary_generated', { style: summaryCurrentStyle, source_type: sumCurrentTab, language: $('summaryLangSel').value, subject: getCurrentSubject()?.name || 'none' });
-            toast(currentLang==='ar' ? 'تم التوليد بنجاح' : 'Summary generated!');
-        } catch(e) {
-            $('summaryAiStatusText').textContent = e.message;
+            setSummaryProgress(0, e.message);
             setTimeout(()=>hide($('summaryAiStatus')), 5000);
         } finally {
             $('btnGenSummary').disabled = false;
@@ -3543,107 +3599,227 @@ ${textSlice}`;
         const isAr = currentLang === 'ar';
         toast(isAr ? '⏳ جاري إنشاء PDF...' : '⏳ Generating PDF...');
 
-        // Build an off-screen render container
-        const colorMap = {blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',indigo:'#6366f1',cyan:'#06b6d4'};
-        const colorBgMap = {blue:'#dbeafe',green:'#d1fae5',purple:'#ede9fe',orange:'#fef3c7',pink:'#fce7f3',teal:'#ccfbf1',amber:'#fffbeb',red:'#fee2e2',indigo:'#e0e7ff',cyan:'#cffafe'};
-
-        const wrap = document.createElement('div');
-        wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:750px;background:#fff;color:#18181b;font-family:Arial,Helvetica,sans-serif;padding:48px 52px;box-sizing:border-box;direction:' + (isAr?'rtl':'ltr');
-        document.body.appendChild(wrap);
-
-        const isStr = s.style === 'structured' && s.structured;
-        let inner = '';
-
-        // Header
-        inner += `<div style="border-bottom:3px solid #4f46e5;padding-bottom:14px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-end">
-            <div>
-                <div style="font-size:9px;font-family:monospace;color:#9ca3af;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px">zStudy</div>
-                <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;line-height:1.3">${esc(s.name)}</h1>
-            </div>
-            <div style="font-size:9px;font-family:monospace;color:#a0a0ab;text-align:end">${s.date}</div>
-        </div>`;
-
-        if (isStr) {
-            const d = s.structured;
-            // Summary callout
-            if (d.title || d.summary_line) {
-                inner += `<div style="margin-bottom:24px;padding:18px 22px;background:#eef2ff;border-${isAr?'right':'left'}:5px solid #4f46e5;border-radius:${isAr?'8px 0 0 8px':'0 8px 8px 0'}">
-                    ${d.title && d.title !== s.name ? `<div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${esc(d.title)}</div>`:''}
-                    ${d.summary_line?`<p style="margin:0;font-size:14px;color:#3f3f46;line-height:1.75">${esc(d.summary_line)}</p>`:''}
-                </div>`;
-            }
-            // Sections
-            (d.sections||[]).forEach(sec => {
-                const col = colorMap[sec.color] || '#4f46e5';
-                const bg  = colorBgMap[sec.color] || '#eef2ff';
-                inner += `<div style="margin-bottom:14px;border:1.5px solid #e4e4e7;border-radius:10px;overflow:hidden;page-break-inside:avoid">
-                    <div style="padding:10px 16px;background:${bg};border-bottom:1px solid #e4e4e7;display:flex;align-items:center;gap:10px">
-                        <div style="width:4px;height:18px;background:${col};border-radius:4px;flex-shrink:0"></div>
-                        <span style="font-weight:700;font-size:13px;color:#18181b">${esc(sec.heading||'')}</span>
-                    </div>
-                    <div style="padding:12px 16px">`;
-                if (sec.type==='table' && sec.table && sec.table.headers) {
-                    inner += `<table style="width:100%;border-collapse:collapse;font-size:12px">
-                        <thead><tr>${(sec.table.headers||[]).map(h=>`<th style="background:#f4f4f6;padding:7px 10px;text-align:start;font-size:11px;font-weight:700;border:1px solid #ddd;color:#374151">${esc(String(h))}</th>`).join('')}</tr></thead>
-                        <tbody>${(sec.table.rows||[]).map(row=>`<tr>${(Array.isArray(row)?row:[row]).map(c=>`<td style="padding:7px 10px;border:1px solid #ddd;line-height:1.5;color:#374151">${String(c||'').replace(/<b>/g,'<b>').replace(/<\/b>/g,'</b>')}</td>`).join('')}</tr>`).join('')}</tbody>
-                    </table>`;
-                } else {
-                    inner += `<ul style="margin:0;padding-${isAr?'right':'left'}:18px">${(sec.points||[]).map(p=>`<li style="margin:5px 0;font-size:12.5px;color:#374151;line-height:1.65">${esc(p)}</li>`).join('')}</ul>`;
-                }
-                inner += `</div></div>`;
-            });
-            // Key terms
-            if ((d.key_terms||[]).length) {
-                inner += `<div style="margin-top:22px;page-break-inside:avoid">
-                    <h2 style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#6b6b78;margin-bottom:10px;font-family:monospace">${isAr?'المصطلحات الرئيسية':'Key Terms'}</h2>
-                    ${(d.key_terms||[]).map(k=>`<div style="display:flex;gap:14px;padding:8px 0;border-bottom:1px solid #f0f0f2">
-                        <span style="font-weight:700;font-size:12px;color:#18181b;min-width:130px;flex-shrink:0">${esc(k.term)}</span>
-                        <span style="font-size:12px;color:#6b6b78;line-height:1.65;flex:1">${esc(k.definition)}</span>
-                    </div>`).join('')}
-                </div>`;
-            }
-        } else {
-            inner += `<div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:#374151">${esc(s.text||'')}</div>`;
-        }
-
-        wrap.innerHTML = inner;
+        const colorHexMap = {blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',indigo:'#6366f1',cyan:'#06b6d4'};
 
         try {
-            const canvas = await html2canvas(wrap, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-                width: 750,
-            });
-
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+            const PW = pdf.internal.pageSize.getWidth();   // 595.28
+            const PH = pdf.internal.pageSize.getHeight();  // 841.89
+            const ML = 48, MR = 48, MT = 44, MB = 44;
+            const CW = PW - ML - MR;  // content width
+            let y = MT;
 
-            const pageW = pdf.internal.pageSize.getWidth();
-            const pageH = pdf.internal.pageSize.getHeight();
-            const margin = 0;
-            const imgW = pageW - margin * 2;
-            const imgH = (canvas.height * imgW) / canvas.width;
+            // ── helpers ──────────────────────────────────────────────────
+            function hexToRgb(hex) {
+                hex = hex.replace('#','');
+                if (hex.length===3) hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+                const n=parseInt(hex,16);
+                return [n>>16&255,(n>>8)&255,n&255];
+            }
+            function setColor(hex) { const [r,g,b]=hexToRgb(hex); pdf.setTextColor(r,g,b); }
+            function setFill(hex)  { const [r,g,b]=hexToRgb(hex); pdf.setFillColor(r,g,b); }
+            function setDraw(hex)  { const [r,g,b]=hexToRgb(hex); pdf.setDrawColor(r,g,b); }
 
-            const imgData = canvas.toDataURL('image/jpeg', 0.92);
+            function ensureSpace(needed) {
+                if (y + needed > PH - MB) {
+                    pdf.addPage();
+                    y = MT;
+                }
+            }
 
-            let y = margin;
-            let remaining = imgH;
-            let srcY = 0;
+            // Wrap text to fit within maxW, return array of lines
+            function wrapText(text, maxW, fontSize, fontStyle='normal') {
+                pdf.setFontSize(fontSize);
+                pdf.setFont('helvetica', fontStyle);
+                // jsPDF splitTextToSize handles wrap
+                return pdf.splitTextToSize(String(text||''), maxW);
+            }
 
-            while (remaining > 0) {
-                const sliceH = Math.min(remaining, pageH - margin * 2);
-                const sliceCanvas = document.createElement('canvas');
-                sliceCanvas.width = canvas.width;
-                sliceCanvas.height = (sliceH / imgW) * canvas.width;
-                const ctx = sliceCanvas.getContext('2d');
-                ctx.drawImage(canvas, 0, srcY * (canvas.width / imgW), canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
-                const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.92);
-                pdf.addImage(sliceData, 'JPEG', margin, margin, imgW, sliceH);
-                srcY += sliceH;
-                remaining -= sliceH;
-                if (remaining > 0) pdf.addPage();
+            // Draw a text block, returns height used
+            function drawText(text, x, startY, maxW, fontSize, fontStyle, colorHex, lineHeightMult=1.45) {
+                pdf.setFontSize(fontSize);
+                pdf.setFont('helvetica', fontStyle);
+                setColor(colorHex);
+                const lines = pdf.splitTextToSize(String(text||''), maxW);
+                const lh = fontSize * lineHeightMult;
+                lines.forEach((line, i) => {
+                    ensureSpace(lh);
+                    pdf.text(line, x, y + lh * 0.75);
+                    y += lh;
+                });
+                return lines.length * lh;
+            }
+
+            // ── HEADER BAR ────────────────────────────────────────────────
+            setFill('#4f46e5'); setDraw('#4f46e5');
+            pdf.rect(ML, y, CW, 3, 'F');
+            y += 10;
+
+            // App label
+            pdf.setFontSize(7); pdf.setFont('helvetica','normal'); setColor('#9ca3af');
+            pdf.text('ZSTUDY', ML, y + 6);
+            // Date top right
+            pdf.setFontSize(7); setColor('#9ca3af');
+            pdf.text(s.date, PW - MR, y + 6, { align: 'right' });
+            y += 12;
+
+            // Title
+            pdf.setFontSize(20); pdf.setFont('helvetica','bold'); setColor('#18181b');
+            const titleLines = pdf.splitTextToSize(s.name, CW - 60);
+            titleLines.forEach(line => { pdf.text(line, ML, y + 16); y += 20; });
+            y += 8;
+
+            // Divider
+            setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
+            pdf.line(ML, y, PW - MR, y); y += 18;
+
+            const isStr = s.style === 'structured' && s.structured;
+
+            if (isStr) {
+                const d = s.structured;
+
+                // Summary callout box
+                if (d.summary_line) {
+                    const calloutLines = pdf.splitTextToSize(d.summary_line, CW - 28);
+                    const calloutH = calloutLines.length * 14 + 22;
+                    ensureSpace(calloutH + 8);
+                    setFill('#eef2ff'); setDraw('#c7d2fe'); pdf.setLineWidth(0.5);
+                    pdf.roundedRect(ML, y, CW, calloutH, 4, 4, 'FD');
+                    // Left accent bar
+                    setFill('#4f46e5');
+                    pdf.roundedRect(ML, y, 4, calloutH, 2, 2, 'F');
+                    // Text
+                    pdf.setFontSize(11); pdf.setFont('helvetica','normal'); setColor('#3f3f46');
+                    calloutLines.forEach((line, i) => {
+                        pdf.text(line, ML + 14, y + 14 + i * 14);
+                    });
+                    y += calloutH + 16;
+                }
+
+                // Sections
+                (d.sections||[]).forEach((sec, si) => {
+                    const rawCol = sec.color ? (colorHexMap[sec.color.toLowerCase()] || sec.color) : '#4f46e5';
+
+                    if (sec.type === 'table' && sec.table && sec.table.headers) {
+                        // TABLE SECTION
+                        const headers = sec.table.headers || [];
+                        const rows = sec.table.rows || [];
+                        const colW = CW / Math.max(headers.length, 1);
+                        const headerH = 20, rowH = 18;
+                        const totalH = 34 + headerH + rows.length * rowH + 12;
+                        ensureSpace(Math.min(totalH, 160));
+
+                        // Section heading
+                        const [hr,hg,hb] = hexToRgb(rawCol);
+                        pdf.setFillColor(hr,hg,hb,0.12); setFill(rawCol+'1a' /* fallback below */);
+                        setFill('#f8f9ff'); setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
+                        pdf.roundedRect(ML, y, CW, 26, 4, 4, 'FD');
+                        // Color stripe
+                        setFill(rawCol); pdf.rect(ML, y, 4, 26, 'F');
+                        pdf.setFontSize(11); pdf.setFont('helvetica','bold'); setColor(rawCol);
+                        pdf.text(sec.heading||'', ML + 12, y + 17);
+                        y += 30;
+
+                        // Table header row
+                        setFill('#f4f4f6'); setDraw('#d1d5db'); pdf.setLineWidth(0.4);
+                        pdf.rect(ML, y, CW, headerH, 'FD');
+                        pdf.setFontSize(8); pdf.setFont('helvetica','bold'); setColor('#374151');
+                        headers.forEach((h, hi) => {
+                            pdf.text(String(h||'').slice(0,30), ML + hi*colW + 6, y + 13);
+                        });
+                        y += headerH;
+
+                        // Table rows
+                        rows.forEach((row, ri) => {
+                            const cells = Array.isArray(row) ? row : [row];
+                            ensureSpace(rowH + 2);
+                            setFill(ri%2===0?'#ffffff':'#f9fafb'); setDraw('#e5e7eb');
+                            pdf.rect(ML, y, CW, rowH, 'FD');
+                            pdf.setFontSize(8.5); pdf.setFont('helvetica','normal'); setColor('#374151');
+                            cells.forEach((cell, ci) => {
+                                const cellTxt = String(cell||'').replace(/<[^>]+>/g,'').slice(0,60);
+                                pdf.text(cellTxt, ML + ci*colW + 6, y + 12);
+                            });
+                            y += rowH;
+                        });
+                        y += 16;
+
+                    } else {
+                        // BULLET SECTION
+                        const points = sec.points || [];
+                        const ptLines = points.map(p => pdf.splitTextToSize(String(p||''), CW - 22));
+                        const totalPtH = ptLines.reduce((s,l) => s + l.length * 13, 0);
+                        const sectionH = 30 + totalPtH + 16;
+                        ensureSpace(Math.min(sectionH, 200));
+
+                        // Section heading bar
+                        setFill('#f8f9ff'); setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
+                        pdf.roundedRect(ML, y, CW, 26, 4, 4, 'FD');
+                        setFill(rawCol); pdf.rect(ML, y, 4, 26, 'F');
+                        pdf.setFontSize(11); pdf.setFont('helvetica','bold'); setColor(rawCol);
+                        pdf.text(sec.heading||'', ML + 12, y + 17);
+                        y += 30;
+
+                        // Bullet points
+                        ptLines.forEach((lines, pi) => {
+                            ensureSpace(lines.length * 13 + 4);
+                            // bullet dot
+                            setFill(rawCol);
+                            pdf.circle(ML + 10, y + 4.5, 2, 'F');
+                            pdf.setFontSize(9.5); pdf.setFont('helvetica','normal'); setColor('#374151');
+                            lines.forEach((line, li) => {
+                                pdf.text(line, ML + 19, y + (li === 0 ? 8 : li * 13 + 8));
+                            });
+                            y += lines.length * 13 + 3;
+                        });
+                        y += 12;
+                    }
+                });
+
+                // Key terms
+                if ((d.key_terms||[]).length) {
+                    ensureSpace(40);
+                    setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
+                    pdf.line(ML, y, PW - MR, y); y += 14;
+                    pdf.setFontSize(8); pdf.setFont('helvetica','bold'); setColor('#6b6b78');
+                    pdf.text(isAr ? 'KEY TERMS' : 'KEY TERMS', ML, y + 6); y += 16;
+
+                    d.key_terms.forEach(kt => {
+                        const defLines = pdf.splitTextToSize(kt.definition||'', CW - 130);
+                        const termH = Math.max(defLines.length * 12, 16);
+                        ensureSpace(termH + 6);
+                        pdf.setFontSize(9); pdf.setFont('helvetica','bold'); setColor('#18181b');
+                        pdf.text(String(kt.term||'').slice(0,30), ML, y + 10);
+                        pdf.setFontSize(9); pdf.setFont('helvetica','normal'); setColor('#6b7280');
+                        defLines.forEach((dl, di) => { pdf.text(dl, ML + 130, y + 10 + di * 12); });
+                        // thin divider
+                        setDraw('#f3f4f6'); pdf.line(ML, y + termH + 4, PW - MR, y + termH + 4);
+                        y += termH + 8;
+                    });
+                }
+
+            } else {
+                // Plain text
+                const lines = pdf.splitTextToSize(s.text||'', CW);
+                pdf.setFontSize(11); pdf.setFont('helvetica','normal'); setColor('#374151');
+                const lh = 16;
+                lines.forEach(line => {
+                    ensureSpace(lh);
+                    pdf.text(line, ML, y + 12);
+                    y += lh;
+                });
+            }
+
+            // ── FOOTER on every page ───────────────────────────────────────
+            const totalPages = pdf.internal.getNumberOfPages();
+            for (let pg = 1; pg <= totalPages; pg++) {
+                pdf.setPage(pg);
+                setDraw('#e4e4e7'); pdf.setLineWidth(0.4);
+                pdf.line(ML, PH - 28, PW - MR, PH - 28);
+                pdf.setFontSize(7); pdf.setFont('helvetica','normal'); setColor('#9ca3af');
+                pdf.text('zStudy', ML, PH - 16);
+                pdf.text(`${pg} / ${totalPages}`, PW - MR, PH - 16, { align: 'right' });
             }
 
             const safeName = s.name.replace(/[/\\?%*:|"<>]/g,'_');
@@ -3651,8 +3827,7 @@ ${textSlice}`;
             toast(isAr ? '✓ تم تحميل PDF' : '✓ PDF downloaded');
         } catch(e) {
             toast((isAr ? 'خطأ: ' : 'Error: ') + e.message);
-        } finally {
-            document.body.removeChild(wrap);
+            console.error('PDF generation error:', e);
         }
     }
 
