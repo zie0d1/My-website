@@ -1308,17 +1308,33 @@
                             <button class="btn btn-sm btn-ghost" onclick="toggleStudyPlanCard()" id="studyPlanToggleBtn" style="font-size:11px;font-family:var(--mono)">▼ فتح</button>
                         </div>
                         <div id="studyPlanCardBody" class="hidden">
-                            <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">ارفع ملفات المادة وحدد يوم الامتحان — سيولد الذكاء الاصطناعي خطة مراجعة مفصّلة يوم بيوم</p>
+                            <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">ارفع ملفات المادة — كل ملف يمثل محاضرة، والـAI سيقترح اسماً لكل محاضرة ويضيفها للقائمة</p>
 
                             <!-- File upload area -->
-                            <div style="margin-bottom:12px">
-                                <label style="font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;font-family:var(--mono);display:block;margin-bottom:6px">ملفات المادة (PDF)</label>
+                            <div style="margin-bottom:14px">
+                                <label style="font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;font-family:var(--mono);display:block;margin-bottom:6px">ملفات المادة — كل PDF = محاضرة</label>
                                 <div id="planDropZone" class="drop-zone" style="padding:14px;text-align:center;cursor:pointer" onclick="document.getElementById('planPdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="event.preventDefault();this.style.borderColor=''" ondrop="handlePlanDrop(event)">
-                                    <div style="font-size:13px;color:var(--text3)">انقر أو اسحب ملفات PDF</div>
-                                    <div style="font-size:11px;color:var(--text4);margin-top:4px;font-family:var(--mono)">يمكن رفع عدة ملفات</div>
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin-bottom:6px;opacity:0.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <div style="font-size:13px;color:var(--text3);font-weight:500">انقر أو اسحب ملفات PDF</div>
+                                    <div style="font-size:11px;color:var(--text4);margin-top:3px;font-family:var(--mono)">كل ملف سيُضاف كمحاضرة منفصلة</div>
                                 </div>
                                 <input type="file" id="planPdfInput" accept=".pdf" class="hidden" multiple onchange="addPlanPDFs(this.files)">
-                                <div id="planFilePills" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
+
+                                <!-- Per-file naming list -->
+                                <div id="planFilePills" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+
+                                <!-- AI name all button — shown after files added -->
+                                <div id="planNamingBar" class="hidden" style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                    <button class="btn btn-sm btn-primary" onclick="aiNameAllLectures()" id="btnAiNameAll">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                                        سمّي بالـAI
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="addAllLecturesToTodo()" id="btnAddToTodo">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                        أضف للقائمة
+                                    </button>
+                                    <span id="planNamingStatus" style="font-size:10px;font-family:var(--mono);color:var(--text4)"></span>
+                                </div>
                             </div>
 
                             <!-- Exam date + hours per day -->
@@ -1480,6 +1496,10 @@
                                 <button class="btn btn-sm" onclick="copySummaryResult()">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                                     <span data-t="copy">نسخ</span>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="downloadCurrentSummaryDirect()" title="تحميل الملخص">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span>تحميل</span>
                                 </button>
                             </div>
                         </div>
@@ -2130,10 +2150,12 @@
                 const st = sm[`deck_${di}_${ci}`];
                 if (st && st.nextReview <= now) dueCount++;
             }));
-            // Calculate progress
-            const totalCards = cardCount;
-            const studiedCards = Object.values(sm).filter(st => st.nextReview && st.nextReview < now || (st.ease && st.ease > 1)).length;
-            const progressPct = totalCards > 0 ? Math.min(100, Math.round((studiedCards / totalCards) * 100)) : 0;
+            // Calculate progress — based on lecture completion
+            const lecs = lj(s.id+'__lec_todo') || [];
+            const lecTotal = lecs.length;
+            const lecDone = lecs.filter(l => l.status === 'done').length;
+            const lecInProg = lecs.filter(l => l.status === 'in-progress').length;
+            const progressPct = lecTotal > 0 ? Math.min(100, Math.round((lecDone / lecTotal) * 100)) : 0;
             return `<div class="subject-card" onclick="enterSubject('${s.id}')">
                 <div class="sc-actions">
                     <button class="sc-delete" onclick="event.stopPropagation();deleteSubject('${s.id}')">
@@ -2165,12 +2187,12 @@
                             <span>${dueCount} ${t('due_now')}</span>
                         </div>`:''}
                     </div>
-                    ${totalCards > 0 ? `<div class="sc-progress">
+                    ${lecTotal > 0 ? `<div class="sc-progress">
                         <div class="sc-progress-track">
                             <div class="sc-progress-fill" style="width:${progressPct}%;background:${progressPct >= 70 ? 'var(--success)' : progressPct >= 40 ? 'var(--warning)' : 'var(--accent)'}"></div>
                         </div>
                         <div class="sc-progress-label">
-                            <span>${currentLang==='ar'?'التقدم':'Progress'}</span>
+                            <span>${currentLang==='ar'?'المحاضرات':'Lectures'} ${lecDone}/${lecTotal}${lecInProg>0?' · '+lecInProg+(currentLang==='ar'?' جاري':' in progress'):''}</span>
                             <span>${progressPct}%</span>
                         </div>
                     </div>` : ''}
@@ -3209,6 +3231,28 @@ ${textSlice}`;
         catch { toast(t('copied')); }
     }
 
+    function downloadCurrentSummaryDirect() {
+        const isAr = currentLang === 'ar';
+        const name = ($('summaryNameInput')?.value.trim()) || (isAr ? 'الملخص' : 'Summary');
+        if (!_currentSummaryData && !_currentSummaryResult) return;
+        const fakeEntry = {
+            id: -1, name,
+            text: _currentSummaryResult,
+            structured: _currentSummaryData,
+            style: _currentSummaryData ? 'structured' : 'plain',
+            date: new Date().toLocaleDateString(isAr?'ar-EG':'en-US')
+        };
+        // Temporarily add to lib for the download function to find
+        const lib = getSummaryLib();
+        lib.unshift(fakeEntry);
+        saveSummaryLibData(lib);
+        downloadSummaryAsPDF(-1);
+        // Remove temp entry after brief delay
+        setTimeout(() => {
+            saveSummaryLibData(getSummaryLib().filter(s=>s.id!==-1));
+        }, 500);
+    }
+
     function structuredToPlainText(data) {
         let out = '';
         if (data.title)        out += data.title + '\n' + '─'.repeat(40) + '\n\n';
@@ -3520,15 +3564,14 @@ ${textSlice}`;
         const html = '<!DOCTYPE html><html dir="' + dir + '"><head><meta charset="UTF-8"><title>' + s.name + '</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:40px;background:#fff;color:#18181b}@media print{body{padding:20px}}</style></head><body><div style="border-bottom:2px solid #4f46e5;padding-bottom:12px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:10px;font-family:monospace;color:#6b6b78;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">zStudy</div><h1 style="font-size:22px;font-weight:700;color:#18181b">' + s.name + '</h1></div><div style="font-size:10px;font-family:monospace;color:#a0a0ab">' + s.date + '</div></div>' + bodyHtml + '</body></html>';
         const blob = new Blob([html], {type:'text/html;charset=utf-8'});
         const url = URL.createObjectURL(blob);
-        const printWin = window.open(url, '_blank');
-        if (printWin) {
-            printWin.addEventListener('load', () => { printWin.print(); setTimeout(()=>URL.revokeObjectURL(url),3000); });
-        } else {
-            const a = document.createElement('a');
-            a.href = url; a.download = s.name + '.html'; a.click();
-            setTimeout(()=>URL.revokeObjectURL(url),1000);
-            toast(isAr?'تم تحميل الملخص':'Summary downloaded');
-        }
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = s.name.replace(/[/\\?%*:|"<>]/g,'_') + '.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(()=>URL.revokeObjectURL(url),1000);
+        toast(isAr?'✓ تم تحميل الملخص':'✓ Summary downloaded');
     }
 
     function saveApiKeys() { toast(t('saved')); }
@@ -3583,6 +3626,88 @@ ${textSlice}`;
         btn.disabled = !(hasDate && _planPdfFiles.length);
     }
 
+    // AI name ALL uploaded lectures in sequence
+    async function aiNameAllLectures() {
+        if (!_planPdfFiles.length) return;
+        const btn = document.getElementById('btnAiNameAll');
+        const status = document.getElementById('planNamingStatus');
+        const lang = document.getElementById('planLang')?.value || 'عربي';
+        if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+        for (let i = 0; i < _planPdfFiles.length; i++) {
+            const f = _planPdfFiles[i];
+            f._naming = true;
+            f._named = false;
+            renderPlanPills();
+            if (status) status.textContent = `${i+1}/${_planPdfFiles.length}`;
+
+            try {
+                // Use first ~1500 chars of the file text as context
+                const snippet = (f.text || '').slice(0, 1500);
+                const prompt = `Based on this content from a lecture PDF (${f.pages} pages), suggest a concise lecture name (max 6 words, no quotes). Output ONLY the name.\n\nContent:\n${snippet}`;
+                const sys = `You are a helpful assistant. Output ONLY a short lecture name in ${lang === 'عربي' ? 'Arabic' : 'English'}. No punctuation at the start or end. No quotes.`;
+                const name = await nvidiaChat(prompt, sys, 60, 0.3);
+                f.suggestedName = (name || '').trim().replace(/^["'،,.\s]+|["'،,.\s]+$/g, '').slice(0, 50);
+            } catch(e) {
+                f.suggestedName = f.name.replace(/\.pdf$/i,'').slice(0,40);
+            }
+
+            f._naming = false;
+            f._named = true;
+            // Update the input field directly if it exists
+            const inp = document.getElementById(`planPillName_${i}`);
+            if (inp) {
+                inp.value = f.suggestedName;
+                const pill = document.getElementById(`planPill_${i}`);
+                if (pill) pill.style.borderColor = 'var(--success-border)';
+                // Replace spinner with checkmark
+                renderPlanPills();
+            }
+        }
+
+        if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> تم التسمية'; }
+        if (status) status.textContent = currentLang==='ar' ? 'جاهز للإضافة ↑' : 'Ready to add ↑';
+    }
+
+    // Add all files as lectures to the todo list
+    function addAllLecturesToTodo() {
+        if (!_planPdfFiles.length) return;
+        const existing = getTodo();
+        const newLecs = _planPdfFiles.map((f, i) => {
+            const name = (document.getElementById(`planPillName_${i}`)?.value || f.suggestedName || f.name.replace(/\.pdf$/i,'')).trim();
+            // Keep existing progress if any
+            const ex = existing[i];
+            if (ex && (ex.status !== 'not-started' || ex.timeMs > 0)) return {...ex, name: ex.name || name};
+            return { name, status: 'not-started', timeMs: 0, running: false };
+        });
+
+        saveTodo(newLecs);
+        const lecInput = document.getElementById('lecCountInput');
+        if (lecInput) lecInput.value = newLecs.length;
+
+        // Visual feedback
+        const btn = document.getElementById('btnAddToTodo');
+        if (btn) {
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ' + (currentLang==='ar'?`تم إضافة ${newLecs.length} محاضرة`:`${newLecs.length} lectures added`);
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-primary');
+            setTimeout(() => {
+                if (btn) { btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> أضف للقائمة'; btn.classList.add('btn-success'); btn.classList.remove('btn-primary'); }
+            }, 3000);
+        }
+
+        // Refresh todo panel if open
+        const todoPanel = document.getElementById('panel-todo');
+        if (todoPanel && todoPanel.classList.contains('active')) renderTodo();
+
+        toast(currentLang==='ar' ? `✓ تم إضافة ${newLecs.length} محاضرة للقائمة` : `✓ ${newLecs.length} lectures added`);
+    }
+
+    // Legacy — kept for compat but simplified
+    function autoPopulateLecturesFromPlan() {
+        // No-op now: user controls naming + adding manually
+    }
+
     async function addPlanPDFs(files) {
         if (!files || !files.length) return;
         for (const file of Array.from(files).filter(f=>f.name.toLowerCase().endsWith('.pdf'))) {
@@ -3621,13 +3746,33 @@ ${textSlice}`;
 
     function renderPlanPills() {
         const el = document.getElementById('planFilePills');
+        const bar = document.getElementById('planNamingBar');
         if (!el) return;
-        el.innerHTML = _planPdfFiles.map((f,i) => `
-            <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;font-family:var(--mono)">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <span>${esc(f.name.slice(0,22))}${f.name.length>22?'…':''}</span>
-                <button onclick="removePlanFile(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:0 2px;font-size:12px;line-height:1">×</button>
-            </div>`).join('');
+        if (!_planPdfFiles.length) {
+            el.innerHTML = '';
+            bar && bar.classList.add('hidden');
+            return;
+        }
+        bar && bar.classList.remove('hidden');
+        el.innerHTML = _planPdfFiles.map((f, i) => {
+            const statusIcon = f._naming
+                ? `<div style="width:13px;height:13px;border:2px solid transparent;border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>`
+                : f._named
+                ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>`
+                : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="flex-shrink:0;opacity:0.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+            return `<div id="planPill_${i}" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);border:1px solid ${f._named?'var(--success-border)':'var(--border)'};border-radius:var(--radius);transition:border-color 0.2s">
+                <span style="font-size:10px;font-family:var(--mono);color:var(--text4);flex-shrink:0;min-width:22px">L${i+1}</span>
+                ${statusIcon}
+                <input id="planPillName_${i}" value="${esc(f.suggestedName || f.name.replace(/\.pdf$/i,'').slice(0,40))}"
+                    onchange="_planPdfFiles[${i}].suggestedName=this.value"
+                    oninput="_planPdfFiles[${i}].suggestedName=this.value"
+                    style="flex:1;font-size:12px;font-weight:500;border:none;background:transparent;color:var(--text);padding:0;outline:none;min-width:0;border-bottom:1px solid transparent;transition:border-color 0.15s"
+                    onfocus="this.style.borderBottomColor='var(--accent)'"
+                    onblur="this.style.borderBottomColor='transparent'">
+                <span style="font-size:10px;font-family:var(--mono);color:var(--text4);flex-shrink:0">${f.pages}p</span>
+                <button onclick="removePlanFile(${i})" style="background:none;border:none;cursor:pointer;color:var(--text4);padding:2px;font-size:14px;line-height:1;flex-shrink:0" title="حذف">×</button>
+            </div>`;
+        }).join('');
     }
 
     async function generateStudyPlan() {
@@ -3742,9 +3887,14 @@ ${textSlice}`;
         const html = '<!DOCTYPE html><html dir="'+(isAr?'rtl':'ltr')+'"><head><meta charset="UTF-8"><title>خطة الدراسة</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:36px;color:#18181b}@media print{body{padding:16px}}</style></head><body><div style="border-bottom:2px solid #4f46e5;padding-bottom:10px;margin-bottom:20px"><h1 style="font-size:20px;font-weight:700">'+(isAr?'خطة الدراسة':'Study Plan')+'</h1><p style="font-size:13px;color:#6b6b78;margin-top:4px">'+(plan.summary||'')+'</p></div>'+(tipsHtml?'<div style="background:#eef2ff;border:1px solid #a5b4fc;padding:12px 16px;border-radius:8px;margin-bottom:16px"><b style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#4f46e5">'+(isAr?'نصائح':'Tips')+'</b><ul style="padding-right:18px;margin-top:8px">'+tipsHtml+'</ul></div>':'')+daysHtml+'</body></html>';
         const blob = new Blob([html],{type:'text/html;charset=utf-8'});
         const url = URL.createObjectURL(blob);
-        const win = window.open(url,'_blank');
-        if(win){win.addEventListener('load',()=>{win.print();setTimeout(()=>URL.revokeObjectURL(url),3000);});}
-        else{const a=document.createElement('a');a.href=url;a.download='study-plan.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (currentLang==='ar'?'خطة-الدراسة':'study-plan') + '.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(()=>URL.revokeObjectURL(url),1000);
+        toast(currentLang==='ar'?'✓ تم تحميل الخطة':'✓ Plan downloaded');
     }
 
 
