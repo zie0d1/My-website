@@ -2430,10 +2430,8 @@
         return chunks;
     }
 
-    // How many chunks to split the text into (max ~3500 chars per chunk ≈ 3500 tokens)
-    function calcChunkCount(text) {
-        return Math.max(1, Math.ceil(text.length / 3500));
-    }
+    // Chars per chunk — 3500 tokens ≈ 13,000 chars
+    const MCQ_CHARS_PER_CHUNK = 13000;
 
     function buildMCQP(text, count, lang, diff) {
         count = count || $('qCount').value || 10;
@@ -2566,7 +2564,7 @@ ${text}`;
             mcqLoaderProgress(8);
             await new Promise(r => setTimeout(r, 250));
 
-            const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
+            const chunks = splitTextIntoChunks(pdfText, MCQ_CHARS_PER_CHUNK);
             const total  = chunks.length;
             mcqLoaderStep(0, 'done');
             mcqLoaderProgress(18);
@@ -2665,7 +2663,7 @@ ${text}`;
 
 
     function showPrompt(p) { _fullPrompt=p; $('promptText').value=p.slice(0,4000); show($('promptWrap')); }
-    function genMCQPrompt() { const cnt = parseInt($('qCount').value)||10; const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText)); showPrompt(buildMCQP(chunks[0], cnt)); }
+    function genMCQPrompt() { const cnt = parseInt($('qCount').value)||10; const chunks = splitTextIntoChunks(pdfText, MCQ_CHARS_PER_CHUNK); showPrompt(buildMCQP(chunks[0], cnt)); }
     function genCardsPrompt() { showPrompt(`Generate flashcards. Output JSON only:\n[{"question":"...","answer":"..."}]\nText:\n${pdfText}`); }
     async function copyPrompt() {
         const txt = _fullPrompt || $('promptText')?.value || $('summaryPromptText')?.value;
@@ -5535,7 +5533,7 @@ ${text}`;
             const activeFocuses = [..._activeFocuses];
 
             // ── Split text into chunks ─────────────────────────────────────
-            const chunks = splitTextIntoChunks(pdfText, calcChunkCount(pdfText));
+            const chunks = splitTextIntoChunks(pdfText, MCQ_CHARS_PER_CHUNK);
             const total  = chunks.length;
 
             if (_autoCard) {
