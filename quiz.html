@@ -2972,8 +2972,8 @@ ${text}`;
         return raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
     }
 
-    // ── Summarize a single chunk → plain bullet points ──────────────────
-    async function summarizeChunk(chunkText, chunkIdx, totalChunks, lang) {
+    // ── Summarize a single chunk → plain bullet points (with retry) ─────
+    async function summarizeChunk(chunkText, chunkIdx, totalChunks, lang, retries = 3) {
         const prompt = `You are summarizing part ${chunkIdx+1} of ${totalChunks} of a larger document.
 Extract the KEY POINTS from this section as a JSON array of strings.
 Each point must be a complete, informative sentence.
@@ -2983,17 +2983,25 @@ No markdown. No explanation. Write points in ${lang}.
 Section text:
 ${chunkText}`;
         const sys = 'Output ONLY a valid JSON array of strings. No markdown. No explanation.';
-        const raw = await nvidiaChat(prompt, sys, 1500, 0.3);
-        const cleaned = cleanJSON(raw);
-        try {
-            const parsed = JSON.parse(cleaned);
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
-            // fallback: split by newline if not valid JSON
-            return cleaned.split('\n').map(l => l.replace(/^[-•*\d.]+\s*/,'')).filter(l => l.length > 10);
-        }
-    }
 
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                const raw = await nvidiaChat(prompt, sys, 1500, 0.3);
+                const cleaned = cleanJSON(raw);
+                const parsed = JSON.parse(cleaned);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                throw new Error('Empty result');
+            } catch(e) {
+                if (attempt === retries) {
+                    console.warn(`Chunk ${chunkIdx+1} failed after ${retries} attempts:`, e.message);
+                    return []; // return empty rather than crash the whole Promise.all
+                }
+                // wait before retry: 800ms, 1600ms
+                await new Promise(r => setTimeout(r, attempt * 800));
+            }
+        }
+        return [];
+    }
     // ── Merge all chunk points → final structured JSON ───────────────────
     async function mergeChunkSummaries(allPoints, docTitle, lang) {
         const flatPoints = allPoints.flat();
@@ -3115,6 +3123,15 @@ ${chunks[0]}`;
                 );
 
                 const allChunkPoints = await Promise.all(chunkPromises);
+
+                // Validate — make sure ALL chunks returned data
+                const failedChunks = allChunkPoints.map((pts, i) => pts.length === 0 ? i+1 : null).filter(Boolean);
+                if (failedChunks.length === allChunkPoints.length) {
+                    throw new Error(isAr ? 'فشلت جميع الأجزاء، حاول مرة أخرى' : 'All chunks failed, please try again');
+                }
+                if (failedChunks.length > 0) {
+                    console.warn('Some chunks returned empty:', failedChunks);
+                }
 
                 // Merge into final structured summary
                 setSummaryProgress(80, isAr ? 'دمج وتنظيم الملخص...' : 'Merging & organizing...');
