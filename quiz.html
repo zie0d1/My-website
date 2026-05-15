@@ -16,6 +16,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             /* ── Core Surfaces ── */
@@ -3535,43 +3537,123 @@ ${textSlice}`;
     function exportSummaryLib() { downloadJSON(getSummaryLib(), 'summaries'); }
 
     // ── Download summary as PDF ───────────────────────────────────────────
-    function downloadSummaryAsPDF(id) {
+    async function downloadSummaryAsPDF(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
         const isAr = currentLang === 'ar';
+        toast(isAr ? '⏳ جاري إنشاء PDF...' : '⏳ Generating PDF...');
+
+        // Build an off-screen render container
+        const colorMap = {blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',indigo:'#6366f1',cyan:'#06b6d4'};
+        const colorBgMap = {blue:'#dbeafe',green:'#d1fae5',purple:'#ede9fe',orange:'#fef3c7',pink:'#fce7f3',teal:'#ccfbf1',amber:'#fffbeb',red:'#fee2e2',indigo:'#e0e7ff',cyan:'#cffafe'};
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:750px;background:#fff;color:#18181b;font-family:Arial,Helvetica,sans-serif;padding:48px 52px;box-sizing:border-box;direction:' + (isAr?'rtl':'ltr');
+        document.body.appendChild(wrap);
+
         const isStr = s.style === 'structured' && s.structured;
-        let bodyHtml = '';
+        let inner = '';
+
+        // Header
+        inner += `<div style="border-bottom:3px solid #4f46e5;padding-bottom:14px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-end">
+            <div>
+                <div style="font-size:9px;font-family:monospace;color:#9ca3af;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px">zStudy</div>
+                <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;line-height:1.3">${esc(s.name)}</h1>
+            </div>
+            <div style="font-size:9px;font-family:monospace;color:#a0a0ab;text-align:end">${s.date}</div>
+        </div>`;
+
         if (isStr) {
             const d = s.structured;
-            const colorMap = {blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',indigo:'#6366f1',cyan:'#06b6d4'};
-            bodyHtml = '<div style="margin-bottom:28px;padding:20px;background:#eef2ff;border-right:5px solid #4f46e5;border-radius:0 8px 8px 0"><h1 style="margin:0 0 8px;font-size:20px;color:#18181b">' + (d.title||s.name) + '</h1><p style="margin:0;font-size:14px;color:#3f3f46;line-height:1.7">' + (d.summary_line||'') + '</p></div>';
-            (d.sections||[]).forEach((sec,i) => {
+            // Summary callout
+            if (d.title || d.summary_line) {
+                inner += `<div style="margin-bottom:24px;padding:18px 22px;background:#eef2ff;border-${isAr?'right':'left'}:5px solid #4f46e5;border-radius:${isAr?'8px 0 0 8px':'0 8px 8px 0'}">
+                    ${d.title && d.title !== s.name ? `<div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${esc(d.title)}</div>`:''}
+                    ${d.summary_line?`<p style="margin:0;font-size:14px;color:#3f3f46;line-height:1.75">${esc(d.summary_line)}</p>`:''}
+                </div>`;
+            }
+            // Sections
+            (d.sections||[]).forEach(sec => {
                 const col = colorMap[sec.color] || '#4f46e5';
-                const points = (sec.points||[]).map(p => '<li style="margin:6px 0;font-size:13px;color:#3f3f46;line-height:1.65">' + p + '</li>').join('');
-                let tableHtml = '';
-                if (sec.type==='table' && sec.table) {
-                    tableHtml = '<table style="width:100%;border-collapse:collapse;margin-top:10px"><thead><tr>' + (sec.table.headers||[]).map(h=>'<th style="background:#f4f4f6;padding:8px 12px;text-align:start;font-size:11px;font-weight:700;border:1px solid #ddd">' + h + '</th>').join('') + '</tr></thead><tbody>' + (sec.table.rows||[]).map(row=>'<tr>' + row.map(c=>'<td style="padding:8px 12px;border:1px solid #ddd;font-size:13px">' + c + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
+                const bg  = colorBgMap[sec.color] || '#eef2ff';
+                inner += `<div style="margin-bottom:14px;border:1.5px solid #e4e4e7;border-radius:10px;overflow:hidden;page-break-inside:avoid">
+                    <div style="padding:10px 16px;background:${bg};border-bottom:1px solid #e4e4e7;display:flex;align-items:center;gap:10px">
+                        <div style="width:4px;height:18px;background:${col};border-radius:4px;flex-shrink:0"></div>
+                        <span style="font-weight:700;font-size:13px;color:#18181b">${esc(sec.heading||'')}</span>
+                    </div>
+                    <div style="padding:12px 16px">`;
+                if (sec.type==='table' && sec.table && sec.table.headers) {
+                    inner += `<table style="width:100%;border-collapse:collapse;font-size:12px">
+                        <thead><tr>${(sec.table.headers||[]).map(h=>`<th style="background:#f4f4f6;padding:7px 10px;text-align:start;font-size:11px;font-weight:700;border:1px solid #ddd;color:#374151">${esc(String(h))}</th>`).join('')}</tr></thead>
+                        <tbody>${(sec.table.rows||[]).map(row=>`<tr>${(Array.isArray(row)?row:[row]).map(c=>`<td style="padding:7px 10px;border:1px solid #ddd;line-height:1.5;color:#374151">${String(c||'').replace(/<b>/g,'<b>').replace(/<\/b>/g,'</b>')}</td>`).join('')}</tr>`).join('')}</tbody>
+                    </table>`;
+                } else {
+                    inner += `<ul style="margin:0;padding-${isAr?'right':'left'}:18px">${(sec.points||[]).map(p=>`<li style="margin:5px 0;font-size:12.5px;color:#374151;line-height:1.65">${esc(p)}</li>`).join('')}</ul>`;
                 }
-                bodyHtml += '<div style="margin-bottom:16px;border:1.5px solid #e4e4e7;border-radius:10px;overflow:hidden;page-break-inside:avoid"><div style="padding:11px 16px;background:#f9f9fb;border-bottom:1px solid #e4e4e7;display:flex;align-items:center;gap:10px"><div style="width:4px;height:20px;background:' + col + ';border-radius:4px;flex-shrink:0"></div><span style="font-weight:700;font-size:14px;color:#18181b">' + (sec.heading||'') + '</span></div><div style="padding:12px 16px"><ul style="margin:0;padding-right:20px">' + points + '</ul>' + tableHtml + '</div></div>';
+                inner += `</div></div>`;
             });
+            // Key terms
             if ((d.key_terms||[]).length) {
-                bodyHtml += '<div style="margin-top:20px"><h2 style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#6b6b78;margin-bottom:10px;font-family:monospace">' + (isAr?'المصطلحات الرئيسية':'Key Terms') + '</h2>' + (d.key_terms||[]).map(k=>'<div style="display:flex;gap:12px;padding:9px 0;border-bottom:1px solid #e4e4e7"><span style="font-weight:700;font-size:12px;color:#18181b;min-width:120px;flex-shrink:0">' + k.term + '</span><span style="font-size:12px;color:#6b6b78;line-height:1.65">' + k.definition + '</span></div>').join('') + '</div>';
+                inner += `<div style="margin-top:22px;page-break-inside:avoid">
+                    <h2 style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#6b6b78;margin-bottom:10px;font-family:monospace">${isAr?'المصطلحات الرئيسية':'Key Terms'}</h2>
+                    ${(d.key_terms||[]).map(k=>`<div style="display:flex;gap:14px;padding:8px 0;border-bottom:1px solid #f0f0f2">
+                        <span style="font-weight:700;font-size:12px;color:#18181b;min-width:130px;flex-shrink:0">${esc(k.term)}</span>
+                        <span style="font-size:12px;color:#6b6b78;line-height:1.65;flex:1">${esc(k.definition)}</span>
+                    </div>`).join('')}
+                </div>`;
             }
         } else {
-            bodyHtml = '<div style="white-space:pre-wrap;font-size:14px;line-height:1.9;color:#3f3f46">' + (s.text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+            inner += `<div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:#374151">${esc(s.text||'')}</div>`;
         }
-        const dir = isAr ? 'rtl' : 'ltr';
-        const html = '<!DOCTYPE html><html dir="' + dir + '"><head><meta charset="UTF-8"><title>' + s.name + '</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:40px;background:#fff;color:#18181b}@media print{body{padding:20px}}</style></head><body><div style="border-bottom:2px solid #4f46e5;padding-bottom:12px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:10px;font-family:monospace;color:#6b6b78;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">zStudy</div><h1 style="font-size:22px;font-weight:700;color:#18181b">' + s.name + '</h1></div><div style="font-size:10px;font-family:monospace;color:#a0a0ab">' + s.date + '</div></div>' + bodyHtml + '</body></html>';
-        const blob = new Blob([html], {type:'text/html;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = s.name.replace(/[/\\?%*:|"<>]/g,'_') + '.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(()=>URL.revokeObjectURL(url),1000);
-        toast(isAr?'✓ تم تحميل الملخص':'✓ Summary downloaded');
+
+        wrap.innerHTML = inner;
+
+        try {
+            const canvas = await html2canvas(wrap, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 750,
+            });
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+            const margin = 0;
+            const imgW = pageW - margin * 2;
+            const imgH = (canvas.height * imgW) / canvas.width;
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+            let y = margin;
+            let remaining = imgH;
+            let srcY = 0;
+
+            while (remaining > 0) {
+                const sliceH = Math.min(remaining, pageH - margin * 2);
+                const sliceCanvas = document.createElement('canvas');
+                sliceCanvas.width = canvas.width;
+                sliceCanvas.height = (sliceH / imgW) * canvas.width;
+                const ctx = sliceCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, srcY * (canvas.width / imgW), canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+                const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+                pdf.addImage(sliceData, 'JPEG', margin, margin, imgW, sliceH);
+                srcY += sliceH;
+                remaining -= sliceH;
+                if (remaining > 0) pdf.addPage();
+            }
+
+            const safeName = s.name.replace(/[/\\?%*:|"<>]/g,'_');
+            pdf.save(safeName + '.pdf');
+            toast(isAr ? '✓ تم تحميل PDF' : '✓ PDF downloaded');
+        } catch(e) {
+            toast((isAr ? 'خطأ: ' : 'Error: ') + e.message);
+        } finally {
+            document.body.removeChild(wrap);
+        }
     }
 
     function saveApiKeys() { toast(t('saved')); }
@@ -3873,28 +3955,83 @@ ${textSlice}`;
         window._lastStudyPlan = plan;
     }
 
-    function downloadStudyPlan() {
+    async function downloadStudyPlan() {
         const plan = window._lastStudyPlan;
         if (!plan) return;
         const isAr = currentLang === 'ar';
+        toast(isAr ? '⏳ جاري إنشاء PDF...' : '⏳ Generating PDF...');
+
         const typeLabel = {study:isAr?'دراسة':'Study', review:isAr?'مراجعة':'Review', rest:isAr?'راحة':'Rest'};
+        const typeColor = {study:'#4f46e5', review:'#d97706', rest:'#059669'};
+        const typeBg    = {study:'#eef2ff',  review:'#fffbeb',  rest:'#ecfdf5'};
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:750px;background:#fff;color:#18181b;font-family:Arial,Helvetica,sans-serif;padding:48px 52px;box-sizing:border-box;direction:'+(isAr?'rtl':'ltr');
+        document.body.appendChild(wrap);
+
         const daysHtml = (plan.days||[]).map(day => {
+            const col = typeColor[day.type]||'#4f46e5';
+            const bg  = typeBg[day.type]||'#eef2ff';
             const lbl = typeLabel[day.type]||day.type;
-            const tasks = (day.tasks||[]).map(t=>'<li style="margin:4px 0;font-size:13px">'+t+'</li>').join('');
-            return '<div style="margin-bottom:10px;border:1.5px solid #e4e4e7;border-radius:8px;overflow:hidden;page-break-inside:avoid"><div style="padding:8px 14px;background:#f4f4f6;border-bottom:1px solid #e4e4e7;display:flex;gap:10px;align-items:center"><b style="font-family:monospace;font-size:12px">'+(isAr?'يوم ':'Day ')+day.day+'</b><span style="font-size:13px;font-weight:600;flex:1">'+(day.focus||day.label||'')+'</span><span style="font-family:monospace;font-size:10px;color:#6b6b78">'+lbl+'</span></div><div style="padding:8px 14px"><ul style="padding-right:18px;margin:0">'+tasks+'</ul></div></div>';
+            const tasks = (day.tasks||[]).map(task =>
+                `<li style="margin:5px 0;font-size:12.5px;color:#374151;line-height:1.65">${task}</li>`
+            ).join('');
+            return `<div style="margin-bottom:10px;border:1.5px solid #e4e4e7;border-radius:8px;overflow:hidden">
+                <div style="padding:9px 14px;background:${bg};border-bottom:1px solid #e4e4e7;display:flex;gap:10px;align-items:center">
+                    <span style="font-family:monospace;font-size:11px;font-weight:700;color:${col};background:#fff;border:1px solid ${col};padding:2px 8px;border-radius:20px;flex-shrink:0">${isAr?'يوم ':'Day '}${day.day}</span>
+                    <span style="font-size:13px;font-weight:600;flex:1;color:#18181b">${day.focus||day.label||''}</span>
+                    <span style="font-size:10px;font-family:monospace;color:${col}">${lbl}</span>
+                </div>
+                <div style="padding:10px 14px"><ul style="margin:0;padding-${isAr?'right':'left'}:18px">${tasks}</ul></div>
+            </div>`;
         }).join('');
-        const tipsHtml = (plan.tips||[]).map(t=>'<li style="margin:4px 0;font-size:13px">'+t+'</li>').join('');
-        const html = '<!DOCTYPE html><html dir="'+(isAr?'rtl':'ltr')+'"><head><meta charset="UTF-8"><title>خطة الدراسة</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:36px;color:#18181b}@media print{body{padding:16px}}</style></head><body><div style="border-bottom:2px solid #4f46e5;padding-bottom:10px;margin-bottom:20px"><h1 style="font-size:20px;font-weight:700">'+(isAr?'خطة الدراسة':'Study Plan')+'</h1><p style="font-size:13px;color:#6b6b78;margin-top:4px">'+(plan.summary||'')+'</p></div>'+(tipsHtml?'<div style="background:#eef2ff;border:1px solid #a5b4fc;padding:12px 16px;border-radius:8px;margin-bottom:16px"><b style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#4f46e5">'+(isAr?'نصائح':'Tips')+'</b><ul style="padding-right:18px;margin-top:8px">'+tipsHtml+'</ul></div>':'')+daysHtml+'</body></html>';
-        const blob = new Blob([html],{type:'text/html;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = (currentLang==='ar'?'خطة-الدراسة':'study-plan') + '.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(()=>URL.revokeObjectURL(url),1000);
-        toast(currentLang==='ar'?'✓ تم تحميل الخطة':'✓ Plan downloaded');
+
+        const tipsHtml = (plan.tips||[]).length ? `
+            <div style="background:#eef2ff;border:1px solid #a5b4fc;padding:12px 16px;border-radius:8px;margin-bottom:16px">
+                <b style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#4f46e5">${isAr?'نصائح':'Tips'}</b>
+                <ul style="margin:8px 0 0;padding-${isAr?'right':'left'}:18px">${(plan.tips||[]).map(tip=>`<li style="margin:4px 0;font-size:12.5px;color:#374151">${tip}</li>`).join('')}</ul>
+            </div>` : '';
+
+        wrap.innerHTML = `
+            <div style="border-bottom:3px solid #4f46e5;padding-bottom:12px;margin-bottom:22px">
+                <div style="font-size:9px;font-family:monospace;color:#9ca3af;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px">zStudy</div>
+                <h1 style="margin:0 0 4px;font-size:20px;font-weight:700">${isAr?'خطة الدراسة':'Study Plan'}</h1>
+                <p style="margin:0;font-size:13px;color:#6b7280">${esc(plan.summary||'')}</p>
+                <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+                    <span style="font-size:10px;font-family:monospace;color:#4f46e5;background:#eef2ff;border:1px solid #a5b4fc;padding:2px 10px;border-radius:20px">${plan.total_days} ${isAr?'يوم':'days'}</span>
+                    <span style="font-size:10px;font-family:monospace;color:#4f46e5;background:#eef2ff;border:1px solid #a5b4fc;padding:2px 10px;border-radius:20px">${plan.daily_hours}h/${isAr?'يوم':'day'}</span>
+                    <span style="font-size:10px;font-family:monospace;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;padding:2px 10px;border-radius:20px">${plan.exam_date}</span>
+                </div>
+            </div>
+            ${tipsHtml}
+            ${daysHtml}`;
+
+        try {
+            const canvas = await html2canvas(wrap, { scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false, width:750 });
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation:'portrait', unit:'pt', format:'a4' });
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+            const imgW = pageW;
+            const imgH = (canvas.height * imgW) / canvas.width;
+            let remaining = imgH, srcY = 0;
+            while (remaining > 0) {
+                const sliceH = Math.min(remaining, pageH);
+                const sc = document.createElement('canvas');
+                sc.width = canvas.width;
+                sc.height = (sliceH / imgW) * canvas.width;
+                sc.getContext('2d').drawImage(canvas, 0, srcY*(canvas.width/imgW), canvas.width, sc.height, 0, 0, canvas.width, sc.height);
+                pdf.addImage(sc.toDataURL('image/jpeg',0.92), 'JPEG', 0, 0, imgW, sliceH);
+                srcY += sliceH; remaining -= sliceH;
+                if (remaining > 0) pdf.addPage();
+            }
+            pdf.save((isAr?'خطة-الدراسة':'study-plan')+'.pdf');
+            toast(isAr ? '✓ تم تحميل PDF' : '✓ PDF downloaded');
+        } catch(e) {
+            toast((isAr?'خطأ: ':'Error: ') + e.message);
+        } finally {
+            document.body.removeChild(wrap);
+        }
     }
 
 
