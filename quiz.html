@@ -3735,7 +3735,7 @@ ${truncatedSource}`;
 
             // Brand chip: "zStudy" pill top-left
             setFill('#ffffff20');
-            pdf.roundedRect(ML, 6, 20, 6, 2, 2, 'F');
+            pdf.rect(ML, 6, 20, 6, 'F');
             pdf.setFont(FL, 'bold');
             pdf.setFontSize(6.5);
             pdf.setTextColor(255,255,255);
@@ -3791,10 +3791,10 @@ ${truncatedSource}`;
 
                     // Background with indigo tint
                     setFill('#eef2ff');
-                    pdf.roundedRect(ML, y - 5, CW, slH, 3, 3, 'F');
+                    pdf.rect(ML, y - 5, CW, slH, 'F');
                     // Left accent bar
                     setFill('#4f46e5');
-                    pdf.roundedRect(ML, y - 5, 3, slH, 1.5, 1.5, 'F');
+                    pdf.rect(ML, y - 5, 3, slH, 'F');
                     // Small label above
                     pdf.setFont(FL, 'bold');
                     pdf.setFontSize(7);
@@ -3840,7 +3840,7 @@ ${truncatedSource}`;
 
                     // Rounded heading background
                     setFill(col);
-                    pdf.roundedRect(ML, y - 4.5, CW, hH, 3, 3, 'F');
+                    pdf.rect(ML, y - 4.5, CW, hH, 'F');
                     // Small icon dot on left
                     setFill('#ffffff40');
                     pdf.circle(ML + 6, y + hH/2 - 4.5, 2.5, 'F');
@@ -3931,7 +3931,7 @@ ${truncatedSource}`;
                             // Alternating tinted bg for bullets
                             const bgLt = lighten(col, 0.96);
                             setFill(bgLt);
-                            pdf.roundedRect(ML, y - 2, CW, ptH, 2, 2, 'F');
+                            pdf.rect(ML, y - 2, CW, ptH, 'F');
 
                             // Colored bullet dot
                             setFill(col);
@@ -3962,7 +3962,7 @@ ${truncatedSource}`;
                     // Key Terms header bar
                     const ktLabel = isAr ? 'المصطلحات الرئيسية' : 'Key Terms';
                     setFill('#1e1b4b');
-                    pdf.roundedRect(ML, y - 5, CW, 13, 3, 3, 'F');
+                    pdf.rect(ML, y - 5, CW, 13, 'F');
                     pdf.setFont(FL, 'bold');
                     pdf.setFontSize(10);
                     pdf.setTextColor(255, 255, 255);
