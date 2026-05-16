@@ -2430,11 +2430,32 @@
     }
 
     // Always treat the full text as a single chunk
-    function splitTextIntoChunks(text) {
-        return [text];
+    // Split text into exactly N equal-size chunks, snapping to sentence boundaries
+    function splitTextIntoChunks(text, n) {
+        n = n || 1;
+        if (n <= 1 || !text) return [text || ''];
+        const chunkSize = Math.ceil(text.length / n);
+        const chunks = [];
+        let start = 0;
+        for (let i = 0; i < n; i++) {
+            if (start >= text.length) break;
+            let end = Math.min(start + chunkSize, text.length);
+            // Snap to sentence/paragraph boundary to avoid cutting mid-sentence
+            if (end < text.length) {
+                const dot  = text.lastIndexOf('.', end);
+                const nl   = text.lastIndexOf('\n', end);
+                const snap = Math.max(dot, nl);
+                if (snap > start + Math.floor(chunkSize * 0.5)) end = snap + 1;
+            }
+            const chunk = text.slice(start, end).trim();
+            if (chunk) chunks.push(chunk);
+            start = end;
+        }
+        return chunks.length ? chunks : [text];
     }
 
     const MCQ_CHARS_PER_CHUNK = 13000;
+    const MCQ_CHUNK_THRESHOLD = 20;  // use 10-chunk parallel mode when count >= this
 
     function buildMCQP(text, count, lang, diff) {
         count = count || $('qCount').value || 10;
@@ -2513,8 +2534,8 @@ ${text}`;
 
     const MCQ_LABELS = {
         ar: {
-            titles:  ['قراءة الملف', 'الإرسال للذكاء الاصطناعي', 'توليد الأسئلة', 'المراجعة النهائية'],
-            steps:   ['استخراج النص وتقسيمه', 'إرسال المحتوى للنموذج', 'صياغة الأسئلة والخيارات', 'التحقق من الجودة'],
+            titles:  ['تقسيم النص', 'إرسال للذكاء الاصطناعي', 'توليد الأسئلة', 'المراجعة النهائية'],
+            steps:   ['تقسيم النص إلى أجزاء', 'إرسال كل الأجزاء معاً', 'صياغة الأسئلة والخيارات', 'دمج النتائج والتحقق'],
             init:    'جاري الإعداد…',
             sub:     'يتم تحليل المحتوى',
             ready:   '✓ جاهز',
@@ -2522,8 +2543,8 @@ ${text}`;
             cancel:  'إلغاء',
         },
         en: {
-            titles:  ['Reading File', 'Sending to AI', 'Generating Questions', 'Final Review'],
-            steps:   ['Extract & split text', 'Send content to model', 'Craft questions & options', 'Validate quality'],
+            titles:  ['Splitting Text', 'Sending to AI', 'Generating Questions', 'Final Review'],
+            steps:   ['Split text into chunks', 'Fire all chunks in parallel', 'Craft questions & options', 'Merge & validate results'],
             init:    'Preparing…',
             sub:     'Analyzing content',
             ready:   '✓ Ready',
@@ -2594,47 +2615,85 @@ ${text}`;
         const isAr  = currentLang === 'ar';
         const L     = _L(isAr);
 
+        // ── Decide mode ──────────────────────────────────────────────────
+        // For counts >= MCQ_CHUNK_THRESHOLD we split into 10 chunks and fire all in parallel
+        const useChunked = count >= MCQ_CHUNK_THRESHOLD;
+        const NUM_CHUNKS = useChunked ? 10 : 1;
+        const perChunk   = useChunked ? Math.ceil(count / NUM_CHUNKS) : count;
+
         showMCQLoader(isAr);
 
         try {
-            // Step 0: Parse PDF
+            // ── Step 0: split text ────────────────────────────────────────
             mcqLoaderStep(0, 'active');
             document.getElementById('mcqLoadTitle').textContent = L.titles[0];
-            mcqLoaderProgress(8);
-            await new Promise(r => setTimeout(r, 250));
+            mcqLoaderProgress(5);
+            await new Promise(r => setTimeout(r, 180));
 
-            const chunks = splitTextIntoChunks(pdfText);
+            const chunks = splitTextIntoChunks(pdfText, NUM_CHUNKS);
+            const actualChunks = chunks.length; // may be < NUM_CHUNKS if text is short
+
             mcqLoaderStep(0, 'done');
-            mcqLoaderProgress(18);
+            mcqLoaderProgress(12);
             if (_mcqCancelled) return;
 
-            // Step 1: Send to AI
+            // ── Step 1: dispatch ALL chunks simultaneously ─────────────────
             mcqLoaderStep(1, 'active');
-            document.getElementById('mcqLoadTitle').textContent = L.titles[1];
-            document.getElementById('mcqLoadSub').textContent   = isAr ? 'جزء واحد' : '1 chunk';
-            mcqLoaderProgress(26);
+            document.getElementById('mcqLoadTitle').textContent =
+                isAr ? `إرسال ${actualChunks} أجزاء للذكاء الاصطناعي…` : `Sending ${actualChunks} chunks to AI…`;
+            document.getElementById('mcqLoadSub').textContent =
+                isAr ? 'كل الطلبات ترسل معاً' : 'All requests firing in parallel';
+            mcqLoaderProgress(18);
+
+            // Track per-chunk completion for live progress
+            let doneChunks = 0;
+            function onChunkDone() {
+                doneChunks++;
+                const pct = 18 + Math.round((doneChunks / actualChunks) * 58); // 18→76
+                mcqLoaderProgress(pct);
+                document.getElementById('mcqLoadSub').textContent =
+                    isAr
+                    ? `${doneChunks} / ${actualChunks} جزء مكتمل`
+                    : `${doneChunks} / ${actualChunks} chunks done`;
+            }
+
+            // Fire all chunk requests simultaneously
+            const chunkPromises = chunks.map((chunkText, ci) =>
+                mcqForChunk(chunkText, perChunk, lang, diff)
+                    .then(qs => { onChunkDone(); return qs; })
+                    .catch(err => { onChunkDone(); console.warn(`Chunk ${ci} failed:`, err); return []; })
+            );
 
             mcqLoaderStep(1, 'done');
             mcqLoaderStep(2, 'active');
             document.getElementById('mcqLoadTitle').textContent = L.titles[2];
-            document.getElementById('mcqLoadSub').textContent   = isAr ? `${count} سؤال · ${diff}` : `${count} questions · ${diff}`;
-            mcqLoaderProgress(44);
 
-            const qs = await mcqForChunk(chunks[0], count, lang, diff);
-            const merged = qs.filter(q => {
-                if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
-                const ci = Number(q.correct); return !isNaN(ci) && ci >= 0 && ci < q.options.length;
-            });
-            mcqLoaderProgress(80);
-
+            // Wait for ALL chunks to complete (already firing in parallel)
+            const chunkResults = await Promise.all(chunkPromises);
             if (_mcqCancelled) return;
+
+            // ── Step 2: merge + deduplicate ───────────────────────────────
+            mcqLoaderProgress(80);
+            const seen = new Set();
+            const merged = chunkResults.flat().filter(q => {
+                if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
+                const ci = Number(q.correct);
+                if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
+                // Deduplicate by first 80 chars of question text
+                const key = q.question.trim().toLowerCase().slice(0, 80);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
             if (!merged.length) throw new Error(isAr ? 'لم يتم توليد أسئلة' : 'No questions generated');
 
-            // Step 3: Finalize
+            // ── Step 3: finalize ──────────────────────────────────────────
             mcqLoaderStep(2, 'done');
             mcqLoaderStep(3, 'active');
             document.getElementById('mcqLoadTitle').textContent = L.titles[3];
-            document.getElementById('mcqLoadSub').textContent   = isAr ? `${merged.length} سؤال` : `${merged.length} questions`;
+            document.getElementById('mcqLoadSub').textContent =
+                isAr ? `${merged.length} سؤال من ${actualChunks} أجزاء` : `${merged.length} questions from ${actualChunks} chunks`;
             mcqLoaderProgress(92);
             await new Promise(r => setTimeout(r, 350));
 
@@ -2649,7 +2708,14 @@ ${text}`;
 
             hideMCQLoader();
             const quizName = $('quizNameInput').value.trim() || pdfFile || 'MCQ Quiz';
-            track('mcq_generated', { question_count: final.length, difficulty: $('diffSel').value, language: $('langSel').value, source: quizName });
+            track('mcq_generated', {
+                question_count: final.length,
+                difficulty: diff,
+                language: lang,
+                chunks_used: actualChunks,
+                mode: useChunked ? 'parallel_chunked' : 'single',
+                source: quizName
+            });
             startQuiz(final, quizName);
 
         } catch(e) {
@@ -3493,347 +3559,211 @@ ${sourceText}`;
 
     function exportSummaryLib() { downloadJSON(getSummaryLib(), 'summaries'); }
 
-    // ── Download summary as PDF ───────────────────────────────────────────
+    // ── Download summary as PDF (html2canvas — full Unicode / Arabic support) ──
     async function downloadSummaryAsPDF(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
         const isAr = currentLang === 'ar';
         toast(isAr ? '⏳ جاري إنشاء PDF...' : '⏳ Generating PDF...');
 
-        const colorHexMap = {blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',indigo:'#6366f1',cyan:'#06b6d4'};
+        // ── Build an off-screen render container ──────────────────────────
+        const wrap = document.createElement('div');
+        wrap.style.cssText = [
+            'position:fixed',
+            'left:-9999px',
+            'top:0',
+            'width:794px',           // A4 @ 96dpi ≈ 794px wide
+            'background:#ffffff',
+            'color:#1a1a1a',
+            'font-family:"IBM Plex Sans Arabic", "Segoe UI", "Arial Unicode MS", Arial, sans-serif',
+            'font-size:14px',        // 14px ≈ 12pt on screen
+            'line-height:1.8',
+            'padding:90px 90px 90px 90px',   // ~1-inch margins at 96dpi
+            'box-sizing:border-box',
+            'z-index:-1',
+            'direction:' + (isAr ? 'rtl' : 'ltr'),
+        ].join(';');
+
+        // ── Colour palette ────────────────────────────────────────────────
+        const colorHexMap = {
+            blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',
+            pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',
+            indigo:'#6366f1',cyan:'#06b6d4'
+        };
+        function resolveHex(raw, idx) {
+            if (!raw) return '#4f46e5';
+            const k = raw.toLowerCase().replace(/[^a-z]/g,'');
+            return colorHexMap[k] || (raw.startsWith('#') ? raw : '#4f46e5');
+        }
+
+        // ── Helper: escape HTML ───────────────────────────────────────────
+        function hesc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        // ── Build inner HTML ──────────────────────────────────────────────
+        let html = '';
+
+        // Title header
+        html += `
+        <div style="border-top:2px solid #1a1a1a;border-bottom:1px solid #1a1a1a;padding:14px 0 10px;margin-bottom:22px">
+            <div style="font-size:22px;font-weight:bold;letter-spacing:-0.3px;margin-bottom:4px">${hesc(s.name)}</div>
+            <div style="font-size:11px;color:#6b7280;font-family:monospace">${hesc(s.date)} &nbsp;·&nbsp; zStudy</div>
+        </div>`;
+
+        const isStr = s.style === 'structured' && s.structured;
+
+        if (isStr) {
+            const d = s.structured;
+
+            // Summary line callout
+            if (d.summary_line) {
+                html += `
+                <div style="border-left:4px solid #1a1a1a;background:#f5f5f5;padding:12px 16px;margin-bottom:22px;font-style:italic;font-size:13.5px;color:#374151;line-height:1.7;unicode-bidi:plaintext;direction:auto">
+                    ${hesc(d.summary_line)}
+                </div>`;
+            }
+
+            // Inner doc title (if different from summary name)
+            if (d.title && d.title !== s.name) {
+                html += `<div style="font-size:17px;font-weight:bold;color:#374151;margin-bottom:16px;unicode-bidi:plaintext;direction:auto">${hesc(d.title)}</div>`;
+            }
+
+            // Sections
+            (d.sections || []).forEach((sec, si) => {
+                const col = resolveHex(sec.color, si);
+                const isTable = sec.type === 'table' && sec.table && Array.isArray(sec.table.headers);
+
+                // Section heading (H2 style)
+                html += `
+                <div style="display:flex;align-items:stretch;margin-bottom:10px;margin-top:${si===0?'0':'22px'}">
+                    <div style="width:5px;background:${col};flex-shrink:0;border-radius:2px"></div>
+                    <div style="font-size:15px;font-weight:bold;color:${col};padding:7px 12px;background:#f8f8f8;flex:1;border:1px solid #e4e4e7;unicode-bidi:plaintext;direction:auto">
+                        ${hesc(sec.heading || '')}
+                    </div>
+                </div>`;
+
+                if (isTable) {
+                    const headers = sec.table.headers || [];
+                    const rows    = sec.table.rows    || [];
+                    const colPct  = (100 / Math.max(headers.length, 1)).toFixed(1);
+
+                    html += `<table style="width:100%;border-collapse:collapse;margin-bottom:6px;font-size:12.5px">
+                        <thead>
+                            <tr style="background:#e8e8e8">
+                                ${headers.map(h => `<th style="padding:7px 10px;border:1px solid #c0c0c0;font-weight:bold;text-align:start;width:${colPct}%;unicode-bidi:plaintext;direction:auto">${hesc(h)}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows.map((row, ri) => {
+                                const cells = Array.isArray(row) ? row : [row];
+                                const bg = ri % 2 === 0 ? '#ffffff' : '#f7f7f7';
+                                return `<tr style="background:${bg}">
+                                    ${cells.map(cell => `<td style="padding:6px 10px;border:1px solid #d0d0d0;vertical-align:top;unicode-bidi:plaintext;direction:auto">${hesc(String(cell||'').replace(/<[^>]+>/g,''))}</td>`).join('')}
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>`;
+
+                } else {
+                    const points = sec.points || [];
+                    html += `<ul style="margin:0 0 6px 0;padding-inline-start:20px;list-style:none">`;
+                    points.forEach(pt => {
+                        html += `<li style="display:flex;gap:10px;margin-bottom:6px;align-items:flex-start">
+                            <span style="color:${col};font-size:16px;line-height:1.4;flex-shrink:0">•</span>
+                            <span style="unicode-bidi:plaintext;direction:auto;line-height:1.75;font-size:13.5px">${hesc(pt)}</span>
+                        </li>`;
+                    });
+                    html += `</ul>`;
+                }
+            });
+
+            // Key Terms
+            if ((d.key_terms||[]).length) {
+                html += `
+                <div style="border-top:1.5px solid #1a1a1a;margin-top:26px;padding-top:16px">
+                    <div style="font-size:15px;font-weight:bold;margin-bottom:12px;color:#18181b">${isAr ? 'المصطلحات الرئيسية' : 'Key Terms'}</div>
+                    <table style="width:100%;border-collapse:collapse;font-size:12.5px">`;
+                d.key_terms.forEach((kt, ki) => {
+                    const bg = ki % 2 === 0 ? '#ffffff' : '#f7f7f7';
+                    html += `<tr style="background:${bg};border-bottom:1px solid #e5e7eb">
+                        <td style="padding:7px 12px;font-weight:bold;width:30%;vertical-align:top;unicode-bidi:plaintext;direction:auto">${hesc(kt.term||'')}</td>
+                        <td style="padding:7px 12px;color:#374151;vertical-align:top;unicode-bidi:plaintext;direction:auto;line-height:1.65">${hesc(kt.definition||'')}</td>
+                    </tr>`;
+                });
+                html += `</table></div>`;
+            }
+
+        } else {
+            // Plain text — preserve line breaks, detect headings
+            const lines = (s.text||'').split('\n');
+            lines.forEach(line => {
+                const t = line.trim();
+                if (!t) { html += '<div style="height:8px"></div>'; return; }
+                if (/^#{1,3}\s/.test(t)) {
+                    const lvl = (t.match(/^#+/)||[''])[0].length;
+                    const fs = lvl===1?'20px':lvl===2?'16px':'14px';
+                    html += `<div style="font-size:${fs};font-weight:bold;margin:16px 0 6px;unicode-bidi:plaintext;direction:auto">${hesc(t.replace(/^#+\s*/,''))}</div>`;
+                } else if (/^[•\-\*]\s/.test(t)) {
+                    html += `<div style="display:flex;gap:10px;margin-bottom:5px"><span>•</span><span style="unicode-bidi:plaintext;direction:auto">${hesc(t.replace(/^[•\-\*]\s*/,''))}</span></div>`;
+                } else {
+                    html += `<div style="text-indent:2em;margin-bottom:6px;unicode-bidi:plaintext;direction:auto;line-height:1.8">${hesc(t)}</div>`;
+                }
+            });
+        }
+
+        wrap.innerHTML = html;
+        document.body.appendChild(wrap);
 
         try {
             const { jsPDF } = window.jspdf;
+
+            // Scale 2× for crisp rendering
+            const canvas = await html2canvas(wrap, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: wrap.offsetWidth,
+                windowWidth: wrap.offsetWidth
+            });
+
+            // A4 in pt: 595.28 × 841.89
+            const PDF_W = 595.28;
+            const PDF_H = 841.89;
             const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-            const PW = pdf.internal.pageSize.getWidth();   // 595.28 pt
-            const PH = pdf.internal.pageSize.getHeight();  // 841.89 pt
 
-            // ── Typography constants (academic standard) ──────────────────
-            // 1 inch = 72pt
-            const ML = 72, MR = 72, MT = 72, MB = 72;  // 1-inch margins all sides
-            const CW = PW - ML - MR;                     // content width ≈ 451pt
-            const FONT_BODY    = 12;   // 12pt body
-            const FONT_H1      = 16;   // 16pt H1 heading
-            const FONT_H2      = 14;   // 14pt H2 heading
-            const FONT_H3      = 13;   // 13pt H3 heading (sub-section)
-            const LINE_SPACING = 1.7;  // ~1.5-2.0 equivalent in pt multiplier
-            const INDENT       = 36;   // 0.5 inch first-line indent
-            const PARA_SPACE   = 8;    // spacing after paragraph
+            const imgW  = PDF_W;
+            const scale = imgW / canvas.width;
+            const imgH  = canvas.height * scale;
 
-            let y = MT;
+            // Slice canvas into A4 pages
+            let srcYPx = 0;
+            const pageHPx = PDF_H / scale;         // how many canvas px fit one page
+            let pageNum = 1;
 
-            // ── Helpers ───────────────────────────────────────────────────
-            function hexToRgb(hex) {
-                hex = (hex||'#374151').replace('#','');
-                if (hex.length===3) hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-                const n=parseInt(hex,16);
-                return [n>>16&255,(n>>8)&255,n&255];
-            }
-            function setColor(hex) { const [r,g,b]=hexToRgb(hex); pdf.setTextColor(r,g,b); }
-            function setFill(hex)  { const [r,g,b]=hexToRgb(hex); pdf.setFillColor(r,g,b); }
-            function setDraw(hex)  { const [r,g,b]=hexToRgb(hex); pdf.setDrawColor(r,g,b); }
+            while (srcYPx < canvas.height) {
+                if (pageNum > 1) pdf.addPage();
 
-            function ensureSpace(needed) {
-                if (y + needed > PH - MB - 24) { // -24 for footer space
-                    pdf.addPage();
-                    y = MT;
-                }
-            }
+                const sliceHPx = Math.min(pageHPx, canvas.height - srcYPx);
+                const sliceH   = sliceHPx * scale;   // pt height of this slice
 
-            // Draw justified body text with first-line indent
-            // Returns new y after drawing
-            function drawBody(text, opts) {
-                const {
-                    x = ML,
-                    maxW = CW,
-                    fontSize = FONT_BODY,
-                    fontStyle = 'normal',
-                    colorHex = '#1a1a1a',
-                    indent = false,
-                    lineSpacingMult = LINE_SPACING,
-                    fontName = 'times'
-                } = opts || {};
+                // Draw slice from canvas
+                const sliceCanvas = document.createElement('canvas');
+                sliceCanvas.width  = canvas.width;
+                sliceCanvas.height = Math.ceil(sliceHPx);
+                const ctx = sliceCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, srcYPx, canvas.width, sliceHPx, 0, 0, canvas.width, sliceHPx);
 
-                pdf.setFontSize(fontSize);
-                pdf.setFont(fontName, fontStyle);
-                setColor(colorHex);
+                const imgData = sliceCanvas.toDataURL('image/jpeg', 0.93);
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgW, sliceH);
 
-                const lh = fontSize * lineSpacingMult;
-                const usableW = indent ? maxW - INDENT : maxW;
-                const startX  = indent ? x + INDENT   : x;
+                // ── Footer: bottom-center page number ──
+                pdf.setFontSize(9);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(160, 160, 160);
+                pdf.text(String(pageNum), PDF_W / 2, PDF_H - 14, { align: 'center' });
 
-                const lines = pdf.splitTextToSize(String(text||''), usableW);
-                lines.forEach((line, li) => {
-                    const lineX = (li === 0 && indent) ? startX : x;
-                    const lineW = (li === 0 && indent) ? usableW : maxW;
-                    ensureSpace(lh);
-                    // Justify: jsPDF doesn't have native justify, so we use left-align
-                    // but the visual layout uses full-width wrapping which reads as justified
-                    pdf.text(line, lineX, y + fontSize * 0.75);
-                    y += lh;
-                });
-                return y;
-            }
-
-            // Draw a heading (H1/H2/H3)
-            function drawHeading(text, level, colorHex) {
-                const sizes = { 1: FONT_H1, 2: FONT_H2, 3: FONT_H3 };
-                const fs = sizes[level] || FONT_H2;
-                const topPad = level === 1 ? 14 : level === 2 ? 10 : 7;
-                const botPad = level === 1 ? 6  : level === 2 ? 4  : 3;
-
-                ensureSpace(fs * LINE_SPACING + topPad + botPad + 4);
-                y += topPad;
-
-                pdf.setFontSize(fs);
-                pdf.setFont('times', 'bold');
-                setColor(colorHex || '#18181b');
-
-                const lines = pdf.splitTextToSize(String(text||''), CW);
-                lines.forEach(line => {
-                    pdf.text(line, ML, y + fs * 0.75);
-                    y += fs * LINE_SPACING;
-                });
-                y += botPad;
-            }
-
-            // ── TITLE PAGE HEADER ─────────────────────────────────────────
-            // Top rule
-            setDraw('#1a1a1a'); pdf.setLineWidth(1.5);
-            pdf.line(ML, y, PW - MR, y); y += 4;
-            pdf.setLineWidth(0.5);
-            pdf.line(ML, y, PW - MR, y); y += 16;
-
-            // Document title (H1)
-            pdf.setFontSize(FONT_H1 + 2);
-            pdf.setFont('times', 'bold');
-            setColor('#18181b');
-            const titleLines = pdf.splitTextToSize(s.name, CW);
-            titleLines.forEach(line => { pdf.text(line, ML, y + (FONT_H1+2)*0.75); y += (FONT_H1+2)*1.5; });
-            y += 4;
-
-            // Subtitle line (date + source label)
-            pdf.setFontSize(10);
-            pdf.setFont('times', 'normal');
-            setColor('#6b7280');
-            pdf.text(s.date + '   ·   zStudy', ML, y + 8);
-            y += 18;
-
-            // Bottom rule
-            pdf.setLineWidth(0.5); setDraw('#1a1a1a');
-            pdf.line(ML, y, PW - MR, y); y += 20;
-
-            const isStr = s.style === 'structured' && s.structured;
-
-            if (isStr) {
-                const d = s.structured;
-
-                // Summary callout (summary_line)
-                if (d.summary_line) {
-                    const calloutLines = pdf.splitTextToSize(d.summary_line, CW - 24);
-                    const calloutH = calloutLines.length * FONT_BODY * LINE_SPACING + 20;
-                    ensureSpace(calloutH + 12);
-
-                    // Light shaded box
-                    setFill('#f5f5f5'); setDraw('#d1d5db'); pdf.setLineWidth(0.4);
-                    pdf.rect(ML, y, CW, calloutH, 'FD');
-                    // Left accent bar
-                    setFill('#18181b'); pdf.rect(ML, y, 4, calloutH, 'F');
-
-                    pdf.setFontSize(FONT_BODY);
-                    pdf.setFont('times', 'italic');
-                    setColor('#374151');
-                    calloutLines.forEach((line, i) => {
-                        pdf.text(line, ML + 14, y + 13 + i * FONT_BODY * LINE_SPACING);
-                    });
-                    y += calloutH + 16;
-                }
-
-                // Document inner title (from AI)
-                if (d.title && d.title !== s.name) {
-                    drawHeading(d.title, 2, '#374151');
-                }
-
-                // ── Sections ─────────────────────────────────────────────
-                (d.sections||[]).forEach((sec, si) => {
-                    const rawCol = sec.color ? (colorHexMap[sec.color.toLowerCase()] || sec.color) : '#18181b';
-
-                    // H2: Section heading
-                    ensureSpace(FONT_H2 * LINE_SPACING + 20);
-                    y += 10;
-
-                    // Heading with left colored bar
-                    const headH = FONT_H2 * 1.4 + 6;
-                    setFill('#f8f8f8'); setDraw('#e4e4e7'); pdf.setLineWidth(0.4);
-                    pdf.rect(ML, y, CW, headH, 'FD');
-                    const [cr,cg,cb] = hexToRgb(rawCol);
-                    pdf.setFillColor(cr,cg,cb);
-                    pdf.rect(ML, y, 4, headH, 'F');
-
-                    pdf.setFontSize(FONT_H2);
-                    pdf.setFont('times', 'bold');
-                    setColor(rawCol);
-                    const secHeadLines = pdf.splitTextToSize(sec.heading||'', CW - 14);
-                    secHeadLines.forEach((hl, hli) => {
-                        pdf.text(hl, ML + 12, y + FONT_H2 * 0.8 + hli * FONT_H2 * 1.3);
-                    });
-                    y += headH + 8;
-
-                    if (sec.type === 'table' && sec.table && sec.table.headers) {
-                        // TABLE SECTION
-                        const headers = sec.table.headers || [];
-                        const rows = sec.table.rows || [];
-                        const colW = CW / Math.max(headers.length, 1);
-                        const headerH = 22;
-                        const rowH    = 18;
-
-                        ensureSpace(headerH + Math.min(rows.length, 5) * rowH + 10);
-
-                        // Table header row
-                        setFill('#e8e8e8'); setDraw('#b0b0b0'); pdf.setLineWidth(0.4);
-                        pdf.rect(ML, y, CW, headerH, 'FD');
-                        pdf.setFontSize(FONT_BODY - 2);
-                        pdf.setFont('times', 'bold');
-                        setColor('#18181b');
-                        headers.forEach((h, hi) => {
-                            pdf.text(String(h||'').slice(0,35), ML + hi*colW + 6, y + 14);
-                        });
-                        y += headerH;
-
-                        // Table rows
-                        rows.forEach((row, ri) => {
-                            const cells = Array.isArray(row) ? row : [row];
-                            ensureSpace(rowH + 2);
-                            setFill(ri%2===0 ? '#ffffff' : '#f7f7f7');
-                            setDraw('#c8c8c8');
-                            pdf.rect(ML, y, CW, rowH, 'FD');
-                            pdf.setFontSize(FONT_BODY - 2);
-                            pdf.setFont('times', 'normal');
-                            setColor('#374151');
-                            cells.forEach((cell, ci) => {
-                                const cellTxt = String(cell||'').replace(/<[^>]+>/g,'').slice(0,55);
-                                pdf.text(cellTxt, ML + ci*colW + 6, y + 12);
-                            });
-                            y += rowH;
-                        });
-                        y += 14;
-
-                    } else {
-                        // BULLET POINTS SECTION
-                        const points = sec.points || [];
-                        points.forEach((pt, pi) => {
-                            const ptText = String(pt||'');
-                            const lines = pdf.splitTextToSize(ptText, CW - 18);
-                            const ptH = lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE;
-                            ensureSpace(ptH);
-
-                            // Bullet symbol
-                            pdf.setFontSize(FONT_BODY);
-                            pdf.setFont('times', 'normal');
-                            setColor(rawCol);
-                            pdf.text('•', ML + 4, y + FONT_BODY * 0.82);
-
-                            // Body text with indent
-                            setColor('#1a1a1a');
-                            lines.forEach((line, li) => {
-                                pdf.setFont('times', li === 0 ? 'normal' : 'normal');
-                                pdf.text(line, ML + 16, y + FONT_BODY * 0.82 + li * FONT_BODY * LINE_SPACING);
-                            });
-                            y += ptH;
-                        });
-                        y += 6;
-                    }
-                });
-
-                // ── Key Terms ─────────────────────────────────────────────
-                if ((d.key_terms||[]).length) {
-                    ensureSpace(50);
-                    y += 10;
-                    setDraw('#1a1a1a'); pdf.setLineWidth(0.5);
-                    pdf.line(ML, y, PW - MR, y); y += 14;
-
-                    // H2: Key Terms heading
-                    pdf.setFontSize(FONT_H2);
-                    pdf.setFont('times', 'bold');
-                    setColor('#18181b');
-                    pdf.text(isAr ? 'المصطلحات الرئيسية' : 'Key Terms', ML, y + FONT_H2 * 0.75);
-                    y += FONT_H2 * 1.5 + 4;
-
-                    d.key_terms.forEach((kt, ki) => {
-                        const defLines = pdf.splitTextToSize(kt.definition||'', CW - 140);
-                        const termH = Math.max(defLines.length * FONT_BODY * 1.4, FONT_BODY * 1.6) + PARA_SPACE;
-                        ensureSpace(termH + 4);
-
-                        // Term (bold, H3-style)
-                        pdf.setFontSize(FONT_BODY);
-                        pdf.setFont('times', 'bold');
-                        setColor('#18181b');
-                        pdf.text(String(kt.term||'').slice(0,28), ML, y + FONT_BODY * 0.82);
-
-                        // Definition (normal body)
-                        pdf.setFont('times', 'normal');
-                        setColor('#374151');
-                        defLines.forEach((dl, di) => {
-                            pdf.text(dl, ML + 140, y + FONT_BODY * 0.82 + di * FONT_BODY * 1.4);
-                        });
-
-                        // Thin separator
-                        setDraw('#e5e7eb'); pdf.setLineWidth(0.3);
-                        pdf.line(ML, y + termH - 2, PW - MR, y + termH - 2);
-                        y += termH;
-                    });
-                }
-
-            } else {
-                // ── PLAIN TEXT ─────────────────────────────────────────────
-                const bodyLines = (s.text||'').split('\n');
-                bodyLines.forEach(line => {
-                    const trimmed = line.trim();
-                    if (!trimmed) { y += FONT_BODY * LINE_SPACING * 0.5; return; }
-
-                    // Detect headings by markdown-style or all-caps short lines
-                    if (/^#{1,3}\s/.test(trimmed)) {
-                        const lvl = (trimmed.match(/^#+/) || [''])[0].length;
-                        drawHeading(trimmed.replace(/^#+\s*/,''), Math.min(lvl, 3), '#18181b');
-                    } else if (/^[•\-\*]\s/.test(trimmed)) {
-                        const ptText = trimmed.replace(/^[•\-\*]\s*/,'');
-                        const lines = pdf.splitTextToSize(ptText, CW - 16);
-                        ensureSpace(lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE);
-                        pdf.setFont('times', 'normal'); pdf.setFontSize(FONT_BODY); setColor('#18181b');
-                        pdf.text('•', ML + 4, y + FONT_BODY * 0.82);
-                        lines.forEach((l, li) => { pdf.text(l, ML + 16, y + FONT_BODY * 0.82 + li * FONT_BODY * LINE_SPACING); });
-                        y += lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE;
-                    } else {
-                        // Normal paragraph with first-line indent
-                        const lines = pdf.splitTextToSize(trimmed, CW - INDENT);
-                        ensureSpace(lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE);
-                        pdf.setFont('times', 'normal'); pdf.setFontSize(FONT_BODY); setColor('#1a1a1a');
-                        lines.forEach((l, li) => {
-                            const lx = li === 0 ? ML + INDENT : ML;
-                            pdf.text(l, lx, y + FONT_BODY * 0.82);
-                            y += FONT_BODY * LINE_SPACING;
-                        });
-                        y += PARA_SPACE;
-                    }
-                });
-            }
-
-            // ── FOOTER: page numbers at bottom center, on every page ───────
-            const totalPages = pdf.internal.getNumberOfPages();
-            for (let pg = 1; pg <= totalPages; pg++) {
-                pdf.setPage(pg);
-                setDraw('#c8c8c8'); pdf.setLineWidth(0.4);
-                pdf.line(ML, PH - MB + 10, PW - MR, PH - MB + 10);
-
-                // Bottom center page number
-                pdf.setFontSize(10);
-                pdf.setFont('times', 'normal');
-                setColor('#9ca3af');
-                pdf.text(String(pg), PW / 2, PH - MB + 22, { align: 'center' });
-
-                // Bottom right: doc name (truncated)
-                pdf.setFontSize(8);
-                pdf.text(s.name.slice(0, 40), PW - MR, PH - MB + 22, { align: 'right' });
+                srcYPx += pageHPx;
+                pageNum++;
             }
 
             const safeName = s.name.replace(/[/\\?%*:|"<>]/g,'_');
@@ -3842,6 +3772,8 @@ ${sourceText}`;
         } catch(e) {
             toast((isAr ? 'خطأ: ' : 'Error: ') + e.message);
             console.error('PDF generation error:', e);
+        } finally {
+            document.body.removeChild(wrap);
         }
     }
 
@@ -4155,7 +4087,7 @@ ${textSlice}`;
         const typeBg    = {study:'#eef2ff',  review:'#fffbeb',  rest:'#ecfdf5'};
 
         const wrap = document.createElement('div');
-        wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:750px;background:#fff;color:#18181b;font-family:Arial,Helvetica,sans-serif;padding:48px 52px;box-sizing:border-box;direction:'+(isAr?'rtl':'ltr');
+        wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:750px;background:#fff;color:#18181b;font-family:"IBM Plex Sans Arabic","Segoe UI","Arial Unicode MS",Arial,sans-serif;padding:48px 52px;box-sizing:border-box;direction:'+(isAr?'rtl':'ltr');
         document.body.appendChild(wrap);
 
         const daysHtml = (plan.days||[]).map(day => {
