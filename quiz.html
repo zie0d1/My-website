@@ -3559,444 +3559,403 @@ ${sourceText}`;
 
     function exportSummaryLib() { downloadJSON(getSummaryLib(), 'summaries'); }
 
-    // ── Download summary as PDF (pure jsPDF text — no screenshot) ──────────
+    // ── Download summary as PDF (pure jsPDF — vector text, IBM Plex) ────────
     async function downloadSummaryAsPDF(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
         const isAr = currentLang === 'ar';
         toast(isAr ? '⏳ جاري إنشاء PDF...' : '⏳ Generating PDF...');
 
-        // ── Colour palette ────────────────────────────────────────────────
-        const colorHexMap = {
+        // ── Helpers ───────────────────────────────────────────────────────
+        const COLORS = {
             blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',
             pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',
             indigo:'#6366f1',cyan:'#06b6d4'
         };
-        function resolveHex(raw) {
+        function resolveColor(raw) {
             if (!raw) return '#4f46e5';
             const k = raw.toLowerCase().replace(/[^a-z]/g,'');
-            return colorHexMap[k] || (raw.startsWith('#') ? raw : '#4f46e5');
+            return COLORS[k] || (raw.startsWith('#') ? raw : '#4f46e5');
         }
-
-        // ── Parse hex color → [r,g,b] ─────────────────────────────────────
-        function hexRGB(h) {
-            const c = h.replace('#','');
-            const full = c.length === 3 ? c.split('').map(x=>x+x).join('') : c;
-            return [parseInt(full.slice(0,2),16), parseInt(full.slice(2,4),16), parseInt(full.slice(4,6),16)];
+        function toRGB(hex) {
+            const h = hex.replace('#','');
+            const f = h.length===3 ? h.split('').map(c=>c+c).join('') : h;
+            return [parseInt(f.slice(0,2),16), parseInt(f.slice(2,4),16), parseInt(f.slice(4,6),16)];
+        }
+        function lighten(hex, amt=0.92) {
+            const [r,g,b] = toRGB(hex);
+            return [Math.round(r+(255-r)*amt), Math.round(g+(255-g)*amt), Math.round(b+(255-b)*amt)];
         }
 
         try {
-            // ── Load IBM Plex Sans Arabic (matches the app's UI font) ─────
-            let arabicFontB64 = null;
-            let fontLoaded = false;
-
+            // ── Fetch IBM Plex Sans Arabic TTF and embed it ───────────────
             async function fetchB64(url) {
                 const r = await fetch(url);
                 if (!r.ok) throw new Error('fetch failed');
                 const buf = await r.arrayBuffer();
-                const bytes = new Uint8Array(buf);
+                const u8  = new Uint8Array(buf);
                 let bin = '';
-                for (let i = 0; i < bytes.length; i += 8192)
-                    bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
+                for (let i=0; i<u8.length; i+=8192)
+                    bin += String.fromCharCode(...u8.subarray(i, i+8192));
                 return btoa(bin);
             }
 
+            let fontLoaded = false, arabicB64 = null;
             try {
-                arabicFontB64 = await fetchB64('https://cdn.jsdelivr.net/gh/IBM/plex@master/packages/ibm-plex-sans-arabic/fonts/complete/ttf/IBMPlexSansArabic-Regular.ttf');
+                arabicB64 = await fetchB64('https://cdn.jsdelivr.net/gh/IBM/plex@master/packages/ibm-plex-sans-arabic/fonts/complete/ttf/IBMPlexSansArabic-Regular.ttf');
                 fontLoaded = true;
             } catch(_) {
                 try {
-                    // fallback: fontsource NPM mirror
-                    arabicFontB64 = await fetchB64('https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2');
+                    arabicB64 = await fetchB64('https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2');
                     fontLoaded = true;
                 } catch(__) {}
             }
 
+            // ── PDF setup ─────────────────────────────────────────────────
             const { jsPDF } = window.jspdf;
-
-            // A4 dimensions in mm
             const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-            const PW = 210, PH = 297;
-            const ML = 18, MR = 18, MT = 20, MB = 18;  // margins mm
-            const CW = PW - ML - MR;                    // content width mm
 
-            // Register IBM Plex Sans Arabic if loaded
-            if (fontLoaded && arabicFontB64) {
-                pdf.addFileToVFS('IBMPlexSansArabic.ttf', arabicFontB64);
+            if (fontLoaded && arabicB64) {
+                pdf.addFileToVFS('IBMPlexSansArabic.ttf', arabicB64);
                 pdf.addFont('IBMPlexSansArabic.ttf', 'IBMPlexSansArabic', 'normal');
             }
 
-            // ── Font helpers ───────────────────────────────────────────────
-            const FONT_ARABIC = fontLoaded ? 'IBMPlexSansArabic' : 'helvetica';
-            const FONT_LATIN  = 'helvetica';
+            const FA = fontLoaded ? 'IBMPlexSansArabic' : 'helvetica'; // Arabic font
+            const FL = 'helvetica';                                       // Latin font
 
-            function hasArabic(str) { return /[\u0600-\u06FF]/.test(str||''); }
-            function chooseFont(str, bold) {
-                const f = hasArabic(str) ? FONT_ARABIC : FONT_LATIN;
-                const style = (bold && f === FONT_LATIN) ? 'bold' : 'normal';
-                pdf.setFont(f, style);
+            // Page geometry (mm)
+            const PW=210, PH=297, ML=20, MR=20, MT=24, MB=20;
+            const CW = PW-ML-MR;  // 170mm content width
+
+            // Line heights (mm) per font size (pt)
+            const LH = sz => sz * 0.4572; // 1pt ≈ 0.353mm, leading ≈ 1.3×
+
+            function isArabic(str) { return /[\u0600-\u06FF]/.test(str||''); }
+            function setFont(str, bold=false) {
+                if (isArabic(str)||isAr) pdf.setFont(FA,'normal');
+                else pdf.setFont(FL, bold?'bold':'normal');
+            }
+            function setColor(hex) { pdf.setTextColor(...toRGB(hex)); }
+            function setFill(hex)  { pdf.setFillColor(...toRGB(hex)); }
+            function setDraw(hex)  { pdf.setDrawColor(...toRGB(hex)); }
+
+            // Draw text at x,y — auto RTL
+            function tx(str, x, y, align) {
+                if (!str && str!==0) return;
+                const rtl = isArabic(str)||isAr;
+                const a   = align || (rtl ? 'right' : 'left');
+                const xPos= a==='right' ? PW-MR : a==='center' ? PW/2 : x;
+                pdf.text(String(str), xPos, y, { align:a });
             }
 
-            // ── Text placement with RTL support ───────────────────────────
-            // jsPDF draws LTR by default; for Arabic we right-align from right margin
-            function textLine(str, x, y, opts={}) {
-                if (!str) return;
-                const arabic = hasArabic(str);
-                chooseFont(str, opts.bold||false);
-                pdf.setFontSize(opts.size||11);
-                if (opts.color) { const [r,g,b]=hexRGB(opts.color); pdf.setTextColor(r,g,b); }
-                else pdf.setTextColor(30,30,30);
-
-                if (arabic || isAr) {
-                    // Right-align Arabic text
-                    pdf.text(str, PW - MR, y, { align:'right', ...opts.jsPDFOpts });
-                } else {
-                    pdf.text(str, x, y, { align:'left', ...opts.jsPDFOpts });
-                }
-            }
-
-            // ── Wrapped text block → returns new Y ────────────────────────
-            function textBlock(str, x, y, opts={}) {
+            // Wrapped paragraph → returns new y
+            function para(str, x, y, { size=10.5, bold=false, color='#1a1a1a', maxW=CW, gap=1.8 }={}) {
                 if (!str) return y;
-                const arabic = hasArabic(str);
-                chooseFont(str, opts.bold||false);
-                const fontSize = opts.size || 11;
-                pdf.setFontSize(fontSize);
-                if (opts.color) { const [r,g,b]=hexRGB(opts.color); pdf.setTextColor(r,g,b); }
-                else pdf.setTextColor(30,30,30);
-
-                const maxW = opts.maxW || CW;
-                const lines = pdf.splitTextToSize(str, maxW);
-                const lineH = fontSize * 0.45;  // mm per line at this font size
-
-                for (const line of lines) {
-                    if (y > PH - MB - lineH) { pdf.addPage(); y = MT; }
-                    if (arabic || isAr) {
-                        pdf.text(line, PW - MR, y, { align:'right' });
-                    } else {
-                        pdf.text(line, x, y, { align:'left' });
-                    }
-                    y += lineH + (opts.lineGap || 1.5);
+                setFont(str, bold);
+                pdf.setFontSize(size);
+                setColor(color);
+                const lh    = LH(size) + gap;
+                const lines = pdf.splitTextToSize(String(str), maxW);
+                for (const l of lines) {
+                    y = ensureY(y, lh+1);
+                    tx(l, x, y);
+                    y += lh;
                 }
                 return y;
             }
 
-            // ── Draw horizontal rule ───────────────────────────────────────
-            function hRule(y, thickness=0.3, color=[26,26,26]) {
-                pdf.setDrawColor(...color);
-                pdf.setLineWidth(thickness);
-                pdf.line(ML, y, PW - MR, y);
+            // ── Page management ───────────────────────────────────────────
+            let pageN = 1;
+            function stampFooter() {
+                pdf.setFont(FL,'normal');
+                pdf.setFontSize(7.5);
+                pdf.setTextColor(180,180,180);
+                pdf.text(String(pageN), PW/2, PH-7, { align:'center' });
+                pdf.text('zStudy', PW-MR, PH-7, { align:'right' });
+                pageN++;
             }
+            function newPage() { stampFooter(); pdf.addPage(); return MT; }
+            function ensureY(y, need) { return (y+need > PH-MB) ? newPage() : y; }
 
-            // ── Draw filled rect ───────────────────────────────────────────
-            function fillRect(x, y, w, h, hexColor) {
-                const [r,g,b] = hexRGB(hexColor);
-                pdf.setFillColor(r,g,b);
-                pdf.rect(x, y, w, h, 'F');
+            // ── Drawing primitives ────────────────────────────────────────
+            function hrule(y, w=0.25, hex='#d4d4d8') {
+                setDraw(hex);
+                pdf.setLineWidth(w);
+                pdf.line(ML, y, PW-MR, y);
             }
-
-            // ── Page number footer ─────────────────────────────────────────
-            let pageNum = 1;
-            function addFooter() {
-                pdf.setFont(FONT_LATIN,'normal');
-                pdf.setFontSize(8);
-                pdf.setTextColor(160,160,160);
-                pdf.text(String(pageNum), PW/2, PH - 6, { align:'center' });
-                pdf.text('zStudy', PW - MR, PH - 6, { align:'right' });
-                pageNum++;
+            function rect(x,y,w,h,hex,style='F') {
+                if (style==='F') setFill(hex); else setDraw(hex);
+                pdf.rect(x,y,w,h,style);
             }
-
-            // ── Ensure space on current page ───────────────────────────────
-            function ensureSpace(y, needed) {
-                if (y + needed > PH - MB) {
-                    addFooter();
-                    pdf.addPage();
-                    return MT;
-                }
-                return y;
+            function dot(x, y, hex) {
+                setFill(hex);
+                pdf.circle(x, y, 0.9, 'F');
             }
 
             // ═══════════════════════════════════════════════════════════════
-            // BUILD PDF CONTENT
+            //  RENDER
             // ═══════════════════════════════════════════════════════════════
             let y = MT;
 
-            // ── Title block ────────────────────────────────────────────────
-            hRule(y, 0.6);
-            y += 6;
-            chooseFont(s.name, true);
-            pdf.setFontSize(18);
-            pdf.setTextColor(20,20,20);
-            if (hasArabic(s.name)||isAr) {
-                pdf.text(s.name, PW - MR, y, { align:'right' });
-            } else {
-                pdf.text(s.name, ML, y);
+            // ── Cover header ──────────────────────────────────────────────
+            // Top accent bar
+            rect(ML, y-6, CW, 1.2, '#18181b');
+            y += 2;
+
+            // Title
+            setFont(s.name, true);
+            pdf.setFontSize(22);
+            setColor('#18181b');
+            const titleLines = pdf.splitTextToSize(s.name, CW);
+            for (const tl of titleLines) {
+                tx(tl, ML, y);
+                y += LH(22) + 2;
             }
-            y += 8;
-            pdf.setFont(FONT_LATIN,'normal');
-            pdf.setFontSize(8.5);
-            pdf.setTextColor(107,114,128);
-            pdf.text((s.date||'') + '  ·  zStudy', ML, y);
+            y += 1;
+
+            // Meta row: date · zStudy
+            pdf.setFont(FL,'normal');
+            pdf.setFontSize(8);
+            setColor('#9ca3af');
+            const meta = (s.date||'') + '   ·   zStudy';
+            pdf.text(meta, ML, y);
             y += 4;
-            hRule(y, 0.3, [200,200,200]);
+            hrule(y, 0.2, '#e4e4e7');
             y += 8;
 
-            const isStr = s.style === 'structured' && s.structured;
+            const isStr = s.style==='structured' && s.structured;
 
             if (isStr) {
                 const d = s.structured;
 
-                // ── Summary line callout ────────────────────────────────────
+                // ── Summary callout ───────────────────────────────────────
                 if (d.summary_line) {
-                    y = ensureSpace(y, 16);
-                    fillRect(ML, y-4, CW, 1, '#f5f5f5'); // will be overdrawn
-                    pdf.setFillColor(245,245,245);
-                    // measure height: estimate lines
-                    chooseFont(d.summary_line, false);
-                    pdf.setFontSize(10.5);
-                    const slLines = pdf.splitTextToSize(d.summary_line, CW - 8);
-                    const slH = slLines.length * 5.5 + 8;
-                    y = ensureSpace(y, slH);
-                    pdf.setFillColor(245,245,245);
-                    pdf.rect(ML, y-4, CW, slH, 'F');
-                    fillRect(ML, y-4, 1.5, slH, '#1a1a1a');
-                    pdf.setTextColor(55,65,81);
-                    pdf.setFontSize(10.5);
-                    const lineH2 = 5.5;
-                    for (const sl of slLines) {
-                        if (hasArabic(sl)||isAr) pdf.text(sl, PW-MR-3, y+1, {align:'right'});
-                        else pdf.text(sl, ML+5, y+1);
-                        y += lineH2;
-                    }
-                    y += 6;
+                    setFont(d.summary_line);
+                    pdf.setFontSize(10);
+                    const sl = pdf.splitTextToSize(d.summary_line, CW-10);
+                    const slH = sl.length * (LH(10)+1.6) + 7;
+                    y = ensureY(y, slH+4);
+                    rect(ML, y-3, CW, slH, '#f4f4f5');  // bg
+                    rect(ML, y-3, 2.5, slH, '#18181b'); // left bar
+                    setColor('#374151');
+                    let sy = y+1.5;
+                    for (const l of sl) { tx(l, ML+6, sy); sy += LH(10)+1.6; }
+                    y += slH + 5;
                 }
 
-                // ── Inner title ─────────────────────────────────────────────
+                // ── Doc subtitle ──────────────────────────────────────────
                 if (d.title && d.title !== s.name) {
-                    y = ensureSpace(y, 12);
-                    y = textBlock(d.title, ML, y, { bold:true, size:13, color:'#374151' });
+                    y = ensureY(y, 10);
+                    y = para(d.title, ML, y, { size:13, bold:true, color:'#3f3f46' });
                     y += 3;
                 }
 
-                // ── Sections ────────────────────────────────────────────────
+                // ── Sections ──────────────────────────────────────────────
                 (d.sections||[]).forEach((sec, si) => {
-                    const col = resolveHex(sec.color);
-                    const [cr,cg,cb] = hexRGB(col);
-                    const isTable = sec.type==='table' && sec.table && Array.isArray(sec.table.headers);
-                    if (si > 0) y += 4;
+                    const col   = resolveColor(sec.color);
+                    const [cr,cg,cb] = toRGB(col);
+                    const bgTint = lighten(col, 0.93);
+                    const isTab = sec.type==='table' && sec.table && Array.isArray(sec.table.headers);
 
-                    // Section heading bar
-                    y = ensureSpace(y, 14);
-                    const heading = sec.heading || '';
-                    chooseFont(heading, true);
-                    pdf.setFontSize(12);
-                    const headLines = pdf.splitTextToSize(heading, CW - 10);
-                    const headH = headLines.length * 6 + 6;
-                    pdf.setFillColor(248,248,248);
-                    pdf.rect(ML, y-4, CW, headH, 'F');
-                    pdf.setFillColor(cr,cg,cb);
-                    pdf.rect(ML, y-4, 2, headH, 'F');
-                    pdf.setTextColor(cr,cg,cb);
-                    pdf.setFontSize(12);
-                    for (const hl of headLines) {
-                        if (hasArabic(hl)||isAr) pdf.text(hl, PW-MR-4, y+1, {align:'right'});
-                        else pdf.text(hl, ML+6, y+1);
-                        y += 6;
+                    if (si>0) y += 6;
+
+                    // ── Section heading ───────────────────────────────────
+                    const hTxt = sec.heading||'';
+                    setFont(hTxt, true);
+                    pdf.setFontSize(11.5);
+                    const hLines = pdf.splitTextToSize(hTxt, CW-8);
+                    const hH = hLines.length * (LH(11.5)+1.5) + 6;
+                    y = ensureY(y, hH+2);
+
+                    rect(ML,   y-3.5, CW,  hH, col);           // full color bg
+                    rect(ML,   y-3.5, CW,  hH, '#00000015');   // subtle overlay for depth (transparent trick via low-opacity)
+
+                    pdf.setTextColor(255,255,255);
+                    pdf.setFontSize(11.5);
+                    let hy = y+1.5;
+                    for (const hl of hLines) {
+                        tx(hl, ML+5, hy);
+                        hy += LH(11.5)+1.5;
                     }
-                    y += 4;
+                    y += hH + 3;
 
-                    if (isTable) {
-                        const headers = sec.table.headers || [];
-                        const rows = sec.table.rows || [];
-                        const colW = CW / Math.max(headers.length, 1);
+                    // ── Table ─────────────────────────────────────────────
+                    if (isTab) {
+                        const headers = sec.table.headers||[];
+                        const rows    = sec.table.rows||[];
+                        const nCols   = Math.max(headers.length,1);
+                        const colW    = CW / nCols;
+                        const PAD     = 2.5;
 
                         // Header row
-                        y = ensureSpace(y, 10);
-                        pdf.setFillColor(232,232,232);
-                        pdf.rect(ML, y-4, CW, 9, 'F');
-                        pdf.setFont(FONT_LATIN,'bold');
-                        pdf.setFontSize(9);
-                        pdf.setTextColor(30,30,30);
-                        headers.forEach((h, hi) => {
-                            const cx = ML + hi * colW;
-                            const arabic = hasArabic(h)||isAr;
-                            chooseFont(h, true);
-                            pdf.setFontSize(9);
-                            pdf.setTextColor(30,30,30);
-                            if (arabic) pdf.text(String(h), cx+colW-1, y+1, {align:'right'});
-                            else pdf.text(String(h), cx+2, y+1);
-                            // vertical divider
-                            if (hi>0) { pdf.setDrawColor(192,192,192); pdf.setLineWidth(0.2); pdf.line(cx, y-4, cx, y+5); }
+                        const hRowH = 8;
+                        y = ensureY(y, hRowH);
+                        rect(ML, y-3, CW, hRowH, col);
+                        pdf.setFontSize(8.5);
+                        pdf.setTextColor(255,255,255);
+                        headers.forEach((h,hi) => {
+                            const cx = ML + hi*colW;
+                            setFont(String(h), true);
+                            pdf.setFontSize(8.5);
+                            pdf.setTextColor(255,255,255);
+                            tx(String(h), cx+PAD, y+1);
+                            if (hi>0) { setDraw('#ffffff40'); pdf.setLineWidth(0.15); pdf.line(cx,y-3,cx,y+hRowH-3); }
                         });
-                        y += 7;
+                        y += hRowH;
 
-                        rows.forEach((row, ri) => {
-                            const cells = Array.isArray(row) ? row : [row];
-                            // Estimate row height
-                            let maxLines = 1;
-                            cells.forEach((cell, ci) => {
-                                chooseFont(String(cell||''), false);
+                        // Data rows
+                        rows.forEach((row,ri) => {
+                            const cells = Array.isArray(row)?row:[row];
+                            // Measure height
+                            let maxL = 1;
+                            cells.forEach(cell => {
+                                setFont(String(cell||''));
                                 pdf.setFontSize(9);
-                                const ls = pdf.splitTextToSize(String(cell||''), colW-4);
-                                maxLines = Math.max(maxLines, ls.length);
+                                const ls = pdf.splitTextToSize(String(cell||'').replace(/<[^>]+>/g,''), colW-PAD*2);
+                                maxL = Math.max(maxL, ls.length);
                             });
-                            const rowH = maxLines * 4.5 + 4;
-                            y = ensureSpace(y, rowH);
-                            if (ri%2===1) { pdf.setFillColor(247,247,247); pdf.rect(ML, y-3, CW, rowH, 'F'); }
-                            pdf.setDrawColor(208,208,208);
+                            const rH = maxL*(LH(9)+1)+5;
+                            y = ensureY(y, rH);
+
+                            // Alternating row bg
+                            if (ri%2===0) rect(ML, y-2.5, CW, rH, '#fafafa');
+                            else          rect(ML, y-2.5, CW, rH, '#f4f4f5');
+
+                            setDraw('#e4e4e7');
                             pdf.setLineWidth(0.15);
-                            pdf.line(ML, y+rowH-3, ML+CW, y+rowH-3);
-                            cells.forEach((cell, ci) => {
-                                const cx = ML + ci * colW;
-                                const txt = String(cell||'').replace(/<[^>]+>/g,'');
-                                chooseFont(txt, false);
-                                pdf.setFontSize(9);
-                                pdf.setTextColor(55,65,81);
-                                const ls = pdf.splitTextToSize(txt, colW-4);
-                                let cy = y;
-                                for (const l of ls) {
-                                    if (hasArabic(l)||isAr) pdf.text(l, cx+colW-1, cy+1, {align:'right'});
-                                    else pdf.text(l, cx+2, cy+1);
-                                    cy += 4.5;
-                                }
-                                if (ci>0) { pdf.setDrawColor(208,208,208); pdf.setLineWidth(0.15); pdf.line(cx, y-3, cx, y+rowH-3); }
-                            });
-                            y += rowH;
-                        });
-                        y += 4;
+                            pdf.line(ML, y+rH-2.5, PW-MR, y+rH-2.5);
 
-                    } else {
-                        // Bullet points
-                        (sec.points||[]).forEach(pt => {
-                            y = ensureSpace(y, 8);
-                            const arabic = hasArabic(pt)||isAr;
-                            chooseFont(pt, false);
-                            pdf.setFontSize(10.5);
-                            const lines = pdf.splitTextToSize(pt, CW - 7);
-                            const bH = lines.length * 5 + 2;
-                            y = ensureSpace(y, bH);
-                            // bullet dot
-                            pdf.setFillColor(cr,cg,cb);
-                            pdf.circle(arabic ? PW-MR-1.5 : ML+1.5, y-0.5, 1, 'F');
-                            pdf.setTextColor(30,30,30);
-                            let ly = y;
-                            for (const l of lines) {
-                                if (arabic) pdf.text(l, PW-MR-5, ly, {align:'right'});
-                                else pdf.text(l, ML+5, ly);
-                                ly += 5;
-                            }
-                            y = ly + 1;
+                            cells.forEach((cell,ci) => {
+                                const cx  = ML+ci*colW;
+                                const txt = String(cell||'').replace(/<[^>]+>/g,'');
+                                setFont(txt);
+                                pdf.setFontSize(9);
+                                setColor('#374151');
+                                const ls = pdf.splitTextToSize(txt, colW-PAD*2);
+                                let cy = y;
+                                for (const l of ls) { tx(l, cx+PAD, cy); cy+=LH(9)+1; }
+                                if (ci>0) { setDraw('#e4e4e7'); pdf.setLineWidth(0.12); pdf.line(cx,y-2.5,cx,y+rH-2.5); }
+                            });
+                            y += rH;
                         });
                         y += 3;
+
+                    // ── Bullets ───────────────────────────────────────────
+                    } else {
+                        (sec.points||[]).forEach(pt => {
+                            setFont(pt);
+                            pdf.setFontSize(10.5);
+                            const ptLines = pdf.splitTextToSize(pt, CW-7);
+                            const ptH = ptLines.length*(LH(10.5)+1.5)+2;
+                            y = ensureY(y, ptH);
+
+                            const rtl = isArabic(pt)||isAr;
+                            // Colored left/right bar per bullet
+                            const barX = rtl ? PW-MR-1 : ML;
+                            rect(barX, y-1, 1.5, ptH-1, col);
+
+                            setColor('#1a1a1a');
+                            pdf.setFontSize(10.5);
+                            let by = y;
+                            for (const l of ptLines) {
+                                if (rtl) { tx(l, 0, by, 'right'); }  // right-margin handled by tx()
+                                else     { tx(l, ML+4.5, by); }
+                                by += LH(10.5)+1.5;
+                            }
+                            y = by + 2;
+                        });
+                        y += 1;
                     }
                 });
 
-                // ── Key Terms ───────────────────────────────────────────────
+                // ── Key Terms ─────────────────────────────────────────────
                 if ((d.key_terms||[]).length) {
-                    y += 4;
-                    y = ensureSpace(y, 12);
-                    hRule(y, 0.4);
+                    y += 5;
+                    y = ensureY(y, 14);
+                    hrule(y, 0.3, '#d4d4d8');
                     y += 6;
+
                     const ktLabel = isAr ? 'المصطلحات الرئيسية' : 'Key Terms';
-                    chooseFont(ktLabel, true);
+                    setFont(ktLabel, true);
                     pdf.setFontSize(12);
-                    pdf.setTextColor(24,24,27);
-                    if (isAr) pdf.text(ktLabel, PW-MR, y, {align:'right'});
-                    else pdf.text(ktLabel, ML, y);
+                    setColor('#18181b');
+                    tx(ktLabel, ML, y);
                     y += 7;
 
-                    d.key_terms.forEach((kt, ki) => {
-                        const term = kt.term||'';
-                        const def  = kt.definition||'';
-                        const termW = CW * 0.3;
-                        const defW  = CW * 0.68;
-                        chooseFont(def, false);
-                        pdf.setFontSize(9.5);
-                        const defLines = pdf.splitTextToSize(def, defW);
-                        chooseFont(term, true);
-                        pdf.setFontSize(9.5);
-                        const termLines = pdf.splitTextToSize(term, termW);
-                        const rowH = Math.max(termLines.length, defLines.length) * 4.8 + 4;
+                    d.key_terms.forEach((kt,ki) => {
+                        const term = kt.term||'', def = kt.definition||'';
+                        const TW = CW*0.32, DW = CW*0.64;
 
-                        y = ensureSpace(y, rowH);
-                        if (ki%2===1) { pdf.setFillColor(247,247,247); pdf.rect(ML, y-3, CW, rowH, 'F'); }
-                        pdf.setDrawColor(229,231,235);
-                        pdf.setLineWidth(0.2);
-                        pdf.line(ML, y+rowH-3, ML+CW, y+rowH-3);
+                        setFont(def); pdf.setFontSize(9.5);
+                        const dLines = pdf.splitTextToSize(def, DW);
+                        setFont(term,true); pdf.setFontSize(9.5);
+                        const tLines = pdf.splitTextToSize(term, TW);
+                        const rH = Math.max(tLines.length,dLines.length)*(LH(9.5)+1)+5;
 
-                        // Term
-                        chooseFont(term, true);
-                        pdf.setFontSize(9.5);
-                        pdf.setTextColor(24,24,27);
-                        let ty = y;
-                        const arabic = hasArabic(term)||isAr;
-                        for (const tl of termLines) {
-                            if (arabic) pdf.text(tl, ML+termW, ty, {align:'right'});
-                            else pdf.text(tl, ML+2, ty);
-                            ty += 4.8;
-                        }
+                        y = ensureY(y, rH);
+                        rect(ML, y-3, CW, rH, ki%2===0?'#fafafa':'#f4f4f5');
+                        setDraw('#e4e4e7'); pdf.setLineWidth(0.15);
+                        pdf.line(ML, y+rH-3, PW-MR, y+rH-3);
+
+                        // Term (bold, left/right)
+                        setFont(term,true); pdf.setFontSize(9.5); setColor('#18181b');
+                        let ty=y;
+                        for (const tl of tLines) { tx(tl, ML+2, ty); ty+=LH(9.5)+1; }
+
+                        // Divider between columns
+                        setDraw('#d4d4d8'); pdf.setLineWidth(0.15);
+                        pdf.line(ML+TW+2, y-3, ML+TW+2, y+rH-3);
+
                         // Definition
-                        chooseFont(def, false);
-                        pdf.setFontSize(9.5);
-                        pdf.setTextColor(55,65,81);
-                        let dy = y;
-                        const defArabic = hasArabic(def)||isAr;
-                        for (const dl of defLines) {
-                            if (defArabic) pdf.text(dl, PW-MR, dy, {align:'right'});
-                            else pdf.text(dl, ML+termW+4, dy);
-                            dy += 4.8;
-                        }
-                        y += rowH;
+                        setFont(def); pdf.setFontSize(9.5); setColor('#52525b');
+                        let dy=y;
+                        for (const dl of dLines) { tx(dl, ML+TW+5, dy); dy+=LH(9.5)+1; }
+                        y += rH;
                     });
                 }
 
             } else {
-                // ── Plain text mode ─────────────────────────────────────────
-                const lines = (s.text||'').split('\n');
-                for (const line of lines) {
+                // ── Plain text mode ───────────────────────────────────────
+                for (const line of (s.text||'').split('\n')) {
                     const t = line.trim();
-                    if (!t) { y += 3; continue; }
+                    if (!t) { y += 3.5; continue; }
 
                     if (/^#{1,3}\s/.test(t)) {
                         const lvl = (t.match(/^#+/)||[''])[0].length;
-                        const sz  = lvl===1?16:lvl===2?13:11;
+                        const sz  = lvl===1 ? 16 : lvl===2 ? 13 : 11;
                         const txt = t.replace(/^#+\s*/,'');
-                        y = ensureSpace(y, sz*0.5+4);
-                        y += 2;
-                        y = textBlock(txt, ML, y, { bold:true, size:sz, color:'#18181b' });
-                        y += 2;
+                        y = ensureY(y, sz*0.6+6);
+                        if (lvl===1) { y+=2; hrule(y-4, 0.2,'#e4e4e7'); }
+                        y = para(txt, ML, y, { size:sz, bold:true, color:'#18181b', gap:2 });
+                        y += lvl===1 ? 4 : 2;
                     } else if (/^[•\-\*]\s/.test(t)) {
                         const txt = t.replace(/^[•\-\*]\s*/,'');
-                        y = ensureSpace(y, 8);
-                        const arabic = hasArabic(txt)||isAr;
-                        chooseFont(txt, false);
-                        pdf.setFontSize(10.5);
-                        pdf.setTextColor(30,30,30);
-                        pdf.circle(arabic ? PW-MR-1.5 : ML+1.5, y-0.5, 1, 'F');
+                        const rtl = isArabic(txt)||isAr;
+                        setFont(txt); pdf.setFontSize(10.5);
                         const ls = pdf.splitTextToSize(txt, CW-6);
+                        y = ensureY(y, ls.length*(LH(10.5)+1.5)+2);
+                        dot(rtl ? PW-MR-1 : ML+1.5, y-0.8, '#71717a');
+                        setColor('#1a1a1a'); pdf.setFontSize(10.5);
                         for (const l of ls) {
-                            y = ensureSpace(y, 6);
-                            if (arabic) pdf.text(l, PW-MR-5, y, {align:'right'});
-                            else pdf.text(l, ML+5, y);
-                            y += 5;
+                            if (rtl) tx(l, 0, y, 'right');
+                            else     tx(l, ML+5, y);
+                            y += LH(10.5)+1.5;
                         }
                         y += 1;
                     } else {
-                        y = ensureSpace(y, 6);
-                        y = textBlock(t, ML, y, { size:10.5 });
+                        y = para(t, ML, y, { size:10.5, color:'#27272a', gap:2 });
+                        y += 1;
                     }
                 }
             }
 
-            addFooter();
-
-            const safeName = s.name.replace(/[/\\?%*:|"<>]/g,'_');
-            pdf.save(safeName + '.pdf');
+            stampFooter();
+            pdf.save(s.name.replace(/[/\\?%*:|"<>]/g,'_') + '.pdf');
             toast(isAr ? '✓ تم تحميل PDF' : '✓ PDF downloaded');
 
         } catch(e) {
-            toast((isAr ? 'خطأ: ' : 'Error: ') + e.message);
-            console.error('PDF generation error:', e);
+            toast((isAr?'خطأ: ':'Error: ') + e.message);
+            console.error('PDF error:', e);
         }
     }
 
