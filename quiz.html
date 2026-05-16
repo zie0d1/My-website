@@ -3576,18 +3576,22 @@ ${truncatedSource}`;
             indigo:'#6366f1',cyan:'#06b6d4'
         };
         function resolveColor(raw) {
-            if (!raw) return '#4f46e5';
+            if (!raw || typeof raw !== 'string') return '#4f46e5';
             const k = raw.toLowerCase().replace(/[^a-z]/g,'');
             return COLORS[k] || (raw.startsWith('#') ? raw : '#4f46e5');
         }
         function toRGB(hex) {
-            const h = hex.replace('#','');
-            const f = h.length===3 ? h.split('').map(c=>c+c).join('') : h;
-            return [parseInt(f.slice(0,2),16), parseInt(f.slice(2,4),16), parseInt(f.slice(4,6),16)];
+            if (!hex || typeof hex !== 'string') return [79,70,229];
+            const h = hex.replace('#','').slice(0,6);
+            const f = h.length===3 ? h.split('').map(c=>c+c).join('') : h.padEnd(6,'0');
+            return [parseInt(f.slice(0,2),16)||0, parseInt(f.slice(2,4),16)||0, parseInt(f.slice(4,6),16)||0];
         }
         function lighten(hex, amt=0.92) {
             const [r,g,b] = toRGB(hex);
-            return [Math.round(r+(255-r)*amt), Math.round(g+(255-g)*amt), Math.round(b+(255-b)*amt)];
+            const rr = Math.round(r+(255-r)*amt);
+            const gg = Math.round(g+(255-g)*amt);
+            const bb = Math.round(b+(255-b)*amt);
+            return '#' + [rr,gg,bb].map(v=>v.toString(16).padStart(2,'0')).join('');
         }
 
         try {
