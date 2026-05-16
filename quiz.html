@@ -1647,24 +1647,36 @@
 
                     <!-- Result area -->
                     <div id="trResultArea" style="display:none">
-                        <div class="card" style="margin-bottom:14px">
-                            <div class="card-header">
-                                <span class="card-title" style="display:flex;align-items:center;gap:8px">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                    اكتملت الترجمة
-                                </span>
-                                <div style="display:flex;gap:6px">
-                                    <button class="btn btn-sm" onclick="copyTrResult()">
-                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                                        نسخ
-                                    </button>
-                                    <button class="btn btn-primary btn-sm" onclick="downloadTrPDF()">
-                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                        تحميل PDF
-                                    </button>
+                        <!-- Summary-like result card -->
+                        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)">
+                            <!-- Card topbar -->
+                            <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--surface2);border-bottom:1px solid var(--border)">
+                                <div style="width:8px;height:8px;background:var(--success);border-radius:50%;flex-shrink:0;box-shadow:0 0 0 3px var(--success-bg)"></div>
+                                <div style="flex:1;min-width:0">
+                                    <div id="trResultTitle" style="font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">ترجمة عربية</div>
+                                    <div id="trResultMeta" style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px"></div>
                                 </div>
+                                <button class="btn btn-sm" onclick="copyTrResult()" title="نسخ النص">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    نسخ
+                                </button>
+                                <button class="btn btn-sm" onclick="saveTrToLib()" title="حفظ الترجمة">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    حفظ
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="downloadTrPDF()" title="تحميل PDF">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    PDF
+                                </button>
                             </div>
-                            <div id="trResultBox" dir="rtl" style="font-size:13.5px;line-height:2.1;color:var(--text2);direction:rtl;text-align:right;max-height:60vh;overflow-y:auto;padding:4px 2px;white-space:pre-wrap;word-break:break-word;font-family:var(--sans)"></div>
+                            <!-- Rendered paragraphs -->
+                            <div id="trResultBox" dir="rtl" style="padding:20px 22px;max-height:62vh;overflow-y:auto;"></div>
+                        </div>
+
+                        <!-- Saved translations library -->
+                        <div id="trLibSection" style="display:none;margin-bottom:14px">
+                            <div class="section-label" style="margin-bottom:10px">الترجمات المحفوظة</div>
+                            <div id="trLibList"></div>
                         </div>
                     </div>
                 </div>
@@ -2131,7 +2143,7 @@
         if (si) si.classList.add('active');
         hide($('quizArea'));
         hide($('flashArea'));
-        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:()=>{renderSettings();setTimeout(initCardSettings,50);}, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib()};
+        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:()=>{renderSettings();setTimeout(initCardSettings,50);}, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib(), translate:()=>renderTrLib()};
         if (renders[panelId]) renders[panelId]();
         window.scrollTo({top:0, behavior:'smooth'});
         closeMobileMenu();
@@ -3758,23 +3770,22 @@ ${truncatedSource}`;
             // ── Page management ───────────────────────────────────────────
             let pageN = 1;
             function stampFooter() {
-                // Bottom accent line
-                setFill('#e0e7ff');
-                pdf.rect(0, PH - 11, PW, 11, 'F');
-                setFill('#4f46e5');
-                pdf.rect(0, PH - 11, PW, 1.5, 'F');
+                // Hairline rule
+                setDraw('#d4d4d8');
+                pdf.setLineWidth(0.2);
+                pdf.line(ML, PH - 14, PW - MR, PH - 14);
 
                 pdf.setFont(FL,'normal');
-                pdf.setFontSize(7.5);
-                pdf.setTextColor(99, 102, 241);
-                pdf.text(String(pageN), PW/2, PH-4.5, { align:'center' });
-                pdf.setTextColor(148, 163, 184);
-                pdf.text('zStudy', PW-MR, PH-4.5, { align:'right' });
-                pdf.text(s.name.slice(0, 40), ML, PH-4.5);
+                pdf.setFontSize(7);
+                pdf.setTextColor(160, 160, 168);
+                pdf.text(String(pageN), PW/2, PH - 9, { align:'center' });
+                pdf.text('zStudy', PW-MR, PH - 9, { align:'right' });
+                setFont(s.name);
+                pdf.text(s.name.slice(0, 40), ML, PH - 9);
                 pageN++;
             }
             function newPage() { stampFooter(); pdf.addPage(); return MT; }
-            function ensureY(y, need) { return (y+need > PH-MB) ? newPage() : y; }
+            function ensureY(y, need) { return (y+need > PH-MB-14) ? newPage() : y; }
 
             // ── Drawing primitives ────────────────────────────────────────
             function hrule(y, w=0.25, hex='#d4d4d8') {
@@ -3796,70 +3807,49 @@ ${truncatedSource}`;
             // ═══════════════════════════════════════════════════════════════
             let y = MT;
 
-            // ── Beautiful Cover Header ────────────────────────────────────
-            // Full-bleed gradient cover band (from y=0 to cover area)
-            const coverTop    = 0;
-            const coverH      = 52;   // mm — tall cover band
-            const coverLeft   = 0;
-            const coverWidth  = PW;
+            // ── Minimalist Typographic Cover ──────────────────────────────
+            // Thin amber top bar
+            setFill('#c8820a');
+            pdf.rect(0, 0, PW, 1.2, 'F');
 
-            // Background: deep indigo gradient using two overlapping rects
-            setFill('#3730a3');
-            pdf.rect(coverLeft, coverTop, coverWidth, coverH, 'F');
-            // Gradient overlay: lighter top-left corner accent
-            setFill('#4f46e5');
-            pdf.rect(coverLeft, coverTop, coverWidth * 0.6, coverH * 0.55, 'F');
-            // Subtle dark overlay at bottom of cover
-            setFill('#1e1b4b');
-            pdf.rect(coverLeft, coverTop + coverH * 0.7, coverWidth, coverH * 0.3, 'F');
+            // Brand label top-left
+            pdf.setFont(FL, 'normal');
+            pdf.setFontSize(7);
+            pdf.setTextColor(160, 160, 168);
+            pdf.text('zStudy', ML, 14);
 
-            // Decorative circles (big, semi-transparent blobs)
-            setFill('#6366f1');
-            pdf.circle(PW - 22, 10, 28, 'F');
-            setFill('#4338ca');
-            pdf.circle(PW - 8, coverH - 4, 20, 'F');
-            setFill('#818cf8');
-            pdf.circle(14, coverH + 4, 14, 'F');
-
-            // Brand chip: "zStudy" pill top-left
-            setFill('#ffffff20');
-            pdf.rect(ML, 6, 20, 6, 'F');
-            pdf.setFont(FL, 'bold');
-            pdf.setFontSize(6.5);
-            pdf.setTextColor(255,255,255);
-            pdf.text('zStudy', ML + 3, 10.3);
-
-            // Title text on cover
+            // Document title — large, ink-black
             const rtlCover = isArabic(s.name) || isAr;
-            pdf.setFontSize(20);
-            pdf.setTextColor(255,255,255);
-            setFont(s.name, true);
-            const titleLines = pdf.splitTextToSize(s.name, CW - 20);
-            let ty = 20;
+            pdf.setFontSize(21);
+            pdf.setTextColor(24, 24, 27);
+            setFont(s.name, false);
+            const titleLines = pdf.splitTextToSize(s.name, CW);
+            let ty = 24;
             for (const tl of titleLines) {
-                if (rtlCover) {
-                    pdf.text(tl, PW - ML, ty, { align:'right' });
-                } else {
-                    pdf.text(tl, ML, ty);
-                }
-                ty += LH(20) + 1.5;
+                if (rtlCover) pdf.text(tl, PW - ML, ty, { align: 'right' });
+                else pdf.text(tl, ML, ty);
+                ty += LH(21) + 2;
             }
 
-            // Date badge below title on cover
+            // Hairline rule below title
+            setDraw('#d4d4d8');
+            pdf.setLineWidth(0.2);
+            pdf.line(ML, ty + 3, PW - MR, ty + 3);
+
+            // Date and metadata under rule
             const dateStr = s.date || '';
-            if (dateStr) {
-                pdf.setFontSize(7.5);
-                pdf.setTextColor(180, 190, 255);
-                pdf.setFont(FL, 'normal');
-                pdf.text(dateStr, ML, ty + 2);
+            pdf.setFont(FL, 'normal');
+            pdf.setFontSize(7.5);
+            pdf.setTextColor(160, 160, 168);
+            if (dateStr) pdf.text(dateStr, ML, ty + 10);
+            if (s.structured?.sections?.length) {
+                const secCount = s.structured.sections.length;
+                const secLabel = isAr ? `${secCount} أقسام` : `${secCount} sections`;
+                pdf.text(secLabel, PW - MR, ty + 10, { align: 'right' });
             }
 
-            // Bottom accent stripe on cover
-            setFill('#a5b4fc');
-            pdf.rect(coverLeft, coverH - 1.5, coverWidth, 1.5, 'F');
-
-            // Move y to after cover
-            y = coverH + 10;
+            // Move y past the cover area
+            y = ty + 20;
 
             // Summary callout box (styled differently from before)
             // will be handled below in the structured section
@@ -3920,27 +3910,30 @@ ${truncatedSource}`;
 
                     // ── Section heading ───────────────────────────────────
                     const hTxt = sec.heading||'';
-                    setFont(hTxt, true);
-                    pdf.setFontSize(11.5);
-                    const hLines = pdf.splitTextToSize(hTxt, CW - 14);
-                    const hH = hLines.length * (LH(11.5)+1.5) + 9;
+                    setFont(hTxt, false);
+                    pdf.setFontSize(12);
+                    const hLines = pdf.splitTextToSize(hTxt, CW - 8);
+                    const hH = hLines.length * (LH(12)+1.5) + 10;
                     y = ensureY(y, hH+2);
 
-                    // Rounded heading background
-                    setFill(col);
+                    // Thin colored left/right bar + subtle tint bg
+                    const bgTint2 = lighten(col, 0.94);
+                    setFill(bgTint2);
                     pdf.rect(ML, y - 4.5, CW, hH, 'F');
-                    // Small icon dot on left
-                    setFill('#ffffff40');
-                    pdf.circle(ML + 6, y + hH/2 - 4.5, 2.5, 'F');
+                    // Colored bar (RTL: right side)
+                    const rtlH2 = isAr;
+                    setFill(col);
+                    if (rtlH2) pdf.rect(PW - MR - 2.5, y - 4.5, 2.5, hH, 'F');
+                    else       pdf.rect(ML, y - 4.5, 2.5, hH, 'F');
 
-                    pdf.setTextColor(255,255,255);
-                    pdf.setFontSize(11.5);
+                    pdf.setTextColor(cr, cg, cb);
+                    pdf.setFontSize(12);
                     let hy = y + 1.5;
                     for (const hl of hLines) {
                         const rtlH = isArabic(hl) || isAr;
                         if (rtlH) { pdf.text(hl, PW - ML - 5, hy, { align:'right' }); }
-                        else      { pdf.text(hl, ML + 12, hy); }
-                        hy += LH(11.5)+1.5;
+                        else      { pdf.text(hl, ML + 5, hy); }
+                        hy += LH(12)+1.5;
                     }
                     y += hH + 4;
 
@@ -4047,16 +4040,17 @@ ${truncatedSource}`;
                     y += 8;
                     y = ensureY(y, 18);
 
-                    // Key Terms header bar
+                    // Key Terms header — minimalist hairline + label
                     const ktLabel = isAr ? 'المصطلحات الرئيسية' : 'Key Terms';
-                    setFill('#1e1b4b');
-                    pdf.rect(ML, y - 5, CW, 13, 'F');
-                    pdf.setFont(FL, 'bold');
-                    pdf.setFontSize(10);
-                    pdf.setTextColor(255, 255, 255);
-                    if (isAr) { pdf.text(ktLabel, PW - ML - 6, y + 2.5, { align:'right' }); }
-                    else      { pdf.text(ktLabel, ML + 6, y + 2.5); }
-                    y += 14;
+                    setDraw('#d4d4d8');
+                    pdf.setLineWidth(0.2);
+                    pdf.line(ML, y - 3, PW - MR, y - 3);
+                    setFont(ktLabel, true);
+                    pdf.setFontSize(9);
+                    pdf.setTextColor(107, 107, 120);
+                    if (isAr) { pdf.text(ktLabel, PW - ML, y + 3, { align:'right' }); }
+                    else      { pdf.text(ktLabel, ML, y + 3); }
+                    y += 12;
 
                     d.key_terms.forEach((kt,ki) => {
                         const term = kt.term||'', def = kt.definition||'';
@@ -4254,7 +4248,13 @@ ${truncatedSource}`;
             }
             _trResult = translations.join('\n\n');
             setTrProgress(100, 'اكتملت الترجمة ✓');
-            document.getElementById('trResultBox').textContent = _trResult;
+            // Update result card header
+            const titleEl = document.getElementById('trResultTitle');
+            const metaEl = document.getElementById('trResultMeta');
+            if (titleEl) titleEl.textContent = (trPdfFile || 'ترجمة').replace(/\.pdf$/i,'') + ' — ترجمة عربية';
+            if (metaEl) metaEl.textContent = new Date().toLocaleDateString('ar-EG') + ' · ' + (_trDomain === 'medical' ? 'طبي' : _trDomain === 'pharma' ? 'صيدلاني' : _trDomain === 'biology' ? 'أحياء' : 'عام');
+            renderTrResultBox(_trResult);
+            renderTrLib();
             document.getElementById('trResultArea').style.display = 'block';
             setTimeout(() => { document.getElementById('trAiStatus').style.display = 'none'; }, 800);
             toast('تمت الترجمة بنجاح ✓');
@@ -4271,6 +4271,85 @@ ${truncatedSource}`;
         catch { toast('تم النسخ'); }
     }
 
+    // ── Render translation result as styled HTML blocks ──────────────────
+    function renderTrResultBox(text) {
+        const box = document.getElementById('trResultBox');
+        if (!box) return;
+        const paras = text.split(/\n\n+/);
+        box.innerHTML = paras.map(p => {
+            const trimmed = p.trim();
+            if (!trimmed) return '';
+            const lines = trimmed.split('\n').map(l => l.trim()).filter(Boolean);
+            // Heading: single short line, no period at end
+            if (lines.length === 1 && trimmed.length < 80 && !trimmed.endsWith('.') && !trimmed.endsWith('،')) {
+                return `<div style="margin:18px 0 8px;padding:10px 14px 10px 14px;border-right:3px solid var(--accent);background:var(--accent-light);font-weight:700;font-size:13.5px;color:var(--accent);border-radius:0 var(--radius) var(--radius) 0;direction:rtl;text-align:right">${esc(trimmed)}</div>`;
+            }
+            // Regular paragraph
+            return `<p style="margin:0 0 14px;font-size:13.5px;line-height:2;color:var(--text2);direction:rtl;text-align:right;unicode-bidi:plaintext">${esc(trimmed).replace(/\n/g,'<br>')}</p>`;
+        }).join('');
+    }
+
+    // ── Save translation to local library ────────────────────────────────
+    function getTrLib() { return lj(subKey('tr_lib')) || []; }
+    function saveTrLibData(d) { ls(subKey('tr_lib'), JSON.stringify(d.slice(0,50))); }
+
+    function saveTrToLib() {
+        if (!_trResult) return;
+        const name = (trPdfFile || 'ترجمة').replace(/\.pdf$/i,'');
+        const lib = getTrLib();
+        lib.unshift({ id: Date.now(), name, text: _trResult, date: new Date().toLocaleDateString('ar-EG'), domain: _trDomain });
+        saveTrLibData(lib);
+        renderTrLib();
+        toast('✓ تم حفظ الترجمة');
+    }
+
+    function renderTrLib() {
+        const lib = getTrLib();
+        const sec = document.getElementById('trLibSection');
+        const list = document.getElementById('trLibList');
+        if (!sec || !list) return;
+        if (!lib.length) { sec.style.display = 'none'; return; }
+        sec.style.display = 'block';
+        list.innerHTML = lib.map(e => `
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all var(--transition);box-shadow:var(--shadow-sm)" onmouseover="this.style.boxShadow='var(--shadow)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" dir="rtl">${esc(e.name)}</div>
+                    <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:2px">${e.date} · ${e.domain||'medical'}</div>
+                </div>
+                <button class="btn btn-sm" onclick="loadTrEntry(${e.id})">عرض</button>
+                <button class="btn btn-sm" onclick="downloadTrEntryPDF(${e.id})" title="PDF">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="delTrEntry(${e.id})">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+                </button>
+            </div>`).join('');
+    }
+
+    function loadTrEntry(id) {
+        const e = getTrLib().find(x => x.id === id);
+        if (!e) return;
+        _trResult = e.text;
+        trPdfFile = e.name;
+        document.getElementById('trResultTitle').textContent = e.name + ' — ترجمة عربية';
+        document.getElementById('trResultMeta').textContent = e.date;
+        renderTrResultBox(_trResult);
+        document.getElementById('trResultArea').style.display = 'block';
+    }
+
+    function delTrEntry(id) {
+        confirmModal('حذف الترجمة؟', () => { saveTrLibData(getTrLib().filter(x => x.id !== id)); renderTrLib(); });
+    }
+
+    function downloadTrEntryPDF(id) {
+        const e = getTrLib().find(x => x.id === id);
+        if (!e) return;
+        const prev = _trResult, prevFile = trPdfFile;
+        _trResult = e.text; trPdfFile = e.name;
+        downloadTrPDF().then(() => { _trResult = prev; trPdfFile = prevFile; });
+    }
+
+    // ── Download translation as minimalist PDF ────────────────────────────
     async function downloadTrPDF() {
         if (!_trResult) return;
         toast('⏳ جاري إنشاء PDF...');
@@ -4278,7 +4357,6 @@ ${truncatedSource}`;
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-            // Try load Arabic font
             async function fetchB64(url) {
                 const r = await fetch(url);
                 if (!r.ok) throw new Error('fetch failed');
@@ -4297,95 +4375,106 @@ ${truncatedSource}`;
                 FA = 'IBMPlexSansArabic';
             } catch (_) {}
 
-            const PW = 210, PH = 297, ML = 18, MR = 18, MT = 28, MB = 18;
+            // ── Page geometry ─────────────────────────────────────────────
+            const PW = 210, PH = 297, ML = 22, MR = 22, MT = 30, MB = 22;
             const CW = PW - ML - MR;
-            const LH = sz => sz * 0.45;
+            const LH = sz => sz * 0.46;
             let pageN = 1;
 
             function stampFooter() {
-                pdf.setFillColor(224, 231, 255);
-                pdf.rect(0, PH - 11, PW, 11, 'F');
-                pdf.setFillColor(79, 70, 229);
-                pdf.rect(0, PH - 11, PW, 1.5, 'F');
+                // Hairline rule
+                pdf.setDrawColor(220, 220, 222);
+                pdf.setLineWidth(0.2);
+                pdf.line(ML, PH - 14, PW - MR, PH - 14);
+                // Page number centered, brand right
                 pdf.setFont('helvetica', 'normal');
-                pdf.setFontSize(7.5);
-                pdf.setTextColor(99, 102, 241);
-                pdf.text(String(pageN), PW / 2, PH - 4.5, { align: 'center' });
-                pdf.setTextColor(148, 163, 184);
-                pdf.text('zStudy', PW - MR, PH - 4.5, { align: 'right' });
+                pdf.setFontSize(7);
+                pdf.setTextColor(160, 160, 168);
+                pdf.text(String(pageN), PW / 2, PH - 9, { align: 'center' });
+                pdf.text('zStudy', PW - MR, PH - 9, { align: 'right' });
+                const docName = (trPdfFile || 'ترجمة').replace(/\.pdf$/i, '');
+                pdf.setFont(FA, 'normal');
+                pdf.text(docName.slice(0, 35), ML, PH - 9);
                 pageN++;
             }
             function newPage() { stampFooter(); pdf.addPage(); return MT; }
-            function ensureY(y, need) { return (y + need > PH - MB) ? newPage() : y; }
+            function ensureY(y, need) { return (y + need > PH - MB - 14) ? newPage() : y; }
 
-            // ── Cover ─────────────────────────────────
-            pdf.setFillColor(55, 48, 163);
-            pdf.rect(0, 0, PW, 48, 'F');
-            pdf.setFillColor(79, 70, 229);
-            pdf.rect(0, 0, PW * 0.55, 26, 'F');
-            pdf.setFillColor(30, 27, 75);
-            pdf.rect(0, 34, PW, 14, 'F');
-            pdf.setFillColor(99, 102, 241);
-            pdf.circle(PW - 20, 10, 25, 'F');
-            pdf.setFillColor(67, 56, 202);
-            pdf.circle(PW - 6, 43, 18, 'F');
-            // Brand
-            pdf.setFillColor(255, 255, 255);
-            pdf.rect(ML, 6, 18, 5.5, 'F');
-            pdf.setFont('helvetica', 'bold');
-            pdf.setFontSize(6.5);
-            pdf.setTextColor(79, 70, 229);
-            pdf.text('zStudy', ML + 2.5, 10);
-            // Title
+            // ── Cover: pure typographic, no color blobs ───────────────────
+            // Top hairline bar (amber)
+            pdf.setFillColor(200, 130, 10);
+            pdf.rect(0, 0, PW, 1.2, 'F');
+
+            // Title block
+            const docTitle = (trPdfFile || 'ترجمة').replace(/\.pdf$/i, '');
             pdf.setFont(FA, 'normal');
-            pdf.setFontSize(16);
-            pdf.setTextColor(255, 255, 255);
-            const tname = (trPdfFile || 'ترجمة').replace(/\.pdf$/i, '') + ' — ترجمة عربية';
-            const tlines = pdf.splitTextToSize(tname, CW - 10);
-            let ty = 22;
-            for (const tl of tlines) { pdf.text(tl, PW - ML, ty, { align: 'right' }); ty += LH(16) + 1.5; }
-            // Date
-            pdf.setFontSize(7.5);
-            pdf.setTextColor(180, 190, 255);
+            pdf.setFontSize(22);
+            pdf.setTextColor(24, 24, 27);
+            const titleLines = pdf.splitTextToSize(docTitle, CW - 4);
+            let ty = 26;
+            for (const tl of titleLines) {
+                pdf.text(tl, PW - ML, ty, { align: 'right' });
+                ty += LH(22) + 2;
+            }
+
+            // Subtitle: Arabic translation label
             pdf.setFont('helvetica', 'normal');
-            pdf.text(new Date().toLocaleDateString('ar-EG'), PW - ML, ty + 2, { align: 'right' });
-            // Accent stripe
-            pdf.setFillColor(165, 180, 252);
-            pdf.rect(0, 46.5, PW, 1.5, 'F');
+            pdf.setFontSize(10);
+            pdf.setTextColor(107, 107, 120);
+            pdf.text('Arabic Translation', ML, 26);
 
-            let y = 58;
+            // Hairline separator
+            pdf.setDrawColor(220, 220, 222);
+            pdf.setLineWidth(0.25);
+            pdf.line(ML, ty + 4, PW - MR, ty + 4);
 
-            // ── Body text ─────────────────────────────
-            const lines = _trResult.split('\n');
-            for (const rawLine of lines) {
-                const line = rawLine.trim();
-                if (!line) { y += 3; continue; }
+            // Date & domain
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(7.5);
+            pdf.setTextColor(160, 160, 168);
+            const domainLabel = { medical:'طبي / علمي', pharma:'صيدلاني', biology:'أحياء / كيمياء', general:'عام' }[_trDomain] || 'علمي';
+            pdf.text(new Date().toLocaleDateString('ar-EG') + '  ·  ' + domainLabel, ML, ty + 10);
 
-                // Detect heading-like lines (short, ending without period, or ALL CAPS Arabic)
-                const isHeading = line.length < 60 && !line.endsWith('.') && !line.endsWith(',');
-                if (isHeading && lines.indexOf(rawLine) > 0) {
-                    y = ensureY(y, 14);
-                    pdf.setFillColor(238, 242, 255);
-                    pdf.rect(ML, y - 4, CW, 10, 'F');
-                    pdf.setFillColor(79, 70, 229);
-                    pdf.rect(PW - MR - 2.5, y - 4, 2.5, 10, 'F');
+            let y = ty + 20;
+
+            // ── Body: paragraphs ──────────────────────────────────────────
+            const paragraphs = _trResult.split(/\n\n+/);
+            let firstPara = true;
+
+            for (const rawPara of paragraphs) {
+                const para = rawPara.trim();
+                if (!para) continue;
+                const lines = para.split('\n').map(l => l.trim()).filter(Boolean);
+
+                // Detect heading: single short line, no period
+                const isHeading = lines.length === 1 && para.length < 80 && !para.endsWith('.') && !para.endsWith('،');
+
+                if (isHeading && !firstPara) {
+                    // Heading block: amber left bar + slightly larger text
+                    y = ensureY(y, 16);
+                    // Amber side bar (RTL: right side)
+                    pdf.setFillColor(200, 130, 10);
+                    pdf.rect(PW - MR, y - 4, 1.8, 11, 'F');
                     pdf.setFont(FA, 'normal');
-                    pdf.setFontSize(11);
-                    pdf.setTextColor(67, 56, 202);
-                    pdf.text(line, PW - ML - 4, y + 2, { align: 'right' });
-                    y += 12;
+                    pdf.setFontSize(11.5);
+                    pdf.setTextColor(24, 24, 27);
+                    pdf.text(para, PW - ML - 4, y + 3.5, { align: 'right' });
+                    y += 14;
                 } else {
+                    // Body paragraph
+                    y = ensureY(y, 6);
                     pdf.setFont(FA, 'normal');
                     pdf.setFontSize(10.5);
-                    pdf.setTextColor(31, 41, 55);
-                    const wrapped = pdf.splitTextToSize(line, CW);
+                    pdf.setTextColor(55, 55, 68);
+                    const wrapped = pdf.splitTextToSize(para, CW);
                     for (const wl of wrapped) {
-                        y = ensureY(y, LH(10.5) + 2);
+                        y = ensureY(y, LH(10.5) + 2.5);
                         pdf.text(wl, PW - ML, y, { align: 'right' });
-                        y += LH(10.5) + 2.2;
+                        y += LH(10.5) + 2.5;
                     }
-                    y += 1;
+                    y += 5; // paragraph gap
                 }
+                firstPara = false;
             }
 
             stampFooter();
