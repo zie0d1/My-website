@@ -1401,6 +1401,26 @@
                             </div>
                         </div>
 
+                        <!-- Summary Length Selector -->
+                        <div style="margin-bottom:12px">
+                            <label style="font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;font-family:var(--mono);display:block;margin-bottom:6px">Summary Length</label>
+                            <div class="chip-row" id="summaryLengthChips" style="margin:0">
+                                <span class="chip" data-length="short" onclick="setSummaryLength(this)" style="display:flex;align-items:center;gap:5px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="13" y2="12"/></svg>
+                                    Short
+                                </span>
+                                <span class="chip active" data-length="medium" onclick="setSummaryLength(this)" style="display:flex;align-items:center;gap:5px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="11" y2="18"/></svg>
+                                    Middle
+                                </span>
+                                <span class="chip" data-length="long" onclick="setSummaryLength(this)" style="display:flex;align-items:center;gap:5px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                                    Long
+                                </span>
+                            </div>
+                            <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:5px" id="summaryLengthHint">Balanced summary — 4–6 sections with key points and terms</div>
+                        </div>
+
                         <button class="btn btn-primary btn-full" id="btnGenSummary" disabled onclick="nvidiaSummary()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
                             <span data-t="gen_summary_btn">إنشاء ملخص ذكي</span>
@@ -2756,6 +2776,20 @@ const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
     // ── SUMMARY GLOBALS & COLORS ──────────────────────────────────────────
     let summaryPdfText = '', summaryPdfFile = '', summaryCurrentStyle = 'structured';
     let _currentSummaryResult = '', _currentSummaryData = null, sumCurrentTab = 'pdf';
+    let _summaryLength = 'medium'; // 'short' | 'medium' | 'long'
+
+    function setSummaryLength(el) {
+        document.querySelectorAll('#summaryLengthChips .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _summaryLength = el.dataset.length;
+        const hints = {
+            short: 'Brief overview — 2–3 sections, key points only, no tables',
+            medium: 'Balanced summary — 4–6 sections with key points and terms',
+            long: 'Comprehensive — 6–10 sections, tables, full key terms, detailed points'
+        };
+        const hintEl = document.getElementById('summaryLengthHint');
+        if (hintEl) hintEl.textContent = hints[_summaryLength] || '';
+    }
     const SUM_COLORS = {
         blue:   { hex:'#3b82f6', bg:'#dbeafe', border:'#93c5fd' },
         green:  { hex:'#10b981', bg:'#d1fae5', border:'#6ee7b7' },
@@ -2963,16 +2997,16 @@ SCHEMA (follow exactly):
 }
 
 CONTENT RULES:
-1. SECTIONS (4–8 total):
+1. SECTIONS — follow the length setting: ${_summaryLength === 'short' ? '2–3 sections max, points only, NO tables' : _summaryLength === 'long' ? '6–10 sections, include all tables and details' : '4–6 sections, balanced coverage'}:
    - Each heading must be specific to the content (e.g., "Pathophysiology of Type 2 Diabetes" not "Pathophysiology").
    - Use "table" type for: classifications, comparisons, drug lists, diagnostic criteria, step-by-step processes with parallel structure.
    - Use "points" type for: explanations, mechanisms, causes, consequences, narrative content.
    - Each point must be a complete, informative sentence that stands alone — not a fragment or heading.
    - Points must contain the actual information, not just say "the text discusses X."
-   - Include at least 1–2 table sections if the document has comparative or tabular data.
+   - ${_summaryLength === 'short' ? 'Skip tables entirely for this short summary.' : 'Include at least 1–2 table sections if the document has comparative or tabular data.'}
    - Assign a DIFFERENT color to each section.
 
-2. KEY TERMS (5–12 total):
+2. KEY TERMS — ${_summaryLength === 'short' ? '2–5 most important terms only' : _summaryLength === 'long' ? '8–15 terms, comprehensive' : '5–10 terms'} total:
    - Include every explicitly defined term and every high-yield technical term.
    - Definitions must be precise and grounded in the text — not generic encyclopedia definitions.
 
@@ -2987,7 +3021,8 @@ CONTENT RULES:
 DOCUMENT:
 ${sourceText}`;
             const sys = 'You are a JSON-only academic summarizer. Output a single valid JSON object and nothing else. No markdown. No code fences. No explanation. Follow the schema exactly. Ensure all JSON strings are properly escaped.';
-            const raw = await nvidiaChat(prompt, sys, 4000);
+            const sumMaxTokens = _summaryLength === 'short' ? 1800 : _summaryLength === 'long' ? 6000 : 4000;
+            const raw = await nvidiaChat(prompt, sys, sumMaxTokens);
             setSummaryProgress(100, isAr ? 'اكتمل!' : 'Done!');
             _currentSummaryResult = raw;
             _currentSummaryData = JSON.parse(cleanJSON(raw));
@@ -3470,15 +3505,26 @@ ${sourceText}`;
         try {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-            const PW = pdf.internal.pageSize.getWidth();   // 595.28
-            const PH = pdf.internal.pageSize.getHeight();  // 841.89
-            const ML = 48, MR = 48, MT = 44, MB = 44;
-            const CW = PW - ML - MR;  // content width
+            const PW = pdf.internal.pageSize.getWidth();   // 595.28 pt
+            const PH = pdf.internal.pageSize.getHeight();  // 841.89 pt
+
+            // ── Typography constants (academic standard) ──────────────────
+            // 1 inch = 72pt
+            const ML = 72, MR = 72, MT = 72, MB = 72;  // 1-inch margins all sides
+            const CW = PW - ML - MR;                     // content width ≈ 451pt
+            const FONT_BODY    = 12;   // 12pt body
+            const FONT_H1      = 16;   // 16pt H1 heading
+            const FONT_H2      = 14;   // 14pt H2 heading
+            const FONT_H3      = 13;   // 13pt H3 heading (sub-section)
+            const LINE_SPACING = 1.7;  // ~1.5-2.0 equivalent in pt multiplier
+            const INDENT       = 36;   // 0.5 inch first-line indent
+            const PARA_SPACE   = 8;    // spacing after paragraph
+
             let y = MT;
 
-            // ── helpers ──────────────────────────────────────────────────
+            // ── Helpers ───────────────────────────────────────────────────
             function hexToRgb(hex) {
-                hex = hex.replace('#','');
+                hex = (hex||'#374151').replace('#','');
                 if (hex.length===3) hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
                 const n=parseInt(hex,16);
                 return [n>>16&255,(n>>8)&255,n&255];
@@ -3488,111 +3534,169 @@ ${sourceText}`;
             function setDraw(hex)  { const [r,g,b]=hexToRgb(hex); pdf.setDrawColor(r,g,b); }
 
             function ensureSpace(needed) {
-                if (y + needed > PH - MB) {
+                if (y + needed > PH - MB - 24) { // -24 for footer space
                     pdf.addPage();
                     y = MT;
                 }
             }
 
-            // Wrap text to fit within maxW, return array of lines
-            function wrapText(text, maxW, fontSize, fontStyle='normal') {
-                pdf.setFontSize(fontSize);
-                pdf.setFont('helvetica', fontStyle);
-                // jsPDF splitTextToSize handles wrap
-                return pdf.splitTextToSize(String(text||''), maxW);
-            }
+            // Draw justified body text with first-line indent
+            // Returns new y after drawing
+            function drawBody(text, opts) {
+                const {
+                    x = ML,
+                    maxW = CW,
+                    fontSize = FONT_BODY,
+                    fontStyle = 'normal',
+                    colorHex = '#1a1a1a',
+                    indent = false,
+                    lineSpacingMult = LINE_SPACING,
+                    fontName = 'times'
+                } = opts || {};
 
-            // Draw a text block, returns height used
-            function drawText(text, x, startY, maxW, fontSize, fontStyle, colorHex, lineHeightMult=1.45) {
                 pdf.setFontSize(fontSize);
-                pdf.setFont('helvetica', fontStyle);
+                pdf.setFont(fontName, fontStyle);
                 setColor(colorHex);
-                const lines = pdf.splitTextToSize(String(text||''), maxW);
-                const lh = fontSize * lineHeightMult;
-                lines.forEach((line, i) => {
+
+                const lh = fontSize * lineSpacingMult;
+                const usableW = indent ? maxW - INDENT : maxW;
+                const startX  = indent ? x + INDENT   : x;
+
+                const lines = pdf.splitTextToSize(String(text||''), usableW);
+                lines.forEach((line, li) => {
+                    const lineX = (li === 0 && indent) ? startX : x;
+                    const lineW = (li === 0 && indent) ? usableW : maxW;
                     ensureSpace(lh);
-                    pdf.text(line, x, y + lh * 0.75);
+                    // Justify: jsPDF doesn't have native justify, so we use left-align
+                    // but the visual layout uses full-width wrapping which reads as justified
+                    pdf.text(line, lineX, y + fontSize * 0.75);
                     y += lh;
                 });
-                return lines.length * lh;
+                return y;
             }
 
-            // ── HEADER BAR ────────────────────────────────────────────────
-            setFill('#4f46e5'); setDraw('#4f46e5');
-            pdf.rect(ML, y, CW, 3, 'F');
-            y += 10;
+            // Draw a heading (H1/H2/H3)
+            function drawHeading(text, level, colorHex) {
+                const sizes = { 1: FONT_H1, 2: FONT_H2, 3: FONT_H3 };
+                const fs = sizes[level] || FONT_H2;
+                const topPad = level === 1 ? 14 : level === 2 ? 10 : 7;
+                const botPad = level === 1 ? 6  : level === 2 ? 4  : 3;
 
-            // App label
-            pdf.setFontSize(7); pdf.setFont('helvetica','normal'); setColor('#9ca3af');
-            pdf.text('ZSTUDY', ML, y + 6);
-            // Date top right
-            pdf.setFontSize(7); setColor('#9ca3af');
-            pdf.text(s.date, PW - MR, y + 6, { align: 'right' });
-            y += 12;
+                ensureSpace(fs * LINE_SPACING + topPad + botPad + 4);
+                y += topPad;
 
-            // Title
-            pdf.setFontSize(20); pdf.setFont('helvetica','bold'); setColor('#18181b');
-            const titleLines = pdf.splitTextToSize(s.name, CW - 60);
-            titleLines.forEach(line => { pdf.text(line, ML, y + 16); y += 20; });
-            y += 8;
+                pdf.setFontSize(fs);
+                pdf.setFont('times', 'bold');
+                setColor(colorHex || '#18181b');
 
-            // Divider
-            setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
-            pdf.line(ML, y, PW - MR, y); y += 18;
+                const lines = pdf.splitTextToSize(String(text||''), CW);
+                lines.forEach(line => {
+                    pdf.text(line, ML, y + fs * 0.75);
+                    y += fs * LINE_SPACING;
+                });
+                y += botPad;
+            }
+
+            // ── TITLE PAGE HEADER ─────────────────────────────────────────
+            // Top rule
+            setDraw('#1a1a1a'); pdf.setLineWidth(1.5);
+            pdf.line(ML, y, PW - MR, y); y += 4;
+            pdf.setLineWidth(0.5);
+            pdf.line(ML, y, PW - MR, y); y += 16;
+
+            // Document title (H1)
+            pdf.setFontSize(FONT_H1 + 2);
+            pdf.setFont('times', 'bold');
+            setColor('#18181b');
+            const titleLines = pdf.splitTextToSize(s.name, CW);
+            titleLines.forEach(line => { pdf.text(line, ML, y + (FONT_H1+2)*0.75); y += (FONT_H1+2)*1.5; });
+            y += 4;
+
+            // Subtitle line (date + source label)
+            pdf.setFontSize(10);
+            pdf.setFont('times', 'normal');
+            setColor('#6b7280');
+            pdf.text(s.date + '   ·   zStudy', ML, y + 8);
+            y += 18;
+
+            // Bottom rule
+            pdf.setLineWidth(0.5); setDraw('#1a1a1a');
+            pdf.line(ML, y, PW - MR, y); y += 20;
 
             const isStr = s.style === 'structured' && s.structured;
 
             if (isStr) {
                 const d = s.structured;
 
-                // Summary callout box
+                // Summary callout (summary_line)
                 if (d.summary_line) {
-                    const calloutLines = pdf.splitTextToSize(d.summary_line, CW - 28);
-                    const calloutH = calloutLines.length * 14 + 22;
-                    ensureSpace(calloutH + 8);
-                    setFill('#eef2ff'); setDraw('#c7d2fe'); pdf.setLineWidth(0.5);
-                    pdf.roundedRect(ML, y, CW, calloutH, 4, 4, 'FD');
+                    const calloutLines = pdf.splitTextToSize(d.summary_line, CW - 24);
+                    const calloutH = calloutLines.length * FONT_BODY * LINE_SPACING + 20;
+                    ensureSpace(calloutH + 12);
+
+                    // Light shaded box
+                    setFill('#f5f5f5'); setDraw('#d1d5db'); pdf.setLineWidth(0.4);
+                    pdf.rect(ML, y, CW, calloutH, 'FD');
                     // Left accent bar
-                    setFill('#4f46e5');
-                    pdf.roundedRect(ML, y, 4, calloutH, 2, 2, 'F');
-                    // Text
-                    pdf.setFontSize(11); pdf.setFont('helvetica','normal'); setColor('#3f3f46');
+                    setFill('#18181b'); pdf.rect(ML, y, 4, calloutH, 'F');
+
+                    pdf.setFontSize(FONT_BODY);
+                    pdf.setFont('times', 'italic');
+                    setColor('#374151');
                     calloutLines.forEach((line, i) => {
-                        pdf.text(line, ML + 14, y + 14 + i * 14);
+                        pdf.text(line, ML + 14, y + 13 + i * FONT_BODY * LINE_SPACING);
                     });
                     y += calloutH + 16;
                 }
 
-                // Sections
+                // Document inner title (from AI)
+                if (d.title && d.title !== s.name) {
+                    drawHeading(d.title, 2, '#374151');
+                }
+
+                // ── Sections ─────────────────────────────────────────────
                 (d.sections||[]).forEach((sec, si) => {
-                    const rawCol = sec.color ? (colorHexMap[sec.color.toLowerCase()] || sec.color) : '#4f46e5';
+                    const rawCol = sec.color ? (colorHexMap[sec.color.toLowerCase()] || sec.color) : '#18181b';
+
+                    // H2: Section heading
+                    ensureSpace(FONT_H2 * LINE_SPACING + 20);
+                    y += 10;
+
+                    // Heading with left colored bar
+                    const headH = FONT_H2 * 1.4 + 6;
+                    setFill('#f8f8f8'); setDraw('#e4e4e7'); pdf.setLineWidth(0.4);
+                    pdf.rect(ML, y, CW, headH, 'FD');
+                    const [cr,cg,cb] = hexToRgb(rawCol);
+                    pdf.setFillColor(cr,cg,cb);
+                    pdf.rect(ML, y, 4, headH, 'F');
+
+                    pdf.setFontSize(FONT_H2);
+                    pdf.setFont('times', 'bold');
+                    setColor(rawCol);
+                    const secHeadLines = pdf.splitTextToSize(sec.heading||'', CW - 14);
+                    secHeadLines.forEach((hl, hli) => {
+                        pdf.text(hl, ML + 12, y + FONT_H2 * 0.8 + hli * FONT_H2 * 1.3);
+                    });
+                    y += headH + 8;
 
                     if (sec.type === 'table' && sec.table && sec.table.headers) {
                         // TABLE SECTION
                         const headers = sec.table.headers || [];
                         const rows = sec.table.rows || [];
                         const colW = CW / Math.max(headers.length, 1);
-                        const headerH = 20, rowH = 18;
-                        const totalH = 34 + headerH + rows.length * rowH + 12;
-                        ensureSpace(Math.min(totalH, 160));
+                        const headerH = 22;
+                        const rowH    = 18;
 
-                        // Section heading
-                        const [hr,hg,hb] = hexToRgb(rawCol);
-                        pdf.setFillColor(hr,hg,hb,0.12); setFill(rawCol+'1a' /* fallback below */);
-                        setFill('#f8f9ff'); setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
-                        pdf.roundedRect(ML, y, CW, 26, 4, 4, 'FD');
-                        // Color stripe
-                        setFill(rawCol); pdf.rect(ML, y, 4, 26, 'F');
-                        pdf.setFontSize(11); pdf.setFont('helvetica','bold'); setColor(rawCol);
-                        pdf.text(sec.heading||'', ML + 12, y + 17);
-                        y += 30;
+                        ensureSpace(headerH + Math.min(rows.length, 5) * rowH + 10);
 
                         // Table header row
-                        setFill('#f4f4f6'); setDraw('#d1d5db'); pdf.setLineWidth(0.4);
+                        setFill('#e8e8e8'); setDraw('#b0b0b0'); pdf.setLineWidth(0.4);
                         pdf.rect(ML, y, CW, headerH, 'FD');
-                        pdf.setFontSize(8); pdf.setFont('helvetica','bold'); setColor('#374151');
+                        pdf.setFontSize(FONT_BODY - 2);
+                        pdf.setFont('times', 'bold');
+                        setColor('#18181b');
                         headers.forEach((h, hi) => {
-                            pdf.text(String(h||'').slice(0,30), ML + hi*colW + 6, y + 13);
+                            pdf.text(String(h||'').slice(0,35), ML + hi*colW + 6, y + 14);
                         });
                         y += headerH;
 
@@ -3600,92 +3704,136 @@ ${sourceText}`;
                         rows.forEach((row, ri) => {
                             const cells = Array.isArray(row) ? row : [row];
                             ensureSpace(rowH + 2);
-                            setFill(ri%2===0?'#ffffff':'#f9fafb'); setDraw('#e5e7eb');
+                            setFill(ri%2===0 ? '#ffffff' : '#f7f7f7');
+                            setDraw('#c8c8c8');
                             pdf.rect(ML, y, CW, rowH, 'FD');
-                            pdf.setFontSize(8.5); pdf.setFont('helvetica','normal'); setColor('#374151');
+                            pdf.setFontSize(FONT_BODY - 2);
+                            pdf.setFont('times', 'normal');
+                            setColor('#374151');
                             cells.forEach((cell, ci) => {
-                                const cellTxt = String(cell||'').replace(/<[^>]+>/g,'').slice(0,60);
+                                const cellTxt = String(cell||'').replace(/<[^>]+>/g,'').slice(0,55);
                                 pdf.text(cellTxt, ML + ci*colW + 6, y + 12);
                             });
                             y += rowH;
                         });
-                        y += 16;
+                        y += 14;
 
                     } else {
-                        // BULLET SECTION
+                        // BULLET POINTS SECTION
                         const points = sec.points || [];
-                        const ptLines = points.map(p => pdf.splitTextToSize(String(p||''), CW - 22));
-                        const totalPtH = ptLines.reduce((s,l) => s + l.length * 13, 0);
-                        const sectionH = 30 + totalPtH + 16;
-                        ensureSpace(Math.min(sectionH, 200));
+                        points.forEach((pt, pi) => {
+                            const ptText = String(pt||'');
+                            const lines = pdf.splitTextToSize(ptText, CW - 18);
+                            const ptH = lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE;
+                            ensureSpace(ptH);
 
-                        // Section heading bar
-                        setFill('#f8f9ff'); setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
-                        pdf.roundedRect(ML, y, CW, 26, 4, 4, 'FD');
-                        setFill(rawCol); pdf.rect(ML, y, 4, 26, 'F');
-                        pdf.setFontSize(11); pdf.setFont('helvetica','bold'); setColor(rawCol);
-                        pdf.text(sec.heading||'', ML + 12, y + 17);
-                        y += 30;
+                            // Bullet symbol
+                            pdf.setFontSize(FONT_BODY);
+                            pdf.setFont('times', 'normal');
+                            setColor(rawCol);
+                            pdf.text('•', ML + 4, y + FONT_BODY * 0.82);
 
-                        // Bullet points
-                        ptLines.forEach((lines, pi) => {
-                            ensureSpace(lines.length * 13 + 4);
-                            // bullet dot
-                            setFill(rawCol);
-                            pdf.circle(ML + 10, y + 4.5, 2, 'F');
-                            pdf.setFontSize(9.5); pdf.setFont('helvetica','normal'); setColor('#374151');
+                            // Body text with indent
+                            setColor('#1a1a1a');
                             lines.forEach((line, li) => {
-                                pdf.text(line, ML + 19, y + (li === 0 ? 8 : li * 13 + 8));
+                                pdf.setFont('times', li === 0 ? 'normal' : 'normal');
+                                pdf.text(line, ML + 16, y + FONT_BODY * 0.82 + li * FONT_BODY * LINE_SPACING);
                             });
-                            y += lines.length * 13 + 3;
+                            y += ptH;
                         });
-                        y += 12;
+                        y += 6;
                     }
                 });
 
-                // Key terms
+                // ── Key Terms ─────────────────────────────────────────────
                 if ((d.key_terms||[]).length) {
-                    ensureSpace(40);
-                    setDraw('#e4e4e7'); pdf.setLineWidth(0.5);
+                    ensureSpace(50);
+                    y += 10;
+                    setDraw('#1a1a1a'); pdf.setLineWidth(0.5);
                     pdf.line(ML, y, PW - MR, y); y += 14;
-                    pdf.setFontSize(8); pdf.setFont('helvetica','bold'); setColor('#6b6b78');
-                    pdf.text(isAr ? 'KEY TERMS' : 'KEY TERMS', ML, y + 6); y += 16;
 
-                    d.key_terms.forEach(kt => {
-                        const defLines = pdf.splitTextToSize(kt.definition||'', CW - 130);
-                        const termH = Math.max(defLines.length * 12, 16);
-                        ensureSpace(termH + 6);
-                        pdf.setFontSize(9); pdf.setFont('helvetica','bold'); setColor('#18181b');
-                        pdf.text(String(kt.term||'').slice(0,30), ML, y + 10);
-                        pdf.setFontSize(9); pdf.setFont('helvetica','normal'); setColor('#6b7280');
-                        defLines.forEach((dl, di) => { pdf.text(dl, ML + 130, y + 10 + di * 12); });
-                        // thin divider
-                        setDraw('#f3f4f6'); pdf.line(ML, y + termH + 4, PW - MR, y + termH + 4);
-                        y += termH + 8;
+                    // H2: Key Terms heading
+                    pdf.setFontSize(FONT_H2);
+                    pdf.setFont('times', 'bold');
+                    setColor('#18181b');
+                    pdf.text(isAr ? 'المصطلحات الرئيسية' : 'Key Terms', ML, y + FONT_H2 * 0.75);
+                    y += FONT_H2 * 1.5 + 4;
+
+                    d.key_terms.forEach((kt, ki) => {
+                        const defLines = pdf.splitTextToSize(kt.definition||'', CW - 140);
+                        const termH = Math.max(defLines.length * FONT_BODY * 1.4, FONT_BODY * 1.6) + PARA_SPACE;
+                        ensureSpace(termH + 4);
+
+                        // Term (bold, H3-style)
+                        pdf.setFontSize(FONT_BODY);
+                        pdf.setFont('times', 'bold');
+                        setColor('#18181b');
+                        pdf.text(String(kt.term||'').slice(0,28), ML, y + FONT_BODY * 0.82);
+
+                        // Definition (normal body)
+                        pdf.setFont('times', 'normal');
+                        setColor('#374151');
+                        defLines.forEach((dl, di) => {
+                            pdf.text(dl, ML + 140, y + FONT_BODY * 0.82 + di * FONT_BODY * 1.4);
+                        });
+
+                        // Thin separator
+                        setDraw('#e5e7eb'); pdf.setLineWidth(0.3);
+                        pdf.line(ML, y + termH - 2, PW - MR, y + termH - 2);
+                        y += termH;
                     });
                 }
 
             } else {
-                // Plain text
-                const lines = pdf.splitTextToSize(s.text||'', CW);
-                pdf.setFontSize(11); pdf.setFont('helvetica','normal'); setColor('#374151');
-                const lh = 16;
-                lines.forEach(line => {
-                    ensureSpace(lh);
-                    pdf.text(line, ML, y + 12);
-                    y += lh;
+                // ── PLAIN TEXT ─────────────────────────────────────────────
+                const bodyLines = (s.text||'').split('\n');
+                bodyLines.forEach(line => {
+                    const trimmed = line.trim();
+                    if (!trimmed) { y += FONT_BODY * LINE_SPACING * 0.5; return; }
+
+                    // Detect headings by markdown-style or all-caps short lines
+                    if (/^#{1,3}\s/.test(trimmed)) {
+                        const lvl = (trimmed.match(/^#+/) || [''])[0].length;
+                        drawHeading(trimmed.replace(/^#+\s*/,''), Math.min(lvl, 3), '#18181b');
+                    } else if (/^[•\-\*]\s/.test(trimmed)) {
+                        const ptText = trimmed.replace(/^[•\-\*]\s*/,'');
+                        const lines = pdf.splitTextToSize(ptText, CW - 16);
+                        ensureSpace(lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE);
+                        pdf.setFont('times', 'normal'); pdf.setFontSize(FONT_BODY); setColor('#18181b');
+                        pdf.text('•', ML + 4, y + FONT_BODY * 0.82);
+                        lines.forEach((l, li) => { pdf.text(l, ML + 16, y + FONT_BODY * 0.82 + li * FONT_BODY * LINE_SPACING); });
+                        y += lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE;
+                    } else {
+                        // Normal paragraph with first-line indent
+                        const lines = pdf.splitTextToSize(trimmed, CW - INDENT);
+                        ensureSpace(lines.length * FONT_BODY * LINE_SPACING + PARA_SPACE);
+                        pdf.setFont('times', 'normal'); pdf.setFontSize(FONT_BODY); setColor('#1a1a1a');
+                        lines.forEach((l, li) => {
+                            const lx = li === 0 ? ML + INDENT : ML;
+                            pdf.text(l, lx, y + FONT_BODY * 0.82);
+                            y += FONT_BODY * LINE_SPACING;
+                        });
+                        y += PARA_SPACE;
+                    }
                 });
             }
 
-            // ── FOOTER on every page ───────────────────────────────────────
+            // ── FOOTER: page numbers at bottom center, on every page ───────
             const totalPages = pdf.internal.getNumberOfPages();
             for (let pg = 1; pg <= totalPages; pg++) {
                 pdf.setPage(pg);
-                setDraw('#e4e4e7'); pdf.setLineWidth(0.4);
-                pdf.line(ML, PH - 28, PW - MR, PH - 28);
-                pdf.setFontSize(7); pdf.setFont('helvetica','normal'); setColor('#9ca3af');
-                pdf.text('zStudy', ML, PH - 16);
-                pdf.text(`${pg} / ${totalPages}`, PW - MR, PH - 16, { align: 'right' });
+                setDraw('#c8c8c8'); pdf.setLineWidth(0.4);
+                pdf.line(ML, PH - MB + 10, PW - MR, PH - MB + 10);
+
+                // Bottom center page number
+                pdf.setFontSize(10);
+                pdf.setFont('times', 'normal');
+                setColor('#9ca3af');
+                pdf.text(String(pg), PW / 2, PH - MB + 22, { align: 'center' });
+
+                // Bottom right: doc name (truncated)
+                pdf.setFontSize(8);
+                pdf.text(s.name.slice(0, 40), PW - MR, PH - MB + 22, { align: 'right' });
             }
 
             const safeName = s.name.replace(/[/\\?%*:|"<>]/g,'_');
