@@ -2851,7 +2851,7 @@ const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
         const hints = {
             short: 'Brief overview — 2–3 sections, key points only, no tables',
             medium: 'Balanced summary — 4–6 sections with key points and terms',
-            long: 'Comprehensive — 6–10 sections, tables, full key terms, detailed points'
+            long: 'Full deep-dive — 8–14 sections, multiple tables, rich bullet points, 12–20 key terms'
         };
         const hintEl = document.getElementById('summaryLengthHint');
         if (hintEl) hintEl.textContent = hints[_summaryLength] || '';
@@ -3042,6 +3042,8 @@ ${text}`;
         try {
             // ── Single call ──────────────────────────────────────────────
             setSummaryProgress(10, isAr ? 'جاري توليد الملخص...' : 'Generating summary...');
+            const srcLimit = _summaryLength === 'long' ? 20000 : _summaryLength === 'short' ? 6000 : 12000;
+            const truncatedSource = sourceText.slice(0, srcLimit);
             const prompt = `You are an expert academic summarizer. Your task is to produce a structured, high-fidelity summary of the document below.
 
 OUTPUT FORMAT: Return ONLY a valid JSON object — no markdown, no code fences, no text before or after.
@@ -3063,31 +3065,32 @@ SCHEMA (follow exactly):
 }
 
 CONTENT RULES:
-1. SECTIONS — follow the length setting: ${_summaryLength === 'short' ? '2–3 sections max, points only, NO tables' : _summaryLength === 'long' ? '6–10 sections, include all tables and details' : '4–6 sections, balanced coverage'}:
+1. SECTIONS — follow the length setting: ${_summaryLength === 'short' ? '2–3 sections max, points only, NO tables' : _summaryLength === 'long' ? '8–14 sections — be exhaustive, cover every major topic in the document, include multiple tables for classifications/comparisons, and provide 5–8 bullet points per section with rich detail' : '4–6 sections, balanced coverage'}:
    - Each heading must be specific to the content (e.g., "Pathophysiology of Type 2 Diabetes" not "Pathophysiology").
    - Use "table" type for: classifications, comparisons, drug lists, diagnostic criteria, step-by-step processes with parallel structure.
    - Use "points" type for: explanations, mechanisms, causes, consequences, narrative content.
    - Each point must be a complete, informative sentence that stands alone — not a fragment or heading.
    - Points must contain the actual information, not just say "the text discusses X."
-   - ${_summaryLength === 'short' ? 'Skip tables entirely for this short summary.' : 'Include at least 1–2 table sections if the document has comparative or tabular data.'}
+   - ${_summaryLength === 'short' ? 'Skip tables entirely for this short summary.' : _summaryLength === 'long' ? 'Include at least 3–4 table sections and make every section rich with detail — do not truncate.' : 'Include at least 1–2 table sections if the document has comparative or tabular data.'}
+   - ${_summaryLength === 'long' ? 'For LONG summaries: each "points" section must have at least 5 detailed bullet points. Tables must have at least 4 rows.' : ''}
    - Assign a DIFFERENT color to each section.
 
-2. KEY TERMS — ${_summaryLength === 'short' ? '2–5 most important terms only' : _summaryLength === 'long' ? '8–15 terms, comprehensive' : '5–10 terms'} total:
+2. KEY TERMS — ${_summaryLength === 'short' ? '2–5 most important terms only' : _summaryLength === 'long' ? '12–20 terms — include every important term, definition, and concept in the text' : '5–10 terms'} total:
    - Include every explicitly defined term and every high-yield technical term.
    - Definitions must be precise and grounded in the text — not generic encyclopedia definitions.
 
 3. COVERAGE:
    - The summary must reflect the ENTIRE document, not just the first few pages.
-   - Prioritize high-yield, testable content over background narrative.
+   - ${_summaryLength === 'long' ? 'For LONG summaries: leave nothing out. Cover every section, subtopic, and concept mentioned in the document.' : 'Prioritize high-yield, testable content over background narrative.'}
 
 4. LANGUAGE: Write everything in ${lang}.
 
 5. JSON INTEGRITY: Output raw JSON only. No \`\`\`json wrapper. No explanation. Ensure all strings are properly escaped.
 
 DOCUMENT:
-${sourceText}`;
+${truncatedSource}`;
             const sys = 'You are a JSON-only academic summarizer. Output a single valid JSON object and nothing else. No markdown. No code fences. No explanation. Follow the schema exactly. Ensure all JSON strings are properly escaped.';
-            const sumMaxTokens = _summaryLength === 'short' ? 1800 : _summaryLength === 'long' ? 6000 : 4000;
+            const sumMaxTokens = _summaryLength === 'short' ? 1800 : _summaryLength === 'long' ? 10000 : 4000;
             const raw = await nvidiaChat(prompt, sys, sumMaxTokens);
             setSummaryProgress(100, isAr ? 'اكتمل!' : 'Done!');
             _currentSummaryResult = raw;
@@ -3667,11 +3670,19 @@ ${sourceText}`;
             // ── Page management ───────────────────────────────────────────
             let pageN = 1;
             function stampFooter() {
+                // Bottom accent line
+                setFill('#e0e7ff');
+                pdf.rect(0, PH - 11, PW, 11, 'F');
+                setFill('#4f46e5');
+                pdf.rect(0, PH - 11, PW, 1.5, 'F');
+
                 pdf.setFont(FL,'normal');
                 pdf.setFontSize(7.5);
-                pdf.setTextColor(180,180,180);
-                pdf.text(String(pageN), PW/2, PH-7, { align:'center' });
-                pdf.text('zStudy', PW-MR, PH-7, { align:'right' });
+                pdf.setTextColor(99, 102, 241);
+                pdf.text(String(pageN), PW/2, PH-4.5, { align:'center' });
+                pdf.setTextColor(148, 163, 184);
+                pdf.text('zStudy', PW-MR, PH-4.5, { align:'right' });
+                pdf.text(s.name.slice(0, 40), ML, PH-4.5);
                 pageN++;
             }
             function newPage() { stampFooter(); pdf.addPage(); return MT; }
@@ -3697,31 +3708,73 @@ ${sourceText}`;
             // ═══════════════════════════════════════════════════════════════
             let y = MT;
 
-            // ── Cover header ──────────────────────────────────────────────
-            // Top accent bar
-            rect(ML, y-6, CW, 1.2, '#18181b');
-            y += 2;
+            // ── Beautiful Cover Header ────────────────────────────────────
+            // Full-bleed gradient cover band (from y=0 to cover area)
+            const coverTop    = 0;
+            const coverH      = 52;   // mm — tall cover band
+            const coverLeft   = 0;
+            const coverWidth  = PW;
 
-            // Title
+            // Background: deep indigo gradient using two overlapping rects
+            setFill('#3730a3');
+            pdf.rect(coverLeft, coverTop, coverWidth, coverH, 'F');
+            // Gradient overlay: lighter top-left corner accent
+            setFill('#4f46e5');
+            pdf.rect(coverLeft, coverTop, coverWidth * 0.6, coverH * 0.55, 'F');
+            // Subtle dark overlay at bottom of cover
+            setFill('#1e1b4b');
+            pdf.rect(coverLeft, coverTop + coverH * 0.7, coverWidth, coverH * 0.3, 'F');
+
+            // Decorative circles (big, semi-transparent blobs)
+            setFill('#6366f1');
+            pdf.circle(PW - 22, 10, 28, 'F');
+            setFill('#4338ca');
+            pdf.circle(PW - 8, coverH - 4, 20, 'F');
+            setFill('#818cf8');
+            pdf.circle(14, coverH + 4, 14, 'F');
+
+            // Brand chip: "zStudy" pill top-left
+            setFill('#ffffff20');
+            pdf.roundedRect(ML, 6, 20, 6, 2, 2, 'F');
+            pdf.setFont(FL, 'bold');
+            pdf.setFontSize(6.5);
+            pdf.setTextColor(255,255,255);
+            pdf.text('zStudy', ML + 3, 10.3);
+
+            // Title text on cover
+            const rtlCover = isArabic(s.name) || isAr;
+            pdf.setFontSize(20);
+            pdf.setTextColor(255,255,255);
             setFont(s.name, true);
-            pdf.setFontSize(22);
-            setColor('#18181b');
-            const titleLines = pdf.splitTextToSize(s.name, CW);
+            const titleLines = pdf.splitTextToSize(s.name, CW - 20);
+            let ty = 20;
             for (const tl of titleLines) {
-                tx(tl, ML, y);
-                y += LH(22) + 2;
+                if (rtlCover) {
+                    pdf.text(tl, PW - ML, ty, { align:'right' });
+                } else {
+                    pdf.text(tl, ML, ty);
+                }
+                ty += LH(20) + 1.5;
             }
-            y += 1;
 
-            // Meta row: date · zStudy
-            pdf.setFont(FL,'normal');
-            pdf.setFontSize(8);
-            setColor('#9ca3af');
-            const meta = (s.date||'') + '   ·   zStudy';
-            pdf.text(meta, ML, y);
-            y += 4;
-            hrule(y, 0.2, '#e4e4e7');
-            y += 8;
+            // Date badge below title on cover
+            const dateStr = s.date || '';
+            if (dateStr) {
+                pdf.setFontSize(7.5);
+                pdf.setTextColor(180, 190, 255);
+                pdf.setFont(FL, 'normal');
+                pdf.text(dateStr, ML, ty + 2);
+            }
+
+            // Bottom accent stripe on cover
+            setFill('#a5b4fc');
+            pdf.rect(coverLeft, coverH - 1.5, coverWidth, 1.5, 'F');
+
+            // Move y to after cover
+            y = coverH + 10;
+
+            // Summary callout box (styled differently from before)
+            // will be handled below in the structured section
 
             const isStr = s.style==='structured' && s.structured;
 
@@ -3731,16 +3784,34 @@ ${sourceText}`;
                 // ── Summary callout ───────────────────────────────────────
                 if (d.summary_line) {
                     setFont(d.summary_line);
-                    pdf.setFontSize(10);
-                    const sl = pdf.splitTextToSize(d.summary_line, CW-10);
-                    const slH = sl.length * (LH(10)+1.6) + 7;
-                    y = ensureY(y, slH+4);
-                    rect(ML, y-3, CW, slH, '#f4f4f5');  // bg
-                    rect(ML, y-3, 2.5, slH, '#18181b'); // left bar
-                    setColor('#374151');
-                    let sy = y+1.5;
-                    for (const l of sl) { tx(l, ML+6, sy); sy += LH(10)+1.6; }
-                    y += slH + 5;
+                    pdf.setFontSize(10.5);
+                    const sl = pdf.splitTextToSize(d.summary_line, CW - 14);
+                    const slH = sl.length * (LH(10.5) + 1.6) + 12;
+                    y = ensureY(y, slH + 6);
+
+                    // Background with indigo tint
+                    setFill('#eef2ff');
+                    pdf.roundedRect(ML, y - 5, CW, slH, 3, 3, 'F');
+                    // Left accent bar
+                    setFill('#4f46e5');
+                    pdf.roundedRect(ML, y - 5, 3, slH, 1.5, 1.5, 'F');
+                    // Small label above
+                    pdf.setFont(FL, 'bold');
+                    pdf.setFontSize(7);
+                    pdf.setTextColor(99, 102, 241);
+                    pdf.text(isAr ? 'الفكرة الرئيسية' : 'KEY INSIGHT', ML + 6, y - 0.5);
+
+                    pdf.setFontSize(10.5);
+                    pdf.setTextColor(31, 41, 55);
+                    setFont(d.summary_line);
+                    let sy = y + 5;
+                    for (const l of sl) {
+                        const rtlL = isArabic(l) || isAr;
+                        if (rtlL) { pdf.text(l, PW - ML - 3, sy, { align:'right' }); }
+                        else      { pdf.text(l, ML + 6, sy); }
+                        sy += LH(10.5) + 1.6;
+                    }
+                    y += slH + 8;
                 }
 
                 // ── Doc subtitle ──────────────────────────────────────────
@@ -3763,21 +3834,27 @@ ${sourceText}`;
                     const hTxt = sec.heading||'';
                     setFont(hTxt, true);
                     pdf.setFontSize(11.5);
-                    const hLines = pdf.splitTextToSize(hTxt, CW-8);
-                    const hH = hLines.length * (LH(11.5)+1.5) + 6;
+                    const hLines = pdf.splitTextToSize(hTxt, CW - 14);
+                    const hH = hLines.length * (LH(11.5)+1.5) + 9;
                     y = ensureY(y, hH+2);
 
-                    rect(ML,   y-3.5, CW,  hH, col);           // full color bg
-                    rect(ML,   y-3.5, CW,  hH, '#00000015');   // subtle overlay for depth (transparent trick via low-opacity)
+                    // Rounded heading background
+                    setFill(col);
+                    pdf.roundedRect(ML, y - 4.5, CW, hH, 3, 3, 'F');
+                    // Small icon dot on left
+                    setFill('#ffffff40');
+                    pdf.circle(ML + 6, y + hH/2 - 4.5, 2.5, 'F');
 
                     pdf.setTextColor(255,255,255);
                     pdf.setFontSize(11.5);
-                    let hy = y+1.5;
+                    let hy = y + 1.5;
                     for (const hl of hLines) {
-                        tx(hl, ML+5, hy);
+                        const rtlH = isArabic(hl) || isAr;
+                        if (rtlH) { pdf.text(hl, PW - ML - 5, hy, { align:'right' }); }
+                        else      { pdf.text(hl, ML + 12, hy); }
                         hy += LH(11.5)+1.5;
                     }
-                    y += hH + 3;
+                    y += hH + 4;
 
                     // ── Table ─────────────────────────────────────────────
                     if (isTab) {
@@ -3842,27 +3919,36 @@ ${sourceText}`;
 
                     // ── Bullets ───────────────────────────────────────────
                     } else {
-                        (sec.points||[]).forEach(pt => {
+                        (sec.points||[]).forEach((pt, pti) => {
                             setFont(pt);
                             pdf.setFontSize(10.5);
-                            const ptLines = pdf.splitTextToSize(pt, CW-7);
-                            const ptH = ptLines.length*(LH(10.5)+1.5)+2;
+                            const ptLines = pdf.splitTextToSize(pt, CW - 10);
+                            const ptH = ptLines.length*(LH(10.5)+1.5) + 5;
                             y = ensureY(y, ptH);
 
                             const rtl = isArabic(pt)||isAr;
-                            // Colored left/right bar per bullet
-                            const barX = rtl ? PW-MR-1 : ML;
-                            rect(barX, y-1, 1.5, ptH-1, col);
 
-                            setColor('#1a1a1a');
+                            // Alternating tinted bg for bullets
+                            const bgLt = lighten(col, 0.96);
+                            setFill(bgLt);
+                            pdf.roundedRect(ML, y - 2, CW, ptH, 2, 2, 'F');
+
+                            // Colored bullet dot
+                            setFill(col);
+                            const dotX = rtl ? PW - ML - 3 : ML + 3.5;
+                            pdf.circle(dotX, y + ptH/2 - 1.5, 1.5, 'F');
+
+                            // Text
                             pdf.setFontSize(10.5);
-                            let by = y;
+                            pdf.setTextColor(31, 41, 55);
+                            setFont(pt);
+                            let by = y + 1.5;
                             for (const l of ptLines) {
-                                if (rtl) { tx(l, 0, by, 'right'); }  // right-margin handled by tx()
-                                else     { tx(l, ML+4.5, by); }
+                                if (rtl) { pdf.text(l, PW - ML - 7, by, { align:'right' }); }
+                                else     { pdf.text(l, ML + 7, by); }
                                 by += LH(10.5)+1.5;
                             }
-                            y = by + 2;
+                            y = by + 3;
                         });
                         y += 1;
                     }
@@ -3870,17 +3956,19 @@ ${sourceText}`;
 
                 // ── Key Terms ─────────────────────────────────────────────
                 if ((d.key_terms||[]).length) {
-                    y += 5;
-                    y = ensureY(y, 14);
-                    hrule(y, 0.3, '#d4d4d8');
-                    y += 6;
+                    y += 8;
+                    y = ensureY(y, 18);
 
+                    // Key Terms header bar
                     const ktLabel = isAr ? 'المصطلحات الرئيسية' : 'Key Terms';
-                    setFont(ktLabel, true);
-                    pdf.setFontSize(12);
-                    setColor('#18181b');
-                    tx(ktLabel, ML, y);
-                    y += 7;
+                    setFill('#1e1b4b');
+                    pdf.roundedRect(ML, y - 5, CW, 13, 3, 3, 'F');
+                    pdf.setFont(FL, 'bold');
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(255, 255, 255);
+                    if (isAr) { pdf.text(ktLabel, PW - ML - 6, y + 2.5, { align:'right' }); }
+                    else      { pdf.text(ktLabel, ML + 6, y + 2.5); }
+                    y += 14;
 
                     d.key_terms.forEach((kt,ki) => {
                         const term = kt.term||'', def = kt.definition||'';
@@ -3890,26 +3978,36 @@ ${sourceText}`;
                         const dLines = pdf.splitTextToSize(def, DW);
                         setFont(term,true); pdf.setFontSize(9.5);
                         const tLines = pdf.splitTextToSize(term, TW);
-                        const rH = Math.max(tLines.length,dLines.length)*(LH(9.5)+1)+5;
+                        const rH = Math.max(tLines.length,dLines.length)*(LH(9.5)+1)+6;
 
                         y = ensureY(y, rH);
-                        rect(ML, y-3, CW, rH, ki%2===0?'#fafafa':'#f4f4f5');
+
+                        // Alternating row with indigo tint for even rows
+                        const rowBg = ki%2===0 ? '#f0f0ff' : '#fafafa';
+                        setFill(rowBg);
+                        pdf.rect(ML, y-3, CW, rH, 'F');
                         setDraw('#e4e4e7'); pdf.setLineWidth(0.15);
                         pdf.line(ML, y+rH-3, PW-MR, y+rH-3);
 
-                        // Term (bold, left/right)
-                        setFont(term,true); pdf.setFontSize(9.5); setColor('#18181b');
-                        let ty=y;
-                        for (const tl of tLines) { tx(tl, ML+2, ty); ty+=LH(9.5)+1; }
+                        // Term (bold indigo)
+                        setFont(term,true); pdf.setFontSize(9.5);
+                        pdf.setTextColor(67, 56, 202);
+                        let ty2=y;
+                        for (const tl of tLines) { tx(tl, ML+2, ty2); ty2+=LH(9.5)+1; }
 
                         // Divider between columns
                         setDraw('#d4d4d8'); pdf.setLineWidth(0.15);
                         pdf.line(ML+TW+2, y-3, ML+TW+2, y+rH-3);
 
                         // Definition
-                        setFont(def); pdf.setFontSize(9.5); setColor('#52525b');
+                        setFont(def); pdf.setFontSize(9.5);
+                        pdf.setTextColor(55, 65, 81);
                         let dy=y;
-                        for (const dl of dLines) { tx(dl, ML+TW+5, dy); dy+=LH(9.5)+1; }
+                        for (const dl of dLines) {
+                            if (isArabic(dl)||isAr) { pdf.text(dl, PW-ML-2, dy, {align:'right'}); }
+                            else { tx(dl, ML+TW+5, dy); }
+                            dy+=LH(9.5)+1;
+                        }
                         y += rH;
                     });
                 }
