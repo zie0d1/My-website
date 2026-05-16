@@ -1201,6 +1201,10 @@
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
                 <span class="si-label" data-t="summary_lib">الملخصات</span>
             </button>
+            <button class="sidebar-item disabled subject-only hidden" data-panel="translate" id="sidebarTranslate" onclick="switchPanel('translate')" title="افتح مادة أولاً لتفعيل هذا القسم">
+                <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg></span>
+                <span class="si-label">ترجمة PDF</span>
+            </button>
             <button class="sidebar-item disabled subject-only hidden" data-panel="decks" id="sidebarDecks" onclick="switchPanel('decks')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
                 <span class="si-label" data-t="my_cards">بطاقاتي</span>
@@ -1582,6 +1586,86 @@
                         <div class="card-settings-label" style="margin-top:16px;margin-bottom:6px">ملاحظة إضافية للـ AI (اختياري)</div>
                         <input id="cardExtraNote" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px;margin-bottom:0">
                         <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:6px" id="focusActiveLabel">التركيز الحالي: General</div>
+                    </div>
+                </div>
+
+
+                <!-- TRANSLATE PANEL -->
+                <div class="panel" id="panel-translate">
+                    <h1 class="page-title">ترجمة PDF إلى العربية</h1>
+                    <p class="page-subtitle">ترجمة دقيقة مع الحفاظ على المصطلحات العلمية — قابلة للتحميل كـ PDF</p>
+
+                    <!-- Upload zone -->
+                    <div class="card" style="margin-bottom:14px">
+                        <div class="card-header"><span class="card-title" style="display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ملف PDF</span></div>
+                        <div id="trDropZone" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor=''" ondrop="handleTrDrop(event)" onclick="document.getElementById('trPdfInput').click()" style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:28px;text-align:center;cursor:pointer;transition:all var(--transition)">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text4)" stroke-width="1.5" style="margin-bottom:8px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px">اسحب PDF هنا أو انقر للرفع</div>
+                            <div style="font-size:11px;color:var(--text4);font-family:var(--mono)">حتى 30 صفحة · PDF فقط</div>
+                        </div>
+                        <input type="file" id="trPdfInput" accept=".pdf" style="display:none" onchange="setTrPDF(this.files[0])">
+                        <div id="trFilePill" style="display:none;margin-top:10px;align-items:center;gap:8px;padding:8px 12px;background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span id="trFileName" style="font-size:12px;font-weight:600;color:var(--accent);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+                            <button onclick="clearTrPDF()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:18px;padding:0 2px;line-height:1">×</button>
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="card" style="margin-bottom:14px">
+                        <div class="card-header"><span class="card-title">خيارات الترجمة</span></div>
+                        <div class="section-label" style="margin-bottom:8px">نوع النص</div>
+                        <div class="chip-row" id="trDomainChips">
+                            <span class="chip active" data-domain="medical" onclick="setTrDomain(this)">🩺 طبي / علمي</span>
+                            <span class="chip" data-domain="pharma" onclick="setTrDomain(this)">💊 صيدلاني</span>
+                            <span class="chip" data-domain="biology" onclick="setTrDomain(this)">🧬 أحياء / كيمياء</span>
+                            <span class="chip" data-domain="general" onclick="setTrDomain(this)">📄 عام</span>
+                        </div>
+                        <div style="margin-top:14px">
+                            <div class="section-label" style="margin-bottom:6px">ملاحظة إضافية (اختياري)</div>
+                            <input id="trExtraNote" placeholder="مثال: احتفظ بأسماء الأدوية بالإنجليزية، أو ترجم الجداول فقط...">
+                        </div>
+                    </div>
+
+                    <!-- Generate button -->
+                    <button id="btnGenTranslate" class="btn btn-primary btn-full" disabled onclick="nvidiaTranslate()" style="margin-bottom:14px">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        ترجمة إلى العربية
+                    </button>
+
+                    <!-- Status -->
+                    <div id="trAiStatus" style="display:none;margin-bottom:14px">
+                        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius)">
+                            <div id="trSpinner" style="width:14px;height:14px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0"></div>
+                            <span id="trStatusText" style="font-size:12px;color:var(--accent);font-family:var(--mono)">جاري الترجمة...</span>
+                            <div style="flex:1;height:4px;background:var(--border);border-radius:var(--radius-full);overflow:hidden;margin-right:8px">
+                                <div id="trProgressFill" style="height:100%;background:var(--accent);width:0%;transition:width 0.4s ease;border-radius:var(--radius-full)"></div>
+                            </div>
+                            <span id="trProgressPct" style="font-size:10px;font-family:var(--mono);color:var(--accent);flex-shrink:0">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Result area -->
+                    <div id="trResultArea" style="display:none">
+                        <div class="card" style="margin-bottom:14px">
+                            <div class="card-header">
+                                <span class="card-title" style="display:flex;align-items:center;gap:8px">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                    اكتملت الترجمة
+                                </span>
+                                <div style="display:flex;gap:6px">
+                                    <button class="btn btn-sm" onclick="copyTrResult()">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                        نسخ
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="downloadTrPDF()">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        تحميل PDF
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="trResultBox" dir="rtl" style="font-size:13.5px;line-height:2.1;color:var(--text2);direction:rtl;text-align:right;max-height:60vh;overflow-y:auto;padding:4px 2px;white-space:pre-wrap;word-break:break-word;font-family:var(--sans)"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -4060,6 +4144,260 @@ ${truncatedSource}`;
             console.error('PDF error:', e);
         }
     }
+
+
+    // ══════════════════════════════════════════════════════════════════════
+    // ── TRANSLATE PDF ─────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    let trPdfText = '', trPdfFile = '', _trDomain = 'medical', _trResult = '';
+
+    function setTrDomain(el) {
+        document.querySelectorAll('#trDomainChips .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _trDomain = el.dataset.domain;
+    }
+
+    function handleTrDrop(e) {
+        e.preventDefault();
+        e.currentTarget.style.borderColor = '';
+        setTrPDF(e.dataTransfer.files[0]);
+    }
+
+    async function setTrPDF(file) {
+        if (!file || !file.name.toLowerCase().endsWith('.pdf')) return;
+        trPdfFile = file.name;
+        document.getElementById('trFileName').textContent = file.name;
+        const pill = document.getElementById('trFilePill');
+        pill.style.display = 'flex';
+        document.getElementById('trDropZone').style.display = 'none';
+        document.getElementById('trAiStatus').style.display = 'block';
+        document.getElementById('trStatusText').textContent = 'جاري قراءة الملف...';
+        document.getElementById('trProgressFill').style.width = '0%';
+        document.getElementById('trProgressPct').textContent = '0%';
+        try {
+            const ab = await file.arrayBuffer();
+            const doc = await pdfjsLib.getDocument({ data: ab }).promise;
+            let txt = '';
+            for (let i = 1; i <= Math.min(doc.numPages, 30); i++) {
+                const page = await doc.getPage(i);
+                const tc = await page.getTextContent();
+                txt += tc.items.map(it => it.str).join(' ') + '\n';
+            }
+            trPdfText = txt.trim();
+            document.getElementById('trAiStatus').style.display = 'none';
+            document.getElementById('btnGenTranslate').disabled = false;
+            toast(doc.numPages + ' صفحة');
+        } catch (e) {
+            document.getElementById('trAiStatus').style.display = 'none';
+            alertModal('خطأ في قراءة الملف: ' + e.message);
+            clearTrPDF();
+        }
+    }
+
+    function clearTrPDF() {
+        trPdfText = ''; trPdfFile = '';
+        document.getElementById('trFilePill').style.display = 'none';
+        document.getElementById('trDropZone').style.display = 'block';
+        document.getElementById('trAiStatus').style.display = 'none';
+        document.getElementById('trResultArea').style.display = 'none';
+        document.getElementById('btnGenTranslate').disabled = true;
+        document.getElementById('trPdfInput').value = '';
+        _trResult = '';
+    }
+
+    function setTrProgress(pct, msg) {
+        document.getElementById('trProgressFill').style.width = pct + '%';
+        document.getElementById('trProgressPct').textContent = Math.round(pct) + '%';
+        if (msg) document.getElementById('trStatusText').textContent = msg;
+    }
+
+    const TR_DOMAIN_PROMPTS = {
+        medical: 'النص من مجال طبي. احتفظ بأسماء الأمراض والأعراض والأجهزة والإجراءات بمصطلحاتها العلمية العربية الدقيقة. إذا لم يوجد مصطلح عربي راسخ، ضع الاسم العربي ثم الإنجليزي بين قوسين.',
+        pharma: 'النص من مجال صيدلاني. احتفظ بأسماء الأدوية والمركبات الكيميائية بالإنجليزية أو الـ INN، وترجم الآليات والتصنيفات والتأثيرات بمصطلحات علمية دقيقة.',
+        biology: 'النص من مجال الأحياء والكيمياء. استخدم المصطلحات العلمية العربية المعتمدة للخلايا والجزيئات والتفاعلات. حافظ على أسماء العلماء والجينات والبروتينات بالأصل اللاتيني.',
+        general: 'النص عام. ترجم بأسلوب واضح ومفهوم مع الحفاظ على الدقة. احتفظ بالأسماء الأعلام والمصطلحات التقنية إذا لم يكن لها مقابل عربي شائع.',
+    };
+
+    async function nvidiaTranslate() {
+        if (!trPdfText) return;
+        document.getElementById('btnGenTranslate').disabled = true;
+        document.getElementById('trAiStatus').style.display = 'block';
+        document.getElementById('trResultArea').style.display = 'none';
+        _trResult = '';
+
+        const domainNote = TR_DOMAIN_PROMPTS[_trDomain] || TR_DOMAIN_PROMPTS.general;
+        const extraNote = document.getElementById('trExtraNote').value.trim();
+        const CHUNK_SIZE = 3000; // chars per chunk
+        const chunks = [];
+        const txt = trPdfText;
+        for (let i = 0; i < txt.length; i += CHUNK_SIZE) {
+            chunks.push(txt.slice(i, i + CHUNK_SIZE));
+        }
+        const total = chunks.length;
+
+        const systemPrompt = `أنت مترجم أكاديمي متخصص. مهمتك ترجمة النص من الإنجليزية إلى العربية الفصحى الدقيقة.
+قواعد صارمة:
+1. ${domainNote}
+2. حافظ على البنية الأصلية: الفقرات، والنقاط، والعناوين.
+3. لا تحذف أي جملة أو معلومة — الترجمة شاملة.
+4. لا تضف تعليقات أو مقدمة — أخرج النص المترجم فقط.
+5. اتجاه الكتابة من اليمين لليسار، أسلوب رسمي علمي.${extraNote ? '\n6. ملاحظة إضافية: ' + extraNote : ''}`;
+
+        try {
+            const translations = [];
+            for (let i = 0; i < chunks.length; i++) {
+                const pct = Math.round((i / total) * 90);
+                setTrProgress(pct, `ترجمة الجزء ${i + 1} من ${total}...`);
+                const userMsg = `ترجم النص التالي إلى العربية:\n\n${chunks[i]}`;
+                const result = await nvidiaChat(userMsg, systemPrompt, 4000, 0.1);
+                translations.push(result.trim());
+            }
+            _trResult = translations.join('\n\n');
+            setTrProgress(100, 'اكتملت الترجمة ✓');
+            document.getElementById('trResultBox').textContent = _trResult;
+            document.getElementById('trResultArea').style.display = 'block';
+            setTimeout(() => { document.getElementById('trAiStatus').style.display = 'none'; }, 800);
+            toast('تمت الترجمة بنجاح ✓');
+        } catch (e) {
+            setTrProgress(0, 'خطأ: ' + e.message);
+            setTimeout(() => { document.getElementById('trAiStatus').style.display = 'none'; }, 4000);
+        } finally {
+            document.getElementById('btnGenTranslate').disabled = false;
+        }
+    }
+
+    async function copyTrResult() {
+        try { await navigator.clipboard.writeText(_trResult); toast('تم النسخ'); }
+        catch { toast('تم النسخ'); }
+    }
+
+    async function downloadTrPDF() {
+        if (!_trResult) return;
+        toast('⏳ جاري إنشاء PDF...');
+        try {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+            // Try load Arabic font
+            async function fetchB64(url) {
+                const r = await fetch(url);
+                if (!r.ok) throw new Error('fetch failed');
+                const buf = await r.arrayBuffer();
+                const u8 = new Uint8Array(buf);
+                let bin = '';
+                for (let i = 0; i < u8.length; i += 8192)
+                    bin += String.fromCharCode(...u8.subarray(i, i + 8192));
+                return btoa(bin);
+            }
+            let FA = 'helvetica';
+            try {
+                const b64 = await fetchB64('https://cdn.jsdelivr.net/gh/IBM/plex@master/packages/ibm-plex-sans-arabic/fonts/complete/ttf/IBMPlexSansArabic-Regular.ttf');
+                pdf.addFileToVFS('IBMPlexSansArabic.ttf', b64);
+                pdf.addFont('IBMPlexSansArabic.ttf', 'IBMPlexSansArabic', 'normal');
+                FA = 'IBMPlexSansArabic';
+            } catch (_) {}
+
+            const PW = 210, PH = 297, ML = 18, MR = 18, MT = 28, MB = 18;
+            const CW = PW - ML - MR;
+            const LH = sz => sz * 0.45;
+            let pageN = 1;
+
+            function stampFooter() {
+                pdf.setFillColor(224, 231, 255);
+                pdf.rect(0, PH - 11, PW, 11, 'F');
+                pdf.setFillColor(79, 70, 229);
+                pdf.rect(0, PH - 11, PW, 1.5, 'F');
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(7.5);
+                pdf.setTextColor(99, 102, 241);
+                pdf.text(String(pageN), PW / 2, PH - 4.5, { align: 'center' });
+                pdf.setTextColor(148, 163, 184);
+                pdf.text('zStudy', PW - MR, PH - 4.5, { align: 'right' });
+                pageN++;
+            }
+            function newPage() { stampFooter(); pdf.addPage(); return MT; }
+            function ensureY(y, need) { return (y + need > PH - MB) ? newPage() : y; }
+
+            // ── Cover ─────────────────────────────────
+            pdf.setFillColor(55, 48, 163);
+            pdf.rect(0, 0, PW, 48, 'F');
+            pdf.setFillColor(79, 70, 229);
+            pdf.rect(0, 0, PW * 0.55, 26, 'F');
+            pdf.setFillColor(30, 27, 75);
+            pdf.rect(0, 34, PW, 14, 'F');
+            pdf.setFillColor(99, 102, 241);
+            pdf.circle(PW - 20, 10, 25, 'F');
+            pdf.setFillColor(67, 56, 202);
+            pdf.circle(PW - 6, 43, 18, 'F');
+            // Brand
+            pdf.setFillColor(255, 255, 255);
+            pdf.rect(ML, 6, 18, 5.5, 'F');
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(6.5);
+            pdf.setTextColor(79, 70, 229);
+            pdf.text('zStudy', ML + 2.5, 10);
+            // Title
+            pdf.setFont(FA, 'normal');
+            pdf.setFontSize(16);
+            pdf.setTextColor(255, 255, 255);
+            const tname = (trPdfFile || 'ترجمة').replace(/\.pdf$/i, '') + ' — ترجمة عربية';
+            const tlines = pdf.splitTextToSize(tname, CW - 10);
+            let ty = 22;
+            for (const tl of tlines) { pdf.text(tl, PW - ML, ty, { align: 'right' }); ty += LH(16) + 1.5; }
+            // Date
+            pdf.setFontSize(7.5);
+            pdf.setTextColor(180, 190, 255);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(new Date().toLocaleDateString('ar-EG'), PW - ML, ty + 2, { align: 'right' });
+            // Accent stripe
+            pdf.setFillColor(165, 180, 252);
+            pdf.rect(0, 46.5, PW, 1.5, 'F');
+
+            let y = 58;
+
+            // ── Body text ─────────────────────────────
+            const lines = _trResult.split('\n');
+            for (const rawLine of lines) {
+                const line = rawLine.trim();
+                if (!line) { y += 3; continue; }
+
+                // Detect heading-like lines (short, ending without period, or ALL CAPS Arabic)
+                const isHeading = line.length < 60 && !line.endsWith('.') && !line.endsWith(',');
+                if (isHeading && lines.indexOf(rawLine) > 0) {
+                    y = ensureY(y, 14);
+                    pdf.setFillColor(238, 242, 255);
+                    pdf.rect(ML, y - 4, CW, 10, 'F');
+                    pdf.setFillColor(79, 70, 229);
+                    pdf.rect(PW - MR - 2.5, y - 4, 2.5, 10, 'F');
+                    pdf.setFont(FA, 'normal');
+                    pdf.setFontSize(11);
+                    pdf.setTextColor(67, 56, 202);
+                    pdf.text(line, PW - ML - 4, y + 2, { align: 'right' });
+                    y += 12;
+                } else {
+                    pdf.setFont(FA, 'normal');
+                    pdf.setFontSize(10.5);
+                    pdf.setTextColor(31, 41, 55);
+                    const wrapped = pdf.splitTextToSize(line, CW);
+                    for (const wl of wrapped) {
+                        y = ensureY(y, LH(10.5) + 2);
+                        pdf.text(wl, PW - ML, y, { align: 'right' });
+                        y += LH(10.5) + 2.2;
+                    }
+                    y += 1;
+                }
+            }
+
+            stampFooter();
+            const safeName = (trPdfFile || 'translation').replace(/\.pdf$/i, '').replace(/[/\\?%*:|"<>]/g, '_');
+            pdf.save(safeName + '_Arabic.pdf');
+            toast('✓ تم تحميل PDF');
+        } catch (e) {
+            toast('خطأ: ' + e.message);
+            console.error(e);
+        }
+    }
+    // ── END TRANSLATE ─────────────────────────────────────────────────────
 
     function saveApiKeys() { toast(t('saved')); }
 
