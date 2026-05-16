@@ -3586,34 +3586,31 @@ ${sourceText}`;
         }
 
         try {
-            // ── Load Noto Sans Arabic font (supports full Arabic + Latin) ──
+            // ── Load IBM Plex Sans Arabic (matches the app's UI font) ─────
             let arabicFontB64 = null;
-            try {
-                const fontResp = await fetch('https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyvu3CBFQLaig.woff2');
-                if (fontResp.ok) {
-                    // woff2 — fall back to ttf for jsPDF compatibility
-                    throw new Error('use ttf');
-                }
-            } catch(_) {}
-            // Fetch TTF variant for jsPDF embedding
-            try {
-                const fontResp = await fetch('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-arabic@5.0.3/files/noto-sans-arabic-arabic-400-normal.woff2');
-                // Try a reliable TTF source instead
-            } catch(_) {}
-
-            // Best approach: fetch from jsDelivr NPM mirror (TTF)
             let fontLoaded = false;
+
+            async function fetchB64(url) {
+                const r = await fetch(url);
+                if (!r.ok) throw new Error('fetch failed');
+                const buf = await r.arrayBuffer();
+                const bytes = new Uint8Array(buf);
+                let bin = '';
+                for (let i = 0; i < bytes.length; i += 8192)
+                    bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
+                return btoa(bin);
+            }
+
             try {
-                const r = await fetch('https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSansArabic/NotoSansArabic-Regular.ttf');
-                if (r.ok) {
-                    const buf = await r.arrayBuffer();
-                    const bytes = new Uint8Array(buf);
-                    let bin = '';
-                    for (let i=0; i<bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-                    arabicFontB64 = btoa(bin);
+                arabicFontB64 = await fetchB64('https://cdn.jsdelivr.net/gh/IBM/plex@master/packages/ibm-plex-sans-arabic/fonts/complete/ttf/IBMPlexSansArabic-Regular.ttf');
+                fontLoaded = true;
+            } catch(_) {
+                try {
+                    // fallback: fontsource NPM mirror
+                    arabicFontB64 = await fetchB64('https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2');
                     fontLoaded = true;
-                }
-            } catch(_) {}
+                } catch(__) {}
+            }
 
             const { jsPDF } = window.jspdf;
 
@@ -3623,14 +3620,14 @@ ${sourceText}`;
             const ML = 18, MR = 18, MT = 20, MB = 18;  // margins mm
             const CW = PW - ML - MR;                    // content width mm
 
-            // Register Arabic font if loaded
+            // Register IBM Plex Sans Arabic if loaded
             if (fontLoaded && arabicFontB64) {
-                pdf.addFileToVFS('NotoSansArabic.ttf', arabicFontB64);
-                pdf.addFont('NotoSansArabic.ttf', 'NotoSansArabic', 'normal');
+                pdf.addFileToVFS('IBMPlexSansArabic.ttf', arabicFontB64);
+                pdf.addFont('IBMPlexSansArabic.ttf', 'IBMPlexSansArabic', 'normal');
             }
 
             // ── Font helpers ───────────────────────────────────────────────
-            const FONT_ARABIC = fontLoaded ? 'NotoSansArabic' : 'helvetica';
+            const FONT_ARABIC = fontLoaded ? 'IBMPlexSansArabic' : 'helvetica';
             const FONT_LATIN  = 'helvetica';
 
             function hasArabic(str) { return /[\u0600-\u06FF]/.test(str||''); }
