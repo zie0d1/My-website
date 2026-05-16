@@ -1496,7 +1496,7 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                             NVIDIA AI — متصل
                         </span></div>
-                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-120b</div>
+                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b</div>
                         <div style="font-size:11px;padding:10px 12px;background:var(--success-bg);border:1px solid var(--success);color:var(--success);font-family:var(--mono)">
                             API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
                         </div>
@@ -2409,63 +2409,82 @@
         return items.length ? items : null;
     }
 
-    // Split text into N even chunks, breaking on sentence boundaries
-    function splitTextIntoChunks(text, n) {
-        const chunkSize = Math.ceil(text.length / n);
-        const chunks = [];
-        let pos = 0;
-        for (let i = 0; i < n; i++) {
-            let end = pos + chunkSize;
-            if (end < text.length) {
-                // Try to break at sentence boundary within ±300 chars
-                const period = text.indexOf('. ', end - 150);
-                if (period !== -1 && period < end + 300) end = period + 2;
-            } else {
-                end = text.length;
-            }
-            const chunk = text.slice(pos, end).trim();
-            if (chunk.length > 100) chunks.push(chunk);
-            pos = end;
-        }
-        return chunks;
+    // Always treat the full text as a single chunk
+    function splitTextIntoChunks(text) {
+        return [text];
     }
 
-    // Chars per chunk — 3500 tokens ≈ 13,000 chars
     const MCQ_CHARS_PER_CHUNK = 13000;
 
     function buildMCQP(text, count, lang, diff) {
         count = count || $('qCount').value || 10;
         lang  = lang  || $('langSel').value || 'English';
         diff  = diff  || $('diffSel').value || 'medium';
-        return `Generate exactly ${count} MCQ questions in ${lang} at ${diff} difficulty STRICTLY from the text below.
 
-QUESTION QUALITY RULES (critical — no exceptions):
-- Questions MUST test specific, precise knowledge: exact values, mechanisms, named concepts, definitions, causes, effects, classifications, steps, or conditions stated in the text.
-- NEVER ask vague questions like "What is the main topic?" or "What does the text discuss?" — every question must have one clearly correct answer that requires actually knowing the content.
-- CRITICAL — ONE CORRECT ANSWER ONLY: The 3 wrong options must be definitively INCORRECT — not "less correct" or "partially true." If using words like "primarily," "mainly," "most commonly," or "characteristic of," make absolutely sure only ONE option is truly correct and the other three are factually wrong for that specific context. NEVER create a question where multiple options are all valid answers to some degree (e.g., if asking which cell is "primarily" involved, the wrong options must be cell types that are NOT involved — not cell types that are also involved but less so).
-- Each wrong option (distractor) must be plausible and related to the same topic — not obviously absurd. Distractors should be common misconceptions, similar-sounding terms, or related but incorrect values/concepts from the same domain. But they must be FACTUALLY WRONG for the specific question asked.
-- Each question tests a DIFFERENT specific fact, term, number, or concept — no overlap between questions.
-- Spread questions evenly across the ENTIRE text — do not cluster at the start.
-- Options must be parallel in grammatical form and similar in length.
-- Do NOT include the answer inside the question stem.
+        const diffGuide = {
+            easy:   'Test direct recall: definitions, named facts, single-step logic explicitly stated in the text. A student who read carefully should answer correctly.',
+            medium: 'Test applied understanding: require the student to connect two facts, identify a mechanism, or distinguish between related concepts from the text.',
+            hard:   'Test deep mastery: require multi-step reasoning, precise numerical values, exception cases, or subtle distinctions between closely related concepts — all grounded strictly in the text.'
+        }[diff] || 'medium';
 
-FORMAT RULES:
-- Each question has exactly 4 options: A, B, C, D.
-- "correct" = 0-based index (0=A, 1=B, 2=C, 3=D).
-- "explanation" = cite the exact sentence or key phrase from the text that proves the answer, AND briefly state why the other options are wrong.
-- Output ONLY a raw JSON array — no markdown, no code fences, no extra text.
+        return `You are a rigorous medical/academic exam writer. Generate exactly ${count} high-quality MCQ questions in ${lang} from the text below.
+
+DIFFICULTY: ${diff.toUpperCase()} — ${diffGuide}
+
+═══ QUESTION CONSTRUCTION RULES ═══
+
+1. SPECIFICITY — Every question must target ONE concrete, testable fact:
+   - Named values, doses, percentages, timeframes, or quantities from the text
+   - Specific mechanisms, pathways, or step-by-step processes
+   - Exact definitions of named terms or concepts
+   - Precise classifications, criteria, or diagnostic thresholds
+   - Cause-effect relationships explicitly stated in the text
+   FORBIDDEN: "What is the main idea?", "What does the author discuss?", any question answerable without reading the text.
+
+2. ONE CORRECT ANSWER — ZERO TOLERANCE FOR AMBIGUITY:
+   - Before finalizing a question, mentally verify: is there ANY reading of the text that makes more than one option correct? If yes, rewrite the question.
+   - Words like "primarily," "most commonly," "characteristic," "best describes" are HIGH RISK — only use them if the 3 wrong options are completely unrelated or factually excluded by the text.
+   - Wrong options must be CATEGORICALLY INCORRECT for the specific question, not just "less correct." A student who knows the content must be able to eliminate all 3 distractors with certainty.
+
+3. DISTRACTORS — Plausible but definitively wrong:
+   - Use related terms from the same domain (same organ system, same drug class, same pathway) that are NOT the answer to this specific question.
+   - Common misconceptions, look-alike terms, or values that are close but wrong.
+   - Never use obviously absurd options. Never reuse correct answers from other questions as distractors.
+   - All 4 options must be grammatically parallel and similar in length/structure.
+
+4. COVERAGE — Spread evenly:
+   - Each question tests a DIFFERENT fact. No two questions test the same concept.
+   - Distribute across the ENTIRE text proportionally — do not cluster at the beginning.
+   - Vary question format: some ask for a mechanism, some for a value, some for a classification, some for a consequence.
+
+5. STEM QUALITY:
+   - The stem must be a complete, unambiguous question or scenario.
+   - Do NOT leak the answer in the stem (e.g., don't say "the PRIMARY enzyme X" when X is the answer).
+   - Clinical/scenario stems: give the minimal context needed, then ask a precise question.
+
+═══ OUTPUT FORMAT ═══
+- Exactly 4 options per question: "A. ...", "B. ...", "C. ...", "D. ..."
+- "correct": 0-based index (0=A, 1=B, 2=C, 3=D)
+- "explanation": (a) the exact phrase or sentence from the text that proves the correct answer, then (b) one sentence explaining why each wrong option is incorrect.
+- Output ONLY a raw JSON array. No markdown. No code fences. No text before or after.
+- If output is truncated, close the array with ] after the last complete object.
 
 [{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}]
 
-TEXT SECTION:
+TEXT:
 ${text}`;
     }
 
-    const MCQ_SYSTEM = 'You output ONLY a valid JSON array of MCQ objects. Each question must have exactly ONE correct answer — the three wrong options must be factually incorrect, not just "less correct." Never create questions where multiple options could all be partially true. Each question must test exact facts, values, definitions, or mechanisms from the source text. No vague or general questions. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
+    const MCQ_SYSTEM = `You are a strict exam-quality MCQ generator. Your absolute rules:
+1. Output ONLY a valid JSON array — no markdown, no explanation, no text outside the array.
+2. Every question has exactly ONE correct answer. The 3 wrong options are categorically false, not merely "less correct."
+3. Every question is grounded in a specific, verifiable fact from the source text. No vague or general questions.
+4. Before outputting each question, silently verify: could any wrong option be defended as correct? If yes, rewrite it.
+5. If the array is truncated, close it with ] after the last complete object.`;
 
     // Generate MCQ for a single chunk, returns array of question objects
     async function mcqForChunk(chunkText, count, lang, diff) {
-        const raw = await nvidiaChat(buildMCQP(chunkText, count, lang, diff), MCQ_SYSTEM, 3500, 0.2);
+        const raw = await nvidiaChat(buildMCQP(chunkText, count, lang, diff), MCQ_SYSTEM, 5000, 0.2);
         return extractMCQJson(raw) || [];
     }
 
@@ -2564,8 +2583,7 @@ ${text}`;
             mcqLoaderProgress(8);
             await new Promise(r => setTimeout(r, 250));
 
-            const chunks = splitTextIntoChunks(pdfText, MCQ_CHARS_PER_CHUNK);
-            const total  = chunks.length;
+            const chunks = splitTextIntoChunks(pdfText);
             mcqLoaderStep(0, 'done');
             mcqLoaderProgress(18);
             if (_mcqCancelled) return;
@@ -2573,56 +2591,21 @@ ${text}`;
             // Step 1: Send to AI
             mcqLoaderStep(1, 'active');
             document.getElementById('mcqLoadTitle').textContent = L.titles[1];
-            document.getElementById('mcqLoadSub').textContent   = isAr ? `${total} ${total===1?'جزء':'أجزاء'}` : `${total} chunk${total>1?'s':''}`;
+            document.getElementById('mcqLoadSub').textContent   = isAr ? 'جزء واحد' : '1 chunk';
             mcqLoaderProgress(26);
 
-            let merged;
+            mcqLoaderStep(1, 'done');
+            mcqLoaderStep(2, 'active');
+            document.getElementById('mcqLoadTitle').textContent = L.titles[2];
+            document.getElementById('mcqLoadSub').textContent   = isAr ? `${count} سؤال · ${diff}` : `${count} questions · ${diff}`;
+            mcqLoaderProgress(44);
 
-            if (total === 1) {
-                mcqLoaderStep(1, 'done');
-                mcqLoaderStep(2, 'active');
-                document.getElementById('mcqLoadTitle').textContent = L.titles[2];
-                document.getElementById('mcqLoadSub').textContent   = isAr ? `${count} سؤال · ${diff}` : `${count} questions · ${diff}`;
-                mcqLoaderProgress(44);
-
-                const qs = await mcqForChunk(chunks[0], count, lang, diff);
-                merged = qs.filter(q => {
-                    if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
-                    const ci = Number(q.correct); return !isNaN(ci) && ci >= 0 && ci < q.options.length;
-                });
-                mcqLoaderProgress(80);
-
-            } else {
-                mcqLoaderStep(1, 'done');
-                mcqLoaderStep(2, 'active');
-                document.getElementById('mcqLoadTitle').textContent = L.titles[2];
-
-                const perChunk = Math.ceil(count / total);
-                let done = 0;
-                const results = await Promise.all(
-                    chunks.map(chunk =>
-                        mcqForChunk(chunk, perChunk, lang, diff)
-                            .then(qs => {
-                                done++;
-                                mcqLoaderProgress(26 + Math.round((done / total) * 52));
-                                document.getElementById('mcqLoadSub').textContent = isAr
-                                    ? `${done} / ${total} أجزاء`
-                                    : `${done} / ${total} chunks`;
-                                return qs;
-                            })
-                            .catch(() => [])
-                    )
-                );
-                const seen = new Set();
-                merged = results.flat().filter(q => {
-                    if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
-                    const ci = Number(q.correct);
-                    if (isNaN(ci) || ci < 0 || ci >= q.options.length) return false;
-                    const key = q.question.trim().toLowerCase().slice(0, 80);
-                    if (seen.has(key)) return false;
-                    seen.add(key); return true;
-                });
-            }
+            const qs = await mcqForChunk(chunks[0], count, lang, diff);
+            const merged = qs.filter(q => {
+                if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
+                const ci = Number(q.correct); return !isNaN(ci) && ci >= 0 && ci < q.options.length;
+            });
+            mcqLoaderProgress(80);
 
             if (_mcqCancelled) return;
             if (!merged.length) throw new Error(isAr ? 'لم يتم توليد أسئلة' : 'No questions generated');
@@ -2685,9 +2668,8 @@ ${text}`;
 
     // ── AI API (NVIDIA NIM) ──────────────────────────
     const NV_API_KEY  = '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';
-    const NV_MODEL    = 'openai/gpt-oss-120b';
-    const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
-
+const NV_MODEL    = 'openai/gpt-oss-120b';
+const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
     // Multiple CORS proxies to try in order
     const CORS_PROXIES = [
         url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -2698,19 +2680,21 @@ ${text}`;
     async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=3000, temperature=0.2) {
         const body = JSON.stringify({
             model: NV_MODEL,
-            messages: [{ role:'system', content:system }, { role:'user', content:prompt }],
+            messages:[{role:'system',content:system},{role:'user',content:prompt}],
             max_tokens: maxTokens,
             temperature: temperature
         });
-        const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+NV_API_KEY };
+        const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
 
         // 1. Try direct call first
         try {
-            const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body });
+            const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
             if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
             const d = await r.json().catch(()=>({}));
+            // Real API error (not CORS) — throw immediately
             throw new Error(d.error?.message || ('HTTP '+r.status));
         } catch(directErr) {
+            // Only continue to proxy if it's a network/CORS TypeError
             if (directErr.name !== 'TypeError') throw directErr;
         }
 
@@ -2719,9 +2703,10 @@ ${text}`;
         for (const makeProxy of CORS_PROXIES) {
             try {
                 const proxyUrl = makeProxy(NV_ENDPOINT);
-                const r = await fetch(proxyUrl, { method:'POST', headers, body });
+                const r = await fetch(proxyUrl, {method:'POST', headers, body});
                 if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
                 const d = await r.json();
+                // allorigins wraps in {contents:...}
                 const parsed = d.contents ? JSON.parse(d.contents) : d;
                 return parsed.choices[0].message.content;
             } catch(e) { lastErr = e; }
@@ -2927,35 +2912,6 @@ ${text}`;
         return (plain[summaryCurrentStyle] || plain.detailed) + '\n\nDocument:\n' + text;
     }
 
-    // ── Chunk splitter (~3500 tokens ≈ 14000 chars) ──────────────────────
-    function splitTextIntoChunks(text, charsPerChunk = 13000) {
-        const chunks = [];
-        // Try to split on paragraph boundaries to avoid cutting mid-sentence
-        const paragraphs = text.split(/\n{2,}/);
-        let current = '';
-        for (const para of paragraphs) {
-            if ((current + para).length > charsPerChunk && current.length > 0) {
-                chunks.push(current.trim());
-                current = para;
-            } else {
-                current += (current ? '\n\n' : '') + para;
-            }
-        }
-        if (current.trim()) chunks.push(current.trim());
-        // If any single chunk still too big, hard-split it
-        const result = [];
-        for (const chunk of chunks) {
-            if (chunk.length <= charsPerChunk) {
-                result.push(chunk);
-            } else {
-                for (let i = 0; i < chunk.length; i += charsPerChunk) {
-                    result.push(chunk.slice(i, i + charsPerChunk));
-                }
-            }
-        }
-        return result;
-    }
-
     function setSummaryProgress(pct, msg) {
         const fill = $('summaryProgressFill');
         const txt  = $('summaryAiStatusText');
@@ -2965,77 +2921,6 @@ ${text}`;
 
     function cleanJSON(raw) {
         return raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-    }
-
-    // ── Summarize a single chunk → plain bullet points (with retry) ─────
-    async function summarizeChunk(chunkText, chunkIdx, totalChunks, lang, retries = 3) {
-        const prompt = `You are summarizing part ${chunkIdx+1} of ${totalChunks} of a larger document.
-Extract the KEY POINTS from this section as a JSON array of strings.
-Each point must be a complete, informative sentence.
-Output ONLY a JSON array like: ["point 1", "point 2", ...]
-No markdown. No explanation. Write points in ${lang}.
-
-Section text:
-${chunkText}`;
-        const sys = 'Output ONLY a valid JSON array of strings. No markdown. No explanation.';
-
-        for (let attempt = 1; attempt <= retries; attempt++) {
-            try {
-                const raw = await nvidiaChat(prompt, sys, 1500, 0.3);
-                const cleaned = cleanJSON(raw);
-                const parsed = JSON.parse(cleaned);
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-                throw new Error('Empty result');
-            } catch(e) {
-                if (attempt === retries) {
-                    console.warn(`Chunk ${chunkIdx+1} failed after ${retries} attempts:`, e.message);
-                    return []; // return empty rather than crash the whole Promise.all
-                }
-                // wait before retry: 800ms, 1600ms
-                await new Promise(r => setTimeout(r, attempt * 800));
-            }
-        }
-        return [];
-    }
-    // ── Merge all chunk points → final structured JSON ───────────────────
-    async function mergeChunkSummaries(allPoints, docTitle, lang) {
-        const flatPoints = allPoints.flat();
-        const pointsText = flatPoints.map((p,i) => `${i+1}. ${p}`).join('\n');
-
-        const prompt = `You are an expert academic summarizer. Below are extracted key points from a full document.
-Organize them into a well-structured summary JSON.
-
-The JSON must follow this EXACT schema:
-{
-  "title": "string — document title",
-  "summary_line": "string — one powerful sentence capturing the whole document",
-  "sections": [
-    {
-      "heading": "string",
-      "color": "one of: blue | green | purple | orange | pink | teal | amber | red | indigo | cyan",
-      "type": "points OR table",
-      "points": ["string", "string"],
-      "table": { "headers": ["Col1","Col2"], "rows": [["cell","cell"]] }
-    }
-  ],
-  "key_terms": [{ "term": "string", "definition": "string" }]
-}
-
-Rules:
-- Write everything in ${lang}
-- 4–8 sections, group related points together logically
-- Use "table" type for comparisons/classifications, "points" for everything else
-- 5–10 key terms
-- Each section must have a DIFFERENT color
-- Output RAW JSON only. No markdown. No explanation.
-${docTitle ? `- Document title: "${docTitle}"` : ''}
-
-Key points to organize:
-${pointsText}`;
-
-        const sys = 'You are a JSON-only organizer. Output valid JSON and nothing else.';
-        const raw = await nvidiaChat(prompt, sys, 3500, 0.3);
-        return cleanJSON(raw);
     }
 
     // ── Main summary entry point ──────────────────────────────────────────
@@ -3051,97 +2936,64 @@ ${pointsText}`;
 
         const lang = $('summaryLangSel').value;
         const isAr = currentLang === 'ar';
-        const chunks = splitTextIntoChunks(sourceText, 13000);
 
         try {
-            if (chunks.length === 1) {
-                // ── Short document: single call (original fast path) ──────
-                setSummaryProgress(10, isAr ? 'جاري توليد الملخص...' : 'Generating summary...');
-                const prompt = `You are an expert academic summarizer. Analyze the following document and return ONLY a valid JSON object — no markdown, no code fences, no extra text.
+            // ── Single call ──────────────────────────────────────────────
+            setSummaryProgress(10, isAr ? 'جاري توليد الملخص...' : 'Generating summary...');
+            const prompt = `You are an expert academic summarizer. Your task is to produce a structured, high-fidelity summary of the document below.
 
-The JSON must follow this exact schema:
+OUTPUT FORMAT: Return ONLY a valid JSON object — no markdown, no code fences, no text before or after.
+
+SCHEMA (follow exactly):
 {
-  "title": "string — chapter or document title",
-  "summary_line": "string — one powerful sentence capturing the whole document",
+  "title": "string — the actual chapter/document title as it appears in the text, or the best inferred title",
+  "summary_line": "string — one precise, information-dense sentence that captures the core argument or subject of the entire document",
   "sections": [
     {
-      "heading": "string — section name",
+      "heading": "string — a specific, descriptive section heading (not generic like 'Introduction')",
       "color": "one of: blue | green | purple | orange | pink | teal | amber | red | indigo | cyan",
       "type": "points OR table",
-      "points": ["string", "string"],
+      "points": ["string — complete, informative sentence", "..."],
       "table": { "headers": ["Col1","Col2","Col3"], "rows": [["cell","cell","cell"]] }
     }
   ],
-  "key_terms": [{ "term": "string", "definition": "string" }]
+  "key_terms": [{ "term": "string", "definition": "string — precise definition from the text" }]
 }
 
-Rules:
-- Write everything in ${lang}
-- 4–8 sections total
-- Use "table" for comparisons/classifications, "points" for narrative/explanation
-- Include at least 1–2 table sections when document has comparative data
-- 5–12 key terms
-- Assign a DIFFERENT color to each section
-- Points must be complete, informative sentences
-- Output RAW JSON only. No \`\`\`json wrapper. No explanation.
+CONTENT RULES:
+1. SECTIONS (4–8 total):
+   - Each heading must be specific to the content (e.g., "Pathophysiology of Type 2 Diabetes" not "Pathophysiology").
+   - Use "table" type for: classifications, comparisons, drug lists, diagnostic criteria, step-by-step processes with parallel structure.
+   - Use "points" type for: explanations, mechanisms, causes, consequences, narrative content.
+   - Each point must be a complete, informative sentence that stands alone — not a fragment or heading.
+   - Points must contain the actual information, not just say "the text discusses X."
+   - Include at least 1–2 table sections if the document has comparative or tabular data.
+   - Assign a DIFFERENT color to each section.
 
-Document:
-${chunks[0]}`;
-                const sys = 'You are a JSON-only summarizer. Output valid JSON and nothing else. No markdown. No explanation.';
-                const raw = await nvidiaChat(prompt, sys, 3000);
-                setSummaryProgress(100, isAr ? 'اكتمل!' : 'Done!');
-                _currentSummaryResult = raw;
-                _currentSummaryData = JSON.parse(cleanJSON(raw));
+2. KEY TERMS (5–12 total):
+   - Include every explicitly defined term and every high-yield technical term.
+   - Definitions must be precise and grounded in the text — not generic encyclopedia definitions.
 
-            } else {
-                // ── Large document: parallel chunks → merge ───────────────
-                const total = chunks.length;
-                setSummaryProgress(5, isAr
-                    ? `تقسيم المستند إلى ${total} أجزاء...`
-                    : `Splitting into ${total} parts...`);
+3. COVERAGE:
+   - The summary must reflect the ENTIRE document, not just the first few pages.
+   - Prioritize high-yield, testable content over background narrative.
 
-                // Fire all chunk summarizations in parallel
-                setSummaryProgress(15, isAr
-                    ? `معالجة ${total} أجزاء بالتوازي...`
-                    : `Processing ${total} parts in parallel...`);
+4. LANGUAGE: Write everything in ${lang}.
 
-                let completed = 0;
-                const chunkPromises = chunks.map((chunk, idx) =>
-                    summarizeChunk(chunk, idx, total, lang).then(points => {
-                        completed++;
-                        const pct = 15 + Math.round((completed / total) * 60);
-                        setSummaryProgress(pct, isAr
-                            ? `تم ${completed} من ${total} أجزاء...`
-                            : `Done ${completed} of ${total} parts...`);
-                        return points;
-                    })
-                );
+5. JSON INTEGRITY: Output raw JSON only. No \`\`\`json wrapper. No explanation. Ensure all strings are properly escaped.
 
-                const allChunkPoints = await Promise.all(chunkPromises);
-
-                // Validate — make sure ALL chunks returned data
-                const failedChunks = allChunkPoints.map((pts, i) => pts.length === 0 ? i+1 : null).filter(Boolean);
-                if (failedChunks.length === allChunkPoints.length) {
-                    throw new Error(isAr ? 'فشلت جميع الأجزاء، حاول مرة أخرى' : 'All chunks failed, please try again');
-                }
-                if (failedChunks.length > 0) {
-                    console.warn('Some chunks returned empty:', failedChunks);
-                }
-
-                // Merge into final structured summary
-                setSummaryProgress(80, isAr ? 'دمج وتنظيم الملخص...' : 'Merging & organizing...');
-                const docTitle = $('summaryNameInput')?.value.trim() || '';
-                const mergedRaw = await mergeChunkSummaries(allChunkPoints, docTitle, lang);
-                setSummaryProgress(100, isAr ? 'اكتمل!' : 'Done!');
-
-                _currentSummaryResult = mergedRaw;
-                _currentSummaryData = JSON.parse(mergedRaw);
-            }
+DOCUMENT:
+${sourceText}`;
+            const sys = 'You are a JSON-only academic summarizer. Output a single valid JSON object and nothing else. No markdown. No code fences. No explanation. Follow the schema exactly. Ensure all JSON strings are properly escaped.';
+            const raw = await nvidiaChat(prompt, sys, 4000);
+            setSummaryProgress(100, isAr ? 'اكتمل!' : 'Done!');
+            _currentSummaryResult = raw;
+            _currentSummaryData = JSON.parse(cleanJSON(raw));
 
             renderStructuredSummary(_currentSummaryData, $('summaryResultBox'));
             show($('summaryResultArea'));
             hide($('summaryAiStatus'));
-            track('summary_generated', { style: summaryCurrentStyle, source_type: sumCurrentTab, language: lang, chunks: chunks.length, subject: getCurrentSubject()?.name || 'none' });
+            track('summary_generated', { style: summaryCurrentStyle, source_type: sumCurrentTab, language: lang, chunks: 1, subject: getCurrentSubject()?.name || 'none' });
             toast(isAr ? 'تم التوليد بنجاح ✓' : 'Summary generated! ✓');
 
         } catch(e) {
@@ -5437,7 +5289,13 @@ ${textSlice}`;
         if (lbl) lbl.textContent = 'التركيز الحالي: ' + [..._activeFocuses].join(' · ');
     }
 
-    const CARDS_SYSTEM = 'You output ONLY a valid JSON array of flashcard objects with "question" and "answer" keys. No markdown. No text outside the array. If truncated, close the array with ] after the last complete object.';
+    const CARDS_SYSTEM = `You are a precision flashcard generator. Your absolute rules:
+1. Output ONLY a valid JSON array of objects with "question" and "answer" keys. No markdown. No text outside the array.
+2. Every card is grounded strictly in the source text — no outside knowledge, no invented facts.
+3. Questions are specific and unambiguous: reading the answer should fully resolve the question with no guessing.
+4. Answers are complete, self-contained, and accurate — not just a word or fragment.
+5. No duplicate cards. No trivially obvious cards.
+6. If truncated, close the array with ] after the last complete object.`;
 
     function extractCardsJson(raw) {
         if (!raw) return null;
@@ -5457,54 +5315,117 @@ ${textSlice}`;
 
     // Per-focus extraction prompts
     const FOCUS_META = {
-        general:     { label: 'General',      extract: 'Extract flashcards covering all major concepts, facts, and key points.' },
-        definition:  { label: 'Definitions',  extract: 'Extract ONLY definition flashcards. front = a term or concept, back = its exact definition from the text. Extract every definition you find.' },
-        enumeration: { label: 'Enumerations', extract: 'Extract ONLY enumeration/list flashcards. front = "What are the [types/causes/steps/features] of X?", back = numbered list from the text. Extract every list or enumeration you find.' },
-        concept:     { label: 'Concepts',     extract: 'Extract ONLY concept flashcards. front = a key concept question, back = explanation. Extract every distinct concept you find.' },
-        mechanism:   { label: 'Mechanisms',   extract: 'Extract ONLY mechanism/process flashcards. front = mechanism name or trigger, back = step-by-step process. Extract every mechanism you find.' },
-        comparison:  { label: 'Comparisons',  extract: 'Extract ONLY comparison flashcards. front = "Compare X vs Y", back = clear differences. Extract every comparison you find.' },
-        formula:     { label: 'Formulas',     extract: 'Extract ONLY formula flashcards. front = formula name or when to use it, back = the equation or rule. Extract every formula you find.' },
-        clinical:    { label: 'Clinical',     extract: 'Extract ONLY clinical case flashcards. front = patient presentation or scenario, back = diagnosis and management. Extract every clinical case or scenario you find.' },
+        general: {
+            label: 'General',
+            extract: `Extract flashcards covering the most important facts, concepts, and relationships from the text.
+FRONT: A specific, focused question targeting one concrete piece of information (a fact, value, name, relationship, or process).
+BACK: A complete, accurate answer that fully resolves the question. Include key details (numbers, conditions, exceptions) when relevant.
+Coverage: Spread evenly across the entire text. Prioritize high-yield, testable facts over background narrative.`
+        },
+        definition: {
+            label: 'Definitions',
+            extract: `Extract ONLY definition flashcards — one card per defined term.
+FRONT: "What is [term]?" or "Define [term]." — use the exact term as it appears in the text.
+BACK: The complete definition as given in the text. Include qualifiers (e.g., "in the context of X," "specifically refers to..."). Do NOT paraphrase in a way that loses precision.
+Rule: Extract EVERY term that is explicitly defined or clearly explained. Miss nothing.`
+        },
+        enumeration: {
+            label: 'Enumerations',
+            extract: `Extract ONLY enumeration/list flashcards — one card per list.
+FRONT: "What are the [types/causes/stages/features/steps/criteria] of X?" — name the list precisely.
+BACK: A numbered list of ALL items in that enumeration, as stated in the text. Preserve order when the text implies order matters.
+Rule: Extract EVERY list, classification, or enumeration you find, no matter how short. Do NOT merge separate lists into one card.`
+        },
+        concept: {
+            label: 'Concepts',
+            extract: `Extract ONLY concept flashcards that test deep understanding.
+FRONT: A "why," "how," or "what is the significance of" question that requires genuine understanding, not just recall. E.g., "Why does X cause Y?" or "How does X differ from Y?"
+BACK: A precise, explanatory answer grounded in the text — not just a label. Include the mechanism, reasoning, or significance as stated.
+Rule: Only create a card if the text actually explains the concept (not just names it).`
+        },
+        mechanism: {
+            label: 'Mechanisms',
+            extract: `Extract ONLY mechanism/process flashcards.
+FRONT: "What is the mechanism of [process/drug/condition]?" or "Describe the steps of [process]."
+BACK: A step-by-step or cause-and-effect description of the mechanism, preserving the sequence and key actors (enzymes, receptors, cells, signals) as described in the text.
+Rule: Each mechanism gets its own card. Do NOT combine multiple mechanisms into one card.`
+        },
+        comparison: {
+            label: 'Comparisons',
+            extract: `Extract ONLY comparison flashcards.
+FRONT: "Compare [X] vs [Y]" or "What distinguishes [X] from [Y]?" — name both entities explicitly.
+BACK: A structured comparison covering the key distinguishing features as stated in the text. Format as parallel points (e.g., "X: ... | Y: ...") for clarity.
+Rule: Only create a comparison card if the text explicitly compares or contrasts the two entities. Extract EVERY such comparison.`
+        },
+        formula: {
+            label: 'Formulas',
+            extract: `Extract ONLY formula/equation/rule flashcards.
+FRONT: "What is the formula/equation/rule for [concept]?" or "When do you use [formula name]?"
+BACK: The exact formula or rule as stated in the text, with variable definitions if provided. Include units or conditions of applicability if mentioned.
+Rule: Extract EVERY quantitative formula, calculation rule, or diagnostic criterion with a numeric threshold.`
+        },
+        clinical: {
+            label: 'Clinical',
+            extract: `Extract ONLY clinical application flashcards.
+FRONT: A clinical scenario or "trigger" question: patient presentation, drug indication, diagnostic finding, or complication trigger. E.g., "A patient presents with X and Y. What is the diagnosis?" or "What is the first-line treatment for X?"
+BACK: The specific answer (diagnosis, drug, dose, management step) as given in the text, with any key conditions or exceptions.
+Rule: Only use content explicitly stated in the text. Extract EVERY clinical fact, indication, contraindication, side effect, or management step.`
+        },
     };
 
-    // Build prompt for one chunk + one focus type: extract ALL of that type from the chunk
+    // Build prompt for one focus type: extract ALL of that type from the text
     function buildExtractPrompt(chunkText, focusKey, lang) {
         const meta = FOCUS_META[focusKey];
         const note = document.getElementById('cardExtraNote')?.value.trim() || '';
-        return `${meta.extract}
+        return `You are extracting "${meta.label}" flashcards from the text below.
 
-Language: ${lang}
-${note ? `Additional instruction: ${note}\n` : ''}
-RULES:
-- Only use content from the text section below. No outside knowledge.
-- If this chunk has NO items of this type, return an empty array: []
-- Output ONLY a valid JSON array. No markdown, no code fences, no extra text.
+TYPE INSTRUCTIONS:
+${meta.extract}
+
+GLOBAL RULES (override nothing above, apply always):
+- Language: ${lang} — write both question and answer in ${lang}.
+- Source-strict: every card must be directly supported by the text. No outside knowledge. No invented details.
+- Completeness: do NOT skip items. Extract every single instance of this type found in the text.
+- Quality: each card must be independently useful — a student should be able to study from it without the source text.
+- No duplicates: each card tests a distinct piece of information.
+- Answers must be complete sentences or structured lists — not bare single words.${note ? `\n- Additional instruction: ${note}` : ''}
+
+OUTPUT: ONLY a valid JSON array. No markdown. No code fences. No text before or after.
+If nothing of this type exists in the text, output: []
 
 [{"question":"...","answer":"..."}]
 
-TEXT SECTION:
+TEXT:
 ${chunkText}`;
     }
 
-    function buildCardsPromptWithFocus(text, perChunk) {
+    function buildCardsPromptWithFocus(text, count) {
         // Used only in non-auto mode (flat count)
         const focuses = [..._activeFocuses];
         const note = document.getElementById('cardExtraNote')?.value.trim() || '';
         const lang = document.getElementById('langSel')?.value || 'عربي';
-        const instructionLines = focuses.map(f => FOCUS_META[f]?.extract || '').filter(Boolean).join('\n');
-        return `Generate exactly ${perChunk} flashcards in ${lang} from the text section below.
+        const typeDescriptions = focuses.map(f => {
+            const m = FOCUS_META[f];
+            return m ? `• ${m.label}: ${m.extract.split('\n')[0]}` : '';
+        }).filter(Boolean).join('\n');
+        return `You are a precision flashcard generator. Generate exactly ${count} high-quality flashcards in ${lang} from the text below.
 
 CARD TYPES TO GENERATE:
-${instructionLines}
-${note ? `\nAdditional instruction: ${note}` : ''}
+${typeDescriptions}
 
-RULES:
-- Only use content from the text below. No outside knowledge.
-- Output ONLY a valid JSON array, no markdown, no code fences.
+CONSTRUCTION RULES:
+1. SPECIFICITY: Every question targets one concrete, unambiguous piece of information — a named fact, value, mechanism, definition, step, or relationship.
+2. COMPLETENESS: The answer fully resolves the question. Include all necessary detail (numbers, conditions, qualifiers). Never answer with a single bare word.
+3. DISTRIBUTION: Spread ${count} cards evenly across the text and across the requested card types. Do not cluster at the start.
+4. NO DUPLICATES: Each card tests a distinct fact. Do not repeat the same concept in different wording.
+5. SOURCE-STRICT: Every card is directly supported by the text below. No outside knowledge.
+6. QUALITY FILTER: Before including a card, ask: "Would a student who memorized this card be able to answer an exam question on it?" If no, rewrite or skip.${note ? `\n7. EXTRA INSTRUCTION: ${note}` : ''}
+
+OUTPUT: ONLY a valid JSON array. No markdown. No code fences. No text before or after. If truncated, close with ] after the last complete object.
 
 [{"question":"...","answer":"..."}]
 
-TEXT SECTION:
+TEXT:
 ${text}`;
     }
 
@@ -5530,34 +5451,31 @@ ${text}`;
             const activeFocuses = [..._activeFocuses];
 
             // ── Split text into chunks ─────────────────────────────────────
-            const chunks = splitTextIntoChunks(pdfText, MCQ_CHARS_PER_CHUNK);
-            const total  = chunks.length;
+            const chunks = splitTextIntoChunks(pdfText);
 
             if (_autoCard) {
-                // ── AUTO MODE: for each focus type, extract ALL from every chunk ──
-                const totalCalls = activeFocuses.length * total;
+                // ── AUTO MODE: for each focus type, extract ALL from the text ──
+                const totalCalls = activeFocuses.length;
                 setAIStatus(currentLang === 'ar'
-                    ? `استخراج ${activeFocuses.length} نوع × ${total} ${total === 1 ? 'جزء' : 'أجزاء'}…`
-                    : `Extracting ${activeFocuses.length} type(s)${total > 1 ? ` × ${total} chunks` : ''}…`);
+                    ? `استخراج ${activeFocuses.length} نوع…`
+                    : `Extracting ${activeFocuses.length} type(s)…`);
 
                 let done = 0;
                 const allResults = await Promise.all(
-                    activeFocuses.flatMap(focusKey =>
-                        chunks.map(chunk =>
-                            nvidiaChat(
-                                buildExtractPrompt(chunk, focusKey, lang),
-                                'You output ONLY a valid JSON array of flashcard objects with "question" and "answer" keys. If nothing found, output []. No markdown.',
-                                8000, 0.2
-                            )
-                            .then(raw => {
-                                done++;
-                                if (totalCalls > 1) setAIStatus(currentLang === 'ar'
-                                    ? `${done}/${totalCalls} اكتمل…`
-                                    : `${done}/${totalCalls} done…`);
-                                return extractCardsJson(raw) || [];
-                            })
-                            .catch(() => [])
+                    activeFocuses.map(focusKey =>
+                        nvidiaChat(
+                            buildExtractPrompt(chunks[0], focusKey, lang),
+                            'You output ONLY a valid JSON array of flashcard objects with "question" and "answer" keys. If nothing found, output []. No markdown.',
+                            8000, 0.2
                         )
+                        .then(raw => {
+                            done++;
+                            if (totalCalls > 1) setAIStatus(currentLang === 'ar'
+                                ? `${done}/${totalCalls} اكتمل…`
+                                : `${done}/${totalCalls} done…`);
+                            return extractCardsJson(raw) || [];
+                        })
+                        .catch(() => [])
                     )
                 );
 
@@ -5586,47 +5504,13 @@ ${text}`;
                 setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
 
             } else {
-                // ── MANUAL MODE: flat count split across chunks ────────────
-                const count    = _cardCount || 20;
+                // ── MANUAL MODE: single call ──────────────────────────────
+                const count = _cardCount || 20;
 
-                let merged;
-                if (total === 1) {
-                    // Small file: single direct call
-                    setAIStatus(currentLang === 'ar' ? 'جاري توليد البطاقات…' : 'Generating cards…');
-                    const raw = await nvidiaChat(buildCardsPromptWithFocus(chunks[0], count), CARDS_SYSTEM, 8000, 0.2);
-                    const cards = extractCardsJson(raw) || [];
-                    merged = cards.filter(c => c.question && c.answer).slice(0, count);
-                } else {
-                    // Large file: parallel chunks, open only when ALL are done
-                    const perChunk = Math.ceil(count / total);
-                    setAIStatus(currentLang === 'ar'
-                        ? `${total} أجزاء — ${perChunk} بطاقة/جزء…`
-                        : `${total} chunks — ${perChunk} cards each…`);
-
-                    let done = 0;
-                    const results = await Promise.all(
-                        chunks.map(chunk =>
-                            nvidiaChat(buildCardsPromptWithFocus(chunk, perChunk), CARDS_SYSTEM, 8000, 0.2)
-                                .then(raw => {
-                                    done++;
-                                    setAIStatus(currentLang === 'ar'
-                                        ? `${done}/${total} اكتمل…`
-                                        : `${done}/${total} done…`);
-                                    return extractCardsJson(raw) || [];
-                                })
-                                .catch(() => [])
-                        )
-                    );
-
-                    const seen = new Set();
-                    merged = results.flat().filter(c => {
-                        if (!c.question || !c.answer) return false;
-                        const key = c.question.trim().toLowerCase().slice(0, 80);
-                        if (seen.has(key)) return false;
-                        seen.add(key);
-                        return true;
-                    }).slice(0, count);
-                }
+                setAIStatus(currentLang === 'ar' ? 'جاري توليد البطاقات…' : 'Generating cards…');
+                const raw = await nvidiaChat(buildCardsPromptWithFocus(chunks[0], count), CARDS_SYSTEM, 8000, 0.2);
+                const cards = extractCardsJson(raw) || [];
+                const merged = cards.filter(c => c.question && c.answer).slice(0, count);
 
                 if (!merged.length) throw new Error('No valid cards generated');
 
