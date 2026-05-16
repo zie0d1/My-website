@@ -1881,337 +1881,148 @@
     // ── LANGUAGE ──────────────────────────────────
     let currentLang = lg('app_lang') || 'ar';
     const TR = {
-    "ar": {
-        "back_subjects": "العودة للمواد",
-        "subjects": "المواد",
-        "dashboard": "لوحة المواد",
-        "learning": "التعلم",
-        "gen_pdf": "توليد من PDF",
-        "todo": "المحاضرات",
-        "library": "المكتبة",
-        "my_cards": "بطاقاتي",
-        "history": "السجل",
-        "error_bank": "بنك الأخطاء",
-        "analytics": "التحليل",
-        "stats": "الإحصاءات",
-        "progress": "التقدم",
-        "system": "النظام",
-        "settings": "الإعدادات",
-        "howto": "كيف تعمل الأداة",
-        "howto_title": "كيف تعمل zStudy",
-        "howto_subtitle": "دليل شامل لجميع الميزات",
-        "add_subject": "+ إضافة مادة جديدة",
-        "gen_pdf_title": "توليد من PDF",
-        "gen_pdf_subtitle": "استخرج النصوص وحوّلها إلى أسئلة باستخدام الذكاء الاصطناعي",
-        "todo_title": "قائمة المحاضرات",
-        "todo_subtitle": "تتبع تقدمك في كل محاضرة",
-        "todo_set_count": "حدد عدد المحاضرات",
-        "lec_count": "عدد المحاضرات",
-        "status_not_started": "لم يبدأ",
-        "status_in_progress": "جاري",
-        "status_done": "تم",
-        "start_timer": "ابدأ",
-        "stop_timer": "أوقف",
-        "time_logged": "الوقت المسجل",
-        "lecture_name_label": "اسم المحاضرة",
-        "ai_name_btn": "تسمية AI",
-        "lec_num": "محاضرة",
-        "overall_progress": "التقدم العام",
-        "lec_completion": "إتمام المحاضرات",
-        "progress_title": "التقدم",
-        "progress_subtitle": "تقدمك ورسوم بيانية تفصيلية",
-        "time_distribution": "توزيع الوقت",
-        "completion_chart": "مخطط الإتمام",
-        "no_lec_data": "أضف محاضرات من تبويب المحاضرات أولاً",
-        "lec_name_placeholder": "اسم المحاضرة...",
-        "drop_zone_title": "انقر هنا أو اسحب ملف PDF",
-        "q_count": "عدد الأسئلة",
-        "difficulty": "الصعوبة",
-        "easy": "سهل",
-        "medium": "متوسط",
-        "hard": "صعب",
-        "language": "اللغة",
-        "arabic": "عربي",
-        "prompt_mcq": "برومت MCQ",
-        "prompt_cards": "برومت بطاقات",
-        "prompt_summary": "برومت الملخص",
-        "quiz_name": "اسم الاختبار",
-        "lecture_name": "اسم المحاضرة",
-        "copy": "نسخ",
-        "your_answer": "إجابتك",
-        "evaluate": "تقييم",
-        "new_question": "سؤال جديد",
-        "json_subtitle": "الصق بيانات الأسئلة وابدأ الاختبار فوراً",
-        "start_quiz": "بدء الاختبار",
-        "clear": "مسح",
-        "my_cards_title": "بطاقاتي",
-        "decks_subtitle": "مجموعات البطاقات التعليمية للمراجعة المتباعدة",
-        "add_deck": "إضافة مجموعة",
-        "deck_name": "اسم المجموعة",
-        "add_from_json": "+ إضافة من JSON",
-        "create": "إنشاء",
-        "history_title": "السجل",
-        "history_subtitle": "سجل اختباراتك السابقة",
-        "review_last": "مراجعة",
-        "import_json": "استيراد JSON",
-        "start": "بدء",
-        "export": "تصدير",
-        "clear_all": "مسح الكل",
-        "error_bank_title": "بنك الأخطاء",
-        "error_bank_subtitle": "الأسئلة التي أخطأت فيها — راجعها لتتقن المادة",
-        "review_all_errors": "مراجعة جميع الأخطاء",
-        "stats_title": "الإحصاءات",
-        "stats_subtitle": "تحليل أدائك التعليمي",
-        "settings_title": "الإعدادات",
-        "settings_subtitle": "إعدادات التطبيق ومفاتيح API",
-        "save": "حفظ",
-        "danger_zone_warning": "مسح جميع البيانات المحلية. لا يمكن التراجع.",
-        "clear_all_data": "مسح كل البيانات المحلية",
-        "end": "إنهاء",
-        "exit": "خروج",
-        "no_subjects": "لا توجد مواد بعد",
-        "no_history": "لا يوجد سجل",
-        "no_errors": "لا توجد أخطاء",
-        "no_decks": "لا توجد مجموعات",
-        "no_data_stats": "لا توجد بيانات كافية بعد",
-        "correct": "صحيح",
-        "wrong": "خطأ",
-        "score": "نتيجة",
-        "avg": "المتوسط",
-        "best": "أفضل نتيجة",
-        "tests": "اختبار",
-        "cards": "بطاقة",
-        "due_now": "مستحقة الآن",
-        "trend": "اتجاه الدرجات",
-        "total_cards": "إجمالي البطاقات",
-        "mastery": "معدل الإتقان",
-        "study_streak": "أيام الدراسة",
-        "ok": "حسناً",
-        "yes": "نعم",
-        "no": "لا",
-        "cancel": "إلغاء",
-        "delete_confirm": "حذف",
-        "enter_subj_name": "الرجاء إدخال اسم المادة",
-        "enter_valid_user": "أدخل اسم مستخدم صالح",
-        "json_invalid": "JSON غير صالح",
-        "copied": "تم النسخ",
-        "saved": "تم الحفظ",
-        "cleared": "تم المسح",
-        "exported": "تم التصدير",
-        "error": "خطأ",
-        "generating": "جاري التوليد...",
-        "enter_answer": "اكتب إجابتك أولاً",
-        "no_quiz": "لا يوجد اختبار",
-        "no_due": "لا بطاقات مستحقة الآن",
-        "choose_subject": "الرجاء اختيار مادة أولاً",
-        "select_color": "اختر لوناً",
-        "subj_name_label": "اسم المادة",
-        "subj_name_placeholder": "مثلاً: الرياضيات",
-        "add_new_subject": "إضافة مادة جديدة",
-        "notifications": "الإشعارات",
-        "notif_desc": "تفعيل إشعارات تذكير المراجعة اليومية للبطاقات",
-        "enable_notif": "تفعيل الإشعارات",
-        "notif_granted": "الإشعارات مفعّلة",
-        "notif_denied": "الإشعارات محجوبة",
-        "notif_default": "اضغط لتفعيل الإشعارات",
-        "confidence_label": "مستوى الثقة:",
-        "guessing": "تخمين",
-        "not_sure": "غير متأكد",
-        "sure": "متأكد",
-        "conf_matrix_title": "معايرة الثقة",
-        "conf_accuracy": "دقة عند",
-        "conf_answered": "إجابات",
-        "streak": "سلسلة الدراسة",
-        "streak_days": "يوم متتالي",
-        "weekly_activity": "النشاط الأسبوعي",
-        "topic_breakdown": "أداء المصادر",
-        "time_per_q": "وقت/سؤال",
-        "avg_time": "متوسط الوقت",
-        "due_cards_banner": "لديك بطاقات مستحقة للمراجعة — انقر للدراسة",
-        "explain_groq": "اشرح مع Groq",
-        "summary_saved": "تم حفظ الملخص",
-        "no_summaries": "لا توجد ملخصات محفوظة",
-        "view": "عرض",
-        "summary_library_title": "الملخصات",
-        "summary_lib_subtitle": "ملخصات ذكية من ملفات PDF",
-        "sum_style_label": "نوع الملخص",
-        "sum_detailed": "مفصّل",
-        "sum_bullets": "نقاط",
-        "sum_concise": "مختصر",
-        "sum_academic": "أكاديمي",
-        "sum_structured": "منظم JSON",
-        "sum_result_label": "الملخص المولّد",
-        "gen_summary_title": "توليد ملخص بالذكاء الاصطناعي",
-        "gen_summary_btn": "توليد الملخص",
-        "summary_lib": "الملخصات"
-    },
-    "en": {
-        "back_subjects": "Back to Subjects",
-        "subjects": "Subjects",
-        "dashboard": "Dashboard",
-        "learning": "Learning",
-        "gen_pdf": "Generate from PDF",
-        "todo": "Lectures",
-        "library": "Library",
-        "my_cards": "My Cards",
-        "history": "History",
-        "error_bank": "Error Bank",
-        "analytics": "Analytics",
-        "stats": "Statistics",
-        "progress": "Progress",
-        "system": "System",
-        "settings": "Settings",
-        "howto": "How It Works",
-        "howto_title": "How zStudy Works",
-        "howto_subtitle": "A complete guide to all features",
-        "add_subject": "+ Add New Subject",
-        "gen_pdf_title": "Generate from PDF",
-        "gen_pdf_subtitle": "Extract text and convert to questions using AI",
-        "todo_title": "Lecture List",
-        "todo_subtitle": "Track your progress on each lecture",
-        "todo_set_count": "Set lecture count",
-        "lec_count": "Number of Lectures",
-        "status_not_started": "Not Started",
-        "status_in_progress": "In Progress",
-        "status_done": "Done",
-        "start_timer": "Start",
-        "stop_timer": "Stop",
-        "time_logged": "Time Logged",
-        "lecture_name_label": "Lecture Name",
-        "ai_name_btn": "AI Name",
-        "lec_num": "Lecture",
-        "overall_progress": "Overall Progress",
-        "lec_completion": "Lecture Completion",
-        "progress_title": "Progress",
-        "progress_subtitle": "Your progress and detailed charts",
-        "time_distribution": "Time Distribution",
-        "completion_chart": "Completion Chart",
-        "no_lec_data": "Add lectures from the Lectures tab first",
-        "lec_name_placeholder": "Lecture name...",
-        "drop_zone_title": "Click here or drag a PDF file",
-        "q_count": "Number of Questions",
-        "difficulty": "Difficulty",
-        "easy": "Easy",
-        "medium": "Medium",
-        "hard": "Hard",
-        "language": "Language",
-        "arabic": "Arabic",
-        "prompt_mcq": "MCQ Prompt",
-        "prompt_cards": "Cards Prompt",
-        "prompt_summary": "Summary Prompt",
-        "gen_mcq_btn": "Generate MCQ",
-        "gen_cards_btn": "Generate Cards",
-        "quiz_name": "Quiz Name",
-        "lecture_name": "Lecture Name",
-        "copy": "Copy",
-        "your_answer": "Your Answer",
-        "evaluate": "Grade",
-        "new_question": "New Question",
-        "json_subtitle": "Paste question data and start the quiz instantly",
-        "start_quiz": "Start Quiz",
-        "clear": "Clear",
-        "my_cards_title": "My Cards",
-        "decks_subtitle": "Flashcard decks for spaced repetition review",
-        "add_deck": "Add Deck",
-        "deck_name": "Deck Name",
-        "add_from_json": "+ Add from JSON",
-        "create": "Create",
-        "history_title": "History",
-        "history_subtitle": "Your past quiz records",
-        "review_last": "Review",
-        "import_json": "Import JSON",
-        "start": "Start",
-        "export": "Export",
-        "clear_all": "Clear All",
-        "error_bank_title": "Error Bank",
-        "error_bank_subtitle": "Questions you got wrong — review them to master the material",
-        "review_all_errors": "Review All Errors",
-        "stats_title": "Statistics",
-        "stats_subtitle": "Analyze your learning performance",
-        "settings_title": "Settings",
-        "settings_subtitle": "App settings and API keys",
-        "save": "Save",
-        "danger_zone_warning": "Delete all local data. Cannot be undone.",
-        "clear_all_data": "Clear All Local Data",
-        "end": "End",
-        "exit": "Exit",
-        "no_subjects": "No subjects yet",
-        "no_history": "No history",
-        "no_errors": "No errors",
-        "no_decks": "No decks",
-        "no_data_stats": "Not enough data yet",
-        "correct": "Correct",
-        "wrong": "Wrong",
-        "score": "Score",
-        "avg": "Average",
-        "best": "Best",
-        "tests": "Tests",
-        "cards": "Cards",
-        "due_now": "Due Now",
-        "trend": "Score Trend",
-        "total_cards": "Total Cards",
-        "mastery": "Mastery Rate",
-        "study_streak": "Study Days",
-        "ok": "OK",
-        "yes": "Yes",
-        "no": "No",
-        "cancel": "Cancel",
-        "delete_confirm": "Delete",
-        "enter_subj_name": "Please enter a subject name",
-        "enter_valid_user": "Enter a valid username",
-        "json_invalid": "Invalid JSON",
-        "copied": "Copied",
-        "saved": "Saved",
-        "cleared": "Cleared",
-        "exported": "Exported",
-        "error": "Error",
-        "generating": "Generating...",
-        "enter_answer": "Write your answer first",
-        "no_quiz": "No quiz found",
-        "no_due": "No cards due now",
-        "choose_subject": "Please choose a subject first",
-        "select_color": "Choose a color",
-        "subj_name_label": "Subject Name",
-        "subj_name_placeholder": "e.g. Mathematics",
-        "add_new_subject": "Add New Subject",
-        "notifications": "Notifications",
-        "notif_desc": "Enable daily review reminder notifications for flashcards",
-        "enable_notif": "Enable Notifications",
-        "notif_granted": "Notifications enabled",
-        "notif_denied": "Notifications blocked",
-        "notif_default": "Click to enable notifications",
-        "confidence_label": "Confidence:",
-        "guessing": "Guessing",
-        "not_sure": "Not Sure",
-        "sure": "Sure",
-        "conf_matrix_title": "Confidence Calibration",
-        "conf_accuracy": "Accuracy when",
-        "conf_answered": "answers",
-        "streak": "Study Streak",
-        "streak_days": "days in a row",
-        "weekly_activity": "Weekly Activity",
-        "topic_breakdown": "Source Performance",
-        "time_per_q": "Time/Question",
-        "avg_time": "Avg Time",
-        "due_cards_banner": "You have cards due for review — click to study",
-        "explain_groq": "Explain with Groq",
-        "summary_saved": "Summary saved",
-        "no_summaries": "No saved summaries",
-        "view": "View",
-        "summary_library_title": "Summaries",
-        "summary_lib_subtitle": "AI-powered smart summaries from PDF files",
-        "sum_style_label": "Summary Type",
-        "sum_detailed": "Detailed",
-        "sum_bullets": "Bullets",
-        "sum_concise": "Concise",
-        "sum_academic": "Academic",
-        "sum_structured": "Structured JSON",
-        "sum_result_label": "Generated Summary",
-        "gen_summary_title": "Generate AI Summary",
-        "gen_summary_btn": "Generate Summary",
-        "summary_lib": "Summaries"
-    }
-};
+        ar: {
+            back_subjects:'العودة للمواد', subjects:'المواد', dashboard:'لوحة المواد',
+            learning:'التعلم', gen_pdf:'توليد من PDF', todo:'المحاضرات', library:'المكتبة',
+            my_cards:'بطاقاتي', history:'السجل', error_bank:'بنك الأخطاء', analytics:'التحليل',
+            stats:'الإحصاءات', progress:'التقدم', system:'النظام', settings:'الإعدادات',
+            howto:'كيف تعمل الأداة', howto_title:'كيف تعمل zStudy', howto_subtitle:'دليل شامل لجميع الميزات',
+            add_subject:'+ إضافة مادة جديدة', gen_pdf_title:'توليد من PDF',
+            gen_pdf_subtitle:'استخرج النصوص وحوّلها إلى أسئلة باستخدام الذكاء الاصطناعي',
+            todo_title:'قائمة المحاضرات', todo_subtitle:'تتبع تقدمك في كل محاضرة',
+            todo_set_count:'حدد عدد المحاضرات', lec_count:'عدد المحاضرات',
+            status_not_started:'لم يبدأ', status_in_progress:'جاري', status_done:'تم',
+            start_timer:'ابدأ', stop_timer:'أوقف', time_logged:'الوقت المسجل',
+            lecture_name_label:'اسم المحاضرة', ai_name_btn:'تسمية AI', lec_num:'محاضرة',
+            overall_progress:'التقدم العام', lec_completion:'إتمام المحاضرات',
+            progress_title:'التقدم', progress_subtitle:'تقدمك ورسوم بيانية تفصيلية',
+            time_distribution:'توزيع الوقت', completion_chart:'مخطط الإتمام',
+            no_lec_data:'أضف محاضرات من تبويب المحاضرات أولاً',
+            lec_name_placeholder:'اسم المحاضرة...',
+            drop_zone_title:'انقر هنا أو اسحب ملف PDF',
+            q_count:'عدد الأسئلة', difficulty:'الصعوبة', easy:'سهل', medium:'متوسط', hard:'صعب',
+            language:'اللغة', arabic:'عربي', prompt_mcq:'برومت MCQ', prompt_cards:'برومت بطاقات',
+            prompt_summary:'برومت الملخص', quiz_name:'اسم الاختبار', lecture_name:'اسم المحاضرة',
+            copy:'نسخ', your_answer:'إجابتك', evaluate:'تقييم',
+            new_question:'سؤال جديد', json_subtitle:'الصق بيانات الأسئلة وابدأ الاختبار فوراً',
+            start_quiz:'بدء الاختبار', clear:'مسح', my_cards_title:'بطاقاتي',
+            decks_subtitle:'مجموعات البطاقات التعليمية للمراجعة المتباعدة',
+            add_deck:'إضافة مجموعة', deck_name:'اسم المجموعة', add_from_json:'+ إضافة من JSON',
+            create:'إنشاء', history_title:'السجل', history_subtitle:'سجل اختباراتك السابقة',
+            review_last:'مراجعة', import_json:'استيراد JSON', start:'بدء', export:'تصدير',
+            clear_all:'مسح الكل', error_bank_title:'بنك الأخطاء',
+            error_bank_subtitle:'الأسئلة التي أخطأت فيها — راجعها لتتقن المادة',
+            review_all_errors:'مراجعة جميع الأخطاء', stats_title:'الإحصاءات',
+            stats_subtitle:'تحليل أدائك التعليمي', settings_title:'الإعدادات',
+            settings_subtitle:'إعدادات التطبيق ومفاتيح API', save:'حفظ',
+            danger_zone_warning:'مسح جميع البيانات المحلية. لا يمكن التراجع.',
+            clear_all_data:'مسح كل البيانات المحلية', end:'إنهاء', exit:'خروج',
+            no_subjects:'لا توجد مواد بعد', no_history:'لا يوجد سجل', no_errors:'لا توجد أخطاء',
+            no_decks:'لا توجد مجموعات', no_data_stats:'لا توجد بيانات كافية بعد',
+            correct:'صحيح', wrong:'خطأ', score:'نتيجة', avg:'المتوسط', best:'أفضل نتيجة',
+            tests:'اختبار', cards:'بطاقة', due_now:'مستحقة الآن', trend:'اتجاه الدرجات',
+            total_cards:'إجمالي البطاقات', mastery:'معدل الإتقان', study_streak:'أيام الدراسة',
+            ok:'حسناً', yes:'نعم', no:'لا', cancel:'إلغاء', delete_confirm:'حذف',
+            enter_subj_name:'الرجاء إدخال اسم المادة', enter_valid_user:'أدخل اسم مستخدم صالح',
+            json_invalid:'JSON غير صالح', copied:'تم النسخ', saved:'تم الحفظ',
+            cleared:'تم المسح', exported:'تم التصدير', error:'خطأ',
+            generating:'جاري التوليد...', enter_answer:'اكتب إجابتك أولاً',
+            no_quiz:'لا يوجد اختبار', no_due:'لا بطاقات مستحقة الآن',
+            choose_subject:'الرجاء اختيار مادة أولاً', select_color:'اختر لوناً',
+            subj_name_label:'اسم المادة', subj_name_placeholder:'مثلاً: الرياضيات',
+            add_new_subject:'إضافة مادة جديدة',
+            notifications:'الإشعارات',
+            notif_desc:'تفعيل إشعارات تذكير المراجعة اليومية للبطاقات',
+            enable_notif:'تفعيل الإشعارات',
+            notif_granted:'الإشعارات مفعّلة', notif_denied:'الإشعارات محجوبة',
+            notif_default:'اضغط لتفعيل الإشعارات',
+            confidence_label:'مستوى الثقة:', guessing:'تخمين', not_sure:'غير متأكد', sure:'متأكد',
+            conf_matrix_title:'معايرة الثقة', conf_accuracy:'دقة عند', conf_answered:'إجابات',
+            streak:'سلسلة الدراسة', streak_days:'يوم متتالي',
+            weekly_activity:'النشاط الأسبوعي', topic_breakdown:'أداء المصادر',
+            time_per_q:'وقت/سؤال', avg_time:'متوسط الوقت',
+            due_cards_banner:'لديك بطاقات مستحقة للمراجعة — انقر للدراسة',
+            explain_groq:'اشرح مع Groq', summary_saved:'تم حفظ الملخص',
+            no_summaries:'لا توجد ملخصات محفوظة', view:'عرض',
+            summary_library_title:'الملخصات', summary_lib_subtitle:'ملخصات ذكية من ملفات PDF',
+            sum_style_label:'نوع الملخص', sum_detailed:'مفصّل', sum_bullets:'نقاط',
+            sum_concise:'مختصر', sum_academic:'أكاديمي', sum_structured:'منظم JSON',
+            sum_result_label:'الملخص المولّد',
+            gen_summary_title:'توليد ملخص بالذكاء الاصطناعي', gen_summary_btn:'توليد الملخص',
+            summary_lib:'الملخصات',
+        },
+        en: {
+            back_subjects:'Back to Subjects', subjects:'Subjects', dashboard:'Dashboard',
+            learning:'Learning', gen_pdf:'Generate from PDF', todo:'Lectures', library:'Library',
+            my_cards:'My Cards', history:'History', error_bank:'Error Bank', analytics:'Analytics',
+            stats:'Statistics', progress:'Progress', system:'System', settings:'Settings',
+            howto:'How It Works', howto_title:'How zStudy Works', howto_subtitle:'A complete guide to all features',
+            add_subject:'+ Add New Subject', gen_pdf_title:'Generate from PDF',
+            gen_pdf_subtitle:'Extract text and convert to questions using AI',
+            todo_title:'Lecture List', todo_subtitle:'Track your progress on each lecture',
+            todo_set_count:'Set lecture count', lec_count:'Number of Lectures',
+            status_not_started:'Not Started', status_in_progress:'In Progress', status_done:'Done',
+            start_timer:'Start', stop_timer:'Stop', time_logged:'Time Logged',
+            lecture_name_label:'Lecture Name', ai_name_btn:'AI Name', lec_num:'Lecture',
+            overall_progress:'Overall Progress', lec_completion:'Lecture Completion',
+            progress_title:'Progress', progress_subtitle:'Your progress and detailed charts',
+            time_distribution:'Time Distribution', completion_chart:'Completion Chart',
+            no_lec_data:'Add lectures from the Lectures tab first',
+            lec_name_placeholder:'Lecture name...',
+            drop_zone_title:'Click here or drag a PDF file',
+            q_count:'Number of Questions', difficulty:'Difficulty',
+            easy:'Easy', medium:'Medium', hard:'Hard', language:'Language', arabic:'Arabic',
+            prompt_mcq:'MCQ Prompt', prompt_cards:'Cards Prompt', prompt_summary:'Summary Prompt', gen_mcq_btn:'Generate MCQ', gen_cards_btn:'Generate Cards',
+            quiz_name:'Quiz Name', lecture_name:'Lecture Name', copy:'Copy',
+            your_answer:'Your Answer', evaluate:'Grade', new_question:'New Question',
+            json_subtitle:'Paste question data and start the quiz instantly',
+            start_quiz:'Start Quiz', clear:'Clear', my_cards_title:'My Cards',
+            decks_subtitle:'Flashcard decks for spaced repetition review',
+            add_deck:'Add Deck', deck_name:'Deck Name', add_from_json:'+ Add from JSON',
+            create:'Create', history_title:'History', history_subtitle:'Your past quiz records',
+            review_last:'Review', import_json:'Import JSON', start:'Start', export:'Export',
+            clear_all:'Clear All', error_bank_title:'Error Bank',
+            error_bank_subtitle:'Questions you got wrong — review them to master the material',
+            review_all_errors:'Review All Errors', stats_title:'Statistics',
+            stats_subtitle:'Analyze your learning performance', settings_title:'Settings',
+            settings_subtitle:'App settings and API keys', save:'Save',
+            danger_zone_warning:'Delete all local data. Cannot be undone.',
+            clear_all_data:'Clear All Local Data', end:'End', exit:'Exit',
+            no_subjects:'No subjects yet', no_history:'No history', no_errors:'No errors',
+            no_decks:'No decks', no_data_stats:'Not enough data yet',
+            correct:'Correct', wrong:'Wrong', score:'Score', avg:'Average', best:'Best',
+            tests:'Tests', cards:'Cards', due_now:'Due Now', trend:'Score Trend',
+            total_cards:'Total Cards', mastery:'Mastery Rate', study_streak:'Study Days',
+            ok:'OK', yes:'Yes', no:'No', cancel:'Cancel', delete_confirm:'Delete',
+            enter_subj_name:'Please enter a subject name', enter_valid_user:'Enter a valid username',
+            json_invalid:'Invalid JSON', copied:'Copied', saved:'Saved',
+            cleared:'Cleared', exported:'Exported', error:'Error',
+            generating:'Generating...', enter_answer:'Write your answer first',
+            no_quiz:'No quiz found', no_due:'No cards due now',
+            choose_subject:'Please choose a subject first', select_color:'Choose a color',
+            subj_name_label:'Subject Name', subj_name_placeholder:'e.g. Mathematics',
+            add_new_subject:'Add New Subject',
+            notifications:'Notifications',
+            notif_desc:'Enable daily review reminder notifications for flashcards',
+            enable_notif:'Enable Notifications',
+            notif_granted:'Notifications enabled', notif_denied:'Notifications blocked',
+            notif_default:'Click to enable notifications',
+            confidence_label:'Confidence:', guessing:'Guessing', not_sure:'Not Sure', sure:'Sure',
+            conf_matrix_title:'Confidence Calibration', conf_accuracy:'Accuracy when', conf_answered:'answers',
+            streak:'Study Streak', streak_days:'days in a row',
+            weekly_activity:'Weekly Activity', topic_breakdown:'Source Performance',
+            time_per_q:'Time/Question', avg_time:'Avg Time',
+            due_cards_banner:'You have cards due for review — click to study',
+            explain_groq:'Explain with Groq', summary_saved:'Summary saved',
+            no_summaries:'No saved summaries', view:'View',
+            summary_library_title:'Summaries', summary_lib_subtitle:'AI-powered smart summaries from PDF files',
+            sum_style_label:'Summary Type', sum_detailed:'Detailed', sum_bullets:'Bullets',
+            sum_concise:'Concise', sum_academic:'Academic', sum_structured:'Structured JSON',
+            sum_result_label:'Generated Summary',
+            gen_summary_title:'Generate AI Summary', gen_summary_btn:'Generate Summary',
+            summary_lib:'Summaries',
+        }
+    };
     function t(key) { return (TR[currentLang]?.[key]) || (TR['ar'][key]) || key; }
 
     function toggleLang() {
@@ -3544,20 +3355,6 @@ ${truncatedSource}`;
         catch { toast(t('copied')); }
     }
 
-    function downloadCurrentSummaryDirect() {
-        const isAr = currentLang === 'ar';
-        const name = ($('summaryNameInput')?.value.trim()) || (isAr ? 'الملخص' : 'Summary');
-        if (!_currentSummaryData && !_currentSummaryResult) return;
-        const entry = {
-            id: null, name,
-            text: _currentSummaryResult,
-            structured: _currentSummaryData,
-            style: _currentSummaryData ? 'structured' : 'plain',
-            date: new Date().toLocaleDateString(isAr?'ar-EG':'en-US')
-        };
-        downloadSummaryAsPDFDirect(entry);
-    }
-
     function structuredToPlainText(data) {
         let out = '';
         if (data.title)        out += data.title + '\n' + '─'.repeat(40) + '\n\n';
@@ -3839,483 +3636,319 @@ ${truncatedSource}`;
 
     function exportSummaryLib() { downloadJSON(getSummaryLib(), 'summaries'); }
 
-    // ── Download summary as PDF (pure jsPDF — vector text, IBM Plex) ────────
-    async function downloadSummaryAsPDFDirect(s) {
-        if (!s) return;
-        await _doDownloadSummaryPDF(s);
-    }
-
+    // ── Download summary as PDF — clean, simple, IBM Plex ──────────────────
     async function downloadSummaryAsPDF(id) {
         const s = getSummaryLib().find(x => x.id===id);
         if (!s) return;
         await _doDownloadSummaryPDF(s);
     }
 
+    async function downloadCurrentSummaryDirect() {
+        const isAr = currentLang === 'ar';
+        const name = ($('summaryNameInput')?.value.trim()) || (isAr ? 'الملخص' : 'Summary');
+        if (!_currentSummaryData && !_currentSummaryResult) return;
+        await _doDownloadSummaryPDF({
+            name,
+            text: _currentSummaryResult,
+            structured: _currentSummaryData,
+            style: _currentSummaryData ? 'structured' : 'plain',
+            date: new Date().toLocaleDateString(isAr?'ar-EG':'en-US')
+        });
+    }
+
     async function _doDownloadSummaryPDF(s) {
         const isAr = currentLang === 'ar';
         toast(isAr ? '⏳ جاري إنشاء PDF...' : '⏳ Generating PDF...');
 
-        // ── Helpers ───────────────────────────────────────────────────────
         const COLORS = {
             blue:'#3b82f6',green:'#10b981',purple:'#8b5cf6',orange:'#f59e0b',
             pink:'#ec4899',teal:'#14b8a6',amber:'#d97706',red:'#ef4444',
             indigo:'#6366f1',cyan:'#06b6d4'
         };
-        function resolveColor(raw) {
-            if (!raw || typeof raw !== 'string') return '#4f46e5';
-            const k = raw.toLowerCase().replace(/[^a-z]/g,'');
+        function hexColor(raw) {
+            if (!raw) return '#4f46e5';
+            const k = (raw||'').toLowerCase().replace(/[^a-z]/g,'');
             return COLORS[k] || (raw.startsWith('#') ? raw : '#4f46e5');
         }
         function toRGB(hex) {
-            if (!hex || typeof hex !== 'string') return [79,70,229];
-            const h = hex.replace('#','').slice(0,6);
-            const f = h.length===3 ? h.split('').map(c=>c+c).join('') : h.padEnd(6,'0');
-            return [parseInt(f.slice(0,2),16)||0, parseInt(f.slice(2,4),16)||0, parseInt(f.slice(4,6),16)||0];
+            const h = (hex||'#4f46e5').replace('#','').slice(0,6).padEnd(6,'0');
+            return [parseInt(h.slice(0,2),16)||0, parseInt(h.slice(2,4),16)||0, parseInt(h.slice(4,6),16)||0];
         }
         function lighten(hex, amt=0.92) {
             const [r,g,b] = toRGB(hex);
-            const rr = Math.round(r+(255-r)*amt);
-            const gg = Math.round(g+(255-g)*amt);
-            const bb = Math.round(b+(255-b)*amt);
-            return '#' + [rr,gg,bb].map(v=>v.toString(16).padStart(2,'0')).join('');
+            return '#'+[r,g,b].map(v=>Math.round(v+(255-v)*amt).toString(16).padStart(2,'0')).join('');
         }
 
         try {
-            // ── Fetch IBM Plex Sans Arabic TTF and embed it ───────────────
+            // ── Load IBM Plex Sans Arabic ─────────────────────────────────
             async function fetchB64(url) {
-                const r = await fetch(url);
-                if (!r.ok) throw new Error('fetch failed');
-                const buf = await r.arrayBuffer();
-                const u8  = new Uint8Array(buf);
-                let bin = '';
-                for (let i=0; i<u8.length; i+=8192)
-                    bin += String.fromCharCode(...u8.subarray(i, i+8192));
+                const r = await fetch(url); if (!r.ok) throw new Error('fetch');
+                const u8 = new Uint8Array(await r.arrayBuffer());
+                let bin=''; for (let i=0;i<u8.length;i+=8192) bin+=String.fromCharCode(...u8.subarray(i,i+8192));
                 return btoa(bin);
             }
-
-            let fontLoaded = false, arabicB64 = null;
-            try {
-                arabicB64 = await fetchB64('https://cdn.jsdelivr.net/gh/IBM/plex@master/packages/ibm-plex-sans-arabic/fonts/complete/ttf/IBMPlexSansArabic-Regular.ttf');
-                fontLoaded = true;
-            } catch(_) {
-                try {
-                    arabicB64 = await fetchB64('https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2');
-                    fontLoaded = true;
-                } catch(__) {}
-            }
-
-            // ── PDF setup ─────────────────────────────────────────────────
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
 
-            if (fontLoaded && arabicB64) {
-                pdf.addFileToVFS('IBMPlexSansArabic.ttf', arabicB64);
-                pdf.addFont('IBMPlexSansArabic.ttf', 'IBMPlexSansArabic', 'normal');
-            }
+            let FA = 'helvetica';
+            try {
+                const b64 = await fetchB64('https://cdn.jsdelivr.net/gh/IBM/plex@master/packages/ibm-plex-sans-arabic/fonts/complete/ttf/IBMPlexSansArabic-Regular.ttf');
+                pdf.addFileToVFS('IBMPlexAr.ttf', b64);
+                pdf.addFont('IBMPlexAr.ttf', 'IBMPlexAr', 'normal');
+                FA = 'IBMPlexAr';
+            } catch(_) {}
 
-            const FA = fontLoaded ? 'IBMPlexSansArabic' : 'helvetica'; // Arabic font
-            const FL = 'helvetica';                                       // Latin font
-
-            // Page geometry (mm)
-            const PW=210, PH=297, ML=20, MR=20, MT=24, MB=20;
-            const CW = PW-ML-MR;  // 170mm content width
-
-            // Line heights (mm) per font size (pt)
-            const LH = sz => sz * 0.4572; // 1pt ≈ 0.353mm, leading ≈ 1.3×
+            // ── Layout constants ──────────────────────────────────────────
+            const PW=210, PH=297, ML=22, MR=22, MT=28, MB=20;
+            const CW = PW-ML-MR;
+            const LH = sz => sz * 0.45;
+            let pageN = 1;
 
             function isArabic(str) { return /[\u0600-\u06FF]/.test(str||''); }
-            function setFont(str, bold=false) {
+            function useFont(str, bold=false) {
                 if (isArabic(str)||isAr) pdf.setFont(FA,'normal');
-                else pdf.setFont(FL, bold?'bold':'normal');
+                else pdf.setFont('helvetica', bold?'bold':'normal');
             }
-            function setColor(hex) { pdf.setTextColor(...toRGB(hex)); }
-            function setFill(hex)  { pdf.setFillColor(...toRGB(hex)); }
-            function setDraw(hex)  { pdf.setDrawColor(...toRGB(hex)); }
+            function setRGB(hex) { pdf.setTextColor(...toRGB(hex)); }
+            function fillRGB(hex) { pdf.setFillColor(...toRGB(hex)); }
+            function drawRGB(hex) { pdf.setDrawColor(...toRGB(hex)); }
 
-            // Draw text at x,y — auto RTL
-            function tx(str, x, y, align) {
-                if (!str && str!==0) return;
-                const rtl = isArabic(str)||isAr;
-                const a   = align || (rtl ? 'right' : 'left');
-                const xPos= a==='right' ? PW-MR : a==='center' ? PW/2 : x;
-                pdf.text(String(str), xPos, y, { align:a });
+            // Centered or RTL-aligned text
+            function tx(str, x, y, opts={}) {
+                if (!str&&str!==0) return;
+                const rtl = opts.rtl ?? (isArabic(str)||isAr);
+                const align = opts.align || (rtl?'right':'left');
+                const xPos = align==='right'? PW-MR : align==='center'? PW/2 : x;
+                pdf.text(String(str), xPos, y, { align });
             }
 
-            // Wrapped paragraph → returns new y
-            function para(str, x, y, { size=10.5, bold=false, color='#1a1a1a', maxW=CW, gap=1.8 }={}) {
+            // Word-wrapped paragraph → returns new y
+            function para(str, y, opts={}) {
                 if (!str) return y;
-                setFont(str, bold);
+                const { size=10.5, color='#374151', maxW=CW, lhExtra=1.8, indent=0 } = opts;
+                useFont(str);
                 pdf.setFontSize(size);
-                setColor(color);
-                const lh    = LH(size) + gap;
-                const lines = pdf.splitTextToSize(String(str), maxW);
-                for (const l of lines) {
+                setRGB(color);
+                const lh = LH(size) + lhExtra;
+                for (const line of pdf.splitTextToSize(String(str), maxW-indent)) {
                     y = ensureY(y, lh+1);
-                    tx(l, x, y);
+                    const rtl = isArabic(line)||isAr;
+                    if (rtl) pdf.text(line, PW-MR, y, {align:'right'});
+                    else pdf.text(line, ML+indent, y);
                     y += lh;
                 }
                 return y;
             }
 
-            // ── Page management ───────────────────────────────────────────
-            let pageN = 1;
             function stampFooter() {
-                // Hairline rule
-                setDraw('#d4d4d8');
-                pdf.setLineWidth(0.2);
-                pdf.line(ML, PH - 14, PW - MR, PH - 14);
-
-                pdf.setFont(FL,'normal');
-                pdf.setFontSize(7);
-                pdf.setTextColor(160, 160, 168);
-                pdf.text(String(pageN), PW/2, PH - 9, { align:'center' });
-                pdf.text('zStudy', PW-MR, PH - 9, { align:'right' });
-                setFont(s.name);
-                pdf.text(s.name.slice(0, 40), ML, PH - 9);
+                drawRGB('#d4d4d8'); pdf.setLineWidth(0.18);
+                pdf.line(ML, PH-13, PW-MR, PH-13);
+                pdf.setFont('helvetica','normal'); pdf.setFontSize(7); setRGB('#a0a0ab');
+                pdf.text(String(pageN), PW/2, PH-8, {align:'center'});
+                pdf.text('zStudy', PW-MR, PH-8, {align:'right'});
+                useFont(s.name); pdf.text(s.name.slice(0,38), ML, PH-8);
                 pageN++;
             }
             function newPage() { stampFooter(); pdf.addPage(); return MT; }
-            function ensureY(y, need) { return (y+need > PH-MB-14) ? newPage() : y; }
-
-            // ── Drawing primitives ────────────────────────────────────────
-            function hrule(y, w=0.25, hex='#d4d4d8') {
-                setDraw(hex);
-                pdf.setLineWidth(w);
-                pdf.line(ML, y, PW-MR, y);
-            }
-            function rect(x,y,w,h,hex,style='F') {
-                if (style==='F') setFill(hex); else setDraw(hex);
-                pdf.rect(x,y,w,h,style);
-            }
-            function dot(x, y, hex) {
-                setFill(hex);
-                pdf.circle(x, y, 0.9, 'F');
+            function ensureY(y, need) { return (y+need > PH-MB-13) ? newPage() : y; }
+            function hrule(y, hex='#e4e4e7', w=0.18) {
+                drawRGB(hex); pdf.setLineWidth(w); pdf.line(ML,y,PW-MR,y);
             }
 
-            // ═══════════════════════════════════════════════════════════════
-            //  RENDER
-            // ═══════════════════════════════════════════════════════════════
-            let y = MT;
+            // ── COVER ─────────────────────────────────────────────────────
+            // Thin accent bar top
+            fillRGB('#4f46e5'); pdf.rect(0,0,PW,1.0,'F');
 
-            // ── Minimalist Typographic Cover ──────────────────────────────
-            // Thin amber top bar
-            setFill('#c8820a');
-            pdf.rect(0, 0, PW, 1.2, 'F');
-
-            // Brand label top-left
-            pdf.setFont(FL, 'normal');
-            pdf.setFontSize(7);
-            pdf.setTextColor(160, 160, 168);
+            // Brand label
+            pdf.setFont('helvetica','normal'); pdf.setFontSize(7); setRGB('#a0a0ab');
             pdf.text('zStudy', ML, 14);
 
-            // Document title — large, ink-black
-            const rtlCover = isArabic(s.name) || isAr;
-            pdf.setFontSize(21);
-            pdf.setTextColor(24, 24, 27);
-            setFont(s.name, false);
+            // Main title
+            pdf.setFontSize(20); setRGB('#18181b');
+            useFont(s.name);
             const titleLines = pdf.splitTextToSize(s.name, CW);
             let ty = 24;
             for (const tl of titleLines) {
-                if (rtlCover) pdf.text(tl, PW - ML, ty, { align: 'right' });
+                if (isArabic(tl)||isAr) pdf.text(tl, PW-ML, ty, {align:'right'});
                 else pdf.text(tl, ML, ty);
-                ty += LH(21) + 2;
+                ty += LH(20) + 2;
             }
 
-            // Hairline rule below title
-            setDraw('#d4d4d8');
-            pdf.setLineWidth(0.2);
-            pdf.line(ML, ty + 3, PW - MR, ty + 3);
-
-            // Date and metadata under rule
-            const dateStr = s.date || '';
-            pdf.setFont(FL, 'normal');
-            pdf.setFontSize(7.5);
-            pdf.setTextColor(160, 160, 168);
-            if (dateStr) pdf.text(dateStr, ML, ty + 10);
-            if (s.structured?.sections?.length) {
-                const secCount = s.structured.sections.length;
-                const secLabel = isAr ? `${secCount} أقسام` : `${secCount} sections`;
-                pdf.text(secLabel, PW - MR, ty + 10, { align: 'right' });
-            }
-
-            // Move y past the cover area
-            y = ty + 20;
-
-            // Summary callout box (styled differently from before)
-            // will be handled below in the structured section
-
+            // Separator + meta
+            hrule(ty+3);
+            pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); setRGB('#a0a0ab');
+            pdf.text(s.date||'', ML, ty+10);
             const isStr = s.style==='structured' && s.structured;
+            if (isStr && s.structured.sections?.length) {
+                pdf.text(isAr ? `${s.structured.sections.length} أقسام` : `${s.structured.sections.length} sections`, PW-MR, ty+10, {align:'right'});
+            }
 
+            let y = ty + 20;
+
+            // ── CONTENT ───────────────────────────────────────────────────
             if (isStr) {
                 const d = s.structured;
 
-                // ── Summary callout ───────────────────────────────────────
+                // Summary callout
                 if (d.summary_line) {
-                    setFont(d.summary_line);
-                    pdf.setFontSize(10.5);
-                    const sl = pdf.splitTextToSize(d.summary_line, CW - 14);
-                    const slH = sl.length * (LH(10.5) + 1.6) + 12;
-                    y = ensureY(y, slH + 6);
-
-                    // Background with indigo tint
-                    setFill('#eef2ff');
-                    pdf.rect(ML, y - 5, CW, slH, 'F');
-                    // Left accent bar
-                    setFill('#4f46e5');
-                    pdf.rect(ML, y - 5, 3, slH, 'F');
-                    // Small label above
-                    pdf.setFont(FL, 'bold');
-                    pdf.setFontSize(7);
-                    pdf.setTextColor(99, 102, 241);
-                    pdf.text(isAr ? 'الفكرة الرئيسية' : 'KEY INSIGHT', ML + 6, y - 0.5);
-
-                    pdf.setFontSize(10.5);
-                    pdf.setTextColor(31, 41, 55);
-                    setFont(d.summary_line);
-                    let sy = y + 5;
+                    useFont(d.summary_line); pdf.setFontSize(10.5);
+                    const sl = pdf.splitTextToSize(d.summary_line, CW-12);
+                    const slH = sl.length*(LH(10.5)+1.6)+14;
+                    y = ensureY(y, slH+4);
+                    fillRGB('#eef2ff'); pdf.rect(ML, y-5, CW, slH, 'F');
+                    fillRGB('#4f46e5'); pdf.rect(isAr ? PW-MR-3 : ML, y-5, 3, slH, 'F');
+                    pdf.setFont('helvetica','bold'); pdf.setFontSize(7); setRGB('#6366f1');
+                    pdf.text(isAr?'الفكرة الرئيسية':'KEY INSIGHT', isAr ? PW-MR-6 : ML+6, y-0.5, {align:isAr?'right':'left'});
+                    pdf.setFontSize(10.5); setRGB('#1f2937');
+                    useFont(d.summary_line);
+                    let sy = y+5;
                     for (const l of sl) {
-                        const rtlL = isArabic(l) || isAr;
-                        if (rtlL) { pdf.text(l, PW - ML - 3, sy, { align:'right' }); }
-                        else      { pdf.text(l, ML + 6, sy); }
-                        sy += LH(10.5) + 1.6;
+                        if (isArabic(l)||isAr) pdf.text(l, PW-MR-4, sy, {align:'right'});
+                        else pdf.text(l, ML+6, sy);
+                        sy += LH(10.5)+1.6;
                     }
-                    y += slH + 8;
+                    y += slH+8;
                 }
 
-                // ── Doc subtitle ──────────────────────────────────────────
-                if (d.title && d.title !== s.name) {
-                    y = ensureY(y, 10);
-                    y = para(d.title, ML, y, { size:13, bold:true, color:'#3f3f46' });
-                    y += 3;
-                }
-
-                // ── Sections ──────────────────────────────────────────────
-                (d.sections||[]).forEach((sec, si) => {
-                    const col   = resolveColor(sec.color);
+                // Sections
+                for (const [si, sec] of (d.sections||[]).entries()) {
+                    const col = hexColor(sec.color);
                     const [cr,cg,cb] = toRGB(col);
-                    const bgTint = lighten(col, 0.93);
-                    const isTab = sec.type==='table' && sec.table && Array.isArray(sec.table.headers);
+                    const isTab = sec.type==='table' && sec.table?.headers;
+                    if (si>0) y += 5;
 
-                    if (si>0) y += 6;
-
-                    // ── Section heading ───────────────────────────────────
+                    // Section heading
                     const hTxt = sec.heading||'';
-                    setFont(hTxt, false);
-                    pdf.setFontSize(12);
-                    const hLines = pdf.splitTextToSize(hTxt, CW - 8);
-                    const hH = hLines.length * (LH(12)+1.5) + 10;
+                    useFont(hTxt); pdf.setFontSize(11.5);
+                    const hLines = pdf.splitTextToSize(hTxt, CW-8);
+                    const hH = hLines.length*(LH(11.5)+1.5)+9;
                     y = ensureY(y, hH+2);
 
-                    // Thin colored left/right bar + subtle tint bg
-                    const bgTint2 = lighten(col, 0.94);
-                    setFill(bgTint2);
-                    pdf.rect(ML, y - 4.5, CW, hH, 'F');
-                    // Colored bar (RTL: right side)
-                    const rtlH2 = isAr;
-                    setFill(col);
-                    if (rtlH2) pdf.rect(PW - MR - 2.5, y - 4.5, 2.5, hH, 'F');
-                    else       pdf.rect(ML, y - 4.5, 2.5, hH, 'F');
-
-                    pdf.setTextColor(cr, cg, cb);
-                    pdf.setFontSize(12);
-                    let hy = y + 1.5;
+                    fillRGB(lighten(col, 0.93)); pdf.rect(ML, y-4, CW, hH, 'F');
+                    fillRGB(col);
+                    if (isAr) pdf.rect(PW-MR-2.5, y-4, 2.5, hH, 'F');
+                    else pdf.rect(ML, y-4, 2.5, hH, 'F');
+                    pdf.setTextColor(cr,cg,cb); pdf.setFontSize(11.5);
+                    let hy = y+1.5;
                     for (const hl of hLines) {
-                        const rtlH = isArabic(hl) || isAr;
-                        if (rtlH) { pdf.text(hl, PW - ML - 5, hy, { align:'right' }); }
-                        else      { pdf.text(hl, ML + 5, hy); }
-                        hy += LH(12)+1.5;
+                        if (isArabic(hl)||isAr) pdf.text(hl, PW-ML-5, hy, {align:'right'});
+                        else pdf.text(hl, ML+5, hy);
+                        hy += LH(11.5)+1.5;
                     }
-                    y += hH + 4;
+                    y += hH+4;
 
-                    // ── Table ─────────────────────────────────────────────
                     if (isTab) {
+                        // Simple table
                         const headers = sec.table.headers||[];
-                        const rows    = sec.table.rows||[];
-                        const nCols   = Math.max(headers.length,1);
-                        const colW    = CW / nCols;
-                        const PAD     = 2.5;
+                        const rows = sec.table.rows||[];
+                        const nCols = Math.max(headers.length,1);
+                        const colW = CW/nCols;
+                        const PAD = 2.5;
 
                         // Header row
-                        const hRowH = 8;
+                        const hRowH = 7.5;
                         y = ensureY(y, hRowH);
-                        rect(ML, y-3, CW, hRowH, col);
-                        pdf.setFontSize(8.5);
-                        pdf.setTextColor(255,255,255);
+                        fillRGB(col); pdf.rect(ML, y-3, CW, hRowH, 'F');
+                        pdf.setFontSize(8); pdf.setTextColor(255,255,255);
                         headers.forEach((h,hi) => {
-                            const cx = ML + hi*colW;
-                            setFont(String(h), true);
-                            pdf.setFontSize(8.5);
-                            pdf.setTextColor(255,255,255);
-                            tx(String(h), cx+PAD, y+1);
-                            if (hi>0) { setDraw('#ffffff40'); pdf.setLineWidth(0.15); pdf.line(cx,y-3,cx,y+hRowH-3); }
+                            const cx = ML+hi*colW;
+                            useFont(String(h)); pdf.setFontSize(8); pdf.setTextColor(255,255,255);
+                            const rtl = isArabic(String(h))||isAr;
+                            pdf.text(String(h).slice(0,24), rtl ? cx+colW-PAD : cx+PAD, y+1, {align: rtl?'right':'left'});
+                            if (hi>0) { drawRGB('#ffffff'); pdf.setLineWidth(0.12); pdf.line(cx,y-3,cx,y+hRowH-3); }
                         });
                         y += hRowH;
 
-                        // Data rows
                         rows.forEach((row,ri) => {
                             const cells = Array.isArray(row)?row:[row];
-                            // Measure height
-                            let maxL = 1;
-                            cells.forEach(cell => {
-                                setFont(String(cell||''));
-                                pdf.setFontSize(9);
-                                const ls = pdf.splitTextToSize(String(cell||'').replace(/<[^>]+>/g,''), colW-PAD*2);
-                                maxL = Math.max(maxL, ls.length);
-                            });
-                            const rH = maxL*(LH(9)+1)+5;
-                            y = ensureY(y, rH);
-
-                            // Alternating row bg
-                            if (ri%2===0) rect(ML, y-2.5, CW, rH, '#fafafa');
-                            else          rect(ML, y-2.5, CW, rH, '#f4f4f5');
-
-                            setDraw('#e4e4e7');
-                            pdf.setLineWidth(0.15);
-                            pdf.line(ML, y+rH-2.5, PW-MR, y+rH-2.5);
-
+                            // Row bg alternating
+                            fillRGB(ri%2===0?'#f9fafb':'#ffffff'); pdf.rect(ML, y-2.5, CW, 8, 'F');
+                            drawRGB('#e4e4e7'); pdf.setLineWidth(0.1); pdf.line(ML,y+5.5,PW-MR,y+5.5);
+                            pdf.setFontSize(9); setRGB('#374151');
                             cells.forEach((cell,ci) => {
-                                const cx  = ML+ci*colW;
-                                const txt = String(cell||'').replace(/<[^>]+>/g,'');
-                                setFont(txt);
-                                pdf.setFontSize(9);
-                                setColor('#374151');
-                                const ls = pdf.splitTextToSize(txt, colW-PAD*2);
-                                let cy = y;
-                                for (const l of ls) { tx(l, cx+PAD, cy); cy+=LH(9)+1; }
-                                if (ci>0) { setDraw('#e4e4e7'); pdf.setLineWidth(0.12); pdf.line(cx,y-2.5,cx,y+rH-2.5); }
+                                const cx = ML+ci*colW;
+                                useFont(String(cell||''));
+                                const cellStr = String(cell||'').replace(/<[^>]+>/g,'').slice(0,60);
+                                const rtl = isArabic(cellStr)||isAr;
+                                pdf.text(cellStr, rtl ? cx+colW-PAD : cx+PAD, y+2, {align:rtl?'right':'left'});
+                                if (ci>0) { drawRGB('#e4e4e7'); pdf.setLineWidth(0.1); pdf.line(cx,y-2.5,cx,y+5.5); }
                             });
-                            y += rH;
+                            y += 8;
+                            y = ensureY(y, 9);
                         });
-                        y += 3;
-
-                    // ── Bullets ───────────────────────────────────────────
+                        y += 4;
                     } else {
-                        (sec.points||[]).forEach((pt, pti) => {
-                            setFont(pt);
-                            pdf.setFontSize(10.5);
-                            const ptLines = pdf.splitTextToSize(pt, CW - 10);
-                            const ptH = ptLines.length*(LH(10.5)+1.5) + 5;
+                        // Points
+                        for (const pt of (sec.points||[])) {
+                            const ptStr = String(pt||'');
+                            useFont(ptStr); pdf.setFontSize(10); setRGB('#374151');
+                            const wrapped = pdf.splitTextToSize(ptStr, CW-14);
+                            const ptH = wrapped.length*(LH(10)+1.5)+3;
                             y = ensureY(y, ptH);
-
-                            const rtl = isArabic(pt)||isAr;
-
-                            // Alternating tinted bg for bullets
-                            const bgLt = lighten(col, 0.96);
-                            setFill(bgLt);
-                            pdf.rect(ML, y - 2, CW, ptH, 'F');
-
-                            // Colored bullet dot
-                            setFill(col);
-                            const dotX = rtl ? PW - ML - 3 : ML + 3.5;
-                            pdf.circle(dotX, y + ptH/2 - 1.5, 1.5, 'F');
-
-                            // Text
-                            pdf.setFontSize(10.5);
-                            pdf.setTextColor(31, 41, 55);
-                            setFont(pt);
-                            let by = y + 1.5;
-                            for (const l of ptLines) {
-                                if (rtl) { pdf.text(l, PW - ML - 7, by, { align:'right' }); }
-                                else     { pdf.text(l, ML + 7, by); }
-                                by += LH(10.5)+1.5;
+                            // Bullet dot
+                            fillRGB(col); pdf.circle(isAr ? PW-MR-4 : ML+4, y-0.5, 1.2, 'F');
+                            let py = y;
+                            for (const wl of wrapped) {
+                                if (isArabic(wl)||isAr) pdf.text(wl, PW-MR-8, py, {align:'right'});
+                                else pdf.text(wl, ML+9, py);
+                                py += LH(10)+1.5;
                             }
-                            y = by + 3;
-                        });
+                            y = py+2;
+                        }
+                        y += 2;
+                    }
+                }
+
+                // Key terms
+                if ((d.key_terms||[]).length) {
+                    y = ensureY(y, 16);
+                    y += 4;
+                    hrule(y-2, '#d4d4d8');
+                    pdf.setFont('helvetica','bold'); pdf.setFontSize(8); setRGB('#6b6b78');
+                    pdf.text(isAr?'المصطلحات الرئيسية':'KEY TERMS', isAr?PW-MR:ML, y+4, {align:isAr?'right':'left'});
+                    y += 10;
+
+                    for (const kt of d.key_terms) {
+                        const term = String(kt.term||'');
+                        const def  = String(kt.definition||'');
+                        useFont(term); pdf.setFontSize(10); setRGB('#18181b');
+                        const termLines = pdf.splitTextToSize(term, CW*0.33);
+                        const defLines  = pdf.splitTextToSize(def,  CW*0.62);
+                        const rowH = Math.max(termLines.length, defLines.length)*(LH(10)+1.5)+6;
+                        y = ensureY(y, rowH+1);
+                        // Term col
+                        pdf.setFont('helvetica','bold'); setRGB('#18181b'); pdf.setFontSize(10);
+                        useFont(term);
+                        let ty2 = y;
+                        for (const tl of termLines) {
+                            if (isArabic(tl)||isAr) pdf.text(tl, PW-MR, ty2, {align:'right'});
+                            else pdf.text(tl, ML, ty2);
+                            ty2 += LH(10)+1.5;
+                        }
+                        // Def col
+                        pdf.setFont('helvetica','normal'); setRGB('#52525e'); pdf.setFontSize(10);
+                        useFont(def);
+                        const defX = isAr ? ML : ML + CW*0.36;
+                        let dy = y;
+                        for (const dl of defLines) {
+                            if (isArabic(dl)||isAr) pdf.text(dl, isAr ? PW-MR-CW*0.36 : defX+CW*0.62, dy, {align:isAr?'right':'left'});
+                            else pdf.text(dl, defX, dy);
+                            dy += LH(10)+1.5;
+                        }
+                        y += rowH;
+                        drawRGB('#f4f4f6'); pdf.setLineWidth(0.1); pdf.line(ML,y,PW-MR,y);
                         y += 1;
                     }
-                });
-
-                // ── Key Terms ─────────────────────────────────────────────
-                if ((d.key_terms||[]).length) {
-                    y += 8;
-                    y = ensureY(y, 18);
-
-                    // Key Terms header — minimalist hairline + label
-                    const ktLabel = isAr ? 'المصطلحات الرئيسية' : 'Key Terms';
-                    setDraw('#d4d4d8');
-                    pdf.setLineWidth(0.2);
-                    pdf.line(ML, y - 3, PW - MR, y - 3);
-                    setFont(ktLabel, true);
-                    pdf.setFontSize(9);
-                    pdf.setTextColor(107, 107, 120);
-                    if (isAr) { pdf.text(ktLabel, PW - ML, y + 3, { align:'right' }); }
-                    else      { pdf.text(ktLabel, ML, y + 3); }
-                    y += 12;
-
-                    d.key_terms.forEach((kt,ki) => {
-                        const term = kt.term||'', def = kt.definition||'';
-                        const TW = CW*0.32, DW = CW*0.64;
-
-                        setFont(def); pdf.setFontSize(9.5);
-                        const dLines = pdf.splitTextToSize(def, DW);
-                        setFont(term,true); pdf.setFontSize(9.5);
-                        const tLines = pdf.splitTextToSize(term, TW);
-                        const rH = Math.max(tLines.length,dLines.length)*(LH(9.5)+1)+6;
-
-                        y = ensureY(y, rH);
-
-                        // Alternating row with indigo tint for even rows
-                        const rowBg = ki%2===0 ? '#f0f0ff' : '#fafafa';
-                        setFill(rowBg);
-                        pdf.rect(ML, y-3, CW, rH, 'F');
-                        setDraw('#e4e4e7'); pdf.setLineWidth(0.15);
-                        pdf.line(ML, y+rH-3, PW-MR, y+rH-3);
-
-                        // Term (bold indigo)
-                        setFont(term,true); pdf.setFontSize(9.5);
-                        pdf.setTextColor(67, 56, 202);
-                        let ty2=y;
-                        for (const tl of tLines) { tx(tl, ML+2, ty2); ty2+=LH(9.5)+1; }
-
-                        // Divider between columns
-                        setDraw('#d4d4d8'); pdf.setLineWidth(0.15);
-                        pdf.line(ML+TW+2, y-3, ML+TW+2, y+rH-3);
-
-                        // Definition
-                        setFont(def); pdf.setFontSize(9.5);
-                        pdf.setTextColor(55, 65, 81);
-                        let dy=y;
-                        for (const dl of dLines) {
-                            if (isArabic(dl)||isAr) { pdf.text(dl, PW-ML-2, dy, {align:'right'}); }
-                            else { tx(dl, ML+TW+5, dy); }
-                            dy+=LH(9.5)+1;
-                        }
-                        y += rH;
-                    });
                 }
 
             } else {
-                // ── Plain text mode ───────────────────────────────────────
-                for (const line of (s.text||'').split('\n')) {
-                    const t = line.trim();
-                    if (!t) { y += 3.5; continue; }
-
-                    if (/^#{1,3}\s/.test(t)) {
-                        const lvl = (t.match(/^#+/)||[''])[0].length;
-                        const sz  = lvl===1 ? 16 : lvl===2 ? 13 : 11;
-                        const txt = t.replace(/^#+\s*/,'');
-                        y = ensureY(y, sz*0.6+6);
-                        if (lvl===1) { y+=2; hrule(y-4, 0.2,'#e4e4e7'); }
-                        y = para(txt, ML, y, { size:sz, bold:true, color:'#18181b', gap:2 });
-                        y += lvl===1 ? 4 : 2;
-                    } else if (/^[•\-\*]\s/.test(t)) {
-                        const txt = t.replace(/^[•\-\*]\s*/,'');
-                        const rtl = isArabic(txt)||isAr;
-                        setFont(txt); pdf.setFontSize(10.5);
-                        const ls = pdf.splitTextToSize(txt, CW-6);
-                        y = ensureY(y, ls.length*(LH(10.5)+1.5)+2);
-                        dot(rtl ? PW-MR-1 : ML+1.5, y-0.8, '#71717a');
-                        setColor('#1a1a1a'); pdf.setFontSize(10.5);
-                        for (const l of ls) {
-                            if (rtl) tx(l, 0, y, 'right');
-                            else     tx(l, ML+5, y);
-                            y += LH(10.5)+1.5;
-                        }
-                        y += 1;
-                    } else {
-                        y = para(t, ML, y, { size:10.5, color:'#27272a', gap:2 });
-                        y += 1;
-                    }
+                // Plain text summary
+                const paras = (s.text||'').split(/\n\n+/);
+                for (const rawP of paras) {
+                    const p = rawP.trim(); if (!p) continue;
+                    y = ensureY(y, 8);
+                    y = para(p, y, { size:10.5, color:'#374151' });
+                    y += 4;
                 }
             }
 
@@ -4482,13 +4115,19 @@ ${truncatedSource}`;
     // ── Save translation to local library ────────────────────────────────
     function getTrLib() { return lj(subKey('tr_lib')) || []; }
     function saveTrLibData(d) { ls(subKey('tr_lib'), JSON.stringify(d.slice(0,50))); }
+    let _trCurrentId = null; // track which saved entry is being viewed
 
     function saveTrToLib() {
         if (!_trResult) return;
         const name = (trPdfFile || 'ترجمة').replace(/\.pdf$/i,'');
         const lib = getTrLib();
-        lib.unshift({ id: Date.now(), name, text: _trResult, date: new Date().toLocaleDateString('ar-EG'), domain: _trDomain });
+        // Check for duplicate name — update instead of duplicate
+        const existingIdx = lib.findIndex(x => x.name === name);
+        const entry = { id: existingIdx >= 0 ? lib[existingIdx].id : Date.now(), name, text: _trResult, date: new Date().toLocaleDateString('ar-EG'), domain: _trDomain };
+        if (existingIdx >= 0) lib[existingIdx] = entry;
+        else lib.unshift(entry);
         saveTrLibData(lib);
+        _trCurrentId = entry.id;
         renderTrLib();
         toast('✓ تم حفظ الترجمة');
     }
@@ -4498,33 +4137,51 @@ ${truncatedSource}`;
         const sec = document.getElementById('trLibSection');
         const list = document.getElementById('trLibList');
         if (!sec || !list) return;
+
+        // Restore previously viewed entry if panel was re-opened
+        if (_trCurrentId && !_trResult) {
+            const cached = lib.find(x => x.id === _trCurrentId);
+            if (cached) loadTrEntry(cached.id);
+        }
+
         if (!lib.length) { sec.style.display = 'none'; return; }
         sec.style.display = 'block';
-        list.innerHTML = lib.map(e => `
-            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all var(--transition);box-shadow:var(--shadow-sm)" onmouseover="this.style.boxShadow='var(--shadow)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+        list.innerHTML = lib.map(e => {
+            const isActive = e.id === _trCurrentId;
+            return `
+            <div style="background:var(--surface);border:1.5px solid ${isActive ? 'var(--accent)' : 'var(--border)'};border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all var(--transition);box-shadow:${isActive ? 'var(--shadow-accent)' : 'var(--shadow-sm)'}">
                 <div style="flex:1;min-width:0">
-                    <div style="font-weight:600;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" dir="rtl">${esc(e.name)}</div>
+                    <div style="font-weight:600;font-size:13px;color:${isActive ? 'var(--accent)' : 'var(--text)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap" dir="rtl">${esc(e.name)}</div>
                     <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:2px">${e.date} · ${e.domain||'medical'}</div>
                 </div>
-                <button class="btn btn-sm" onclick="loadTrEntry(${e.id})">عرض</button>
+                <button class="btn btn-sm${isActive ? ' btn-primary' : ''}" onclick="loadTrEntry(${e.id})">عرض</button>
                 <button class="btn btn-sm" onclick="downloadTrEntryPDF(${e.id})" title="PDF">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="delTrEntry(${e.id})">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
                 </button>
-            </div>`).join('');
+            </div>`;
+        }).join('');
     }
 
     function loadTrEntry(id) {
         const e = getTrLib().find(x => x.id === id);
         if (!e) return;
         _trResult = e.text;
+        _trCurrentId = e.id;
         trPdfFile = e.name;
-        document.getElementById('trResultTitle').textContent = e.name + ' — ترجمة عربية';
-        document.getElementById('trResultMeta').textContent = e.date;
+        _trDomain = e.domain || 'medical';
+        const titleEl = document.getElementById('trResultTitle');
+        const metaEl = document.getElementById('trResultMeta');
+        if (titleEl) titleEl.textContent = e.name + ' — ترجمة عربية';
+        if (metaEl) metaEl.textContent = e.date + ' · ' + (e.domain || 'medical');
         renderTrResultBox(_trResult);
-        document.getElementById('trResultArea').style.display = 'block';
+        const area = document.getElementById('trResultArea');
+        if (area) area.style.display = 'block';
+        // Scroll to result
+        setTimeout(() => area?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+        renderTrLib(); // refresh highlights
     }
 
     function delTrEntry(id) {
