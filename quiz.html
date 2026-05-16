@@ -2677,12 +2677,14 @@ const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
         url => `https://cors-anywhere.herokuapp.com/${url}`,
     ];
 
-    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=3000, temperature=0.2) {
+    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=32768, temperature=0.0) {
         const body = JSON.stringify({
             model: NV_MODEL,
             messages:[{role:'system',content:system},{role:'user',content:prompt}],
             max_tokens: maxTokens,
-            temperature: temperature
+            temperature: temperature,
+            top_p: 1.0,
+            chat_template_kwargs: { enable_thinking: false }
         });
         const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
 
