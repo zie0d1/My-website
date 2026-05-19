@@ -813,6 +813,128 @@
 
         .hidden { display:none !important; }
 
+        /* ── PANEL ADD BUTTON ── */
+        .panel-add-btn {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:7px 14px; font-size:12px; font-weight:600;
+            background:var(--accent); color:#fff;
+            border:none; cursor:pointer; font-family:var(--sans);
+            border-radius:var(--radius); box-shadow:var(--shadow-accent);
+            transition:all var(--transition); flex-shrink:0;
+        }
+        .panel-add-btn:hover { background:var(--accent-dark); transform:translateY(-1px); box-shadow:0 6px 20px rgba(79,70,229,.38); }
+        .panel-add-btn:active { transform:scale(0.97) translateY(0); }
+
+        /* ── CREATION MODAL ── */
+        .creation-modal-overlay {
+            position:fixed; inset:0; z-index:500;
+            background:rgba(0,0,0,.45);
+            backdrop-filter:blur(4px);
+            display:flex; align-items:center; justify-content:center;
+            padding:20px;
+            animation:fadeIn 160ms ease;
+        }
+        .creation-modal {
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:var(--radius-xl); box-shadow:var(--shadow-modal);
+            width:100%; max-width:520px; max-height:90vh;
+            display:flex; flex-direction:column;
+            animation:modalIn 220ms cubic-bezier(.34,1.56,.64,1);
+            overflow:hidden;
+        }
+        @keyframes modalIn { from { opacity:0; transform:scale(.93) translateY(16px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+        .cm-header {
+            display:flex; align-items:center; gap:10px;
+            padding:18px 22px 0;
+        }
+        .cm-header-icon {
+            width:36px; height:36px; background:var(--accent-light);
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0; border-radius:var(--radius);
+        }
+        .cm-header-icon svg { width:17px; height:17px; stroke:var(--accent); }
+        .cm-header-info { flex:1; min-width:0; }
+        .cm-header-title { font-size:15px; font-weight:700; color:var(--text); letter-spacing:-0.3px; }
+        .cm-header-sub { font-size:11px; color:var(--text4); font-family:var(--mono); margin-top:2px; }
+        .cm-close {
+            width:30px; height:30px; border:1px solid var(--border);
+            background:var(--surface2); cursor:pointer; color:var(--text3);
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0; transition:all var(--transition);
+            border-radius:var(--radius-sm);
+        }
+        .cm-close:hover { border-color:var(--danger-border); background:var(--danger-bg); color:var(--danger); }
+
+        .cm-body {
+            flex:1; overflow-y:auto; padding:20px 22px;
+            display:flex; flex-direction:column; gap:18px;
+        }
+
+        /* File upload zone inside modal */
+        .cm-dropzone {
+            border:2px dashed var(--border); border-radius:var(--radius-lg);
+            padding:28px 20px; text-align:center; cursor:pointer;
+            transition:all var(--transition); background:var(--surface);
+        }
+        .cm-dropzone:hover, .cm-dropzone.dragover {
+            border-color:var(--accent); background:var(--accent-light);
+        }
+        .cm-dropzone-icon { margin-bottom:10px; display:flex; justify-content:center; }
+        .cm-dropzone-icon svg { width:30px; height:30px; stroke:var(--text4); }
+        .cm-dropzone-title { font-size:13px; font-weight:600; color:var(--text2); margin-bottom:4px; }
+        .cm-dropzone-hint { font-size:11px; color:var(--text4); font-family:var(--mono); }
+        .cm-file-pill {
+            display:flex; align-items:center; gap:10px;
+            padding:10px 14px; border:1px solid var(--accent);
+            background:var(--accent-light); border-radius:var(--radius);
+        }
+        .cm-file-pill svg { width:13px; height:13px; stroke:var(--accent); flex-shrink:0; }
+        .cm-file-name { flex:1; font-size:12px; font-weight:600; color:var(--accent); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--mono); }
+        .cm-file-clear { background:none; border:none; color:var(--accent); cursor:pointer; font-size:18px; padding:0 2px; line-height:1; opacity:.7; }
+        .cm-file-clear:hover { opacity:1; }
+
+        /* Tabs inside modal */
+        .cm-tabs { display:flex; gap:0; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+        .cm-tab {
+            flex:1; padding:8px 12px; font-size:12px; font-weight:500;
+            background:var(--surface2); color:var(--text3); cursor:pointer;
+            border:none; font-family:var(--sans); display:flex; align-items:center; justify-content:center; gap:6px;
+            transition:all var(--transition);
+        }
+        .cm-tab.active { background:var(--accent); color:#fff; font-weight:600; }
+
+        /* Sections inside modal */
+        .cm-section { display:flex; flex-direction:column; gap:8px; }
+        .cm-section-label {
+            font-size:9.5px; font-weight:700; text-transform:uppercase;
+            letter-spacing:1.1px; color:var(--text4); font-family:var(--mono);
+        }
+        .cm-chips { display:flex; gap:6px; flex-wrap:wrap; }
+
+        /* Loading state */
+        .cm-loading {
+            display:flex; flex-direction:column; align-items:center;
+            justify-content:center; gap:16px; padding:32px 20px;
+        }
+        .cm-loading-spinner {
+            width:40px; height:40px;
+            border:3px solid var(--border);
+            border-top-color:var(--accent);
+            border-radius:50%;
+            animation:spin 0.8s linear infinite;
+        }
+        .cm-loading-title { font-size:14px; font-weight:600; color:var(--text); }
+        .cm-loading-sub { font-size:12px; color:var(--text3); font-family:var(--mono); }
+        .cm-loading-bar-wrap { width:100%; height:4px; background:var(--border); border-radius:var(--radius-full); overflow:hidden; max-width:280px; }
+        .cm-loading-bar { height:100%; background:var(--accent); width:0%; transition:width 0.4s ease; border-radius:var(--radius-full); }
+
+        .cm-footer {
+            padding:14px 22px 18px;
+            border-top:1px solid var(--border);
+            display:flex; gap:8px; justify-content:flex-end;
+        }
+
         /* ── SUMMARY AI — Design System ── */
         #sumAIPanel, .sum-ai-popup {
             --ai-bg:       var(--bg);
@@ -1146,6 +1268,55 @@
             padding: 5px 12px; transition: color 0.2s; border-radius: var(--radius-full);
         }
         .mcq-cancel-btn:hover { color: var(--danger); }
+
+        /* ── ADD TOOL PICKER ── */
+        .add-tool-picker {
+            position:fixed; top:58px; inset-inline-end:8px;
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:var(--radius-lg); box-shadow:var(--shadow-xl);
+            padding:8px; z-index:200; min-width:200px;
+            animation:fadeIn 150ms ease;
+        }
+        .add-tool-picker-item {
+            display:flex; align-items:center; gap:12px;
+            padding:12px 14px; cursor:pointer; border-radius:var(--radius);
+            transition:all var(--transition); border:none; background:none;
+            width:100%; text-align:start; font-family:var(--sans);
+        }
+        .add-tool-picker-item:hover { background:var(--surface2); }
+        .add-tool-picker-item-icon {
+            width:34px; height:34px; background:var(--accent-light);
+            border-radius:var(--radius); display:flex; align-items:center;
+            justify-content:center; flex-shrink:0; color:var(--accent);
+        }
+        .add-tool-picker-item-icon svg { width:16px; height:16px; stroke:var(--accent); }
+        .add-tool-picker-item-label { font-size:13px; font-weight:600; color:var(--text); }
+        .add-tool-picker-label { font-size:13px; font-weight:600; color:var(--text); }
+        .add-tool-picker-item-sub { font-size:11px; color:var(--text4); font-family:var(--mono); margin-top:1px; }
+        .add-tool-picker-divider { height:1px; background:var(--border); margin:4px 0; }
+        #addToolPickerOverlay { position:fixed; inset:0; z-index:199; }
+
+        /* ── TOOL FULL OVERLAY ── */
+        .tool-full-overlay {
+            position:fixed; inset:0; background:var(--bg);
+            z-index:400; display:flex; flex-direction:column; overflow:hidden;
+            animation:fadeIn 200ms ease;
+        }
+        .tool-full-topbar {
+            height:54px; background:var(--surface); border-bottom:1px solid var(--border);
+            display:flex; align-items:center; gap:12px; padding:0 20px;
+            flex-shrink:0;
+        }
+        .tool-full-topbar-title {
+            font-size:15px; font-weight:700; flex:1; color:var(--text);
+            display:flex; align-items:center; gap:9px;
+        }
+        .tool-full-topbar-title svg { stroke:var(--accent); }
+        .tool-full-body {
+            flex:1; overflow-y:auto; padding:28px;
+            display:flex; flex-direction:column; align-items:center;
+        }
+        .tool-full-inner { width:100%; max-width:700px; }
     </style>
 </head>
 <body>
@@ -1163,6 +1334,7 @@
             <button class="topbar-back" id="topbarBack" onclick="exitSubject()" data-t="back_subjects">العودة للمواد</button>
         </div>
         <div class="topbar-right">
+
             <button class="topbar-btn" onclick="toggleLang()" title="AR / EN" id="langToggleBtn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
             </button>
@@ -1334,101 +1506,36 @@
 
                 <!-- SUMMARY PANEL -->
                 <div class="panel" id="panel-summary">
-                    <h1 class="page-title" data-t="summary_library_title">الملخصات</h1>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                        <h1 class="page-title" data-t="summary_library_title" style="margin-bottom:0">الملخصات</h1>
+                        <button class="panel-add-btn" onclick="openSummaryModal()" title="ملخص جديد">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>ملخص جديد</span>
+                        </button>
+                    </div>
                     <p class="page-subtitle" data-t="summary_lib_subtitle">ملخصات ذكية من ملفات PDF أو نص مباشر</p>
 
-                    <!-- Input Card -->
-                    <div class="card" style="margin-bottom:18px">
-                        <div class="card-header" style="margin-bottom:14px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:8px">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                                <span data-t="gen_summary_title">توليد ملخص ذكي</span>
-                            </span>
+                    <!-- hidden elements needed by JS logic -->
+                    <div style="display:none">
+                        <input type="file" id="summaryPdfInput" accept=".pdf" onchange="setSummaryPDF(this.files[0])">
+                        <input id="summaryNameInput" oninput="ls('app_sumName',this.value)">
+                        <select id="summaryLangSel" onchange="ls('app_sumLang',this.value)"><option value="عربي">عربي</option><option value="English">English</option></select>
+                        <textarea id="summaryDirectText" oninput="onSummaryTextInput()"></textarea>
+                        <div id="sumTextCount"></div>
+                        <div id="summaryFilePill"><span id="summaryFileName"></span></div>
+                        <div id="summaryDropZone"></div>
+                        <div id="sumPdfTab"></div>
+                        <div id="sumTextTab"></div>
+                        <button id="sumTabPdf" onclick="switchSumTab('pdf')"></button>
+                        <button id="sumTabText" onclick="switchSumTab('text')"></button>
+                        <div id="summaryAiStatus"><span id="summaryAiStatusText"></span><div id="summaryProgressBar"><div id="summaryProgressFill"></div></div></div>
+                        <div id="summaryLengthChips">
+                            <span class="chip" data-length="short" onclick="setSummaryLength(this)">Short</span>
+                            <span class="chip active" data-length="medium" onclick="setSummaryLength(this)">Middle</span>
+                            <span class="chip" data-length="long" onclick="setSummaryLength(this)">Long</span>
                         </div>
-
-                        <!-- Input mode toggle -->
-                        <div style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--border)">
-                            <button id="sumTabPdf" class="btn" style="flex:1;border:none;background:var(--accent);color:#fff;font-weight:600" onclick="switchSumTab('pdf')">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                PDF
-                            </button>
-                            <button id="sumTabText" class="btn" style="flex:1;border:none;background:var(--surface2);color:var(--text3)" onclick="switchSumTab('text')">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
-                                نص مباشر
-                            </button>
-                        </div>
-
-                        <!-- PDF tab -->
-                        <div id="sumPdfTab">
-                            <div id="summaryDropZone" class="drop-zone" onclick="document.getElementById('summaryPdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleSummaryDrop(event)">
-                                <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
-                                <div class="drop-hint">PDF - 25 pages max</div>
-                            </div>
-                            <input type="file" id="summaryPdfInput" accept=".pdf" class="hidden" onchange="setSummaryPDF(this.files[0])">
-                            <div id="summaryFilePill" class="hidden" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);background:var(--surface2);margin-top:8px">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                <span id="summaryFileName" style="flex:1;font-family:var(--mono);font-size:12px;color:var(--text2)"></span>
-                                <button class="btn btn-sm btn-ghost" onclick="clearSummaryPDF()">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Direct text tab -->
-                        <div id="sumTextTab" class="hidden">
-                            <textarea id="summaryDirectText" rows="7" placeholder="الصق النص الذي تريد تلخيصه هنا..." style="width:100%;resize:vertical;direction:auto" oninput="onSummaryTextInput()"></textarea>
-                            <div id="sumTextCount" style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:4px;text-align:end">0 حرف</div>
-                        </div>
-
-                        <!-- Options row -->
-                        <div class="input-row" style="margin:12px 0 10px">
-                            <div class="input-group">
-                            <label>اسم الملخص</label>
-                                <input id="summaryNameInput" placeholder="مثلاً: ملخص الفصل الأول" oninput="ls('app_sumName',this.value)">
-                            </div>
-                            <div class="input-group">
-                                <label data-t="language">اللغة</label>
-                                <select id="summaryLangSel" onchange="ls('app_sumLang',this.value)"><option value="عربي" data-t="arabic">عربي</option><option value="English">English</option></select>
-                            </div>
-                        </div>
-
-                        <!-- AI Status -->
-                        <div id="summaryAiStatus" class="hidden" style="margin-bottom:12px">
-                            <div style="background:var(--accent-light);border:1px solid var(--accent);padding:12px 14px">
-                                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-                                    <div style="width:14px;height:14px;border:2px solid transparent;border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
-                                    <span id="summaryAiStatusText" style="font-family:var(--mono);font-size:12px;color:var(--accent)"></span>
-                                </div>
-                                <div id="summaryProgressBar" style="height:3px;background:var(--border);overflow:hidden">
-                                    <div id="summaryProgressFill" style="height:100%;background:var(--accent);width:0%;transition:width 0.4s ease"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Summary Length Selector -->
-                        <div style="margin-bottom:12px">
-                            <label style="font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;font-family:var(--mono);display:block;margin-bottom:6px">Summary Length</label>
-                            <div class="chip-row" id="summaryLengthChips" style="margin:0">
-                                <span class="chip" data-length="short" onclick="setSummaryLength(this)" style="display:flex;align-items:center;gap:5px">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="13" y2="12"/></svg>
-                                    Short
-                                </span>
-                                <span class="chip active" data-length="medium" onclick="setSummaryLength(this)" style="display:flex;align-items:center;gap:5px">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="11" y2="18"/></svg>
-                                    Middle
-                                </span>
-                                <span class="chip" data-length="long" onclick="setSummaryLength(this)" style="display:flex;align-items:center;gap:5px">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                                    Long
-                                </span>
-                            </div>
-                            <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:5px" id="summaryLengthHint">Balanced summary — 4–6 sections with key points and terms</div>
-                        </div>
-
-                        <button class="btn btn-primary btn-full" id="btnGenSummary" disabled onclick="nvidiaSummary()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-                            <span data-t="gen_summary_btn">إنشاء ملخص ذكي</span>
-                        </button>
+                        <div id="summaryLengthHint"></div>
+                        <button id="btnGenSummary" onclick="nvidiaSummary()">إنشاء</button>
                     </div>
 
                     <!-- Generated Result Area -->
@@ -1592,57 +1699,29 @@
 
                 <!-- TRANSLATE PANEL -->
                 <div class="panel" id="panel-translate">
-                    <h1 class="page-title">ترجمة PDF إلى العربية</h1>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                        <h1 class="page-title" style="margin-bottom:0">ترجمة PDF إلى العربية</h1>
+                        <button class="panel-add-btn" onclick="openTranslateModal()" title="ترجمة جديدة">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>ترجمة جديدة</span>
+                        </button>
+                    </div>
                     <p class="page-subtitle">ترجمة دقيقة مع الحفاظ على المصطلحات العلمية — قابلة للتحميل كـ PDF</p>
 
-                    <!-- Upload zone -->
-                    <div class="card" style="margin-bottom:14px">
-                        <div class="card-header"><span class="card-title" style="display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ملف PDF</span></div>
-                        <div id="trDropZone" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor=''" ondrop="handleTrDrop(event)" onclick="document.getElementById('trPdfInput').click()" style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:28px;text-align:center;cursor:pointer;transition:all var(--transition)">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text4)" stroke-width="1.5" style="margin-bottom:8px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px">اسحب PDF هنا أو انقر للرفع</div>
-                            <div style="font-size:11px;color:var(--text4);font-family:var(--mono)">حتى 30 صفحة · PDF فقط</div>
+                    <!-- hidden elements for JS -->
+                    <div style="display:none">
+                        <input type="file" id="trPdfInput" accept=".pdf" onchange="setTrPDF(this.files[0])">
+                        <div id="trFilePill"><span id="trFileName"></span></div>
+                        <div id="trDropZone"></div>
+                        <div id="trDomainChips">
+                            <span class="chip active" data-domain="medical" onclick="setTrDomain(this)">طبي</span>
+                            <span class="chip" data-domain="pharma" onclick="setTrDomain(this)">صيدلاني</span>
+                            <span class="chip" data-domain="biology" onclick="setTrDomain(this)">أحياء</span>
+                            <span class="chip" data-domain="general" onclick="setTrDomain(this)">عام</span>
                         </div>
-                        <input type="file" id="trPdfInput" accept=".pdf" style="display:none" onchange="setTrPDF(this.files[0])">
-                        <div id="trFilePill" style="display:none;margin-top:10px;align-items:center;gap:8px;padding:8px 12px;background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius)">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <span id="trFileName" style="font-size:12px;font-weight:600;color:var(--accent);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-                            <button onclick="clearTrPDF()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:18px;padding:0 2px;line-height:1">×</button>
-                        </div>
-                    </div>
-
-                    <!-- Options -->
-                    <div class="card" style="margin-bottom:14px">
-                        <div class="card-header"><span class="card-title">خيارات الترجمة</span></div>
-                        <div class="section-label" style="margin-bottom:8px">نوع النص</div>
-                        <div class="chip-row" id="trDomainChips">
-                            <span class="chip active" data-domain="medical" onclick="setTrDomain(this)">🩺 طبي / علمي</span>
-                            <span class="chip" data-domain="pharma" onclick="setTrDomain(this)">💊 صيدلاني</span>
-                            <span class="chip" data-domain="biology" onclick="setTrDomain(this)">🧬 أحياء / كيمياء</span>
-                            <span class="chip" data-domain="general" onclick="setTrDomain(this)">📄 عام</span>
-                        </div>
-                        <div style="margin-top:14px">
-                            <div class="section-label" style="margin-bottom:6px">ملاحظة إضافية (اختياري)</div>
-                            <input id="trExtraNote" placeholder="مثال: احتفظ بأسماء الأدوية بالإنجليزية، أو ترجم الجداول فقط...">
-                        </div>
-                    </div>
-
-                    <!-- Generate button -->
-                    <button id="btnGenTranslate" class="btn btn-primary btn-full" disabled onclick="nvidiaTranslate()" style="margin-bottom:14px">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                        ترجمة إلى العربية
-                    </button>
-
-                    <!-- Status -->
-                    <div id="trAiStatus" style="display:none;margin-bottom:14px">
-                        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius)">
-                            <div id="trSpinner" style="width:14px;height:14px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0"></div>
-                            <span id="trStatusText" style="font-size:12px;color:var(--accent);font-family:var(--mono)">جاري الترجمة...</span>
-                            <div style="flex:1;height:4px;background:var(--border);border-radius:var(--radius-full);overflow:hidden;margin-right:8px">
-                                <div id="trProgressFill" style="height:100%;background:var(--accent);width:0%;transition:width 0.4s ease;border-radius:var(--radius-full)"></div>
-                            </div>
-                            <span id="trProgressPct" style="font-size:10px;font-family:var(--mono);color:var(--accent);flex-shrink:0">0%</span>
-                        </div>
+                        <input id="trExtraNote">
+                        <button id="btnGenTranslate" onclick="nvidiaTranslate()">ترجمة</button>
+                        <div id="trAiStatus"><div id="trSpinner"></div><span id="trStatusText"></span><div><div id="trProgressFill"></div></div><span id="trProgressPct"></span></div>
                     </div>
 
                     <!-- Result area -->
@@ -5029,61 +5108,14 @@ ${textSlice}`;
         const q = Qs[idx];
         const L = currentLang==='ar'?['أ','ب','ج','د']:['A','B','C','D'];
         const userSel = Ans[idx].selected;
-        const isAr = currentLang === 'ar';
-        const lang = isAr ? 'Arabic' : 'English';
-
+        const prompt = `Explain this MCQ question in ${currentLang==='ar'?'Arabic':'English'} in 2-3 sentences. Be concise and educational.\n\nQuestion: ${q.question}\nOptions: ${q.options.map((o,i)=>L[i]+') '+o).join(' | ')}\nCorrect answer: ${L[q.correct]}) ${q.options[q.correct]}${userSel!==null&&userSel!==q.correct?`\nUser chose: ${L[userSel]}) ${q.options[userSel]}`:''}${q.explanation?`\nHint: ${q.explanation}`:''}`;
         expDiv.style.display = 'block';
-
-        // ── Step 1: Verify the question ──────────────────────────────────
-        const verifyLabel = isAr ? '🔍 جاري التحقق من صحة السؤال...' : '🔍 Verifying question quality...';
-        expDiv.innerHTML = `<span style="opacity:0.6;font-style:italic">${verifyLabel}</span>`;
-
-        const verifyPrompt = `You are a strict MCQ quality reviewer. Evaluate this question and answer.
-
-Question: ${q.question}
-Options: ${q.options.map((o,i)=>L[i]+') '+o).join(' | ')}
-Marked correct answer: ${L[q.correct]}) ${q.options[q.correct]}
-
-Reply in ${lang} with a JSON object only — no markdown, no extra text:
-{
-  "valid": true or false,
-  "issue": "if valid=false, briefly state the problem; if valid=true, write null",
-  "confirmed_correct": "restate the letter and option that is definitively correct"
-}`;
-
+        expDiv.textContent = t('generating');
         try {
-            const verifyRaw = await nvidiaChat(verifyPrompt, 'You output only a valid JSON object. No markdown. No extra text.', 400, 0.0);
-            let verifyData;
-            try {
-                const clean = verifyRaw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-                verifyData = JSON.parse(clean);
-            } catch { verifyData = { valid: true, issue: null, confirmed_correct: `${L[q.correct]}) ${q.options[q.correct]}` }; }
-
-            // ── Step 2: Explain ──────────────────────────────────────────
-            const explainLabel = isAr ? '💡 جاري الشرح...' : '💡 Generating explanation...';
-            const warningHtml = !verifyData.valid && verifyData.issue
-                ? `<div style="background:var(--warning-bg);border:1px solid var(--warning-border);color:var(--warning);padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:11px">
-                    ⚠️ ${isAr?'ملاحظة على السؤال':'Question note'}: ${verifyData.issue}
-                   </div>`
-                : `<div style="background:var(--success-bg);border:1px solid var(--success-border);color:var(--success);padding:6px 12px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:11px">
-                    ✓ ${isAr?'السؤال سليم — الإجابة الصحيحة مؤكدة':'Question is valid — correct answer confirmed'}: ${verifyData.confirmed_correct || ''}
-                   </div>`;
-
-            expDiv.innerHTML = warningHtml + `<span style="opacity:0.6;font-style:italic">${explainLabel}</span>`;
-
-            const explainPrompt = `Explain in ${lang} why the correct answer is correct for this MCQ question.
-Be concise (3-4 sentences). Focus on the concept behind the answer, not just restating it.
-${!verifyData.valid && verifyData.issue ? `Note: there is a potential issue with the question: ${verifyData.issue}. Acknowledge it briefly if relevant.` : ''}
-
-Question: ${q.question}
-Options: ${q.options.map((o,i)=>L[i]+') '+o).join(' | ')}
-Correct answer: ${L[q.correct]}) ${q.options[q.correct]}${userSel!==null&&userSel!==q.correct?`\nUser chose (wrong): ${L[userSel]}) ${q.options[userSel]}`:''}${q.explanation?`\nHint from source: ${q.explanation}`:''}`;
-
-            const explanation = await nvidiaChat(explainPrompt, 'You are a concise, educational tutor. Explain clearly and directly.', 600, 0.3);
-            expDiv.innerHTML = warningHtml + `<div style="line-height:1.75">${esc(explanation || '—')}</div>`;
-
+            const r = await nvidiaChat(prompt);
+            expDiv.textContent = r || '—';
         } catch(e) {
-            expDiv.innerHTML = `<span style="color:var(--danger)">ERR — ${esc(e.message)}</span>`;
+            expDiv.textContent = 'ERR — ' + e.message;
         }
     }
 
@@ -6469,6 +6501,511 @@ ${text}`;
                 <div class="sai-msg-ai" style="color:var(--danger)">${e.message}</div>`;
         }
         msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    // ── ADD TOOL PICKER ────────────────────────────────────────────────────
+    function openAddToolPicker() {
+        // Close if already open
+        const existing = document.getElementById('addToolPickerMenu');
+        if (existing) { closeAddToolPicker(); return; }
+
+        const isAr = currentLang === 'ar';
+
+        // Backdrop
+        const bg = document.createElement('div');
+        bg.id = 'addToolPickerOverlay';
+        bg.onclick = closeAddToolPicker;
+        document.body.appendChild(bg);
+
+        // Menu
+        const menu = document.createElement('div');
+        menu.id = 'addToolPickerMenu';
+        menu.className = 'add-tool-picker';
+        menu.innerHTML = `
+            <button class="add-tool-picker-item" onclick="closeAddToolPicker();openToolOverlay('summary')">
+                <div class="add-tool-picker-item-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <div>
+                    <div class="add-tool-picker-label">${isAr ? 'ملخص ذكي' : 'AI Summary'}</div>
+                    <div class="add-tool-picker-item-sub">${isAr ? 'لخّص PDF أو نص' : 'Summarize PDF or text'}</div>
+                </div>
+            </button>
+            <div class="add-tool-picker-divider"></div>
+            <button class="add-tool-picker-item" onclick="closeAddToolPicker();openToolOverlay('translate')">
+                <div class="add-tool-picker-item-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+                </div>
+                <div>
+                    <div class="add-tool-picker-label">${isAr ? 'ترجمة PDF' : 'Translate PDF'}</div>
+                    <div class="add-tool-picker-item-sub">${isAr ? 'ترجم إلى العربية' : 'Translate to Arabic'}</div>
+                </div>
+            </button>
+        `;
+        document.body.appendChild(menu);
+    }
+
+    function closeAddToolPicker() {
+        document.getElementById('addToolPickerMenu')?.remove();
+        document.getElementById('addToolPickerOverlay')?.remove();
+    }
+
+    function openToolOverlay(type) {
+        const isAr = currentLang === 'ar';
+
+        // Remove existing if open
+        document.getElementById('toolFullOverlay_' + type)?.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'toolFullOverlay_' + type;
+        overlay.className = 'tool-full-overlay';
+
+        const titles = {
+            summary:   { ar: 'ملخص ذكي',   en: 'AI Summary',   icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>` },
+            translate: { ar: 'ترجمة PDF', en: 'Translate PDF', icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>` },
+        };
+        const info = titles[type] || { ar: type, en: type, icon: '' };
+
+        // Grab the actual panel and transplant it into the overlay body
+        const sourcePanel = document.getElementById('panel-' + type);
+
+        overlay.innerHTML = `
+            <div class="tool-full-topbar">
+                <div class="tool-full-topbar-title">${info.icon}<span>${isAr ? info.ar : info.en}</span></div>
+                <button class="btn btn-sm" onclick="closeToolOverlay('${type}')" style="flex-shrink:0;gap:6px">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    ${isAr ? 'إغلاق' : 'Close'}
+                </button>
+            </div>
+            <div class="tool-full-body" id="toolOverlayBody_${type}"></div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Move the live panel DOM node into the overlay body (not a clone)
+        const body = overlay.querySelector('#toolOverlayBody_' + type);
+        if (sourcePanel) {
+            sourcePanel._overlayOrigParent = sourcePanel.parentNode;
+            sourcePanel._overlayOrigNext   = sourcePanel.nextSibling;
+            sourcePanel.classList.add('active');
+            sourcePanel.style.cssText = 'display:block;max-width:700px;width:100%;margin:0 auto;';
+            body.appendChild(sourcePanel);
+        }
+
+        // Re-run any panel init that's needed
+        if (type === 'summary') renderSummaryLib();
+        if (type === 'translate') renderTrLib();
+    }
+
+    function closeToolOverlay(type) {
+        const overlay = document.getElementById('toolFullOverlay_' + type);
+        if (!overlay) return;
+
+        // Move panel back to its original location in the DOM
+        const sourcePanel = document.getElementById('panel-' + type);
+        if (sourcePanel && sourcePanel._overlayOrigParent) {
+            sourcePanel.style.cssText = '';
+            sourcePanel.classList.remove('active');
+            sourcePanel._overlayOrigParent.insertBefore(sourcePanel, sourcePanel._overlayOrigNext || null);
+        }
+        overlay.remove();
+    }
+
+    // ══════════════════════════════════════════════════════
+    // SUMMARY MODAL
+    // ══════════════════════════════════════════════════════
+    let _sumModalFile = null;
+    let _sumModalMode = 'pdf'; // 'pdf' | 'text'
+    let _sumModalLength = 'medium';
+
+    function openSummaryModal() {
+        closeSummaryModal();
+        _sumModalFile = null;
+        _sumModalMode = 'pdf';
+        _sumModalLength = 'medium';
+
+        const isAr = currentLang === 'ar';
+        const overlay = document.createElement('div');
+        overlay.id = 'sumCreationModal';
+        overlay.className = 'creation-modal-overlay';
+        overlay.innerHTML = `
+            <div class="creation-modal" id="sumCreationModalBox">
+                <!-- Header -->
+                <div class="cm-header" style="margin-bottom:0">
+                    <div class="cm-header-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <div class="cm-header-info">
+                        <div class="cm-header-title">${isAr ? 'ملخص ذكي جديد' : 'New AI Summary'}</div>
+                        <div class="cm-header-sub">${isAr ? 'PDF · نص مباشر' : 'PDF · Direct text'}</div>
+                    </div>
+                    <button class="cm-close" onclick="closeSummaryModal()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="cm-body" id="sumModalBody">
+                    <!-- Input mode tabs -->
+                    <div class="cm-section">
+                        <div class="cm-section-label">${isAr ? 'مصدر المحتوى' : 'Source'}</div>
+                        <div class="cm-tabs">
+                            <button class="cm-tab active" id="cmSumTabPdf" onclick="cmSumSwitchTab('pdf')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                PDF
+                            </button>
+                            <button class="cm-tab" id="cmSumTabText" onclick="cmSumSwitchTab('text')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                                ${isAr ? 'نص مباشر' : 'Direct Text'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PDF Tab content -->
+                    <div id="cmSumPdfSection" class="cm-section">
+                        <input type="file" id="cmSumFileInput" accept=".pdf" style="display:none" onchange="cmSumHandleFile(this.files[0])">
+                        <div class="cm-dropzone" id="cmSumDropZone"
+                            onclick="document.getElementById('cmSumFileInput').click()"
+                            ondragover="event.preventDefault();this.classList.add('dragover')"
+                            ondragleave="this.classList.remove('dragover')"
+                            ondrop="event.preventDefault();this.classList.remove('dragover');cmSumHandleFile(event.dataTransfer.files[0])">
+                            <div class="cm-dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+                            <div class="cm-dropzone-title">${isAr ? 'انقر هنا أو اسحب ملف PDF' : 'Click or drop PDF here'}</div>
+                            <div class="cm-dropzone-hint">PDF · 25 pages max</div>
+                        </div>
+                        <div class="cm-file-pill" id="cmSumFilePill" style="display:none">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span class="cm-file-name" id="cmSumFileName"></span>
+                            <button class="cm-file-clear" onclick="cmSumClearFile()">×</button>
+                        </div>
+                    </div>
+
+                    <!-- Text Tab content -->
+                    <div id="cmSumTextSection" class="cm-section" style="display:none">
+                        <textarea id="cmSumDirectText" rows="6" placeholder="${isAr ? 'الصق النص الذي تريد تلخيصه هنا...' : 'Paste your text here...'}" style="width:100%;resize:vertical;direction:auto" oninput="cmSumCheckReady()"></textarea>
+                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono);text-align:end" id="cmSumTextCount">0 ${isAr ? 'حرف' : 'chars'}</div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="cm-section">
+                        <div class="cm-section-label">${isAr ? 'الإعدادات' : 'Settings'}</div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap">
+                            <div class="input-group" style="flex:2;min-width:160px">
+                                <label>${isAr ? 'اسم الملخص' : 'Summary Name'}</label>
+                                <input id="cmSumName" placeholder="${isAr ? 'مثلاً: ملخص الفصل الأول' : 'e.g. Chapter 1 Summary'}" oninput="ls('app_sumName',this.value)">
+                            </div>
+                            <div class="input-group" style="flex:1;min-width:110px">
+                                <label>${isAr ? 'اللغة' : 'Language'}</label>
+                                <select id="cmSumLang" onchange="ls('app_sumLang',this.value)">
+                                    <option value="عربي">${isAr ? 'عربي' : 'Arabic'}</option>
+                                    <option value="English">English</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Length -->
+                    <div class="cm-section">
+                        <div class="cm-section-label">${isAr ? 'طول الملخص' : 'Summary Length'}</div>
+                        <div class="cm-chips" id="cmSumLengthChips">
+                            <span class="chip" data-length="short" onclick="cmSumSetLength(this)" style="display:flex;align-items:center;gap:5px">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="13" y2="12"/></svg>
+                                Short
+                            </span>
+                            <span class="chip active" data-length="medium" onclick="cmSumSetLength(this)" style="display:flex;align-items:center;gap:5px">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="11" y2="18"/></svg>
+                                Middle
+                            </span>
+                            <span class="chip" data-length="long" onclick="cmSumSetLength(this)" style="display:flex;align-items:center;gap:5px">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                                Long
+                            </span>
+                        </div>
+                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono)" id="cmSumLengthHint">Balanced summary — 4–6 sections with key points and terms</div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="cm-footer">
+                    <button class="btn btn-sm" onclick="closeSummaryModal()">${isAr ? 'إلغاء' : 'Cancel'}</button>
+                    <button class="btn btn-sm btn-primary" id="cmSumGenBtn" disabled onclick="cmSumGenerate()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                        ${isAr ? 'إنشاء ملخص' : 'Generate'}
+                    </button>
+                </div>
+            </div>
+        `;
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeSummaryModal(); });
+        document.body.appendChild(overlay);
+
+        // Sync existing values
+        const storedName = lg('app_sumName') || '';
+        const storedLang = lg('app_sumLang') || 'عربي';
+        document.getElementById('cmSumName').value = storedName;
+        document.getElementById('cmSumLang').value = storedLang;
+    }
+
+    function closeSummaryModal() {
+        document.getElementById('sumCreationModal')?.remove();
+        _sumModalFile = null;
+    }
+
+    function cmSumSwitchTab(mode) {
+        _sumModalMode = mode;
+        document.getElementById('cmSumTabPdf').classList.toggle('active', mode === 'pdf');
+        document.getElementById('cmSumTabText').classList.toggle('active', mode === 'text');
+        document.getElementById('cmSumPdfSection').style.display = mode === 'pdf' ? '' : 'none';
+        document.getElementById('cmSumTextSection').style.display = mode === 'text' ? '' : 'none';
+        cmSumCheckReady();
+    }
+
+    function cmSumHandleFile(file) {
+        if (!file || file.type !== 'application/pdf') return;
+        _sumModalFile = file;
+        document.getElementById('cmSumDropZone').style.display = 'none';
+        const pill = document.getElementById('cmSumFilePill');
+        pill.style.display = 'flex';
+        document.getElementById('cmSumFileName').textContent = file.name;
+        // Sync to existing JS
+        setSummaryPDF(file);
+        cmSumCheckReady();
+    }
+
+    function cmSumClearFile() {
+        _sumModalFile = null;
+        document.getElementById('cmSumDropZone').style.display = '';
+        document.getElementById('cmSumFilePill').style.display = 'none';
+        clearSummaryPDF();
+        cmSumCheckReady();
+    }
+
+    function cmSumSetLength(el) {
+        document.querySelectorAll('#cmSumLengthChips .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _sumModalLength = el.dataset.length;
+        // Sync to existing length chips
+        const hints = { short: 'Concise summary — 2–3 sections with core points', medium: 'Balanced summary — 4–6 sections with key points and terms', long: 'Detailed summary — 7+ sections with full coverage' };
+        document.getElementById('cmSumLengthHint').textContent = hints[_sumModalLength] || '';
+        // Sync existing chips
+        document.querySelectorAll('#summaryLengthChips .chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.length === _sumModalLength);
+        });
+    }
+
+    function cmSumCheckReady() {
+        const btn = document.getElementById('cmSumGenBtn');
+        if (!btn) return;
+        let ready = false;
+        if (_sumModalMode === 'pdf') ready = !!_sumModalFile;
+        else {
+            const txt = (document.getElementById('cmSumDirectText')?.value || '').trim();
+            const cnt = document.getElementById('cmSumTextCount');
+            if (cnt) cnt.textContent = txt.length + (currentLang === 'ar' ? ' حرف' : ' chars');
+            ready = txt.length > 20;
+            // Sync textarea
+            const real = document.getElementById('summaryDirectText');
+            if (real) { real.value = txt; onSummaryTextInput(); }
+        }
+        btn.disabled = !ready;
+    }
+
+    async function cmSumGenerate() {
+        const name = document.getElementById('cmSumName')?.value?.trim() || '';
+        const lang = document.getElementById('cmSumLang')?.value || 'عربي';
+        // Sync to hidden fields
+        const nameEl = document.getElementById('summaryNameInput');
+        const langEl = document.getElementById('summaryLangSel');
+        if (nameEl) nameEl.value = name;
+        if (langEl) langEl.value = lang;
+        ls('app_sumName', name); ls('app_sumLang', lang);
+
+        // If text mode, sync text
+        if (_sumModalMode === 'text') {
+            const txt = document.getElementById('cmSumDirectText')?.value || '';
+            const real = document.getElementById('summaryDirectText');
+            if (real) { real.value = txt; onSummaryTextInput(); }
+            switchSumTab('text');
+        } else {
+            switchSumTab('pdf');
+        }
+
+        // Show loading inside modal
+        const body = document.getElementById('sumModalBody');
+        const footer = document.querySelector('#sumCreationModal .cm-footer');
+        if (body && footer) {
+            body.innerHTML = `
+                <div class="cm-loading">
+                    <div class="cm-loading-spinner"></div>
+                    <div class="cm-loading-title">${currentLang === 'ar' ? 'جاري إنشاء الملخص...' : 'Generating summary...'}</div>
+                    <div class="cm-loading-sub" id="cmSumLoadingStatus">جاري استخراج النص من PDF...</div>
+                    <div class="cm-loading-bar-wrap"><div class="cm-loading-bar" id="cmSumLoadingBar"></div></div>
+                </div>`;
+            footer.style.display = 'none';
+        }
+
+        // Hook into status updates
+        const origStatus = window._sumStatusHook;
+        window._cmSumStatusHook = (text, pct) => {
+            const s = document.getElementById('cmSumLoadingStatus');
+            const b = document.getElementById('cmSumLoadingBar');
+            if (s) s.textContent = text;
+            if (b) b.style.width = (pct || 0) + '%';
+        };
+
+        try {
+            await nvidiaSummary();
+            closeSummaryModal();
+            renderSummaryLib();
+        } catch(e) {
+            // nvidiaSummary handles its own errors, just close
+            closeSummaryModal();
+        }
+        window._cmSumStatusHook = null;
+    }
+
+    // ══════════════════════════════════════════════════════
+    // TRANSLATE MODAL
+    // ══════════════════════════════════════════════════════
+    let _trModalFile = null;
+    let _trModalDomain = 'medical';
+
+    function openTranslateModal() {
+        closeTranslateModal();
+        _trModalFile = null;
+        _trModalDomain = 'medical';
+
+        const isAr = currentLang === 'ar';
+        const overlay = document.createElement('div');
+        overlay.id = 'trCreationModal';
+        overlay.className = 'creation-modal-overlay';
+        overlay.innerHTML = `
+            <div class="creation-modal" id="trCreationModalBox">
+                <!-- Header -->
+                <div class="cm-header">
+                    <div class="cm-header-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+                    </div>
+                    <div class="cm-header-info">
+                        <div class="cm-header-title">${isAr ? 'ترجمة PDF جديدة' : 'New PDF Translation'}</div>
+                        <div class="cm-header-sub">${isAr ? 'ترجمة إلى العربية' : 'Translate to Arabic'}</div>
+                    </div>
+                    <button class="cm-close" onclick="closeTranslateModal()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="cm-body" id="trModalBody">
+                    <!-- Upload -->
+                    <div class="cm-section">
+                        <div class="cm-section-label">${isAr ? 'ملف PDF' : 'PDF File'}</div>
+                        <input type="file" id="cmTrFileInput" accept=".pdf" style="display:none" onchange="cmTrHandleFile(this.files[0])">
+                        <div class="cm-dropzone" id="cmTrDropZone"
+                            onclick="document.getElementById('cmTrFileInput').click()"
+                            ondragover="event.preventDefault();this.classList.add('dragover')"
+                            ondragleave="this.classList.remove('dragover')"
+                            ondrop="event.preventDefault();this.classList.remove('dragover');cmTrHandleFile(event.dataTransfer.files[0])">
+                            <div class="cm-dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg></div>
+                            <div class="cm-dropzone-title">${isAr ? 'اسحب PDF هنا أو انقر للرفع' : 'Drop PDF here or click to upload'}</div>
+                            <div class="cm-dropzone-hint">${isAr ? 'حتى 30 صفحة · PDF فقط' : 'Up to 30 pages · PDF only'}</div>
+                        </div>
+                        <div class="cm-file-pill" id="cmTrFilePill" style="display:none">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span class="cm-file-name" id="cmTrFileName"></span>
+                            <button class="cm-file-clear" onclick="cmTrClearFile()">×</button>
+                        </div>
+                    </div>
+
+                    <!-- Domain -->
+                    <div class="cm-section">
+                        <div class="cm-section-label">${isAr ? 'نوع النص' : 'Text Domain'}</div>
+                        <div class="cm-chips" id="cmTrDomainChips">
+                            <span class="chip active" data-domain="medical" onclick="cmTrSetDomain(this)">🩺 ${isAr ? 'طبي / علمي' : 'Medical'}</span>
+                            <span class="chip" data-domain="pharma" onclick="cmTrSetDomain(this)">💊 ${isAr ? 'صيدلاني' : 'Pharma'}</span>
+                            <span class="chip" data-domain="biology" onclick="cmTrSetDomain(this)">🧬 ${isAr ? 'أحياء / كيمياء' : 'Biology'}</span>
+                            <span class="chip" data-domain="general" onclick="cmTrSetDomain(this)">📄 ${isAr ? 'عام' : 'General'}</span>
+                        </div>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="cm-section">
+                        <div class="cm-section-label">${isAr ? 'ملاحظة إضافية (اختياري)' : 'Extra Note (optional)'}</div>
+                        <input id="cmTrNote" placeholder="${isAr ? 'مثال: احتفظ بأسماء الأدوية بالإنجليزية...' : 'e.g. Keep drug names in English...'}">
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="cm-footer">
+                    <button class="btn btn-sm" onclick="closeTranslateModal()">${isAr ? 'إلغاء' : 'Cancel'}</button>
+                    <button class="btn btn-sm btn-primary" id="cmTrGenBtn" disabled onclick="cmTrGenerate()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        ${isAr ? 'ترجمة' : 'Translate'}
+                    </button>
+                </div>
+            </div>
+        `;
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeTranslateModal(); });
+        document.body.appendChild(overlay);
+    }
+
+    function closeTranslateModal() {
+        document.getElementById('trCreationModal')?.remove();
+        _trModalFile = null;
+    }
+
+    function cmTrHandleFile(file) {
+        if (!file || file.type !== 'application/pdf') return;
+        _trModalFile = file;
+        document.getElementById('cmTrDropZone').style.display = 'none';
+        document.getElementById('cmTrFilePill').style.display = 'flex';
+        document.getElementById('cmTrFileName').textContent = file.name;
+        setTrPDF(file);
+        document.getElementById('cmTrGenBtn').disabled = false;
+    }
+
+    function cmTrClearFile() {
+        _trModalFile = null;
+        document.getElementById('cmTrDropZone').style.display = '';
+        document.getElementById('cmTrFilePill').style.display = 'none';
+        clearTrPDF();
+        document.getElementById('cmTrGenBtn').disabled = true;
+    }
+
+    function cmTrSetDomain(el) {
+        document.querySelectorAll('#cmTrDomainChips .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _trModalDomain = el.dataset.domain;
+        // Sync to hidden
+        document.querySelectorAll('#trDomainChips .chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.domain === _trModalDomain);
+        });
+        setTrDomain(el);
+    }
+
+    async function cmTrGenerate() {
+        const note = document.getElementById('cmTrNote')?.value || '';
+        const noteEl = document.getElementById('trExtraNote');
+        if (noteEl) noteEl.value = note;
+
+        // Show loading
+        const body = document.getElementById('trModalBody');
+        const footer = document.querySelector('#trCreationModal .cm-footer');
+        if (body && footer) {
+            body.innerHTML = `
+                <div class="cm-loading">
+                    <div class="cm-loading-spinner"></div>
+                    <div class="cm-loading-title">${currentLang === 'ar' ? 'جاري الترجمة...' : 'Translating...'}</div>
+                    <div class="cm-loading-sub" id="cmTrLoadingStatus">${currentLang === 'ar' ? 'جاري استخراج النص...' : 'Extracting text...'}</div>
+                    <div class="cm-loading-bar-wrap"><div class="cm-loading-bar" id="cmTrLoadingBar"></div></div>
+                </div>`;
+            footer.style.display = 'none';
+        }
+
+        try {
+            await nvidiaTranslate();
+            closeTranslateModal();
+        } catch(e) {
+            closeTranslateModal();
+        }
     }
 
     init();
