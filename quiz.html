@@ -5156,6 +5156,23 @@ ${textSlice}`;
         saveHistory({name:qSource, score:pct, qCount:total, questions:[...Qs], answers:[...Ans], elapsed:Math.floor(qSecs/60)+'m '+qSecs%60+'s', confidenceStats});
         const col = pct>=70?'var(--success)':pct>=50?'var(--warning)':'var(--danger)';
         const avgTime = Ans.filter(a=>a.timeMs>0).reduce((s,a)=>s+a.timeMs,0) / Math.max(1,Ans.filter(a=>a.timeMs>0).length);
+        // Collect wrong questions for weakness analysis
+        const wrongQs = [];
+        Qs.forEach((q, i) => {
+            if (Ans[i].selected !== q.correct) {
+                wrongQs.push({ question: q.question, options: q.options, correct: q.correct, explanation: q.explanation, chosen: Ans[i].selected });
+            }
+        });
+        window._lastWrongQs = wrongQs;
+
+        const hasErrors = wrongQs.length > 0;
+        const analysisBtn = hasErrors
+            ? `<button class="btn btn-warning" onclick="closeModal();showWeaknessAnalysis()" style="gap:5px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                ${currentLang==='ar'?'تحليل نقاط الضعف':'Weakness Analysis'}
+              </button>`
+            : '';
+
         modal(
             `<div style="text-align:center">
                 <div style="font-size:44px;font-weight:700;color:${col};margin-bottom:6px">${pct}%</div>
@@ -5169,12 +5186,71 @@ ${textSlice}`;
                     ${confidenceStats['not-sure'].count>0?`${t('not_sure')}: ${confidenceStats['not-sure'].pct}% (${confidenceStats['not-sure'].count})<br>`:''}
                     ${confidenceStats.guessing.count>0?`${t('guessing')}: ${confidenceStats.guessing.pct}% (${confidenceStats.guessing.count})`:''}
                 </div>`:''}</div>`,
-            `<button class="btn btn-primary" onclick="closeModal();switchPanel('history')">${t('history')}</button><button class="btn" onclick="closeModal()">${t('exit')}</button>`
+            `${analysisBtn}<button class="btn btn-primary" onclick="closeModal();switchPanel('history')">${t('history')}</button><button class="btn" onclick="closeModal()">${t('exit')}</button>`
         );
         qLive = false;
         $('quizArea').classList.remove('active');
         hide($('quizArea'));
     }
+
+    // ── WEAKNESS ANALYSIS (AI) ─────────────────────
+    async function showWeaknessAnalysis() {
+        const isAr = currentLang === 'ar';
+        const wrongQs = window._lastWrongQs || [];
+        if (!wrongQs.length) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'weaknessOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 180ms ease';
+        overlay.innerHTML = `
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-modal);width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:modalSlideIn 240ms cubic-bezier(.34,1.56,.64,1)">
+                <div style="display:flex;align-items:center;gap:10px;padding:18px 22px 14px;border-bottom:1px solid var(--border)">
+                    <div style="width:36px;height:36px;background:var(--warning-bg);border:1px solid var(--warning-border);display:flex;align-items:center;justify-content:center;border-radius:var(--radius);flex-shrink:0">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div style="flex:1">
+                        <div style="font-size:15px;font-weight:700;letter-spacing:-0.3px">${isAr ? 'تحليل نقاط الضعف' : 'Weakness Analysis'}</div>
+                        <div style="font-size:11px;color:var(--text4);font-family:var(--mono);margin-top:2px">${wrongQs.length} ${isAr ? 'سؤال أُخطئ فيه' : 'wrong answers'}</div>
+                    </div>
+                    <button onclick="document.getElementById('weaknessOverlay').remove()" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div id="weaknessBody" style="flex:1;overflow-y:auto;padding:20px 22px">
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 0">
+                        <div style="width:36px;height:36px;border:3px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+                        <div style="font-size:13px;color:var(--text3);font-family:var(--mono)">${isAr ? 'جاري تحليل أخطائك...' : 'Analysing your mistakes...'}</div>
+                    </div>
+                </div>
+            </div>`;
+        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+        document.body.appendChild(overlay);
+        const L = isAr ? ['أ','ب','ج','د'] : ['A','B','C','D'];
+        const questionsText = wrongQs.map((q, i) => {
+            const opts = (q.options || []).map((o, oi) => L[oi] + ') ' + o).join('\n');
+            const chosenLabel = (q.chosen !== null && q.chosen !== undefined) ? L[q.chosen] + ') ' + (q.options?.[q.chosen] || '') : (isAr ? 'لم يُجَب' : 'Not answered');
+            const correctLabel = L[q.correct] + ') ' + (q.options?.[q.correct] || '');
+            return (i+1) + '. ' + q.question + '\n' + opts + '\n' + (isAr?'اخترت':'You chose') + ': ' + chosenLabel + '\n' + (isAr?'الصواب':'Correct') + ': ' + correctLabel + (q.explanation ? '\n' + (isAr?'الشرح':'Explanation') + ': ' + q.explanation : '');
+        }).join('\n\n');
+        const systemPrompt = isAr
+            ? 'أنت مساعد تعليمي متخصص. حلل أخطاء الطالب وقدم تحليلاً واضحاً لنقاط ضعفه بالتنسيق التالي (HTML بسيط فقط):\n<b>المواضيع التي تحتاج مراجعة:</b> قائمة بالمفاهيم الضعيفة\n<b>أبرز الأخطاء:</b> سبب الخطأ في كل سؤال باختصار\n<b>نصائح للتحسين:</b> خطوات عملية للمراجعة\nكن مشجعاً وبنّاءً. الرد باللغة العربية.'
+            : 'You are a specialist educational assistant. Analyse the student mistakes and provide a clear weakness analysis using simple HTML only:\n<b>Topics to Review:</b> list weak concepts\n<b>Key Mistakes:</b> brief reason per wrong answer\n<b>Improvement Tips:</b> practical revision steps\nBe encouraging and constructive. Respond in English.';
+        try {
+            const resp = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: systemPrompt,
+                    messages: [{ role: 'user', content: (isAr ? 'الأسئلة التي أخطأت بها:\n\n' : 'Questions I got wrong:\n\n') + questionsText + (isAr ? '\n\nحلل نقاط ضعفي.' : '\n\nAnalyse my weaknesses.') }] })
+            });
+            const data = await resp.json();
+            const text = (data.content || []).map(b => b.text || '').join('');
+            const body = document.getElementById('weaknessBody');
+            if (body) body.innerHTML = '<div style="font-size:13px;color:var(--text2);line-height:1.85;unicode-bidi:plaintext;text-align:start">' + text + '</div>';
+        } catch(err) {
+            const body = document.getElementById('weaknessBody');
+            if (body) body.innerHTML = '<div style="color:var(--danger);font-size:12px;font-family:var(--mono);padding:12px;border:1px solid var(--danger-border);background:var(--danger-bg);border-radius:var(--radius)">' + (isAr?'حدث خطأ أثناء التحليل':'Error during analysis') + ': ' + err.message + '</div>';
+        }
+    }
+
 
     function buildConfidenceStats(qs, ans) {
         const cats = {guessing:{c:0,t:0}, 'not-sure':{c:0,t:0}, sure:{c:0,t:0}};
