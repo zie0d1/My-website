@@ -5029,14 +5029,61 @@ ${textSlice}`;
         const q = Qs[idx];
         const L = currentLang==='ar'?['أ','ب','ج','د']:['A','B','C','D'];
         const userSel = Ans[idx].selected;
-        const prompt = `Explain this MCQ question in ${currentLang==='ar'?'Arabic':'English'} in 2-3 sentences. Be concise and educational.\n\nQuestion: ${q.question}\nOptions: ${q.options.map((o,i)=>L[i]+') '+o).join(' | ')}\nCorrect answer: ${L[q.correct]}) ${q.options[q.correct]}${userSel!==null&&userSel!==q.correct?`\nUser chose: ${L[userSel]}) ${q.options[userSel]}`:''}${q.explanation?`\nHint: ${q.explanation}`:''}`;
+        const isAr = currentLang === 'ar';
+        const lang = isAr ? 'Arabic' : 'English';
+
         expDiv.style.display = 'block';
-        expDiv.textContent = t('generating');
+
+        // ── Step 1: Verify the question ──────────────────────────────────
+        const verifyLabel = isAr ? '🔍 جاري التحقق من صحة السؤال...' : '🔍 Verifying question quality...';
+        expDiv.innerHTML = `<span style="opacity:0.6;font-style:italic">${verifyLabel}</span>`;
+
+        const verifyPrompt = `You are a strict MCQ quality reviewer. Evaluate this question and answer.
+
+Question: ${q.question}
+Options: ${q.options.map((o,i)=>L[i]+') '+o).join(' | ')}
+Marked correct answer: ${L[q.correct]}) ${q.options[q.correct]}
+
+Reply in ${lang} with a JSON object only — no markdown, no extra text:
+{
+  "valid": true or false,
+  "issue": "if valid=false, briefly state the problem; if valid=true, write null",
+  "confirmed_correct": "restate the letter and option that is definitively correct"
+}`;
+
         try {
-            const r = await nvidiaChat(prompt);
-            expDiv.textContent = r || '—';
+            const verifyRaw = await nvidiaChat(verifyPrompt, 'You output only a valid JSON object. No markdown. No extra text.', 400, 0.0);
+            let verifyData;
+            try {
+                const clean = verifyRaw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+                verifyData = JSON.parse(clean);
+            } catch { verifyData = { valid: true, issue: null, confirmed_correct: `${L[q.correct]}) ${q.options[q.correct]}` }; }
+
+            // ── Step 2: Explain ──────────────────────────────────────────
+            const explainLabel = isAr ? '💡 جاري الشرح...' : '💡 Generating explanation...';
+            const warningHtml = !verifyData.valid && verifyData.issue
+                ? `<div style="background:var(--warning-bg);border:1px solid var(--warning-border);color:var(--warning);padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:11px">
+                    ⚠️ ${isAr?'ملاحظة على السؤال':'Question note'}: ${verifyData.issue}
+                   </div>`
+                : `<div style="background:var(--success-bg);border:1px solid var(--success-border);color:var(--success);padding:6px 12px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:11px">
+                    ✓ ${isAr?'السؤال سليم — الإجابة الصحيحة مؤكدة':'Question is valid — correct answer confirmed'}: ${verifyData.confirmed_correct || ''}
+                   </div>`;
+
+            expDiv.innerHTML = warningHtml + `<span style="opacity:0.6;font-style:italic">${explainLabel}</span>`;
+
+            const explainPrompt = `Explain in ${lang} why the correct answer is correct for this MCQ question.
+Be concise (3-4 sentences). Focus on the concept behind the answer, not just restating it.
+${!verifyData.valid && verifyData.issue ? `Note: there is a potential issue with the question: ${verifyData.issue}. Acknowledge it briefly if relevant.` : ''}
+
+Question: ${q.question}
+Options: ${q.options.map((o,i)=>L[i]+') '+o).join(' | ')}
+Correct answer: ${L[q.correct]}) ${q.options[q.correct]}${userSel!==null&&userSel!==q.correct?`\nUser chose (wrong): ${L[userSel]}) ${q.options[userSel]}`:''}${q.explanation?`\nHint from source: ${q.explanation}`:''}`;
+
+            const explanation = await nvidiaChat(explainPrompt, 'You are a concise, educational tutor. Explain clearly and directly.', 600, 0.3);
+            expDiv.innerHTML = warningHtml + `<div style="line-height:1.75">${esc(explanation || '—')}</div>`;
+
         } catch(e) {
-            expDiv.textContent = 'ERR — ' + e.message;
+            expDiv.innerHTML = `<span style="color:var(--danger)">ERR — ${esc(e.message)}</span>`;
         }
     }
 
