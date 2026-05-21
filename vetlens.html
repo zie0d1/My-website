@@ -3,792 +3,1306 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VetLens — Precision Veterinary Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&family=IBM+Plex+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>VetLens</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink-2:#3d3d38;--ink-3:#7a7a72;--ink-4:#b8b8b0;
+  --paper:#f5f2ec;--paper-2:#edeae2;--rule:#d8d5cc;
+  --serif:'Lora',Georgia,serif;--mono:'Geist Mono',monospace;
+  --sans:'Geist',sans-serif;--arabic:'Noto Naskh Arabic',serif;
+  --danger:#c0392b;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);min-height:100vh;-webkit-font-smoothing:antialiased}
+body.ar{direction:rtl}
 
-:root {
-  --ink: #1a1a18;
-  --ink-2: #3d3d38;
-  --ink-3: #7a7a72;
-  --ink-4: #b8b8b0;
-  --paper: #f5f2ec;
-  --paper-2: #edeae2;
-  --accent: #1a1a18;
-  --rule: #d8d5cc;
-  --serif: 'Lora', Georgia, serif;
-  --mono: 'Geist Mono', monospace;
-  --sans: 'Geist', sans-serif;
-  --arabic: 'IBM Plex Arabic', sans-serif;
-  --danger: #c0392b;
+/* ── HAMBURGER MENU ── */
+.hamburger-btn{
+  position:fixed;top:14px;left:16px;z-index:1001;
+  background:none;border:none;cursor:pointer;
+  width:36px;height:36px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;padding:4px;
 }
+.hamburger-btn span{
+  display:block;width:22px;height:1.5px;background:var(--ink-2);
+  transition:all 0.3s ease;transform-origin:center;
+}
+.hamburger-btn.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.hamburger-btn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger-btn.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+body.ar .hamburger-btn{left:auto;right:16px}
 
-html { scroll-behavior: smooth; }
+/* ── SLIDE MENU ── */
+#slide-menu{
+  position:fixed;top:0;left:-320px;bottom:0;width:300px;
+  background:var(--paper);border-right:1px solid var(--rule);
+  z-index:999;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;
+  box-shadow:4px 0 24px rgba(26,26,24,0);
+}
+#slide-menu.open{left:0;box-shadow:4px 0 24px rgba(26,26,24,0.12)}
+body.ar #slide-menu{left:auto;right:-320px;border-right:none;border-left:1px solid var(--rule)}
+body.ar #slide-menu.open{right:0;left:auto}
 
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--serif);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
+.menu-header{
+  padding:52px 28px 24px;
+  border-bottom:1px solid var(--rule);
 }
+.menu-logo{
+  display:flex;align-items:center;gap:8px;
+}
+.menu-logo svg{width:20px;height:20px;opacity:0.7}
+.menu-logo-text{
+  font-family:var(--mono);font-size:0.7rem;letter-spacing:3px;
+  text-transform:uppercase;color:var(--ink-2);
+}
+.menu-tagline{
+  font-family:var(--serif);font-style:italic;font-size:0.82rem;
+  color:var(--ink-4);margin-top:8px;line-height:1.5;
+}
+body.ar .menu-tagline{font-family:var(--arabic);font-style:normal}
 
-/* ── Lang toggle ── */
-.lang-toggle {
-  position: fixed;
-  top: 14px;
-  right: 16px;
-  z-index: 1000;
-  display: flex;
-  gap: 2px;
-  background: var(--paper-2);
-  border: 1px solid var(--rule);
-  padding: 3px;
+.menu-section{padding:20px 28px 0}
+.menu-section-label{
+  font-family:var(--mono);font-size:0.55rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:12px;
 }
-.lang-btn {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 5px 10px;
-  border: none;
-  background: transparent;
-  color: var(--ink-3);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.lang-btn.active {
-  background: var(--ink);
-  color: var(--paper);
-}
+body.ar .menu-section-label{font-family:var(--arabic);letter-spacing:0}
 
-/* ── RTL/LTR body & JUSTIFY (AR) ── */
-body.ar { direction: rtl; }
-body.ar .article-nav { direction: rtl; }
-body.ar .wordmark { flex-direction: row-reverse; }
-body.ar .article-kicker { flex-direction: row-reverse; }
-body.ar .article-meta { flex-direction: row-reverse; }
-body.ar .tag-row { flex-direction: row-reverse; }
-body.ar .callout { border-left: none; border-right: 2px solid var(--ink); padding: 4px 24px 4px 0; }
-body.ar .nav-actions { flex-direction: row-reverse; }
-body.ar .step { flex-direction: row-reverse; }
-body.ar .severity-pip-row { flex-direction: row-reverse; }
-body.ar .animal-selector { flex-direction: row-reverse; text-align: right; }
-body.ar .selector-group label { text-align: right; }
-body.ar .custom-animal-field input { text-align: right; }
+/* Animal selector in menu */
+.animal-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;
+}
+.animal-chip{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:12px 8px;border:1px solid var(--rule);background:transparent;
+  cursor:pointer;transition:all 0.2s;font-family:var(--sans);
+}
+.animal-chip:hover{border-color:var(--ink-3);background:var(--paper-2)}
+.animal-chip.selected{border-color:var(--ink);background:var(--ink)}
+.animal-chip.selected .animal-emoji{filter:none}
+.animal-chip.selected .animal-label{color:var(--paper)}
+.animal-emoji{font-size:1.4rem;line-height:1}
+.animal-label{
+  font-family:var(--mono);font-size:0.55rem;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--ink-3);text-align:center;
+}
+.animal-chip.selected .animal-label{color:var(--paper)}
+body.ar .animal-label{font-family:var(--arabic);letter-spacing:0}
 
-/* Arabic font + justified text for better readability */
-body.ar,
-body.ar * {
-  font-family: var(--arabic) !important;
-  letter-spacing: 0 !important;
-}
-body.ar .splash-headline { font-style: normal; font-size: clamp(2rem, 5vw, 3.2rem); }
-body.ar .prose,
-body.ar p:not(.splash-sub, .loader-label, .step, .drawer-empty, .hero-credit),
-body.ar .info-list li,
-body.ar .callout-text,
-body.ar .article-title,
-body.ar .article-causative,
-body.ar .meta-value,
-body.ar .diag-table td,
-body.ar .treatment-table td,
-body.ar .facts-table td,
-body.ar .facts-table th,
-body.ar .section-title {
-  text-align: justify;
-}
-body.ar .info-list li::before { margin-top: 9px; }
-body.ar .prose { font-size: 1.08rem; line-height: 1.95; }
+.menu-divider{height:1px;background:var(--rule);margin:20px 0}
 
-/* ── SPLASH with animal selector ── */
-#splash {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
+.menu-action{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 28px;font-family:var(--mono);font-size:0.65rem;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);
+  background:none;border:none;cursor:pointer;width:100%;text-align:left;
+  transition:color 0.2s;
 }
-body.ar #splash { text-align: center; }
+.menu-action:hover{color:var(--ink)}
+.menu-action svg{width:14px;height:14px;flex-shrink:0}
+body.ar .menu-action{text-align:right;flex-direction:row-reverse;font-family:var(--arabic);letter-spacing:0}
 
-.wordmark {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 48px;
+.menu-generate{
+  margin:20px 28px 28px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--ink);color:var(--paper);
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;
+  text-transform:uppercase;padding:14px;border:none;cursor:pointer;
+  transition:opacity 0.2s;
 }
-.wordmark-icon { width: 28px; height: 28px; opacity: 0.85; }
-.wordmark-text {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  font-weight: 400;
-}
+.menu-generate:hover{opacity:0.8}
+body.ar .menu-generate{font-family:var(--arabic);letter-spacing:0}
 
-.splash-headline {
-  font-family: var(--serif);
-  font-size: clamp(2.2rem, 5vw, 3.6rem);
-  font-weight: 400;
-  font-style: italic;
-  line-height: 1.2;
-  color: var(--ink);
-  margin-bottom: 20px;
-  max-width: 540px;
-  animation: riseIn 0.7s ease both;
+/* ── LANG TOGGLE (inside menu) ── */
+.menu-lang{
+  display:flex;gap:2px;background:var(--paper-2);
+  border:1px solid var(--rule);padding:3px;width:fit-content;
 }
-.splash-sub {
-  font-family: var(--sans);
-  font-size: 0.88rem;
-  color: var(--ink-3);
-  font-weight: 300;
-  margin-bottom: 32px;
-  animation: riseIn 0.7s 0.1s ease both;
-  letter-spacing: 0.2px;
+.lang-btn{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:1.5px;
+  text-transform:uppercase;padding:6px 14px;border:none;
+  background:transparent;color:var(--ink-3);cursor:pointer;transition:all 0.2s;
 }
+.lang-btn.active{background:var(--ink);color:var(--paper)}
 
-/* animal selector panel */
-.animal-selector {
-  max-width: 480px;
-  width: 100%;
-  margin: 0 auto 40px;
-  background: var(--paper-2);
-  border: 1px solid var(--rule);
-  padding: 18px 20px;
-  border-radius: 0px;
-  animation: riseIn 0.7s 0.15s ease both;
-  text-align: left;
+/* Menu overlay */
+#menu-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(26,26,24,0.25);z-index:998;
 }
-.selector-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.selector-group label {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-#animal-category {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  padding: 12px 14px;
-  font-family: var(--sans);
-  font-size: 0.85rem;
-  color: var(--ink);
-  cursor: pointer;
-  outline: none;
-}
-.custom-animal-field {
-  margin-top: 8px;
-  transition: all 0.2s;
-}
-#custom-animal {
-  width: 100%;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  padding: 10px 14px;
-  font-family: var(--sans);
-  font-size: 0.85rem;
-  color: var(--ink);
-  outline: none;
-}
-.hidden-field { display: none; }
-.selector-hint {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  color: var(--ink-4);
-  margin-top: 12px;
-  letter-spacing: 0.8px;
-}
-body.ar .selector-hint { text-align: right; }
+#menu-overlay.active{display:block}
 
-.btn-generate {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  font-weight: 400;
-  padding: 14px 32px;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s;
-  animation: riseIn 0.7s 0.25s ease both;
+/* ── SPLASH ── */
+#splash{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 20px;text-align:center;
 }
-.btn-generate:hover { opacity: 0.8; }
-.btn-generate:active { transform: scale(0.98); }
-.btn-generate:disabled { opacity: 0.35; cursor: not-allowed; }
-
-.btn-icon { width: 14px; height: 14px; fill: var(--paper); flex-shrink: 0; }
-
-.splash-note {
-  margin-top: 24px;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--ink-4);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  animation: riseIn 0.7s 0.35s ease both;
+.wordmark{display:flex;align-items:center;gap:10px;margin-bottom:64px}
+.wordmark-icon{width:28px;height:28px;opacity:0.85}
+.wordmark-text{
+  font-family:var(--mono);font-size:0.75rem;letter-spacing:4px;
+  text-transform:uppercase;color:var(--ink-2);font-weight:400;
 }
+.splash-headline{
+  font-family:var(--serif);font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:400;font-style:italic;line-height:1.2;color:var(--ink);
+  margin-bottom:20px;max-width:540px;animation:riseIn 0.7s ease both;
+}
+body.ar .splash-headline{font-family:var(--arabic);font-style:normal;font-size:clamp(2rem,5vw,3.2rem)}
+.splash-sub{
+  font-family:var(--sans);font-size:0.88rem;color:var(--ink-3);
+  font-weight:300;margin-bottom:40px;animation:riseIn 0.7s 0.1s ease both;
+}
+body.ar .splash-sub{font-family:var(--arabic)}
+
+/* Splash animal selector */
+.splash-animal-label{
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:14px;
+  animation:riseIn 0.7s 0.15s ease both;
+}
+body.ar .splash-animal-label{font-family:var(--arabic);letter-spacing:0}
+.splash-animals{
+  display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:40px;animation:riseIn 0.7s 0.2s ease both;
+}
+.splash-animal-chip{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 14px;border:1px solid var(--rule);
+  background:transparent;cursor:pointer;transition:all 0.2s;
+  min-width:72px;
+}
+.splash-animal-chip:hover{border-color:var(--ink-3);background:var(--paper-2)}
+.splash-animal-chip.selected{border-color:var(--ink);background:var(--ink)}
+.splash-animal-chip.selected .animal-label{color:var(--paper)}
+.splash-animal-chip .animal-emoji{font-size:1.6rem}
+.splash-animal-chip .animal-label{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--ink-3);
+}
+.splash-animal-chip.selected .animal-label{color:rgba(245,242,236,0.7)}
+
+.btn-generate{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--ink);color:var(--paper);font-family:var(--mono);
+  font-size:0.7rem;letter-spacing:2.5px;text-transform:uppercase;
+  font-weight:400;padding:14px 32px;border:none;cursor:pointer;
+  transition:opacity 0.2s,transform 0.2s;animation:riseIn 0.7s 0.25s ease both;
+}
+body.ar .btn-generate{font-family:var(--arabic);letter-spacing:0}
+.btn-generate:hover{opacity:0.8}
+.btn-generate:active{transform:scale(0.98)}
+.btn-generate:disabled{opacity:0.35;cursor:not-allowed}
+.btn-icon{width:14px;height:14px;flex-shrink:0}
+.splash-note{
+  margin-top:20px;font-family:var(--mono);font-size:0.6rem;
+  color:var(--ink-4);letter-spacing:1.5px;text-transform:uppercase;
+  animation:riseIn 0.7s 0.3s ease both;
+}
+body.ar .splash-note{font-family:var(--arabic);letter-spacing:0}
 
 /* ── LOADER ── */
-#loader {
-  display: none;
-  min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+#loader{
+  display:none;min-height:100vh;flex-direction:column;
+  align-items:center;justify-content:center;padding:40px 20px;
 }
-#loader.active { display: flex; }
+#loader.active{display:flex}
+.loader-inner{width:100%;max-width:380px}
+.loader-label{
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:36px;text-align:center;
+}
+body.ar .loader-label{font-family:var(--arabic);letter-spacing:0}
+.loader-disease{
+  font-family:var(--serif);font-style:italic;font-size:1.8rem;
+  color:var(--ink);text-align:center;margin-bottom:48px;min-height:44px;
+}
+body.ar .loader-disease{font-family:var(--arabic);font-style:normal}
+.steps-list{list-style:none;border-top:1px solid var(--rule)}
+.step{
+  display:flex;align-items:center;gap:14px;padding:13px 0;
+  border-bottom:1px solid var(--rule);font-family:var(--mono);
+  font-size:0.68rem;color:var(--ink-4);letter-spacing:0.5px;transition:color 0.3s;
+}
+body.ar .step{flex-direction:row-reverse;font-family:var(--arabic);letter-spacing:0}
+.step.active{color:var(--ink-2)}
+.step.done{color:var(--ink-4)}
+.step-indicator{
+  width:5px;height:5px;border-radius:50%;background:var(--rule);
+  flex-shrink:0;transition:background 0.3s;
+}
+.step.active .step-indicator{background:var(--ink);animation:breathe 1s ease infinite}
+.step.done .step-indicator{background:var(--ink-4);animation:none}
+.progress-track{height:1px;background:var(--rule);margin-top:32px;overflow:hidden}
+.progress-bar{height:100%;background:var(--ink);width:0%;transition:width 0.6s ease}
 
-.loader-inner { width: 100%; max-width: 380px; }
+/* ── ARTICLE ── */
+#article{display:none;animation:riseIn 0.5s ease both}
+#article.active{display:block}
 
-.loader-label {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-bottom: 36px;
-  text-align: center;
-}
-.loader-disease {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.8rem;
-  color: var(--ink);
-  text-align: center;
-  margin-bottom: 48px;
-  min-height: 44px;
-  transition: opacity 0.3s;
-}
+/* Article body — no top bar, just padding for hamburger btn */
+.article-body{max-width:720px;margin:0 auto;padding:72px 32px 120px}
 
-.steps-list { list-style: none; border-top: 1px solid var(--rule); }
-.step {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--rule);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  color: var(--ink-4);
-  letter-spacing: 0.5px;
-  transition: color 0.3s;
+/* Kicker */
+.article-kicker{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+body.ar .article-kicker{flex-direction:row-reverse}
+.kicker-tag{
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-3);white-space:nowrap;
 }
-.step.active { color: var(--ink-2); }
-.step.done   { color: var(--ink-4); }
-.step-indicator {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--rule);
-  flex-shrink: 0;
-  transition: background 0.3s;
-}
-.step.active .step-indicator { background: var(--ink); animation: breathe 1s ease infinite; }
-.step.done  .step-indicator  { background: var(--ink-4); animation: none; }
+body.ar .kicker-tag{font-family:var(--arabic);letter-spacing:0}
+.kicker-rule{flex:1;height:1px;background:var(--rule)}
 
-.progress-track {
-  height: 1px;
-  background: var(--rule);
-  margin-top: 32px;
-  position: relative;
-  overflow: hidden;
+/* Animal category badge */
+.animal-category-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--rule);padding:6px 14px;margin-bottom:28px;
 }
-.progress-bar {
-  height: 100%;
-  background: var(--ink);
-  width: 0%;
-  transition: width 0.6s ease;
+.animal-category-badge .badge-emoji{font-size:1.1rem}
+.animal-category-badge .badge-text{
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--ink-3);
 }
+body.ar .animal-category-badge .badge-text{font-family:var(--arabic);letter-spacing:0}
 
-/* ── ARTICLE (unchanged but flex) ── */
-#article { display: none; animation: riseIn 0.5s ease both; }
-#article.active { display: block; }
-.article-nav {
-  position: sticky;
-  top: 0;
-  background: rgba(245, 242, 236, 0.92);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--rule);
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 52px;
-  z-index: 50;
+/* Title */
+.article-title{
+  font-family:var(--serif);font-size:clamp(2.4rem,5vw,3.8rem);
+  font-weight:500;line-height:1.12;letter-spacing:-0.5px;margin-bottom:12px;color:var(--ink);
 }
-.nav-brand { display: flex; align-items: center; gap: 8px; }
-.nav-brand-icon { width: 18px; height: 18px; opacity: 0.7; }
-.nav-brand-text {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--ink-3);
+body.ar .article-title{font-family:var(--arabic);letter-spacing:0}
+.article-causative{
+  font-family:var(--serif);font-style:italic;font-size:1.05rem;
+  color:var(--ink-3);margin-bottom:32px;
 }
-.nav-actions { display: flex; align-items: center; gap: 24px; }
-.nav-btn {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 0;
-  transition: color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.nav-btn:hover { color: var(--ink); }
-.nav-btn svg { width: 12px; height: 12px; fill: currentColor; }
-.nav-btn-primary {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--paper);
-  background: var(--ink);
-  border: none;
-  cursor: pointer;
-  padding: 7px 16px;
-  transition: opacity 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.nav-btn-primary:hover { opacity: 0.75; }
+body.ar .article-causative{font-family:var(--arabic);font-style:normal}
 
-.article-body { max-width: 720px; margin: 0 auto; padding: 72px 32px 120px; }
-.article-kicker { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
-.kicker-tag {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  white-space: nowrap;
+/* Meta */
+.article-meta{
+  display:flex;align-items:center;flex-wrap:wrap;gap:16px;
+  padding:18px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  margin-bottom:48px;
 }
-.kicker-rule { flex: 1; height: 1px; background: var(--rule); }
-.article-title {
-  font-family: var(--serif);
-  font-size: clamp(2.4rem, 5vw, 3.8rem);
-  font-weight: 500;
-  line-height: 1.12;
-  letter-spacing: -0.5px;
-  margin-bottom: 12px;
+body.ar .article-meta{flex-direction:row-reverse}
+.meta-item{display:flex;flex-direction:column;gap:3px}
+.meta-label{
+  font-family:var(--mono);font-size:0.55rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-4);
 }
-.article-causative {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.05rem;
-  color: var(--ink-3);
-  margin-bottom: 32px;
+body.ar .meta-label{font-family:var(--arabic);letter-spacing:0}
+.meta-value{
+  font-family:var(--sans);font-size:0.78rem;font-weight:500;color:var(--ink-2);
 }
-.article-meta {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 18px 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 48px;
-  flex-wrap: wrap;
-}
-.meta-item { display: flex; flex-direction: column; gap: 3px; }
-.meta-label {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ink-4);
-}
-.meta-value {
-  font-family: var(--sans);
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-.meta-divider { width: 1px; height: 28px; background: var(--rule); }
-.severity-pip-row { display: flex; gap: 4px; align-items: center; }
-.pip { width: 6px; height: 6px; border-radius: 50%; background: var(--rule); transition: background 0.4s, opacity 0.3s; opacity: 0; }
-.pip.filled { background: var(--ink-2); }
-.pip.high   { background: var(--danger); }
-.tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 48px; }
-.tag {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 5px 10px;
-  border: 1px solid var(--rule);
-  color: var(--ink-3);
-}
-.tag.alert { border-color: var(--danger); color: var(--danger); }
-.callout {
-  border-left: 2px solid var(--ink);
-  padding: 4px 0 4px 24px;
-  margin: 48px 0;
-}
-.callout-label {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-bottom: 10px;
-}
-.callout-text {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.15rem;
-  line-height: 1.65;
-  color: var(--ink-2);
-}
-.section-title {
-  font-family: var(--sans);
-  font-size: 0.65rem;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  font-weight: 500;
-  margin-bottom: 16px;
-  margin-top: 52px;
-  padding-top: 20px;
-  border-top: 1px solid var(--rule);
-}
-.section-title:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
-.prose {
-  font-family: var(--serif);
-  font-size: 1.05rem;
-  line-height: 1.85;
-  color: var(--ink-2);
-  font-weight: 400;
-}
-.prose + .prose { margin-top: 20px; }
-.info-list { list-style: none; margin: 16px 0; border: 1px solid var(--rule); }
-.info-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 11px 18px;
-  border-bottom: 1px solid var(--rule);
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--ink-2);
-}
-.info-list li:last-child { border-bottom: none; }
-.info-list li::before {
-  content: '';
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--ink-3);
-  margin-top: 9px;
-  flex-shrink: 0;
-}
-body.ar .info-list li { flex-direction: row-reverse; }
-body.ar .info-list li::before { order: 1; }
-.facts-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 52px 0;
-  border: 1px solid var(--rule);
-}
-.facts-table caption {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ink-4);
-  padding-bottom: 10px;
-  text-align: left;
-}
-body.ar .facts-table caption { text-align: right; }
-.facts-table th {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ink-4);
-  background: var(--paper-2);
-  padding: 10px 16px;
-  font-weight: 500;
-  text-align: left;
-  border-bottom: 1px solid var(--rule);
-  border-right: 1px solid var(--rule);
-  width: 38%;
-}
-body.ar .facts-table th { text-align: right; border-right: none; border-left: 1px solid var(--rule); }
-.facts-table td {
-  font-family: var(--sans);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--ink);
-  padding: 10px 16px;
-  text-align: left;
-  border-bottom: 1px solid var(--rule);
-}
-body.ar .facts-table td { text-align: right; }
-.diag-table, .treatment-table { width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid var(--rule); font-size: 0.88rem; }
-.diag-table thead th, .treatment-table thead th {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  background: var(--ink);
-  color: var(--paper);
-  padding: 10px 14px;
-  text-align: left;
-  font-weight: 400;
-}
-body.ar .diag-table thead th, body.ar .treatment-table thead th { text-align: right; }
-.diag-table tbody tr, .treatment-table tbody tr { border-bottom: 1px solid var(--rule); }
-.diag-table td, .treatment-table td {
-  font-family: var(--serif);
-  font-size: 0.9rem;
-  padding: 10px 14px;
-  color: var(--ink-2);
-  vertical-align: top;
-  line-height: 1.5;
-  border-right: 1px solid var(--rule);
-}
-body.ar .diag-table td, body.ar .treatment-table td { border-right: none; border-left: 1px solid var(--rule); text-align: right; }
-.diag-table td:last-child, .treatment-table td:last-child { border-right: none; }
-.article-hero { width: 100%; max-width: 720px; margin: 0 auto 52px; padding: 0 32px; }
-.article-hero img { width: 100%; height: 320px; object-fit: cover; filter: grayscale(15%); }
-.hero-credit {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  letter-spacing: 1px;
-  color: var(--ink-4);
-  text-align: right;
-  padding-top: 6px;
-  text-transform: uppercase;
-}
-body.ar .hero-credit { text-align: left; }
+body.ar .meta-value{font-family:var(--arabic)}
+.meta-divider{width:1px;height:28px;background:var(--rule)}
+.severity-pip-row{display:flex;gap:4px;align-items:center}
+body.ar .severity-pip-row{flex-direction:row-reverse}
+.pip{width:6px;height:6px;border-radius:50%;background:var(--rule);transition:background 0.4s}
+.pip.filled{background:var(--ink-2)}
+.pip.high{background:var(--danger)}
 
-#saved-drawer {
-  position: fixed; top: 0; right: -420px; bottom: 0;
-  width: 380px; background: var(--paper); border-left: 1px solid var(--rule);
-  z-index: 200; transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
-  display: flex; flex-direction: column;
+/* Tags */
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:48px}
+body.ar .tag-row{flex-direction:row-reverse}
+.tag{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:1.5px;
+  text-transform:uppercase;padding:5px 10px;border:1px solid var(--rule);color:var(--ink-3);
 }
-#saved-drawer.open { right: 0; }
-body.ar #saved-drawer { right: auto; left: -420px; border-left: none; border-right: 1px solid var(--rule); }
-body.ar #saved-drawer.open { left: 0; right: auto; }
-.drawer-header {
-  padding: 24px 28px 20px;
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.drawer-title {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-.drawer-close { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--ink-3); }
-.drawer-list { flex: 1; overflow-y: auto; padding: 20px 28px; }
-.drawer-item { padding: 16px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
-.drawer-item:hover { opacity: 0.6; }
-.drawer-item-name { font-family: var(--serif); font-size: 0.95rem; margin-bottom: 4px; }
-.drawer-item-meta { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1px; color: var(--ink-4); text-transform: uppercase; }
-.drawer-empty { padding: 40px 0; text-align: center; font-style: italic; color: var(--ink-4); }
-#overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,24,0.3); z-index: 190; }
-#overlay.active { display: block; }
-#toast {
-  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
-  opacity: 0; background: var(--ink); color: var(--paper); font-family: var(--mono);
-  font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; padding: 12px 24px;
-  z-index: 300; transition: opacity 0.25s, transform 0.25s; pointer-events: none;
-}
-#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+body.ar .tag{font-family:var(--arabic);letter-spacing:0}
+.tag.alert{border-color:var(--danger);color:var(--danger)}
 
-@keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; transform: scale(0.7); } }
-@media (max-width: 600px) {
-  .article-body { padding: 48px 20px 100px; }
-  .article-nav { padding: 0 16px; }
-  #saved-drawer { width: 100%; right: -100%; }
-  body.ar #saved-drawer { left: -100%; right: auto; }
-  .animal-selector { padding: 16px; margin-bottom: 28px; }
+/* Callout */
+.callout{border-left:2px solid var(--ink);padding:4px 0 4px 24px;margin:48px 0}
+body.ar .callout{border-left:none;border-right:2px solid var(--ink);padding:4px 24px 4px 0}
+.callout-label{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;
+}
+body.ar .callout-label{font-family:var(--arabic);letter-spacing:0}
+.callout-text{
+  font-family:var(--serif);font-style:italic;font-size:1.15rem;
+  line-height:1.65;color:var(--ink-2);text-align:justify;
+}
+body.ar .callout-text{font-family:var(--arabic);font-style:normal}
+
+/* Section title */
+.section-title{
+  font-family:var(--sans);font-size:0.65rem;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--ink-3);font-weight:500;
+  margin-bottom:16px;margin-top:52px;padding-top:20px;border-top:1px solid var(--rule);
+}
+body.ar .section-title{font-family:var(--arabic);letter-spacing:0;text-align:right}
+.section-title:first-of-type{margin-top:0;padding-top:0;border-top:none}
+
+/* Prose - JUSTIFIED */
+.prose{
+  font-family:var(--serif);font-size:1.05rem;line-height:1.9;
+  color:var(--ink-2);font-weight:400;text-align:justify;
+  hyphens:auto;
+}
+body.ar .prose{font-family:var(--arabic);font-size:1.08rem;line-height:2.1;text-align:justify}
+.prose+.prose{margin-top:20px}
+
+/* Quick facts table */
+.facts-table{width:100%;border-collapse:collapse;margin:52px 0;border:1px solid var(--rule)}
+.facts-table caption{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-4);padding-bottom:10px;text-align:left;
+}
+body.ar .facts-table caption{text-align:right;font-family:var(--arabic);letter-spacing:0}
+.facts-table th{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--ink-4);background:var(--paper-2);padding:10px 16px;font-weight:500;
+  text-align:left;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);width:38%;
+}
+body.ar .facts-table th{text-align:right;font-family:var(--arabic);letter-spacing:0;border-right:none;border-left:1px solid var(--rule)}
+.facts-table td{
+  font-family:var(--sans);font-size:0.9rem;font-weight:500;color:var(--ink);
+  padding:10px 16px;border-bottom:1px solid var(--rule);
+}
+body.ar .facts-table td{text-align:right;font-family:var(--arabic)}
+.facts-table tr:last-child th,.facts-table tr:last-child td{border-bottom:none}
+
+/* ── CLINICAL SIGNS - IMAGE GRID ── */
+.signs-image-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  margin:20px 0;
+}
+.sign-card{
+  position:relative;border:1px solid var(--rule);
+  overflow:hidden;background:var(--paper-2);
+  transition:border-color 0.2s;
+}
+.sign-card:hover{border-color:var(--ink-3)}
+.sign-card-img-wrap{
+  width:100%;aspect-ratio:4/3;overflow:hidden;
+  background:var(--paper-2);position:relative;
+}
+.sign-card-img-wrap img{
+  width:100%;height:100%;object-fit:cover;
+  display:block;transition:transform 0.4s ease;filter:grayscale(20%);
+}
+.sign-card:hover .sign-card-img-wrap img{transform:scale(1.04)}
+.sign-card-img-wrap .img-placeholder{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;color:var(--ink-4);
+}
+.sign-card-body{padding:10px 12px 12px}
+.sign-card-title{
+  font-family:var(--sans);font-size:0.72rem;font-weight:500;
+  color:var(--ink);margin-bottom:4px;line-height:1.3;
+}
+body.ar .sign-card-title{font-family:var(--arabic);text-align:right}
+.sign-card-desc{
+  font-family:var(--serif);font-size:0.78rem;line-height:1.5;
+  color:var(--ink-3);
+}
+body.ar .sign-card-desc{font-family:var(--arabic);text-align:right}
+.sign-loading{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:var(--paper-2);
+}
+.sign-loading-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--ink-4);
+  animation:blink 1.2s ease infinite;
+}
+.sign-loading-dot:nth-child(2){animation-delay:0.2s}
+.sign-loading-dot:nth-child(3){animation-delay:0.4s}
+.sign-loading-dots{display:flex;gap:4px}
+@keyframes blink{0%,100%{opacity:0.2}50%{opacity:1}}
+
+@media(max-width:600px){.signs-image-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:380px){.signs-image-grid{grid-template-columns:1fr 1fr}}
+
+/* Diagnosis table */
+.diag-table{width:100%;border-collapse:collapse;margin:20px 0;border:1px solid var(--rule);font-size:0.88rem}
+.diag-table thead th{
+  font-family:var(--mono);font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--paper);background:var(--ink);padding:10px 14px;text-align:left;font-weight:400;
+}
+body.ar .diag-table thead th{text-align:right;font-family:var(--arabic);letter-spacing:0}
+.diag-table tbody tr{border-bottom:1px solid var(--rule)}
+.diag-table tbody tr:last-child{border-bottom:none}
+.diag-table tbody tr:hover{background:var(--paper-2)}
+.diag-table td{
+  font-family:var(--serif);font-size:0.9rem;padding:10px 14px;
+  color:var(--ink-2);vertical-align:top;line-height:1.5;border-right:1px solid var(--rule);
+}
+body.ar .diag-table td{text-align:right;font-family:var(--arabic);border-right:none;border-left:1px solid var(--rule)}
+.diag-table td:last-child{border-right:none}
+body.ar .diag-table td:last-child{border-left:none}
+
+/* Treatment table */
+.treatment-table{width:100%;border-collapse:collapse;margin:20px 0;border:1px solid var(--rule)}
+.treatment-table thead th{
+  font-family:var(--mono);font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);padding:10px 16px;text-align:left;font-weight:400;
+}
+body.ar .treatment-table thead th{text-align:right;font-family:var(--arabic);letter-spacing:0}
+.treatment-table td{
+  font-family:var(--serif);font-size:0.9rem;padding:10px 16px;color:var(--ink-2);
+  border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);
+  vertical-align:top;line-height:1.5;
+}
+body.ar .treatment-table td{text-align:right;font-family:var(--arabic);border-right:none;border-left:1px solid var(--rule)}
+.treatment-table tr:last-child td{border-bottom:none}
+.treatment-table td:last-child{border-right:none}
+body.ar .treatment-table td:last-child{border-left:none}
+
+/* Prevention bullets */
+.info-list{list-style:none;margin:16px 0;border:1px solid var(--rule)}
+.info-list li{
+  display:flex;align-items:flex-start;gap:14px;padding:11px 18px;
+  border-bottom:1px solid var(--rule);font-family:var(--serif);
+  font-size:0.95rem;line-height:1.6;color:var(--ink-2);text-align:justify;
+}
+body.ar .info-list li{flex-direction:row-reverse;font-family:var(--arabic);font-size:1rem}
+.info-list li:last-child{border-bottom:none}
+.info-list li::before{
+  content:'';width:4px;height:4px;border-radius:50%;background:var(--ink-3);
+  margin-top:9px;flex-shrink:0;
+}
+body.ar .info-list li::before{order:1}
+
+/* Saved drawer */
+#saved-drawer{
+  position:fixed;top:0;right:-420px;bottom:0;width:380px;
+  background:var(--paper);border-left:1px solid var(--rule);
+  z-index:200;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;
+}
+#saved-drawer.open{right:0}
+body.ar #saved-drawer{right:auto;left:-420px;border-left:none;border-right:1px solid var(--rule)}
+body.ar #saved-drawer.open{left:0;right:auto}
+
+.drawer-header{
+  padding:24px 28px 20px;border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.drawer-title{
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:3px;
+  text-transform:uppercase;color:var(--ink-2);
+}
+body.ar .drawer-title{font-family:var(--arabic);letter-spacing:0}
+.drawer-close{
+  background:none;border:none;cursor:pointer;color:var(--ink-3);
+  font-family:var(--sans);font-size:1.1rem;line-height:1;transition:color 0.2s;
+}
+.drawer-close:hover{color:var(--ink)}
+.drawer-list{flex:1;overflow-y:auto;padding:20px 28px}
+.drawer-item{
+  padding:16px 0;border-bottom:1px solid var(--rule);cursor:pointer;transition:opacity 0.2s;
+}
+.drawer-item:hover{opacity:0.6}
+.drawer-item:last-child{border-bottom:none}
+.drawer-item-name{font-family:var(--serif);font-size:0.95rem;margin-bottom:4px;color:var(--ink)}
+body.ar .drawer-item-name{font-family:var(--arabic);text-align:right}
+.drawer-item-meta{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:1px;
+  color:var(--ink-4);text-transform:uppercase;
+}
+body.ar .drawer-item-meta{font-family:var(--arabic);letter-spacing:0;text-align:right}
+.drawer-empty{
+  padding:40px 0;text-align:center;font-family:var(--serif);
+  font-style:italic;color:var(--ink-4);font-size:0.9rem;
+}
+body.ar .drawer-empty{font-family:var(--arabic);font-style:normal}
+
+#overlay{display:none;position:fixed;inset:0;background:rgba(26,26,24,0.3);z-index:190}
+#overlay.active{display:block}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:32px;left:50%;
+  transform:translateX(-50%) translateY(20px);opacity:0;
+  background:var(--ink);color:var(--paper);font-family:var(--mono);
+  font-size:0.65rem;letter-spacing:1.5px;text-transform:uppercase;
+  padding:12px 24px;z-index:300;transition:opacity 0.25s,transform 0.25s;pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.7)}}
+
+@media(max-width:600px){
+  .article-body{padding:60px 20px 100px}
+  #saved-drawer{width:100%;right:-100%}
+  body.ar #saved-drawer{left:-100%;right:auto}
+  #slide-menu{width:85%}
 }
 </style>
 </head>
 <body>
-<div class="lang-toggle" id="lang-toggle">
-  <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-  <button class="lang-btn" id="btn-ar" onclick="setLang('ar')">ع</button>
-</div>
-<svg style="display:none"><symbol id="icon-lens" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol><symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M1 4v6h6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.51 15a9 9 0 1 0 .49-4.85" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol><symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol><symbol id="icon-library" viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h13" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 19a2 2 0 0 0 2 2h13V4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol><symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol></svg>
 
-<div id="splash">
-  <div class="wordmark"><svg class="wordmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><use href="#icon-lens"/></svg><span class="wordmark-text">VetLens</span></div>
-  <h1 class="splash-headline" id="splash-headline">A new veterinary<br>case, every time.</h1>
-  <p class="splash-sub" id="splash-sub">AI-generated articles on diseases, pathogens, and clinical medicine.</p>
-  
-  <!-- Animal selector UI -->
-  <div class="animal-selector" id="animal-selector">
-    <div class="selector-group">
-      <label id="animal-label">🐾 FOCUS SPECIES / ANIMAL</label>
-      <select id="animal-category">
-        <option value="any">🌍 Any species (global veterinary)</option>
-        <option value="Cattle">🐄 Cattle (bovine)</option>
-        <option value="Sheep & Goats">🐑 Sheep & Goats</option>
-        <option value="Swine">🐖 Swine</option>
-        <option value="Poultry">🐔 Poultry (chickens, turkeys)</option>
-        <option value="Horse">🐎 Equine</option>
-        <option value="Dog">🐕 Canine</option>
-        <option value="Cat">🐈 Feline</option>
-        <option value="Rabbit">🐇 Lagomorph</option>
-        <option value="Other">📝 Other (custom)</option>
-      </select>
-      <div id="custom-animal-container" class="custom-animal-field hidden-field">
-        <input type="text" id="custom-animal" placeholder="e.g., Alpaca, Deer, Marine mammal..." autocomplete="off">
-      </div>
-      <div class="selector-hint" id="selector-hint">AI selects relevant disease for chosen species</div>
+<!-- HAMBURGER -->
+<button class="hamburger-btn" id="hamburger-btn" onclick="toggleMenu()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+
+
+<!-- SVG SPRITE -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="icon-lens" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-refresh" viewBox="0 0 24 24">
+    <path d="M1 4v6h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M3.51 15a9 9 0 1 0 .49-4.85" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-bookmark" viewBox="0 0 24 24">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="icon-library" viewBox="0 0 24 24">
+    <path d="M4 19V6a2 2 0 0 1 2-2h13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M4 19a2 2 0 0 0 2 2h13V4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-arrow" viewBox="0 0 24 24">
+    <path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="icon-paw" viewBox="0 0 24 24">
+    <ellipse cx="5" cy="11" rx="2.5" ry="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <ellipse cx="19" cy="11" rx="2.5" ry="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <ellipse cx="9" cy="7" rx="2" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <ellipse cx="15" cy="7" rx="2" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M12 22c-4 0-7-2.5-7-6s2.5-5 7-5 7 2 7 5-3 6-7 6z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  </symbol>
+</svg>
+
+<!-- SLIDE MENU -->
+<div id="menu-overlay" onclick="closeMenu()"></div>
+<div id="slide-menu">
+  <div class="menu-header">
+    <div class="menu-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-lens"/></svg>
+      <span class="menu-logo-text">VetLens</span>
     </div>
+    <p class="menu-tagline" id="menu-tagline">AI-generated veterinary disease articles</p>
   </div>
 
+  <div style="overflow-y:auto;flex:1;display:flex;flex-direction:column">
+
+    <!-- Language -->
+    <div class="menu-section" style="padding-top:24px;padding-bottom:16px">
+      <div class="menu-section-label" id="menu-lang-label">Language</div>
+      <div class="menu-lang">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btn-ar" onclick="setLang('ar')">ع</button>
+      </div>
+    </div>
+
+    <div style="padding:0 28px"><div class="menu-divider" style="margin:0"></div></div>
+
+    <!-- Animal filter -->
+    <div class="menu-section" style="padding-top:20px;padding-bottom:16px">
+      <div class="menu-section-label" id="menu-animal-label">Filter by animal</div>
+      <div class="animal-grid" id="menu-animal-grid"></div>
+    </div>
+
+    <div style="padding:0 28px"><div class="menu-divider" style="margin:0"></div></div>
+
+    <!-- Actions -->
+    <button class="menu-action" id="menu-save-btn" onclick="saveArticle();closeMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-bookmark"/></svg>
+      <span id="menu-save-lbl">Save Article</span>
+    </button>
+
+    <button class="menu-action" onclick="openDrawer();closeMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-library"/></svg>
+      <span id="menu-library-lbl">Saved Articles</span>
+    </button>
+
+    <div style="flex:1"></div>
+
+    <button class="menu-generate" id="menu-generate-btn" onclick="closeMenu();startGenerate()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-arrow"/></svg>
+      <span id="menu-gen-lbl">Generate Article</span>
+    </button>
+  </div>
+</div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="wordmark">
+    <svg class="wordmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-lens"/></svg>
+    <span class="wordmark-text">VetLens</span>
+  </div>
+  <h1 class="splash-headline" id="splash-headline">A new veterinary<br>case, every time.</h1>
+  <p class="splash-sub" id="splash-sub">AI-generated articles on diseases, pathogens, and clinical medicine.</p>
+
+  <p class="splash-animal-label" id="splash-animal-label">Choose animal category</p>
+  <div class="splash-animals" id="splash-animals"></div>
+
   <button class="btn-generate" id="btn-hero" onclick="startGenerate()">
-    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><use href="#icon-arrow"/></svg>
+    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-arrow"/></svg>
     <span id="btn-hero-text">Generate Article</span>
   </button>
   <p class="splash-note" id="splash-note">Each generation is unique</p>
 </div>
 
-<div id="loader"><div class="loader-inner"><p class="loader-label" id="loader-label">Generating article</p><div class="loader-disease" id="loader-disease">&nbsp;</div><ul class="steps-list"><li class="step" id="s0"><span class="step-indicator"></span><span id="st0">Selecting pathogen</span></li><li class="step" id="s1"><span class="step-indicator"></span><span id="st1">Accessing epidemiological data</span></li><li class="step" id="s2"><span class="step-indicator"></span><span id="st2">Writing pathology sections</span></li><li class="step" id="s3"><span class="step-indicator"></span><span id="st3">Composing clinical narrative</span></li><li class="step" id="s4"><span class="step-indicator"></span><span id="st4">Finalising article</span></li></ul><div class="progress-track"><div class="progress-bar" id="prog"></div></div></div></div>
-
-<div id="article">
-  <nav class="article-nav"><div class="nav-brand"><svg class="nav-brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><use href="#icon-lens"/></svg><span class="nav-brand-text">VetLens</span></div><div class="nav-actions"><button class="nav-btn" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><use href="#icon-library"/></svg><span id="nav-library">Library</span></button><button class="nav-btn" id="btn-save" onclick="saveArticle()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><use href="#icon-bookmark"/></svg><span id="nav-save">Save</span></button><button class="nav-btn-primary" onclick="startGenerate()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><use href="#icon-refresh"/></svg><span id="nav-new">New Article</span></button></div></nav>
-  <div id="art-hero"></div><div class="article-body" id="art-body"></div>
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-inner">
+    <p class="loader-label" id="loader-label">Generating article</p>
+    <div class="loader-disease" id="loader-disease">&nbsp;</div>
+    <ul class="steps-list">
+      <li class="step" id="s0"><span class="step-indicator"></span><span id="st0">Selecting pathogen</span></li>
+      <li class="step" id="s1"><span class="step-indicator"></span><span id="st1">Accessing epidemiological data</span></li>
+      <li class="step" id="s2"><span class="step-indicator"></span><span id="st2">Writing pathology sections</span></li>
+      <li class="step" id="s3"><span class="step-indicator"></span><span id="st3">Composing clinical narrative</span></li>
+      <li class="step" id="s4"><span class="step-indicator"></span><span id="st4">Finalising article</span></li>
+    </ul>
+    <div class="progress-track"><div class="progress-bar" id="prog"></div></div>
+  </div>
 </div>
-<div id="overlay" onclick="closeDrawer()"></div><div id="saved-drawer"><div class="drawer-header"><span class="drawer-title" id="drawer-title">Saved Articles</span><button class="drawer-close" onclick="closeDrawer()">&#215;</button></div><div class="drawer-list" id="drawer-list"></div></div>
+
+<!-- ARTICLE -->
+<div id="article">
+  <div class="article-body" id="art-body"></div>
+</div>
+
+<!-- SAVED DRAWER -->
+<div id="overlay" onclick="closeDrawer()"></div>
+<div id="saved-drawer">
+  <div class="drawer-header">
+    <span class="drawer-title" id="drawer-title">Saved Articles</span>
+    <button class="drawer-close" onclick="closeDrawer()">&#215;</button>
+  </div>
+  <div class="drawer-list" id="drawer-list"></div>
+</div>
+
 <div id="toast"></div>
 
 <script>
-const NV_API_KEY = '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';
-const NV_MODEL = 'openai/gpt-oss-120b';
+/* ════════════ CONFIG ════════════ */
+const NV_API_KEY  = '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';
+const NV_MODEL    = 'openai/gpt-oss-120b';
 const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const CORS_PROXIES = [url => `https://corsproxy.io/?${encodeURIComponent(url)}`, url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`];
+const CORS_PROXIES = [
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+];
 
-let currentLang = 'en';
-let currentArticle = null;
-let savedArticles = JSON.parse(localStorage.getItem('vetlens_v3') || '[]');
-
-const T = {
-  en: { splash_headline: "A new veterinary<br>case, every time.", splash_sub: "AI-generated articles on diseases, pathogens, and clinical medicine.", btn_generate: "Generate Article", splash_note: "Each generation is unique", loader_label: "Generating article", steps: ["Selecting pathogen","Accessing epidemiological data","Writing pathology sections","Composing clinical narrative","Finalising article"], nav_library: "Library", nav_save: "Save", nav_new: "New Article", drawer_title: "Saved Articles", drawer_empty: "No saved articles yet.", toast_saved: "Saved to library", toast_already: "Already saved", kicker: "Veterinary Medicine", severity: "Severity", zoonotic: "Zoonotic", notifiable: "Notifiable", generated: "Generated", yes: "Yes", no: "No", research_note: "Research note", sections: { overview: "Overview", etiology: "Aetiology", epidemiology: "Epidemiology", pathogenesis: "Pathogenesis", clinicalSigns: "Clinical Signs", diagnosis: "Diagnosis", treatment: "Treatment", prevention: "Prevention & Control" }, quickfacts_caption: "Quick Reference", qf_species: "Species Affected", qf_gram: "Gram Stain", qf_mortality: "Mortality", qf_transmission: "Transmission", diag_test: "Test / Method", diag_purpose: "Purpose", diag_note: "Note", tx_category: "Category", tx_approach: "Approach", tx_note: "Notes", animal_hint: "AI selects relevant disease for chosen species" },
-  ar: { splash_headline: "حالة بيطرية جديدة<br>في كل مرة.", splash_sub: "مقالات طبية بيطرية تُولَّد بالذكاء الاصطناعي عن الأمراض والمسببات والممارسة السريرية.", btn_generate: "توليد مقال", splash_note: "كل توليد فريد من نوعه", loader_label: "جارٍ توليد المقال", steps: ["اختيار المسبب المرضي","الوصول إلى البيانات الوبائية","كتابة أقسام علم الأمراض","صياغة السرد السريري","إنهاء المقال"], nav_library: "المكتبة", nav_save: "حفظ", nav_new: "مقال جديد", drawer_title: "المقالات المحفوظة", drawer_empty: "لا توجد مقالات محفوظة بعد.", toast_saved: "تم الحفظ في المكتبة", toast_already: "محفوظ مسبقاً", kicker: "الطب البيطري", severity: "الشدة", zoonotic: "حيواني المصدر", notifiable: "مُبلَّغ عنه", generated: "تاريخ التوليد", yes: "نعم", no: "لا", research_note: "ملاحظة بحثية", sections: { overview: "نظرة عامة", etiology: "المسببات", epidemiology: "الوبائيات", pathogenesis: "التسبب في المرض", clinicalSigns: "العلامات السريرية", diagnosis: "التشخيص", treatment: "العلاج", prevention: "الوقاية والمكافحة" }, quickfacts_caption: "مرجع سريع", qf_species: "الأنواع المصابة", qf_gram: "صبغة غرام", qf_mortality: "معدل الوفيات", qf_transmission: "طريقة الانتقال", diag_test: "الاختبار / الطريقة", diag_purpose: "الغرض", diag_note: "ملاحظة", tx_category: "الفئة", tx_approach: "النهج العلاجي", tx_note: "ملاحظات", animal_hint: "يختار الذكاء الاصطناعي مرضاً مناسباً للحيوان المختار" }
+/* ════════════ ANIMAL CATEGORIES ════════════ */
+const ANIMALS = {
+  all:     { emoji:'🌐', en:'All',      ar:'الكل',    diseases:null },
+  cattle:  { emoji:'🐄', en:'Cattle',   ar:'الأبقار', diseases:[
+    'Bovine Mastitis','Foot Rot','Bovine Viral Diarrhea','Infectious Bovine Rhinotracheitis',
+    'Bovine Respiratory Disease Complex','Leptospirosis','Brucellosis','Anthrax',
+    'Bovine Tuberculosis','Johne\'s Disease','Contagious Bovine Pleuropneumonia','Neosporosis',
+  ]},
+  sheep:   { emoji:'🐑', en:'Sheep',    ar:'الأغنام', diseases:[
+    'Caseous Lymphadenitis','Contagious Ecthyma','Fasciolosis','Haemonchosis',
+    'Q Fever','Listeriosis','Brucellosis','Anthrax','Clostridial Enterotoxemia',
+  ]},
+  poultry: { emoji:'🐓', en:'Poultry',  ar:'الدواجن', diseases:[
+    'Newcastle Disease','Highly Pathogenic Avian Influenza','Infectious Bursal Disease',
+    'Salmonellosis','Pasteurellosis','Campylobacteriosis',
+  ]},
+  swine:   { emoji:'🐷', en:'Swine',    ar:'الخنازير',diseases:[
+    'Erysipelas in Swine','Porcine Reproductive and Respiratory Syndrome',
+    'African Swine Fever','Leptospirosis','Salmonellosis',
+  ]},
+  equine:  { emoji:'🐴', en:'Equine',   ar:'الخيول',  diseases:[
+    'Equine Influenza','Strangles','Equine Herpesvirus Myeloencephalopathy','Leptospirosis',
+  ]},
+  companion:{ emoji:'🐾', en:'Companion',ar:'الحيوانات الأليفة', diseases:[
+    'Canine Distemper','Canine Parvovirus Enteritis','Feline Panleukopenia',
+    'Leptospirosis','Toxoplasmosis','Dermatophytosis',
+  ]},
 };
-function t(key) { return T[currentLang][key] || T['en'][key] || key; }
-function setLang(lang) { currentLang = lang; document.body.classList.toggle('ar', lang === 'ar'); document.documentElement.lang = lang; document.getElementById('btn-en').classList.toggle('active', lang === 'en'); document.getElementById('btn-ar').classList.toggle('active', lang === 'ar'); updateUIText(); if (currentArticle) render(currentArticle.data, currentArticle.disease, true); }
-function updateUIText() {
-  document.getElementById('splash-headline').innerHTML = t('splash_headline'); document.getElementById('splash-sub').textContent = t('splash_sub'); document.getElementById('btn-hero-text').textContent = t('btn_generate'); document.getElementById('splash-note').textContent = t('splash_note'); document.getElementById('loader-label').textContent = t('loader_label'); const steps = t('steps'); steps.forEach((s,i)=>{ const el = document.getElementById('st'+i); if(el) el.textContent = s; }); document.getElementById('nav-library').textContent = t('nav_library'); document.getElementById('nav-save').textContent = t('nav_save'); document.getElementById('nav-new').textContent = t('nav_new'); document.getElementById('drawer-title').textContent = t('drawer_title'); document.getElementById('selector-hint').textContent = t('animal_hint'); document.getElementById('animal-label').innerHTML = currentLang === 'ar' ? '🐾 التركيز على النوع / الحيوان' : '🐾 FOCUS SPECIES / ANIMAL';
-}
 
-// animal selector logic
-function getSelectedAnimal() {
-  const select = document.getElementById('animal-category');
-  const val = select.value;
-  if (val === 'Other') {
-    const custom = document.getElementById('custom-animal').value.trim();
-    return custom ? custom : (currentLang === 'ar' ? 'حيوان مخصص' : 'selected animal');
+let selectedAnimal = 'all';
+
+/* ════════════ TRANSLATIONS ════════════ */
+let currentLang = 'en';
+const T = {
+  en:{
+    splash_headline:"A new veterinary<br>case, every time.",
+    splash_sub:"AI-generated articles on diseases, pathogens, and clinical medicine.",
+    btn_generate:"Generate Article",splash_note:"Each generation is unique",
+    animal_label:"Choose animal category",
+    loader_label:"Generating article",
+    steps:["Selecting pathogen","Accessing epidemiological data","Writing pathology sections","Composing clinical narrative","Finalising article"],
+    nav_library:"Library",nav_save:"Save",nav_new:"New",
+    drawer_title:"Saved Articles",drawer_empty:"No saved articles yet.",
+    toast_saved:"Saved to library",toast_already:"Already saved",
+    kicker:"Veterinary Medicine",severity:"Severity",
+    zoonotic:"Zoonotic",notifiable:"Notifiable",generated:"Generated",yes:"Yes",no:"No",
+    research_note:"Research note",
+    sections:{overview:"Overview",etiology:"Aetiology",epidemiology:"Epidemiology",
+      pathogenesis:"Pathogenesis",clinicalSigns:"Clinical Signs",
+      diagnosis:"Diagnosis",treatment:"Treatment",prevention:"Prevention & Control"},
+    quickfacts_caption:"Quick Reference",
+    qf_species:"Species Affected",qf_gram:"Gram Stain",qf_mortality:"Mortality",qf_transmission:"Transmission",
+    diag_test:"Test / Method",diag_purpose:"Purpose",diag_note:"Note",
+    tx_category:"Category",tx_approach:"Approach",tx_note:"Notes",
+    menu_animal_label:"Filter by animal",menu_library:"Saved Articles",menu_tagline:"AI-generated veterinary disease articles",
+    signs_loading:"Loading images…",language:"Language",
+  },
+  ar:{
+    splash_headline:"حالة بيطرية جديدة<br>في كل مرة.",
+    splash_sub:"مقالات طبية بيطرية تُولَّد بالذكاء الاصطناعي عن الأمراض والمسببات والممارسة السريرية.",
+    btn_generate:"توليد مقال",splash_note:"كل توليد فريد من نوعه",
+    animal_label:"اختر فئة الحيوان",
+    loader_label:"جارٍ توليد المقال",
+    steps:["اختيار المسبب المرضي","الوصول إلى البيانات الوبائية","كتابة أقسام علم الأمراض","صياغة السرد السريري","إنهاء المقال"],
+    nav_library:"المكتبة",nav_save:"حفظ",nav_new:"جديد",
+    drawer_title:"المقالات المحفوظة",drawer_empty:"لا توجد مقالات محفوظة بعد.",
+    toast_saved:"تم الحفظ في المكتبة",toast_already:"محفوظ مسبقاً",
+    kicker:"الطب البيطري",severity:"الشدة",
+    zoonotic:"حيواني المصدر",notifiable:"مُبلَّغ عنه",generated:"تاريخ التوليد",yes:"نعم",no:"لا",
+    research_note:"ملاحظة بحثية",
+    sections:{overview:"نظرة عامة",etiology:"المسببات",epidemiology:"الوبائيات",
+      pathogenesis:"التسبب في المرض",clinicalSigns:"العلامات السريرية",
+      diagnosis:"التشخيص",treatment:"العلاج",prevention:"الوقاية والمكافحة"},
+    quickfacts_caption:"مرجع سريع",
+    qf_species:"الأنواع المصابة",qf_gram:"صبغة غرام",qf_mortality:"معدل الوفيات",qf_transmission:"طريقة الانتقال",
+    diag_test:"الاختبار / الطريقة",diag_purpose:"الغرض",diag_note:"ملاحظة",
+    tx_category:"الفئة",tx_approach:"النهج العلاجي",tx_note:"ملاحظات",
+    menu_animal_label:"تصفية حسب الحيوان",menu_library:"المقالات المحفوظة",menu_tagline:"مقالات بيطرية بالذكاء الاصطناعي",
+    signs_loading:"جارٍ تحميل الصور…",language:"اللغة",
   }
-  return val;
-}
-function toggleCustomField() {
-  const select = document.getElementById('animal-category');
-  const container = document.getElementById('custom-animal-container');
-  if (select.value === 'Other') container.classList.remove('hidden-field');
-  else container.classList.add('hidden-field');
-}
-document.getElementById('animal-category').addEventListener('change', toggleCustomField);
-toggleCustomField();
+};
+function t(k){ return T[currentLang][k] || T.en[k] || k }
 
-function show(id) { document.getElementById('splash').style.display = 'none'; document.getElementById('loader').style.display = 'none'; document.getElementById('article').style.display = 'none'; if (id === 'loader') document.getElementById('loader').style.display = 'flex'; else document.getElementById(id).style.display = 'block'; }
-function resetSteps() { ['s0','s1','s2','s3','s4'].forEach(id => setStep(id, '')); document.getElementById('prog').style.width = '0%'; document.getElementById('loader-disease').textContent = '\u00a0'; }
-function setStep(id, state) { const el = document.getElementById(id); if(el) el.className = 'step' + (state ? ' ' + state : ''); }
+/* ════════════ LANG ════════════ */
+function setLang(lang){
+  currentLang = lang;
+  document.body.classList.toggle('ar', lang==='ar');
+  document.documentElement.lang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang==='en');
+  document.getElementById('btn-ar').classList.toggle('active', lang==='ar');
+  updateUIText();
+  buildAnimalSelectors();
+  if(currentArticle) render(currentArticle.data, currentArticle.disease, true);
+}
 
-async function startGenerate() {
-  const animalFocus = getSelectedAnimal();
-  if (!animalFocus || animalFocus === 'Other' && !document.getElementById('custom-animal').value.trim()) {
-    if(currentLang === 'ar') toast('الرجاء تحديد حيوان أو كتابة اسم مخصص');
-    else toast('Please select an animal or enter custom species');
-    return;
+function updateUIText(){
+  const ids = {
+    'splash-headline':'splash_headline','splash-sub':'splash_sub',
+    'btn-hero-text':'btn_generate','splash-note':'splash_note',
+    'splash-animal-label':'animal_label','loader-label':'loader_label',
+    'drawer-title':'drawer_title','menu-animal-label':'menu_animal_label',
+    'menu-library-lbl':'menu_library','menu-gen-lbl':'btn_generate',
+    'menu-save-lbl':'nav_save','menu-lang-label':'language',
+    'menu-tagline':'menu_tagline',
+  };
+  Object.entries(ids).forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    if(el){ if(key==='splash_headline') el.innerHTML=t(key); else el.textContent=t(key); }
+  });
+  t('steps').forEach((s,i)=>{ const el=document.getElementById('st'+i); if(el) el.textContent=s; });
+}
+
+/* ════════════ ANIMAL SELECTORS ════════════ */
+function buildAnimalSelectors(){
+  const splashEl  = document.getElementById('splash-animals');
+  const menuEl    = document.getElementById('menu-animal-grid');
+  const chips = Object.entries(ANIMALS).map(([key,a])=>{
+    const label = currentLang==='ar' ? a.ar : a.en;
+    return { key, emoji:a.emoji, label };
+  });
+
+  splashEl.innerHTML = chips.map(c=>`
+    <button class="splash-animal-chip${c.key===selectedAnimal?' selected':''}" onclick="selectAnimal('${c.key}','splash')">
+      <span class="animal-emoji">${c.emoji}</span>
+      <span class="animal-label">${c.label}</span>
+    </button>`).join('');
+
+  menuEl.innerHTML = chips.map(c=>`
+    <button class="animal-chip${c.key===selectedAnimal?' selected':''}" onclick="selectAnimal('${c.key}','menu')">
+      <span class="animal-emoji">${c.emoji}</span>
+      <span class="animal-label">${c.label}</span>
+    </button>`).join('');
+}
+
+function selectAnimal(key, from){
+  selectedAnimal = key;
+  buildAnimalSelectors();
+  const a = ANIMALS[key];
+  document.getElementById('nav-animal-badge').textContent = a.emoji;
+}
+
+/* ════════════ HAMBURGER MENU ════════════ */
+function toggleMenu(){
+  const btn  = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('slide-menu');
+  const ov   = document.getElementById('menu-overlay');
+  const open = menu.classList.contains('open');
+  if(open){ closeMenu(); } else {
+    menu.classList.add('open');
+    ov.classList.add('active');
+    btn.classList.add('open');
   }
-  show('loader'); resetSteps();
-  const animalMsg = currentLang === 'ar' ? `اختيار مرض يصيب: ${animalFocus}` : `Selecting disease for: ${animalFocus}`;
-  document.getElementById('loader-disease').textContent = animalMsg;
-  const stepTimes = [0, 700, 1400, 2200, 3100];
-  ['s0','s1','s2','s3','s4'].forEach((sid,i) => { setTimeout(() => { if(i>0) setStep(ids[i-1], 'done'); setStep(sid, 'active'); document.getElementById('prog').style.width = `${(i+1)*20}%`; }, stepTimes[i]); });
-  const ids = ['s0','s1','s2','s3','s4'];
+}
+function closeMenu(){
+  document.getElementById('slide-menu').classList.remove('open');
+  document.getElementById('menu-overlay').classList.remove('active');
+  document.getElementById('hamburger-btn').classList.remove('open');
+}
+
+/* ════════════ VIEWS ════════════ */
+let currentArticle = null;
+let savedArticles  = JSON.parse(localStorage.getItem('vetlens_v4')||'[]');
+
+function show(id){
+  ['splash','loader','article'].forEach(v=>{
+    document.getElementById(v).style.display='none';
+  });
+  if(id==='loader') document.getElementById('loader').style.display='flex';
+  else document.getElementById(id).style.display='block';
+}
+
+/* ════════════ GENERATE ════════════ */
+async function startGenerate(){
+  show('loader');
+  resetSteps();
+
+  const animal = ANIMALS[selectedAnimal];
+  const pool   = animal.diseases || Object.values(ANIMALS).flatMap(a=>a.diseases||[]);
+  const unique = [...new Set(pool)];
+  const disease = unique[Math.floor(Math.random()*unique.length)];
+  document.getElementById('loader-disease').textContent = disease;
+
+  const stepTimes=[0,700,1400,2200,3100];
+  const ids=['s0','s1','s2','s3','s4'];
+  ids.forEach((sid,i)=>setTimeout(()=>{
+    if(i>0) setStep(ids[i-1],'done');
+    setStep(sid,'active');
+    document.getElementById('prog').style.width=`${(i+1)*20}%`;
+  },stepTimes[i]));
+
   let data;
-  try { data = await callAPI(animalFocus); if (data.diseaseName) document.getElementById('loader-disease').textContent = data.diseaseName; } catch(e) { console.error(e); data = fallback(animalFocus); }
-  try {
-    const imgQuery = encodeURIComponent((data.diseaseName || 'veterinary disease') + ' ' + animalFocus + ' animal livestock');
-    const imgRes = await fetch(`https://api.unsplash.com/search/photos?query=${imgQuery}&per_page=1&orientation=landscape&client_id=zLBLzpPimFEKhCMzLF-N7GvwjGFAuVzX7Iv0JnxLHao`);
-    if (imgRes.ok) { const imgJson = await imgRes.json(); const result = imgJson.results?.[0]; if(result) { data.heroImage = result.urls?.regular; data.heroImageCredit = result.user?.name; data.heroImageLink = result.links?.html; } }
-  } catch(e) {}
-  setTimeout(() => { setStep('s4', 'done'); document.getElementById('prog').style.width = '100%'; setTimeout(() => render(data, data.diseaseName || 'Veterinary Disease'), 400); }, 3800);
+  try{ data = await callAPI(disease); }
+  catch(e){ console.error(e); data = fallback(disease); }
+
+  setTimeout(()=>{
+    setStep('s4','done');
+    document.getElementById('prog').style.width='100%';
+    setTimeout(()=>render(data,disease),400);
+  },3800);
 }
 
-async function callAPI(animal) {
-  const prompt = `You are a veterinary professor. Write a thorough, accurate clinical article about ONE specific disease that significantly affects "${animal}". Choose a different disease each time (bacterial, viral, parasitic, metabolic). Return ONLY valid JSON. Structure: { "diseaseName": "...", "causativeAgent": "...", "isZoonotic": true/false, "isNotifiable": true/false, "severityScore": 1-10, "quickFacts": { "speciesAffected": "...", "gramStain": "...", "mortality": "...", "transmission": "..." }, "didYouKnow": "...", "overview": "two paragraphs", "etiology": "two paragraphs", "epidemiology": "two paragraphs", "pathogenesis": "two paragraphs", "clinicalSignsBullets": ["sign1","sign2","sign3","sign4","sign5","sign6"], "clinicalSignsContext": "one paragraph", "diagnosisTests": [{"test":"...","purpose":"...","note":"..."}], "treatmentRows": [{"category":"...","approach":"...","note":"..."}], "preventionBullets": ["..."], "preventionContext": "..." }`;
-  const arPrompt = `أنت أستاذ طب بيطري. اكتب مقالاً دقيقاً عن مرض محدد يصيب الحيوان "${animal}". اختر مرضاً مختلفاً في كل مرة. أرجِع JSON فقط بالهيكل المطلوب (نفس الحقول السابقة لكن بالعربية).`;
-  const body = JSON.stringify({ model: NV_MODEL, max_tokens: 3200, temperature: 0.72, messages: [{ role: 'user', content: currentLang === 'ar' ? arPrompt : prompt }] });
-  const endpoints = [NV_ENDPOINT, ...CORS_PROXIES.map(fn => fn(NV_ENDPOINT))];
-  for (const url of endpoints) { try { const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${NV_API_KEY}` }, body }); if (!res.ok) continue; const json = await res.json(); const raw = json.choices?.[0]?.message?.content || ''; const clean = raw.replace(/```json|```/g, '').trim(); return JSON.parse(clean); } catch(e) { continue; } }
-  throw new Error('API failed');
+function resetSteps(){
+  ['s0','s1','s2','s3','s4'].forEach(id=>setStep(id,''));
+  document.getElementById('prog').style.width='0%';
+  document.getElementById('loader-disease').textContent='\u00a0';
+}
+function setStep(id,state){
+  document.getElementById(id).className='step'+(state?' '+state:'');
 }
 
-function fallback(animal) {
-  const ar = currentLang === 'ar';
-  return { diseaseName: ar ? `مرض ذو صلة بـ ${animal}` : `Disease affecting ${animal}`, causativeAgent: ar ? "مسبب مرضي قيد التوصيف" : "Pathogen under characterization", isZoonotic: false, isNotifiable: false, severityScore: 6, quickFacts: { speciesAffected: animal, gramStain: ar ? "متغير" : "Variable", mortality: ar ? "8-15%" : "8-15%", transmission: ar ? "تلامس / هوائي" : "Contact / airborne" }, didYouKnow: ar ? `يسهم هذا المرض في تحديات الصحة البيطرية المرتبطة بـ ${animal}.` : `This disease represents key veterinary challenges in ${animal}.`, overview: ar ? `${animal} عرضة لمجموعة من الأمراض الهامة التي تؤثر على الإنتاج والرفق.` : `${animal} is susceptible to significant diseases with production and welfare impacts.`, etiology: ar ? `يتنوع المسبب حسب الظروف الوبائية.` : `The etiology varies with epidemiological context.`, epidemiology: ar ? `ينتشر في مناطق تربية ${animal}.` : `Distributed across regions where ${animal} is raised.`, pathogenesis: ar ? `يتطور الالتهاب والضرر النسيجي بعد التعرض.` : `Inflammation and tissue damage follow exposure.`, clinicalSignsBullets: ar ? ["خمول","حمى","فقدان شهية","إفرازات","إسهال","ضعف"] : ["Lethargy","Fever","Anorexia","Discharges","Diarrhea","Weakness"], clinicalSignsContext: ar ? `تختلف الأعراض حسب العمر والتحصين.` : `Signs vary with age and immunity.`, diagnosisTests: [{ test:"PCR", purpose:"تأكيد", note:"حساسية" },{ test:"ELISA", purpose:"أجسام مضادة", note:"مصل" }], treatmentRows: [{ category:"علاج داعم", approach:"سوائل ومضادات", note:"أساسي" }], preventionBullets: ["تطهير","عزل","مراقبة"], preventionContext: ar ? `برامج المكافحة ضرورية.` : `Control measures essential.` };
+/* ════════════ API ════════════ */
+async function callAPI(disease){
+  const isAr = currentLang==='ar';
+  const animalCtx = selectedAnimal!=='all' ? (isAr ? ANIMALS[selectedAnimal].ar : ANIMALS[selectedAnimal].en) : '';
+
+  const enPrompt=`You are a veterinary medicine professor. Write a thorough, accurate article about "${disease}"${animalCtx?` in the context of ${animalCtx}`:''}.
+
+Return ONLY valid JSON, no markdown fences:
+{
+  "diseaseName":"Full official name",
+  "causativeAgent":"Scientific pathogen name",
+  "isZoonotic":true|false,
+  "isNotifiable":true|false,
+  "severityScore":1-10,
+  "quickFacts":{"speciesAffected":"list","gramStain":"value","mortality":"value","transmission":"value"},
+  "didYouKnow":"One fascinating scientific fact.",
+  "overview":"Two rich paragraphs.",
+  "etiology":"Two paragraphs.",
+  "epidemiology":"Two paragraphs.",
+  "pathogenesis":"Two paragraphs.",
+  "clinicalSignsCards":[
+    {"title":"Sign name","description":"Brief 1-sentence clinical description","imageQuery":"specific veterinary photo query for Unsplash e.g. cow skin lesion"},
+    {"title":"Sign name","description":"Brief description","imageQuery":"query"},
+    {"title":"Sign name","description":"Brief description","imageQuery":"query"},
+    {"title":"Sign name","description":"Brief description","imageQuery":"query"},
+    {"title":"Sign name","description":"Brief description","imageQuery":"query"},
+    {"title":"Sign name","description":"Brief description","imageQuery":"query"}
+  ],
+  "clinicalSignsContext":"One paragraph of clinical context.",
+  "diagnosisTests":[
+    {"test":"PCR","purpose":"Confirm pathogen DNA","note":"High sensitivity"},
+    {"test":"Culture","purpose":"Gold standard","note":"24-72h"},
+    {"test":"ELISA","purpose":"Antibody detection","note":"Chronic cases"},
+    {"test":"Histopathology","purpose":"Tissue assessment","note":"Post-mortem"}
+  ],
+  "treatmentRows":[
+    {"category":"Antimicrobials","approach":"Specific drugs/classes","note":"Duration principle"},
+    {"category":"Supportive care","approach":"Fluids, analgesia, nutrition","note":"Adjust to severity"},
+    {"category":"Prognosis","approach":"Expected outcome","note":"Key factors"}
+  ],
+  "preventionBullets":["measure 1","measure 2","measure 3","measure 4","measure 5"],
+  "preventionContext":"One paragraph on control programs."
+}`;
+
+  const arPrompt=`أنت أستاذ في الطب البيطري. اكتب مقالاً علمياً دقيقاً عن مرض "${disease}"${animalCtx?` في سياق ${animalCtx}`:''}.
+
+أرجع فقط كائن JSON صالح (بدون markdown):
+{
+  "diseaseName":"الاسم الرسمي الكامل",
+  "causativeAgent":"الاسم العلمي للمسبب",
+  "isZoonotic":true|false,
+  "isNotifiable":true|false,
+  "severityScore":1-10,
+  "quickFacts":{"speciesAffected":"قائمة","gramStain":"القيمة","mortality":"القيمة","transmission":"القيمة"},
+  "didYouKnow":"حقيقة علمية مثيرة.",
+  "overview":"فقرتان شاملتان.",
+  "etiology":"فقرتان.",
+  "epidemiology":"فقرتان.",
+  "pathogenesis":"فقرتان.",
+  "clinicalSignsCards":[
+    {"title":"اسم العلامة","description":"وصف سريري موجز","imageQuery":"specific English photo query for Unsplash e.g. cow diarrhea veterinary"},
+    {"title":"العلامة","description":"وصف","imageQuery":"English query"},
+    {"title":"العلامة","description":"وصف","imageQuery":"English query"},
+    {"title":"العلامة","description":"وصف","imageQuery":"English query"},
+    {"title":"العلامة","description":"وصف","imageQuery":"English query"},
+    {"title":"العلامة","description":"وصف","imageQuery":"English query"}
+  ],
+  "clinicalSignsContext":"فقرة للسياق السريري.",
+  "diagnosisTests":[
+    {"test":"PCR","purpose":"تأكيد الحمض النووي","note":"حساسية عالية"},
+    {"test":"زراعة","purpose":"المعيار الذهبي","note":"24-72 ساعة"},
+    {"test":"ELISA","purpose":"كشف الأجسام المضادة","note":"الحالات المزمنة"},
+    {"test":"الفحص النسيجي","purpose":"تقييم الأنسجة","note":"بعد الوفاة"}
+  ],
+  "treatmentRows":[
+    {"category":"مضادات الميكروبات","approach":"الأدوية المحددة","note":"مبدأ الجرعة"},
+    {"category":"الرعاية الداعمة","approach":"سوائل، مسكنات، تغذية","note":"حسب الشدة"},
+    {"category":"التشخيص","approach":"النتيجة المتوقعة","note":"العوامل المؤثرة"}
+  ],
+  "preventionBullets":["إجراء 1","إجراء 2","إجراء 3","إجراء 4","إجراء 5"],
+  "preventionContext":"فقرة عن برامج المكافحة."
+}`;
+
+  const body = JSON.stringify({
+    model:NV_MODEL, max_tokens:3200, temperature:0.7,
+    messages:[{role:'user',content:isAr?arPrompt:enPrompt}]
+  });
+
+  const endpoints=[NV_ENDPOINT,...CORS_PROXIES.map(fn=>fn(NV_ENDPOINT))];
+  for(const url of endpoints){
+    try{
+      const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${NV_API_KEY}`},body});
+      if(!res.ok) continue;
+      const json=await res.json();
+      const raw=json.choices?.[0]?.message?.content||'';
+      return JSON.parse(raw.replace(/```json|```/g,'').trim());
+    }catch(e){continue}
+  }
+  throw new Error('API unreachable');
 }
 
-function render(data, disease, rerender = false) {
-  currentArticle = { data, disease, date: new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-IQ' : 'en-GB', { day:'numeric', month:'long', year:'numeric' }) };
-  const sev = data.severityScore || 5; const sevHigh = sev >= 7; let pips = '';
-  for (let i=1;i<=10;i++) { const filled = i<=sev; const cls = filled ? (sevHigh ? 'pip high' : 'pip filled') : 'pip'; pips += `<div class="${cls}" id="pip${i}" style="opacity:0"></div>`; }
-  const qf = data.quickFacts || {};
-  const factsTable = `<table class="facts-table"><caption>${t('quickfacts_caption')}</caption><tbody><tr><th>${t('qf_species')}</th><td>${qf.speciesAffected || '—'}</td></tr><tr><th>${t('qf_gram')}</th><td>${qf.gramStain || '—'}</td></tr><tr><th>${t('qf_mortality')}</th><td>${qf.mortality || '—'}</td></tr><tr><th>${t('qf_transmission')}</th><td>${qf.transmission || '—'}</td></tr></tbody></table>`;
-  const bullets = (data.clinicalSignsBullets || []).map(b=>`<li>${b}</li>`).join('');
-  const diagTable = `<table class="diag-table"><thead><tr><th>${t('diag_test')}</th><th>${t('diag_purpose')}</th><th>${t('diag_note')}</th></tr></thead><tbody>${(data.diagnosisTests || []).map(r=>`<tr><td><strong>${r.test||''}</strong></td><td>${r.purpose||''}</td><td>${r.note||''}</td></tr>`).join('')}</tbody></table>`;
-  const txTable = `<table class="treatment-table"><thead><tr><th>${t('tx_category')}</th><th>${t('tx_approach')}</th><th>${t('tx_note')}</th></tr></thead><tbody>${(data.treatmentRows || []).map(r=>`<tr><td><strong>${r.category||''}</strong></td><td>${r.approach||''}</td><td>${r.note||''}</td></tr>`).join('')}</tbody></table>`;
-  const prevBullets = (data.preventionBullets || []).map(b=>`<li>${b}</li>`).join('');
-  const html = `<div class="article-kicker"><span class="kicker-tag">${t('kicker')}</span><div class="kicker-rule"></div></div><h1 class="article-title">${data.diseaseName || disease}</h1><p class="article-causative">${data.causativeAgent || ''}</p><div class="article-meta"><div class="meta-item"><span class="meta-label">${t('severity')}</span><div class="severity-pip-row">${pips}</div></div><div class="meta-divider"></div><div class="meta-item"><span class="meta-label">${t('zoonotic')}</span><span class="meta-value">${data.isZoonotic ? t('yes') : t('no')}</span></div><div class="meta-divider"></div><div class="meta-item"><span class="meta-label">${t('notifiable')}</span><span class="meta-value">${data.isNotifiable ? t('yes') : t('no')}</span></div><div class="meta-divider"></div><div class="meta-item"><span class="meta-label">${t('generated')}</span><span class="meta-value">${currentArticle.date}</span></div></div><div class="tag-row">${data.isZoonotic?`<span class="tag alert">${t('zoonotic')}</span>`:''}${data.isNotifiable?`<span class="tag alert">${t('notifiable')}</span>`:''}<span class="tag">${qf.speciesAffected || '—'}</span></div>${factsTable}${data.didYouKnow?`<div class="callout"><div class="callout-label">${t('research_note')}</div><p class="callout-text">${data.didYouKnow}</p></div>`:''}<h2 class="section-title">${t('sections').overview}</h2>${(data.overview||'').split(/\n\n+/).filter(Boolean).map(p=>`<p class="prose">${p.trim()}</p>`).join('')}<h2 class="section-title">${t('sections').etiology}</h2>${(data.etiology||'').split(/\n\n+/).filter(Boolean).map(p=>`<p class="prose">${p.trim()}</p>`).join('')}<h2 class="section-title">${t('sections').epidemiology}</h2>${(data.epidemiology||'').split(/\n\n+/).filter(Boolean).map(p=>`<p class="prose">${p.trim()}</p>`).join('')}<h2 class="section-title">${t('sections').pathogenesis}</h2>${(data.pathogenesis||'').split(/\n\n+/).filter(Boolean).map(p=>`<p class="prose">${p.trim()}</p>`).join('')}<h2 class="section-title">${t('sections').clinicalSigns}</h2><ul class="info-list">${bullets}</ul>${data.clinicalSignsContext?`<p class="prose" style="margin-top:16px">${data.clinicalSignsContext}</p>`:''}<h2 class="section-title">${t('sections').diagnosis}</h2>${diagTable}<h2 class="section-title">${t('sections').treatment}</h2>${txTable}<h2 class="section-title">${t('sections').prevention}</h2><ul class="info-list">${prevBullets}</ul>${data.preventionContext?`<p class="prose" style="margin-top:16px">${data.preventionContext}</p>`:''}`;
+/* ════════════ FALLBACK ════════════ */
+function fallback(disease){
+  const ar=currentLang==='ar';
+  return{
+    diseaseName:disease,
+    causativeAgent:ar?"تحديد المسبب قيد الانتظار":"Pathogen identification pending",
+    isZoonotic:false,isNotifiable:false,severityScore:5,
+    quickFacts:{
+      speciesAffected:ar?"أنواع متعددة":"Multiple",
+      gramStain:ar?"لا ينطبق":"N/A",
+      mortality:ar?"متغير":"Variable",
+      transmission:ar?"تلامس مباشر":"Direct contact"
+    },
+    didYouKnow:ar?`شكّل مرض ${disease} سياسات الصحة البيطرية العامة في قارات متعددة.`:`${disease} has shaped veterinary public health policy across multiple continents.`,
+    overview:ar?`${disease} مرض مهم في الطب البيطري يستقطب الاهتمام السريري والبحثي حول العالم.\n\nيُعدّ التشخيص المبكر والتدخل السريع أساسيين لتحسين المآلات.`:`${disease} is a significant disease attracting global clinical and research attention.\n\nEarly recognition and prompt intervention are critical for improving outcomes.`,
+    etiology:ar?`يُصنَّف العامل المسبب ضمن مجموعة مسببات مرضية محددة بدقة. تُسهم السمات البنيوية والجزيئية في إمراضيته.\n\nدُرِست عوامل الضراوة بشكل مستفيض.`:`The causative agent belongs to a well-characterised group of pathogens. Structural features contribute to its pathogenicity.\n\nVirulence factors have been extensively studied.`,
+    epidemiology:ar?`يُوزَّع المرض عبر مناطق جغرافية متعددة تتأثر بممارسات الإدارة المحلية.\n\nتشمل عوامل الخطر التثبيط المناعي والازدحام والإصابات المشتركة.`:`The disease is distributed across multiple geographic regions influenced by local management practices.\n\nRisk factors include immunosuppression, overcrowding, and co-infections.`,
+    pathogenesis:ar?`يستعمر المسبب الأسطح الظهارية المستهدفة مطلقاً سلسلة استجابات التهابية.\n\nقد يتبع الانتشار الجهازي الإصابة الموضعية في الحالات الشديدة.`:`The pathogen colonises target epithelial surfaces initiating inflammatory responses.\n\nSystemic spread may follow local infection in severe cases.`,
+    clinicalSignsCards:ar?[
+      {title:"حمى",description:"ارتفاع درجة الحرارة فوق المعدل الطبيعي",imageQuery:"veterinary thermometer fever animal"},
+      {title:"فقدان الشهية",description:"امتناع الحيوان عن تناول الطعام والعلف",imageQuery:"sick animal not eating farm"},
+      {title:"اضطراب هضمي",description:"إسهال أو قياء حاد أو مزمن",imageQuery:"veterinary diarrhea calf cattle"},
+      {title:"ضعف عام",description:"خمول واكتئاب وعدم استجابة",imageQuery:"sick weak livestock farm animal"},
+      {title:"إفرازات",description:"إفرازات من الأنف أو العين أو الفم",imageQuery:"nasal discharge sick animal veterinary"},
+      {title:"هزال",description:"فقدان واضح في الوزن والكتلة العضلية",imageQuery:"thin emaciated livestock weight loss"}
+    ]:[
+      {title:"Pyrexia",description:"Elevated body temperature above normal range",imageQuery:"veterinary thermometer fever livestock"},
+      {title:"Anorexia",description:"Refusal to eat or markedly reduced feed intake",imageQuery:"sick animal not eating farm"},
+      {title:"GI Disturbance",description:"Diarrhea or vomiting, acute or chronic",imageQuery:"veterinary diarrhea calf cattle disease"},
+      {title:"Lethargy",description:"Profound weakness, depression, and reduced responsiveness",imageQuery:"sick weak livestock lying down"},
+      {title:"Discharge",description:"Nasal, ocular, or oral secretions",imageQuery:"nasal discharge sick animal veterinary"},
+      {title:"Cachexia",description:"Progressive weight loss and muscle wasting",imageQuery:"thin emaciated livestock animal farm"}
+    ],
+    clinicalSignsContext:ar?"يتفاوت المظهر السريري بحسب النوع والعمر والحالة المناعية للحيوان.":"Clinical presentation varies with species, age, and immune status.",
+    diagnosisTests:ar?[
+      {test:"PCR",purpose:"تأكيد الحمض النووي للمسبب",note:"حساسية عالية"},
+      {test:"زراعة ميكروبية",purpose:"المعيار الذهبي للتشخيص",note:"24-72 ساعة"},
+      {test:"ELISA",purpose:"كشف الأجسام المضادة",note:"مفيد في الحالات المزمنة"},
+      {test:"الفحص النسيجي",purpose:"تقييم آفات الأنسجة",note:"بعد الوفاة أو خزعة"}
+    ]:[
+      {test:"PCR",purpose:"Confirm pathogen DNA",note:"High sensitivity"},
+      {test:"Culture",purpose:"Gold standard diagnosis",note:"24-72 hours"},
+      {test:"ELISA serology",purpose:"Antibody detection",note:"Useful in chronic cases"},
+      {test:"Histopathology",purpose:"Tissue lesion assessment",note:"Post-mortem or biopsy"}
+    ],
+    treatmentRows:ar?[
+      {category:"مضادات الميكروبات",approach:"موجَّهة بنتائج الحساسية",note:"التدخل المبكر يحسن التشخيص"},
+      {category:"الرعاية الداعمة",approach:"سوائل وريدية، مسكنات، تغذية",note:"حسب شدة الحالة"},
+      {category:"التشخيص",approach:"يتحسن مع التدخل المبكر",note:"التأخر يزيد الوفيات"}
+    ]:[
+      {category:"Antimicrobials",approach:"Culture-guided therapy",note:"Early treatment improves prognosis"},
+      {category:"Supportive care",approach:"IV fluids, analgesia, nutrition",note:"Adjust to case severity"},
+      {category:"Prognosis",approach:"Improves with early intervention",note:"Delayed care raises mortality"}
+    ],
+    preventionBullets:ar?["التطعيم حيث يتوفر اللقاح","بروتوكولات التطهير والتعقيم","عزل الحيوانات القادمة","المراقبة الوبائية المستمرة","الإبلاغ الفوري عن الحالات المشتبهة"]:["Vaccination where commercially available","Disinfection and biosecurity protocols","Quarantine of incoming animals","Ongoing epidemiological surveillance","Prompt reporting of suspected cases"],
+    preventionContext:ar?"توفر البرامج الوطنية والدولية أطراً للمراقبة والإبلاغ والاستئصال.":"National and international control programmes provide frameworks for surveillance, reporting, and eradication."
+  };
+}
+
+/* ════════════ UNSPLASH IMAGES ════════════ */
+const UNSPLASH_ACCESS = 'DummyKey_VetLens';
+async function fetchSignImage(query){
+  // Use Unsplash source (no key needed, direct URL)
+  const q = encodeURIComponent(query + ' veterinary');
+  return `https://source.unsplash.com/400x300/?${q}`;
+}
+
+/* ════════════ RENDER ════════════ */
+function render(data, disease, rerender=false){
+  currentArticle = {
+    data, disease,
+    date: new Date().toLocaleDateString(currentLang==='ar'?'ar-IQ':'en-GB',{day:'numeric',month:'long',year:'numeric'})
+  };
+
+  const sev = data.severityScore||5;
+  const sevHigh = sev>=7;
+  let pips='';
+  for(let i=1;i<=10;i++){
+    const cls=i<=sev?(sevHigh?'pip high':'pip filled'):'pip';
+    pips+=`<div class="${cls}" id="pip${i}" style="opacity:0"></div>`;
+  }
+
+  const qf = data.quickFacts||{};
+  const animal = ANIMALS[selectedAnimal];
+
+  // Quick facts table
+  const factsTable=`
+    <table class="facts-table">
+      <caption>${t('quickfacts_caption')}</caption>
+      <tbody>
+        <tr><th>${t('qf_species')}</th><td>${qf.speciesAffected||'—'}</td></tr>
+        <tr><th>${t('qf_gram')}</th><td>${qf.gramStain||'—'}</td></tr>
+        <tr><th>${t('qf_mortality')}</th><td>${qf.mortality||'—'}</td></tr>
+        <tr><th>${t('qf_transmission')}</th><td>${qf.transmission||'—'}</td></tr>
+      </tbody>
+    </table>`;
+
+  // Clinical signs IMAGE GRID
+  const cards = data.clinicalSignsCards||[];
+  const signsGrid = cards.length ? `
+    <div class="signs-image-grid" id="signs-grid">
+      ${cards.map((c,i)=>`
+        <div class="sign-card">
+          <div class="sign-card-img-wrap" id="sign-img-wrap-${i}">
+            <div class="sign-loading">
+              <div class="sign-loading-dots">
+                <div class="sign-loading-dot"></div>
+                <div class="sign-loading-dot"></div>
+                <div class="sign-loading-dot"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sign-card-body">
+            <div class="sign-card-title">${c.title||''}</div>
+            <div class="sign-card-desc">${c.description||''}</div>
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
+  // Diagnosis table
+  const diagRows = data.diagnosisTests||[];
+  const diagTable = diagRows.length ? `
+    <table class="diag-table">
+      <thead><tr>
+        <th>${t('diag_test')}</th><th>${t('diag_purpose')}</th><th>${t('diag_note')}</th>
+      </tr></thead>
+      <tbody>${diagRows.map(r=>`<tr>
+        <td><strong>${r.test||''}</strong></td>
+        <td>${r.purpose||''}</td>
+        <td>${r.note||''}</td>
+      </tr>`).join('')}</tbody>
+    </table>` : '';
+
+  // Treatment table
+  const txRows = data.treatmentRows||[];
+  const txTable = txRows.length ? `
+    <table class="treatment-table">
+      <thead><tr>
+        <th>${t('tx_category')}</th><th>${t('tx_approach')}</th><th>${t('tx_note')}</th>
+      </tr></thead>
+      <tbody>${txRows.map(r=>`<tr>
+        <td><strong>${r.category||''}</strong></td>
+        <td>${r.approach||''}</td>
+        <td>${r.note||''}</td>
+      </tr>`).join('')}</tbody>
+    </table>` : '';
+
+  // Prevention bullets
+  const prevBullets = data.preventionBullets||[];
+  const prevList = prevBullets.length ? `
+    <ul class="info-list">
+      ${prevBullets.map(b=>`<li>${b}</li>`).join('')}
+    </ul>` : '';
+
+  function prose(raw){
+    if(!raw) return '';
+    return raw.split(/\n\n+/).filter(Boolean).map(p=>`<p class="prose">${p.trim()}</p>`).join('');
+  }
+
+  const html=`
+    <div class="article-kicker">
+      <span class="kicker-tag">${t('kicker')}</span>
+      <div class="kicker-rule"></div>
+    </div>
+    ${selectedAnimal!=='all'?`
+    <div class="animal-category-badge">
+      <span class="badge-emoji">${animal.emoji}</span>
+      <span class="badge-text">${currentLang==='ar'?animal.ar:animal.en}</span>
+    </div>`:''}
+    <h1 class="article-title">${data.diseaseName||disease}</h1>
+    <p class="article-causative">${data.causativeAgent||''}</p>
+    <div class="article-meta">
+      <div class="meta-item">
+        <span class="meta-label">${t('severity')}</span>
+        <div class="severity-pip-row">${pips}</div>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <span class="meta-label">${t('zoonotic')}</span>
+        <span class="meta-value">${data.isZoonotic?t('yes'):t('no')}</span>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <span class="meta-label">${t('notifiable')}</span>
+        <span class="meta-value">${data.isNotifiable?t('yes'):t('no')}</span>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <span class="meta-label">${t('generated')}</span>
+        <span class="meta-value">${currentArticle.date}</span>
+      </div>
+    </div>
+    <div class="tag-row">
+      ${data.isZoonotic?`<span class="tag alert">${t('zoonotic')}</span>`:''}
+      ${data.isNotifiable?`<span class="tag alert">${t('notifiable')}</span>`:''}
+      <span class="tag">${qf.speciesAffected||'—'}</span>
+    </div>
+    ${factsTable}
+    ${data.didYouKnow?`
+    <div class="callout">
+      <div class="callout-label">${t('research_note')}</div>
+      <p class="callout-text">${data.didYouKnow}</p>
+    </div>`:''}
+    <h2 class="section-title">${t('sections').overview}</h2>${prose(data.overview)}
+    <h2 class="section-title">${t('sections').etiology}</h2>${prose(data.etiology)}
+    <h2 class="section-title">${t('sections').epidemiology}</h2>${prose(data.epidemiology)}
+    <h2 class="section-title">${t('sections').pathogenesis}</h2>${prose(data.pathogenesis)}
+    <h2 class="section-title">${t('sections').clinicalSigns}</h2>
+    ${signsGrid}
+    ${data.clinicalSignsContext?`<p class="prose" style="margin-top:20px">${data.clinicalSignsContext}</p>`:''}
+    <h2 class="section-title">${t('sections').diagnosis}</h2>${diagTable}
+    <h2 class="section-title">${t('sections').treatment}</h2>${txTable}
+    <h2 class="section-title">${t('sections').prevention}</h2>
+    ${prevList}
+    ${data.preventionContext?`<p class="prose" style="margin-top:16px">${data.preventionContext}</p>`:''}
+  `;
+
   document.getElementById('art-body').innerHTML = html;
-  const heroContainer = document.getElementById('art-hero');
-  if(heroContainer) { if(data.heroImage) heroContainer.innerHTML = `<div class="article-hero"><img src="${data.heroImage}" alt="${data.diseaseName}" loading="lazy"/><div class="hero-credit">Photo: ${data.heroImageCredit || 'Unsplash'}</div></div>`; else heroContainer.innerHTML = ''; }
-  show('article'); window.scrollTo(0,0); updateSaveBtn();
-  for(let i=1;i<=10;i++) { const el = document.getElementById('pip'+i); if(el) setTimeout(()=>{ el.style.transition='opacity 0.3s'; el.style.opacity='1'; }, i*60+200); }
+  show('article');
+  window.scrollTo(0,0);
+  updateSaveBtn();
+  for(let i=1;i<=10;i++){
+    const el=document.getElementById('pip'+i);
+    if(!el) continue;
+    setTimeout(()=>{el.style.transition='opacity 0.3s';el.style.opacity='1'},i*60+200);
+  }
+
+  // Load clinical sign images
+  if(cards.length) loadSignImages(cards);
 }
-function saveArticle() { if(!currentArticle) return; if(savedArticles.find(a=>a.disease === currentArticle.disease)) { toast(t('toast_already')); return; } savedArticles.unshift(currentArticle); localStorage.setItem('vetlens_v3', JSON.stringify(savedArticles)); toast(t('toast_saved')); updateSaveBtn(); }
-function updateSaveBtn() { const saved = currentArticle && savedArticles.find(a=>a.disease === currentArticle.disease); const btn = document.getElementById('btn-save'); if(btn) btn.style.opacity = saved ? '0.4' : '1'; }
-function openDrawer() { const list = document.getElementById('drawer-list'); if(savedArticles.length===0) list.innerHTML = `<p class="drawer-empty">${t('drawer_empty')}</p>`; else list.innerHTML = savedArticles.map((a,i)=>`<div class="drawer-item" onclick="loadSaved(${i})"><div class="drawer-item-name">${a.disease}</div><div class="drawer-item-meta">${a.date}</div></div>`).join(''); document.getElementById('saved-drawer').classList.add('open'); document.getElementById('overlay').classList.add('active'); }
-function closeDrawer() { document.getElementById('saved-drawer').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
-function loadSaved(i) { closeDrawer(); const a = savedArticles[i]; if(a) render(a.data, a.disease); }
-function toast(msg) { const tEl = document.getElementById('toast'); tEl.textContent = msg; tEl.classList.add('show'); setTimeout(()=>tEl.classList.remove('show'), 2400); }
-updateUIText(); toggleCustomField();
+
+/* ════════════ LOAD SIGN IMAGES ════════════ */
+async function loadSignImages(cards){
+  for(let i=0;i<cards.length;i++){
+    const wrap = document.getElementById(`sign-img-wrap-${i}`);
+    if(!wrap) continue;
+    const query = encodeURIComponent((cards[i].imageQuery||cards[i].title)+' veterinary');
+    // Use Unsplash Source (free, no API key required)
+    const imgUrl = `https://source.unsplash.com/400x300/?${query}`;
+    const img = new Image();
+    img.onload = ()=>{
+      if(!document.getElementById(`sign-img-wrap-${i}`)) return;
+      wrap.innerHTML='';
+      img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s ease;filter:grayscale(15%)';
+      wrap.appendChild(img);
+    };
+    img.onerror = ()=>{
+      if(!document.getElementById(`sign-img-wrap-${i}`)) return;
+      wrap.innerHTML=`<div class="img-placeholder">🔬</div>`;
+    };
+    img.src = imgUrl;
+    // Stagger loads
+    await new Promise(r=>setTimeout(r,150));
+  }
+}
+
+/* ════════════ SAVE ════════════ */
+function saveArticle(){
+  if(!currentArticle) return;
+  if(savedArticles.find(a=>a.disease===currentArticle.disease)){toast(t('toast_already'));return}
+  savedArticles.unshift(currentArticle);
+  localStorage.setItem('vetlens_v4',JSON.stringify(savedArticles));
+  toast(t('toast_saved'));
+  updateSaveBtn();
+}
+function updateSaveBtn(){
+  const saved=currentArticle&&savedArticles.find(a=>a.disease===currentArticle.disease);
+  const btn=document.getElementById('menu-save-btn');
+  if(btn) btn.style.opacity=saved?'0.4':'1';
+}
+
+/* ════════════ DRAWER ════════════ */
+function openDrawer(){
+  const list=document.getElementById('drawer-list');
+  list.innerHTML=savedArticles.length===0
+    ?`<p class="drawer-empty">${t('drawer_empty')}</p>`
+    :savedArticles.map((a,i)=>`
+      <div class="drawer-item" onclick="loadSaved(${i})">
+        <div class="drawer-item-name">${a.disease}</div>
+        <div class="drawer-item-meta">${a.date}</div>
+      </div>`).join('');
+  document.getElementById('saved-drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('active');
+}
+function closeDrawer(){
+  document.getElementById('saved-drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+function loadSaved(i){
+  closeDrawer();
+  const a=savedArticles[i];
+  if(a) render(a.data,a.disease);
+}
+
+/* ════════════ TOAST ════════════ */
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+/* ════════════ INIT ════════════ */
+buildAnimalSelectors();
+updateUIText();
 </script>
 </body>
 </html>
