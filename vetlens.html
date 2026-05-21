@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VetLens</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&family=IBM+Plex+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #1a1a18;
+  --ink-2: #3d3d38;
+  --ink-3: #7a7a72;
+  --ink-4: #b8b8b0;
+  --paper: #f5f2ec;
+  --paper-2: #edeae2;
+  --accent: #1a1a18;
+  --rule: #d8d5cc;
+  --serif: 'Lora', Georgia, serif;
+  --mono: 'Geist Mono', monospace;
+  --sans: 'Geist', sans-serif;
+  --arabic: 'IBM Plex Arabic', sans-serif;
+  --danger: #c0392b;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Lang toggle ── */
+.lang-toggle {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  gap: 2px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  padding: 3px;
+}
+.lang-btn {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: none;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lang-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ── RTL/LTR body ── */
+body.ar { direction: rtl; }
+body.ar .article-nav { direction: rtl; }
+body.ar .wordmark { flex-direction: row-reverse; }
+body.ar .article-kicker { flex-direction: row-reverse; }
+body.ar .article-meta { flex-direction: row-reverse; }
+body.ar .tag-row { flex-direction: row-reverse; }
+body.ar .callout { border-left: none; border-right: 2px solid var(--ink); padding: 4px 24px 4px 0; }
+body.ar .nav-actions { flex-direction: row-reverse; }
+body.ar .step { flex-direction: row-reverse; }
+body.ar .severity-pip-row { flex-direction: row-reverse; }
+
+/* Arabic font — apply globally when AR mode is active */
+body.ar,
+body.ar * {
+  font-family: var(--arabic) !important;
+  letter-spacing: 0 !important;
+}
+body.ar .splash-headline { font-style: normal; font-size: clamp(2rem, 5vw, 3.2rem); }
+body.ar .prose { font-size: 1.08rem; line-height: 2; }
+
+/* ── SPLASH ── */
+#splash {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+body.ar #splash { text-align: center; }
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 72px;
+}
+.wordmark-icon { width: 28px; height: 28px; opacity: 0.85; }
+.wordmark-text {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.splash-headline {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 20px;
+  max-width: 540px;
+  animation: riseIn 0.7s ease both;
+}
+.splash-sub {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--ink-3);
+  font-weight: 300;
+  margin-bottom: 52px;
+  animation: riseIn 0.7s 0.1s ease both;
+  letter-spacing: 0.2px;
+}
+
+.btn-generate {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 400;
+  padding: 14px 32px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  animation: riseIn 0.7s 0.2s ease both;
+}
+.btn-generate:hover { opacity: 0.8; }
+.btn-generate:active { transform: scale(0.98); }
+.btn-generate:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btn-icon { width: 14px; height: 14px; fill: var(--paper); flex-shrink: 0; }
+
+.splash-note {
+  margin-top: 24px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--ink-4);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  animation: riseIn 0.7s 0.3s ease both;
+}
+
+/* ── LOADER ── */
+#loader {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+#loader.active { display: flex; }
+
+.loader-inner { width: 100%; max-width: 380px; }
+
+.loader-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 36px;
+  text-align: center;
+}
+.loader-disease {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.8rem;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 48px;
+  min-height: 44px;
+  transition: opacity 0.3s;
+}
+
+.steps-list { list-style: none; border-top: 1px solid var(--rule); }
+.step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-4);
+  letter-spacing: 0.5px;
+  transition: color 0.3s;
+}
+.step.active { color: var(--ink-2); }
+.step.done   { color: var(--ink-4); }
+.step-indicator {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--rule);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.step.active .step-indicator { background: var(--ink); animation: breathe 1s ease infinite; }
+.step.done  .step-indicator  { background: var(--ink-4); animation: none; }
+
+.progress-track {
+  height: 1px;
+  background: var(--rule);
+  margin-top: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--ink);
+  width: 0%;
+  transition: width 0.6s ease;
+}
+
+/* ── ARTICLE ── */
+#article { display: none; animation: riseIn 0.5s ease both; }
+#article.active { display: block; }
+
+/* Nav */
+.article-nav {
+  position: sticky;
+  top: 0;
+  background: rgba(245, 242, 236, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  z-index: 50;
+}
+
+.nav-brand { display: flex; align-items: center; gap: 8px; }
+.nav-brand-icon { width: 18px; height: 18px; opacity: 0.7; }
+.nav-brand-text {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.nav-actions { display: flex; align-items: center; gap: 24px; }
+
+.nav-btn {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-btn:hover { color: var(--ink); }
+.nav-btn svg { width: 12px; height: 12px; fill: currentColor; }
+
+.nav-btn-primary {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  border: none;
+  cursor: pointer;
+  padding: 7px 16px;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-btn-primary:hover { opacity: 0.75; }
+.nav-btn-primary svg { width: 10px; height: 10px; fill: currentColor; }
+
+/* Article body */
+.article-body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 32px 120px;
+}
+
+/* Kicker */
+.article-kicker {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.kicker-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.kicker-rule { flex: 1; height: 1px; background: var(--rule); }
+
+/* Title */
+.article-title {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+.article-causative {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--ink-3);
+  margin-bottom: 32px;
+}
+
+/* Meta row */
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.meta-item { display: flex; flex-direction: column; gap: 3px; }
+.meta-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.meta-value {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.meta-divider { width: 1px; height: 28px; background: var(--rule); }
+
+/* Severity */
+.severity-pip-row { display: flex; gap: 4px; align-items: center; }
+.pip { width: 6px; height: 6px; border-radius: 50%; background: var(--rule); transition: background 0.4s; }
+.pip.filled { background: var(--ink-2); }
+.pip.high   { background: var(--danger); }
+
+/* Tags */
+.tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 48px; }
+.tag {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: 1px solid var(--rule);
+  color: var(--ink-3);
+}
+.tag.alert { border-color: var(--danger); color: var(--danger); }
+
+/* Callout */
+.callout {
+  border-left: 2px solid var(--ink);
+  padding: 4px 0 4px 24px;
+  margin: 48px 0;
+}
+.callout-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.callout-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+/* Section title */
+.section-title {
+  font-family: var(--sans);
+  font-size: 0.65rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin-bottom: 16px;
+  margin-top: 52px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+.section-title:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+/* Prose */
+.prose {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--ink-2);
+  font-weight: 400;
+}
+.prose + .prose { margin-top: 20px; }
+
+/* ── BULLET LIST ── */
+.info-list {
+  list-style: none;
+  margin: 16px 0;
+  border: 1px solid var(--rule);
+}
+.info-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.info-list li:last-child { border-bottom: none; }
+.info-list li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  margin-top: 9px;
+  flex-shrink: 0;
+}
+body.ar .info-list li { flex-direction: row-reverse; font-size: 1rem; }
+body.ar .info-list li::before { order: 1; }
+
+/* ── QUICK FACTS TABLE ── */
+.facts-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 52px 0;
+  border: 1px solid var(--rule);
+}
+.facts-table caption {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding-bottom: 10px;
+  text-align: left;
+}
+body.ar .facts-table caption { text-align: right; }
+.facts-table th {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  background: var(--paper-2);
+  padding: 10px 16px;
+  font-weight: 500;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  width: 38%;
+}
+body.ar .facts-table th { text-align: right; border-right: none; border-left: 1px solid var(--rule); }
+.facts-table td {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+}
+body.ar .facts-table td { text-align: right; }
+.facts-table tr:last-child th,
+.facts-table tr:last-child td { border-bottom: none; }
+
+/* ── DIAGNOSIS TABLE ── */
+.diag-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border: 1px solid var(--rule);
+  font-size: 0.88rem;
+}
+.diag-table thead th {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 400;
+}
+body.ar .diag-table thead th { text-align: right; }
+.diag-table tbody tr { border-bottom: 1px solid var(--rule); }
+.diag-table tbody tr:last-child { border-bottom: none; }
+.diag-table tbody tr:hover { background: var(--paper-2); }
+.diag-table td {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  color: var(--ink-2);
+  vertical-align: top;
+  line-height: 1.5;
+  border-right: 1px solid var(--rule);
+}
+body.ar .diag-table td { text-align: right; border-right: none; border-left: 1px solid var(--rule); }
+.diag-table td:last-child { border-right: none; }
+body.ar .diag-table td:last-child { border-left: none; }
+
+/* ── TREATMENT TABLE ── */
+.treatment-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border: 1px solid var(--rule);
+}
+.treatment-table thead th {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 400;
+}
+body.ar .treatment-table thead th { text-align: right; }
+.treatment-table td {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  padding: 10px 16px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  vertical-align: top;
+  line-height: 1.5;
+}
+body.ar .treatment-table td { text-align: right; border-right: none; border-left: 1px solid var(--rule); }
+.treatment-table tr:last-child td { border-bottom: none; }
+.treatment-table td:last-child { border-right: none; }
+body.ar .treatment-table td:last-child { border-left: none; }
+
+/* ── SAVED DRAWER ── */
+#saved-drawer {
+  position: fixed;
+  top: 0; right: -420px; bottom: 0;
+  width: 380px;
+  background: var(--paper);
+  border-left: 1px solid var(--rule);
+  z-index: 200;
+  transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  flex-direction: column;
+}
+#saved-drawer.open { right: 0; }
+body.ar #saved-drawer { right: auto; left: -420px; border-left: none; border-right: 1px solid var(--rule); }
+body.ar #saved-drawer.open { left: 0; right: auto; }
+
+.drawer-header {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.drawer-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+body.ar .drawer-title { }
+.drawer-close {
+  background: none; border: none;
+  cursor: pointer;
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.drawer-close:hover { color: var(--ink); }
+
+.drawer-list { flex: 1; overflow-y: auto; padding: 20px 28px; }
+
+.drawer-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.drawer-item:hover { opacity: 0.6; }
+.drawer-item:last-child { border-bottom: none; }
+.drawer-item-name {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.drawer-item-meta {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 1px;
+  color: var(--ink-4);
+  text-transform: uppercase;
+}
+
+.drawer-empty {
+  padding: 40px 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--ink-4);
+  font-size: 0.9rem;
+}
+
+#overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(26,26,24,0.3);
+  z-index: 190;
+}
+#overlay.active { display: block; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  z-index: 300;
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Animations */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* ── HERO IMAGE ── */
+.article-hero {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto 52px;
+  padding: 0 32px;
+}
+.article-hero img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(15%);
+}
+.hero-credit {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  color: var(--ink-4);
+  text-align: right;
+  padding-top: 6px;
+  text-transform: uppercase;
+}
+body.ar .hero-credit { text-align: left; }
+@media (max-width: 600px) {
+  .article-hero { padding: 0 20px; }
+  .article-hero img { height: 200px; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .article-body { padding: 48px 20px 100px; }
+  .article-nav  { padding: 0 16px; }
+  #saved-drawer { width: 100%; right: -100%; }
+  body.ar #saved-drawer { left: -100%; right: auto; }
+  .lang-toggle { top: 10px; right: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Language toggle -->
+<div class="lang-toggle" id="lang-toggle">
+  <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" id="btn-ar" onclick="setLang('ar')">ع</button>
+</div>
+
+<!-- SVG SPRITE -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="icon-lens" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-refresh" viewBox="0 0 24 24">
+    <path d="M1 4v6h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M3.51 15a9 9 0 1 0 .49-4.85" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-bookmark" viewBox="0 0 24 24">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="icon-library" viewBox="0 0 24 24">
+    <path d="M4 19V6a2 2 0 0 1 2-2h13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M4 19a2 2 0 0 0 2 2h13V4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-arrow" viewBox="0 0 24 24">
+    <path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <div class="wordmark">
+    <svg class="wordmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-lens"/></svg>
+    <span class="wordmark-text">VetLens</span>
+  </div>
+  <h1 class="splash-headline" id="splash-headline">A new veterinary<br>case, every time.</h1>
+  <p class="splash-sub" id="splash-sub">AI-generated articles on diseases, pathogens, and clinical medicine.</p>
+  <button class="btn-generate" id="btn-hero" onclick="startGenerate()">
+    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-arrow"/></svg>
+    <span id="btn-hero-text">Generate Article</span>
+  </button>
+  <p class="splash-note" id="splash-note">Each generation is unique</p>
+</div>
+
+<!-- ══ LOADER ══ -->
+<div id="loader">
+  <div class="loader-inner">
+    <p class="loader-label" id="loader-label">Generating article</p>
+    <div class="loader-disease" id="loader-disease">&nbsp;</div>
+    <ul class="steps-list">
+      <li class="step" id="s0"><span class="step-indicator"></span> <span id="st0">Selecting pathogen</span></li>
+      <li class="step" id="s1"><span class="step-indicator"></span> <span id="st1">Accessing epidemiological data</span></li>
+      <li class="step" id="s2"><span class="step-indicator"></span> <span id="st2">Writing pathology sections</span></li>
+      <li class="step" id="s3"><span class="step-indicator"></span> <span id="st3">Composing clinical narrative</span></li>
+      <li class="step" id="s4"><span class="step-indicator"></span> <span id="st4">Finalising article</span></li>
+    </ul>
+    <div class="progress-track">
+      <div class="progress-bar" id="prog"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARTICLE ══ -->
+<div id="article">
+  <nav class="article-nav">
+    <div class="nav-brand">
+      <svg class="nav-brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-lens"/></svg>
+      <span class="nav-brand-text">VetLens</span>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-btn" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-library"/></svg>
+        <span id="nav-library">Library</span>
+      </button>
+      <button class="nav-btn" id="btn-save" onclick="saveArticle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-bookmark"/></svg>
+        <span id="nav-save">Save</span>
+      </button>
+      <button class="nav-btn-primary" onclick="startGenerate()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
+        <span id="nav-new">New Article</span>
+      </button>
+    </div>
+  </nav>
+  <div id="art-hero"></div>
+  <div class="article-body" id="art-body"></div>
+</div>
+
+<!-- ══ DRAWER ══ -->
+<div id="overlay" onclick="closeDrawer()"></div>
+<div id="saved-drawer">
+  <div class="drawer-header">
+    <span class="drawer-title" id="drawer-title">Saved Articles</span>
+    <button class="drawer-close" onclick="closeDrawer()">&#215;</button>
+  </div>
+  <div class="drawer-list" id="drawer-list"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════ */
+const NV_API_KEY  = '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';
+const NV_MODEL    = 'openai/gpt-oss-120b';
+const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const CORS_PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+];
+
+// No hardcoded disease list — the AI picks one each time
+
+/* ════════════════════════════════════════
+   TRANSLATIONS
+════════════════════════════════════════ */
+let currentLang = 'en';
+
+const T = {
+  en: {
+    splash_headline: "A new veterinary<br>case, every time.",
+    splash_sub: "AI-generated articles on diseases, pathogens, and clinical medicine.",
+    btn_generate: "Generate Article",
+    splash_note: "Each generation is unique",
+    loader_label: "Generating article",
+    steps: ["Selecting pathogen","Accessing epidemiological data","Writing pathology sections","Composing clinical narrative","Finalising article"],
+    nav_library: "Library",
+    nav_save: "Save",
+    nav_new: "New Article",
+    drawer_title: "Saved Articles",
+    drawer_empty: "No saved articles yet.",
+    toast_saved: "Saved to library",
+    toast_already: "Already saved",
+    kicker: "Veterinary Medicine",
+    severity: "Severity",
+    zoonotic: "Zoonotic",
+    notifiable: "Notifiable",
+    generated: "Generated",
+    yes: "Yes",
+    no: "No",
+    research_note: "Research note",
+    sections: {
+      overview: "Overview",
+      etiology: "Aetiology",
+      epidemiology: "Epidemiology",
+      pathogenesis: "Pathogenesis",
+      clinicalSigns: "Clinical Signs",
+      diagnosis: "Diagnosis",
+      treatment: "Treatment",
+      prevention: "Prevention & Control",
+    },
+    quickfacts_caption: "Quick Reference",
+    qf_species: "Species Affected",
+    qf_gram: "Gram Stain",
+    qf_mortality: "Mortality",
+    qf_transmission: "Transmission",
+    diag_test: "Test / Method",
+    diag_purpose: "Purpose",
+    diag_note: "Note",
+    tx_category: "Category",
+    tx_approach: "Approach",
+    tx_note: "Notes",
+  },
+  ar: {
+    splash_headline: "حالة بيطرية جديدة<br>في كل مرة.",
+    splash_sub: "مقالات طبية بيطرية تُولَّد بالذكاء الاصطناعي عن الأمراض والمسببات والممارسة السريرية.",
+    btn_generate: "توليد مقال",
+    splash_note: "كل توليد فريد من نوعه",
+    loader_label: "جارٍ توليد المقال",
+    steps: ["اختيار المسبب المرضي","الوصول إلى البيانات الوبائية","كتابة أقسام علم الأمراض","صياغة السرد السريري","إنهاء المقال"],
+    nav_library: "المكتبة",
+    nav_save: "حفظ",
+    nav_new: "مقال جديد",
+    drawer_title: "المقالات المحفوظة",
+    drawer_empty: "لا توجد مقالات محفوظة بعد.",
+    toast_saved: "تم الحفظ في المكتبة",
+    toast_already: "محفوظ مسبقاً",
+    kicker: "الطب البيطري",
+    severity: "الشدة",
+    zoonotic: "حيواني المصدر",
+    notifiable: "مُبلَّغ عنه",
+    generated: "تاريخ التوليد",
+    yes: "نعم",
+    no: "لا",
+    research_note: "ملاحظة بحثية",
+    sections: {
+      overview: "نظرة عامة",
+      etiology: "المسببات",
+      epidemiology: "الوبائيات",
+      pathogenesis: "التسبب في المرض",
+      clinicalSigns: "العلامات السريرية",
+      diagnosis: "التشخيص",
+      treatment: "العلاج",
+      prevention: "الوقاية والمكافحة",
+    },
+    quickfacts_caption: "مرجع سريع",
+    qf_species: "الأنواع المصابة",
+    qf_gram: "صبغة غرام",
+    qf_mortality: "معدل الوفيات",
+    qf_transmission: "طريقة الانتقال",
+    diag_test: "الاختبار / الطريقة",
+    diag_purpose: "الغرض",
+    diag_note: "ملاحظة",
+    tx_category: "الفئة",
+    tx_approach: "النهج العلاجي",
+    tx_note: "ملاحظات",
+  }
+};
+
+function t(key) {
+  return T[currentLang][key] || T['en'][key] || key;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.body.classList.toggle('ar', lang === 'ar');
+  document.documentElement.lang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-ar').classList.toggle('active', lang === 'ar');
+  updateUIText();
+  if (currentArticle) render(currentArticle.data, currentArticle.disease, true);
+}
+
+function updateUIText() {
+  document.getElementById('splash-headline').innerHTML = t('splash_headline');
+  document.getElementById('splash-sub').textContent = t('splash_sub');
+  document.getElementById('btn-hero-text').textContent = t('btn_generate');
+  document.getElementById('splash-note').textContent = t('splash_note');
+  document.getElementById('loader-label').textContent = t('loader_label');
+  const steps = t('steps');
+  steps.forEach((s, i) => { const el = document.getElementById('st'+i); if(el) el.textContent = s; });
+  document.getElementById('nav-library').textContent = t('nav_library');
+  document.getElementById('nav-save').textContent    = t('nav_save');
+  document.getElementById('nav-new').textContent     = t('nav_new');
+  document.getElementById('drawer-title').textContent = t('drawer_title');
+}
+
+/* ════════════════════════════════════════
+   VIEWS
+════════════════════════════════════════ */
+let currentArticle = null;
+let savedArticles  = JSON.parse(localStorage.getItem('vetlens_v3') || '[]');
+
+function show(id) {
+  document.getElementById('splash').style.display  = 'none';
+  document.getElementById('loader').style.display  = 'none';
+  document.getElementById('article').style.display = 'none';
+  if (id === 'loader') document.getElementById('loader').style.display = 'flex';
+  else document.getElementById(id).style.display = 'block';
+}
+
+/* ════════════════════════════════════════
+   GENERATE
+════════════════════════════════════════ */
+async function startGenerate() {
+  show('loader');
+  resetSteps();
+
+  // AI will choose the disease — show a placeholder while loading
+  const placeholder = currentLang === 'ar' ? 'جارٍ اختيار المرض…' : 'Selecting disease…';
+  document.getElementById('loader-disease').textContent = placeholder;
+  const disease = '__ai_pick__';
+
+  const stepTimes = [0, 700, 1400, 2200, 3100];
+  const ids = ['s0','s1','s2','s3','s4'];
+  ids.forEach((sid, i) => {
+    setTimeout(() => {
+      if (i > 0) setStep(ids[i-1], 'done');
+      setStep(sid, 'active');
+      document.getElementById('prog').style.width = `${(i+1)*20}%`;
+    }, stepTimes[i]);
+  });
+
+  let data;
+  try {
+    data = await callAPI(disease);
+    if (data.diseaseName) {
+      document.getElementById('loader-disease').textContent = data.diseaseName;
+    }
+  } catch(e) {
+    console.error(e);
+    data = fallback('Veterinary Disease');
+  }
+
+  // Fetch an image for the disease (Unsplash)
+  try {
+    const imgQuery = encodeURIComponent((data.diseaseName || 'veterinary disease') + ' animal livestock veterinary');
+    const imgRes = await fetch(`https://api.unsplash.com/search/photos?query=${imgQuery}&per_page=1&orientation=landscape&client_id=zLBLzpPimFEKhCMzLF-N7GvwjGFAuVzX7Iv0JnxLHao`);
+    if (imgRes.ok) {
+      const imgJson = await imgRes.json();
+      const result = imgJson.results?.[0];
+      if (result) {
+        data.heroImage = result.urls?.regular || null;
+        data.heroImageCredit = result.user?.name || null;
+        data.heroImageLink = result.links?.html || null;
+      }
+    }
+  } catch(e) { /* image is optional */ }
+
+  setTimeout(() => {
+    setStep('s4', 'done');
+    document.getElementById('prog').style.width = '100%';
+    setTimeout(() => render(data, data.diseaseName || 'Veterinary Disease'), 400);
+  }, 3800);
+}
+
+function resetSteps() {
+  ['s0','s1','s2','s3','s4'].forEach(id => setStep(id, ''));
+  document.getElementById('prog').style.width = '0%';
+  document.getElementById('loader-disease').textContent = '\u00a0';
+}
+function setStep(id, state) {
+  const el = document.getElementById(id);
+  el.className = 'step' + (state ? ' ' + state : '');
+}
+
+/* ════════════════════════════════════════
+   API
+════════════════════════════════════════ */
+async function callAPI(disease) {
+  const diseaseInstruction = (disease === '__ai_pick__')
+    ? 'Choose one interesting or uncommon veterinary disease yourself — pick a different one each time (vary species, taxonomy, geography). Then write a thorough, accurate article about it.'
+    : `Write a thorough, accurate article about "${disease}".`;
+  const arDiseaseInstruction = (disease === '__ai_pick__')
+    ? 'اختر بنفسك مرضاً بيطرياً مثيراً أو غير شائع — غيّر اختيارك في كل مرة (تنوع الأنواع والتصنيف والجغرافيا). ثم اكتب مقالاً علمياً دقيقاً عنه.'
+    : `اكتب مقالاً علمياً دقيقاً عن مرض "${disease}".`;
+
+  const prompt = `You are a veterinary medicine professor. ${diseaseInstruction}
+
+Return ONLY a valid JSON object. Structure:
+{
+  "diseaseName": "Full official name",
+  "causativeAgent": "Scientific pathogen name",
+  "isZoonotic": true|false,
+  "isNotifiable": true|false,
+  "severityScore": 1-10,
+  "quickFacts": {
+    "speciesAffected": "Concise list",
+    "gramStain": "Gram-positive / Gram-negative / N/A",
+    "mortality": "e.g. 5-20% untreated",
+    "transmission": "e.g. Fecal-oral, direct contact"
+  },
+  "didYouKnow": "One fascinating specific scientific fact.",
+  "overview": "Two rich paragraphs.",
+  "etiology": "Two paragraphs on pathogen taxonomy, structure, virulence factors.",
+  "epidemiology": "Two paragraphs on distribution, risk factors, prevalence.",
+  "pathogenesis": "Two paragraphs on disease mechanism.",
+  "clinicalSignsBullets": ["sign 1", "sign 2", "sign 3", "sign 4", "sign 5", "sign 6"],
+  "clinicalSignsContext": "One paragraph of clinical context.",
+  "diagnosisTests": [
+    {"test": "e.g. PCR", "purpose": "e.g. Confirm pathogen DNA", "note": "e.g. High sensitivity"},
+    {"test": "Culture", "purpose": "Gold standard", "note": "Takes 24-72h"},
+    {"test": "ELISA serology", "purpose": "Antibody detection", "note": "Useful in chronic cases"},
+    {"test": "Histopathology", "purpose": "Tissue lesion assessment", "note": "Post-mortem or biopsy"}
+  ],
+  "treatmentRows": [
+    {"category": "Antimicrobials", "approach": "Specific drugs/classes", "note": "Duration/dosing principle"},
+    {"category": "Supportive care", "approach": "Fluids, analgesia, nutrition", "note": "Adjust to severity"},
+    {"category": "Prognosis", "approach": "Expected outcome", "note": "Factors affecting outcome"}
+  ],
+  "preventionBullets": ["measure 1", "measure 2", "measure 3", "measure 4", "measure 5"],
+  "preventionContext": "One paragraph on control programs and public health."
+}`;
+
+  const arPrompt = `أنت أستاذ في الطب البيطري. ${arDiseaseInstruction}
+
+أرجع فقط كائن JSON صالح بالهيكل التالي (بدون أي شرح أو markdown):
+{
+  "diseaseName": "الاسم الرسمي الكامل بالعربية",
+  "causativeAgent": "الاسم العلمي للمسبب",
+  "isZoonotic": true|false,
+  "isNotifiable": true|false,
+  "severityScore": 1-10,
+  "quickFacts": {
+    "speciesAffected": "قائمة موجزة",
+    "gramStain": "موجبة / سالبة / لا ينطبق",
+    "mortality": "مثال: 5-20% دون علاج",
+    "transmission": "مثال: برازي-فموي، تلامس مباشر"
+  },
+  "didYouKnow": "حقيقة علمية مثيرة للاهتمام وفريدة.",
+  "overview": "فقرتان شاملتان.",
+  "etiology": "فقرتان عن تصنيف المسبب وبنيته وعوامل ضراوته.",
+  "epidemiology": "فقرتان عن التوزع الجغرافي وعوامل الخطر.",
+  "pathogenesis": "فقرتان عن آلية المرض.",
+  "clinicalSignsBullets": ["علامة 1","علامة 2","علامة 3","علامة 4","علامة 5","علامة 6"],
+  "clinicalSignsContext": "فقرة واحدة للسياق السريري.",
+  "diagnosisTests": [
+    {"test": "مثال: PCR","purpose": "تأكيد الحمض النووي للمسبب","note": "حساسية عالية"},
+    {"test": "زراعة ميكروبية","purpose": "المعيار الذهبي","note": "24-72 ساعة"},
+    {"test": "مقايسة ELISA","purpose": "كشف الأجسام المضادة","note": "مفيد في الحالات المزمنة"},
+    {"test": "الفحص النسيجي","purpose": "تقييم آفات الأنسجة","note": "بعد الوفاة أو من خزعة"}
+  ],
+  "treatmentRows": [
+    {"category": "مضادات الميكروبات","approach": "الأدوية أو الفصائل المحددة","note": "مبدأ الجرعة والمدة"},
+    {"category": "الرعاية الداعمة","approach": "سوائل، مسكنات، تغذية","note": "حسب الشدة"},
+    {"category": "التشخيص","approach": "النتيجة المتوقعة","note": "العوامل المؤثرة في النتيجة"}
+  ],
+  "preventionBullets": ["إجراء 1","إجراء 2","إجراء 3","إجراء 4","إجراء 5"],
+  "preventionContext": "فقرة عن برامج المكافحة والصحة العامة."
+}`;
+
+  const body = JSON.stringify({
+    model: NV_MODEL,
+    max_tokens: 3000,
+    temperature: 0.7,
+    messages: [{ role: 'user', content: currentLang === 'ar' ? arPrompt : prompt }]
+  });
+
+  const endpoints = [NV_ENDPOINT, ...CORS_PROXIES.map(fn => fn(NV_ENDPOINT))];
+
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${NV_API_KEY}` },
+        body
+      });
+      if (!res.ok) continue;
+      const json = await res.json();
+      const raw  = json.choices?.[0]?.message?.content || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      return JSON.parse(clean);
+    } catch(e) { continue; }
+  }
+  throw new Error('API unreachable');
+}
+
+/* ════════════════════════════════════════
+   FALLBACK
+════════════════════════════════════════ */
+function fallback(disease) {
+  const ar = currentLang === 'ar';
+  return {
+    diseaseName: disease,
+    causativeAgent: ar ? "تحديد المسبب قيد الانتظار" : "Pathogen identification pending",
+    isZoonotic: false, isNotifiable: false, severityScore: 5,
+    quickFacts: {
+      speciesAffected: ar ? "أنواع متعددة" : "Multiple",
+      gramStain: ar ? "لا ينطبق" : "N/A",
+      mortality: ar ? "متغير" : "Variable",
+      transmission: ar ? "تلامس مباشر" : "Direct contact"
+    },
+    didYouKnow: ar
+      ? `شكّل مرض ${disease} سياسات الصحة البيطرية العامة في قارات متعددة على مدى القرن الماضي.`
+      : `${disease} has shaped veterinary public health policy across multiple continents over the past century.`,
+    overview: ar
+      ? `${disease} مرض مهم في الطب البيطري يستقطب الاهتمام السريري والبحثي حول العالم. يؤثر تأثيره على إنتاج الحيوانات ورفاهيتها بشكل مباشر.\n\nيُعدّ التشخيص المبكر والتدخل السريع أساسيين لتحسين المآلات. يُلخّص هذا المقال المعرفة الحالية حول المسببات والوبائيات والإدارة السريرية.`
+      : `${disease} is a significant disease in veterinary medicine, attracting global attention. Its impact on animal production and welfare is well established.\n\nEarly recognition and prompt intervention are critical for improving outcomes.`,
+    etiology: ar
+      ? `يُصنَّف العامل المسبب ضمن مجموعة مسببات مرضية محددة بدقة. تُسهم السمات البنيوية والجزيئية في إمراضيته وبقائه في البيئة.\n\nدُرِست عوامل الضراوة بشكل مستفيض.`
+      : `The causative agent belongs to a well-characterised group of pathogens. Structural features contribute to its pathogenicity.\n\nVirulence factors have been studied extensively.`,
+    epidemiology: ar
+      ? `يُوزَّع المرض عبر مناطق جغرافية متعددة.\n\nتشمل عوامل الخطر التثبيط المناعي والازدحام والإصابات المشتركة.`
+      : `The disease is distributed across multiple geographic regions.\n\nRisk factors include immunosuppression and overcrowding.`,
+    pathogenesis: ar
+      ? `يستعمر المسبب الأسطح الظهارية المستهدفة مطلقاً سلسلة استجابات التهابية.\n\nقد يتبع الانتشار الجهازي الإصابة الموضعية في الحالات الشديدة.`
+      : `The pathogen colonises target epithelial surfaces, initiating inflammatory responses.\n\nSystemic spread may follow local infection in severe cases.`,
+    clinicalSignsBullets: ar
+      ? ["حمى وارتفاع درجة الحرارة","فقدان الشهية","إسهال أو قياء","ضعف عام واكتئاب","إفرازات من الفتحات الطبيعية","هزال وفقدان وزن"]
+      : ["Pyrexia and fever","Anorexia and reduced feed intake","Diarrhea or vomiting","Lethargy and depression","Nasal/ocular discharge","Progressive weight loss"],
+    clinicalSignsContext: ar
+      ? "يتفاوت المظهر السريري بحسب النوع والعمر والحالة المناعية."
+      : "Clinical presentation varies with species, age, and immune status.",
+    diagnosisTests: ar
+      ? [
+          {test:"PCR", purpose:"تأكيد الحمض النووي للمسبب", note:"حساسية عالية"},
+          {test:"زراعة ميكروبية", purpose:"المعيار الذهبي للتشخيص", note:"يستغرق 24-72 ساعة"},
+          {test:"ELISA", purpose:"كشف الأجسام المضادة", note:"مفيد في الحالات المزمنة"},
+          {test:"الفحص النسيجي", purpose:"تقييم آفات الأنسجة", note:"بعد الوفاة أو من خزعة"}
+        ]
+      : [
+          {test:"PCR", purpose:"Confirm pathogen DNA", note:"High sensitivity"},
+          {test:"Culture", purpose:"Gold standard diagnosis", note:"24-72 hours"},
+          {test:"ELISA serology", purpose:"Antibody detection", note:"Useful in chronic cases"},
+          {test:"Histopathology", purpose:"Tissue lesion assessment", note:"Post-mortem or biopsy"}
+        ],
+    treatmentRows: ar
+      ? [
+          {category:"مضادات الميكروبات", approach:"موجَّهة بنتائج الحساسية", note:"مبكراً للتحسين"},
+          {category:"الرعاية الداعمة", approach:"سوائل وريدية، مسكنات، تغذية", note:"حسب شدة الحالة"},
+          {category:"التشخيص", approach:"يتحسن مع التدخل المبكر", note:"التأخر يزيد الوفيات"}
+        ]
+      : [
+          {category:"Antimicrobials", approach:"Culture-guided therapy", note:"Early treatment improves prognosis"},
+          {category:"Supportive care", approach:"IV fluids, analgesia, nutrition", note:"Adjust to case severity"},
+          {category:"Prognosis", approach:"Improves with early intervention", note:"Delayed care raises mortality"}
+        ],
+    preventionBullets: ar
+      ? ["التطعيم حيث يتوفر اللقاح","بروتوكولات التطهير والتعقيم","عزل الحيوانات القادمة","المراقبة الوبائية المستمرة","الإبلاغ الفوري عن الحالات المشتبهة"]
+      : ["Vaccination where available","Disinfection and hygiene protocols","Quarantine of incoming animals","Ongoing epidemiological surveillance","Prompt reporting of suspected cases"],
+    preventionContext: ar
+      ? "توفر البرامج الوطنية والدولية أطراً للمراقبة والإبلاغ والاستئصال."
+      : "National and international control programmes provide frameworks for surveillance and eradication."
+  };
+}
+
+/* ════════════════════════════════════════
+   RENDER
+════════════════════════════════════════ */
+function render(data, disease, rerender = false) {
+  currentArticle = {
+    data, disease,
+    date: new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-IQ' : 'en-GB', { day:'numeric', month:'long', year:'numeric' })
+  };
+
+  const sev = data.severityScore || 5;
+  const sevHigh = sev >= 7;
+  let pips = '';
+  for (let i = 1; i <= 10; i++) {
+    const filled = i <= sev;
+    const cls = filled ? (sevHigh ? 'pip high' : 'pip filled') : 'pip';
+    pips += `<div class="${cls}" id="pip${i}" style="opacity:0"></div>`;
+  }
+
+  const qf = data.quickFacts || {};
+
+  // Quick facts table
+  const factsTable = `
+    <table class="facts-table">
+      <caption>${t('quickfacts_caption')}</caption>
+      <tbody>
+        <tr><th>${t('qf_species')}</th><td>${qf.speciesAffected || '—'}</td></tr>
+        <tr><th>${t('qf_gram')}</th><td>${qf.gramStain || '—'}</td></tr>
+        <tr><th>${t('qf_mortality')}</th><td>${qf.mortality || '—'}</td></tr>
+        <tr><th>${t('qf_transmission')}</th><td>${qf.transmission || '—'}</td></tr>
+      </tbody>
+    </table>`;
+
+  // Clinical signs bullets
+  const bullets = (data.clinicalSignsBullets || []);
+  const bulletsHTML = bullets.length ? `
+    <ul class="info-list">
+      ${bullets.map(b => `<li>${b}</li>`).join('')}
+    </ul>` : '';
+
+  // Diagnosis table
+  const diagTests = data.diagnosisTests || [];
+  const diagTableHTML = diagTests.length ? `
+    <table class="diag-table">
+      <thead><tr>
+        <th>${t('diag_test')}</th>
+        <th>${t('diag_purpose')}</th>
+        <th>${t('diag_note')}</th>
+      </tr></thead>
+      <tbody>
+        ${diagTests.map(r => `<tr>
+          <td><strong>${r.test || ''}</strong></td>
+          <td>${r.purpose || ''}</td>
+          <td>${r.note || ''}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>` : '';
+
+  // Treatment table
+  const txRows = data.treatmentRows || [];
+  const txTableHTML = txRows.length ? `
+    <table class="treatment-table">
+      <thead><tr>
+        <th>${t('tx_category')}</th>
+        <th>${t('tx_approach')}</th>
+        <th>${t('tx_note')}</th>
+      </tr></thead>
+      <tbody>
+        ${txRows.map(r => `<tr>
+          <td><strong>${r.category || ''}</strong></td>
+          <td>${r.approach || ''}</td>
+          <td>${r.note || ''}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>` : '';
+
+  // Prevention bullets
+  const prevBullets = (data.preventionBullets || []);
+  const prevHTML = prevBullets.length ? `
+    <ul class="info-list">
+      ${prevBullets.map(b => `<li>${b}</li>`).join('')}
+    </ul>` : '';
+
+  // Text sections (no special formatting)
+  function proseParagraphs(raw) {
+    if (!raw) return '';
+    return raw.split(/\n\n+/).filter(Boolean).map(p => `<p class="prose">${p.trim()}</p>`).join('');
+  }
+
+  const html = `
+    <div class="article-kicker">
+      <span class="kicker-tag">${t('kicker')}</span>
+      <div class="kicker-rule"></div>
+    </div>
+
+    <h1 class="article-title">${data.diseaseName || disease}</h1>
+    <p class="article-causative">${data.causativeAgent || ''}</p>
+
+    <div class="article-meta">
+      <div class="meta-item">
+        <span class="meta-label">${t('severity')}</span>
+        <div class="severity-pip-row">${pips}</div>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <span class="meta-label">${t('zoonotic')}</span>
+        <span class="meta-value">${data.isZoonotic ? t('yes') : t('no')}</span>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <span class="meta-label">${t('notifiable')}</span>
+        <span class="meta-value">${data.isNotifiable ? t('yes') : t('no')}</span>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <span class="meta-label">${t('generated')}</span>
+        <span class="meta-value">${currentArticle.date}</span>
+      </div>
+    </div>
+
+    <div class="tag-row">
+      ${data.isZoonotic   ? `<span class="tag alert">${t('zoonotic')}</span>` : ''}
+      ${data.isNotifiable ? `<span class="tag alert">${t('notifiable')}</span>` : ''}
+      <span class="tag">${qf.speciesAffected || '—'}</span>
+    </div>
+
+    ${factsTable}
+
+    ${data.didYouKnow ? `
+    <div class="callout">
+      <div class="callout-label">${t('research_note')}</div>
+      <p class="callout-text">${data.didYouKnow}</p>
+    </div>` : ''}
+
+    <h2 class="section-title">${t('sections').overview}</h2>
+    ${proseParagraphs(data.overview)}
+
+    <h2 class="section-title">${t('sections').etiology}</h2>
+    ${proseParagraphs(data.etiology)}
+
+    <h2 class="section-title">${t('sections').epidemiology}</h2>
+    ${proseParagraphs(data.epidemiology)}
+
+    <h2 class="section-title">${t('sections').pathogenesis}</h2>
+    ${proseParagraphs(data.pathogenesis)}
+
+    <h2 class="section-title">${t('sections').clinicalSigns}</h2>
+    ${bulletsHTML}
+    ${data.clinicalSignsContext ? `<p class="prose" style="margin-top:16px">${data.clinicalSignsContext}</p>` : ''}
+
+    <h2 class="section-title">${t('sections').diagnosis}</h2>
+    ${diagTableHTML}
+
+    <h2 class="section-title">${t('sections').treatment}</h2>
+    ${txTableHTML}
+
+    <h2 class="section-title">${t('sections').prevention}</h2>
+    ${prevHTML}
+    ${data.preventionContext ? `<p class="prose" style="margin-top:16px">${data.preventionContext}</p>` : ''}
+  `;
+
+  document.getElementById('art-body').innerHTML = html;
+
+  // Inject hero image above article body (after nav)
+  const heroContainer = document.getElementById('art-hero');
+  if (heroContainer) {
+    if (data.heroImage) {
+      const creditText = currentLang === 'ar'
+        ? `صورة: ${data.heroImageCredit || 'Unsplash'}`
+        : `Photo: ${data.heroImageCredit || 'Unsplash'}`;
+      const linkHtml = data.heroImageLink
+        ? `<a href="${data.heroImageLink}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${creditText}</a>`
+        : creditText;
+      heroContainer.innerHTML = `<div class="article-hero"><img src="${data.heroImage}" alt="${data.diseaseName || ''}" loading="lazy"/><div class="hero-credit">${linkHtml}</div></div>`;
+    } else {
+      heroContainer.innerHTML = '';
+    }
+  }
+
+  show('article');
+  window.scrollTo(0, 0);
+  updateSaveBtn();
+
+  // Animate pips
+  for (let i = 1; i <= 10; i++) {
+    const el = document.getElementById('pip' + i);
+    if (!el) continue;
+    setTimeout(() => { el.style.transition = 'opacity 0.3s'; el.style.opacity = '1'; }, i * 60 + 200);
+  }
+}
+
+/* ════════════════════════════════════════
+   SAVE
+════════════════════════════════════════ */
+function saveArticle() {
+  if (!currentArticle) return;
+  if (savedArticles.find(a => a.disease === currentArticle.disease)) {
+    toast(t('toast_already')); return;
+  }
+  savedArticles.unshift(currentArticle);
+  localStorage.setItem('vetlens_v3', JSON.stringify(savedArticles));
+  toast(t('toast_saved'));
+  updateSaveBtn();
+}
+function updateSaveBtn() {
+  const saved = currentArticle && savedArticles.find(a => a.disease === currentArticle.disease);
+  const btn = document.getElementById('btn-save');
+  if (btn) btn.style.opacity = saved ? '0.4' : '1';
+}
+
+/* ════════════════════════════════════════
+   DRAWER
+════════════════════════════════════════ */
+function openDrawer() {
+  const list = document.getElementById('drawer-list');
+  if (savedArticles.length === 0) {
+    list.innerHTML = `<p class="drawer-empty">${t('drawer_empty')}</p>`;
+  } else {
+    list.innerHTML = savedArticles.map((a, i) => `
+      <div class="drawer-item" onclick="loadSaved(${i})">
+        <div class="drawer-item-name">${a.disease}</div>
+        <div class="drawer-item-meta">${a.date}</div>
+      </div>`).join('');
+  }
+  document.getElementById('saved-drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('active');
+}
+function closeDrawer() {
+  document.getElementById('saved-drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+function loadSaved(i) {
+  closeDrawer();
+  const a = savedArticles[i];
+  if (a) render(a.data, a.disease);
+}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+</script>
+</body>
+</html>
