@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مهام اليوم</title>
+<title>مهام اليوم + الهدف</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -14,6 +14,7 @@
     --ink: #111111;
     --muted: #999999;
     --rule: #e8e8e8;
+    --purpose-bg: #f7f7f7;
   }
 
   body {
@@ -53,7 +54,6 @@
     color: var(--muted);
   }
 
-  /* Category tag */
   .task-category {
     font-size: 10px;
     font-weight: 400;
@@ -65,7 +65,6 @@
     white-space: nowrap;
   }
 
-  /* Task list */
   .task-list {
     width: 100%;
     max-width: 560px;
@@ -102,7 +101,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
   }
 
   .task-text {
@@ -110,6 +109,18 @@
     font-weight: 400;
     line-height: 1.65;
     transition: color 0.2s ease;
+  }
+
+  .task-purpose {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--muted);
+    background: var(--purpose-bg);
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 30px;
+    line-height: 1.4;
+    width: fit-content;
   }
 
   .task-check {
@@ -130,6 +141,7 @@
     text-decoration-color: var(--rule);
   }
 
+  .task-item.done .task-purpose { opacity: 0.4; background: transparent; }
   .task-item.done .task-category { opacity: 0.4; }
 
   .task-item.done .task-check {
@@ -140,7 +152,7 @@
   .task-check svg { opacity: 0; transition: opacity 0.15s ease; }
   .task-item.done .task-check svg { opacity: 1; }
 
-  /* Loading */
+  /* Loading skeleton */
   .loading {
     width: 100%;
     max-width: 560px;
@@ -149,7 +161,7 @@
   }
 
   .skeleton {
-    height: 62px;
+    height: 70px;
     border-bottom: 1px solid var(--rule);
     display: flex;
     align-items: center;
@@ -169,14 +181,13 @@
   }
 
   .skel-line.long  { max-width: 78%; animation-delay: 0.05s; }
-  .skel-line.short { max-width: 32%; animation-delay: 0.15s; }
+  .skel-line.short { max-width: 45%; animation-delay: 0.15s; }
 
   @keyframes pulse {
     0%, 100% { opacity: 0.35; }
     50% { opacity: 1; }
   }
 
-  /* Progress */
   .progress-bar-wrap {
     width: 100%;
     max-width: 560px;
@@ -203,7 +214,6 @@
     text-align: left;
   }
 
-  /* Regen */
   .regen-btn {
     margin-top: 44px;
     background: none;
@@ -261,7 +271,7 @@
 </div>
 
 <div class="error-msg" id="errorMsg"></div>
-<button class="regen-btn hidden" id="regenBtn" onclick="generate()">توليد جديد</button>
+<button class="regen-btn hidden" id="regenBtn">توليد جديد</button>
 
 <script>
 const NV_API_KEY  = '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';
@@ -279,7 +289,7 @@ function toAr(n) { return String(n).split('').map(d => ARABIC_NUMS[+d] ?? d).joi
 // Storage key: one set per calendar date
 function todayKey() {
   const d = new Date();
-  return `tasks_${d.getFullYear()}_${d.getMonth()+1}_${d.getDate()}`;
+  return `tasks_v2_${d.getFullYear()}_${d.getMonth()+1}_${d.getDate()}`; // new version includes purpose
 }
 
 function saveToday(tasks, done) {
@@ -296,8 +306,8 @@ document.getElementById('dateLabel').textContent =
   d.toLocaleDateString('ar-SA', { weekday: 'long', month: 'long', day: 'numeric' });
 
 let completed = 0;
-let currentTasks = []; // [{text, category}]
-let doneState = [];    // [bool x10]
+let currentTasks = []; // [{text, category, purpose}]
+let doneState = [];
 
 async function fetchWithProxy(body) {
   const direct = await fetch(NV_ENDPOINT, {
@@ -320,10 +330,9 @@ async function fetchWithProxy(body) {
 }
 
 async function generate(forceNew = false) {
-  // Try loading saved tasks for today first
   if (!forceNew) {
     const saved = loadToday();
-    if (saved && saved.tasks && saved.tasks.length === 10) {
+    if (saved && saved.tasks && saved.tasks.length === 10 && saved.tasks[0]?.purpose !== undefined) {
       renderTasks(saved.tasks, saved.done || new Array(10).fill(false));
       return;
     }
@@ -344,21 +353,26 @@ async function generate(forceNew = false) {
   list.innerHTML = '';
   updateProgress(0);
 
-  const prompt = `اكتب بالعربية بالضبط ١٠ مهام يومية متنوعة وعملية. لكل مهمة حدد فئتها من هذه الفئات فقط: صحة، علاقات، تطوير الذات، إبداع، تجربة جديدة، تأمل.
+  const prompt = `أنت خبير في الإنتاجية والتنمية البشرية.  
+قم بإنشاء قائمة تحتوي على ١٠ مهام يومية صغيرة ومتنوعة.  
+لكل مهمة حدد:
+- النص (ما سيفعله المستخدم)  
+- الفئة (يجب أن تكون واحدة من هذه فقط: صحة، علاقات، تطوير الذات، إبداع، تجربة جديدة، تأمل)  
+- الهدف (شرح قصير بجملة واحدة: لماذا يفعل هذه المهمة؟ ما الفائدة التي سيجنيها؟)  
 
-المهام يجب أن تكون صغيرة وقابلة للتنفيذ خلال اليوم. وزّع المهام على الفئات المختلفة.
+المهام يجب أن تكون واقعية وقابلة للتنفيذ خلال اليوم. وزع المهام على الفئات المختلفة.  
 
-أعد فقط مصفوفة JSON تحتوي على ١٠ كائنات بهذا الشكل بالضبط:
-[{"text": "نص المهمة", "category": "الفئة"}, ...]
+أخرج فقط مصفوفة JSON خالصة تحتوي على ١٠ كائنات بهذا الشكل:
+[{"text": "نص المهمة", "category": "الفئة", "purpose": "الهدف/الفائدة"}, ...]  
 
-بدون markdown، بدون شرح. فقط المصفوفة الخام.`;
+لا تضع أي نص خارج المصفوفة، لا markdown، لا تعليقات.`;
 
   try {
     const res = await fetchWithProxy({
       model: NV_MODEL,
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.9,
-      max_tokens: 1500,
+      temperature: 0.85,
+      max_tokens: 1800,
       top_p: 1.0
     });
 
@@ -367,15 +381,19 @@ async function generate(forceNew = false) {
     const clean = raw.replace(/```json|```/g, '').trim();
     const tasks = JSON.parse(clean);
 
-    const normalized = tasks.slice(0, 10).map(t =>
-      typeof t === 'string' ? { text: t, category: '' } : { text: t.text || t, category: t.category || '' }
-    );
+    // Validate and normalize
+    const normalized = tasks.slice(0, 10).map(t => ({
+      text: t.text || t,
+      category: t.category || '',
+      purpose: t.purpose || 'تحسين ذاتك يومًا بعد يوم'
+    }));
 
     const done = new Array(normalized.length).fill(false);
     saveToday(normalized, done);
     renderTasks(normalized, done);
 
   } catch (e) {
+    console.error(e);
     loading.classList.add('hidden');
     regen.classList.remove('hidden');
     regen.disabled = false;
@@ -405,17 +423,44 @@ function renderTasks(tasks, done) {
     const li = document.createElement('li');
     li.className = 'task-item' + (doneState[i] ? ' done' : '');
     li.dataset.index = i;
-    li.innerHTML = `
-      <span class="task-num">${toAr(i + 1)}</span>
-      <div class="task-body">
-        <span class="task-text">${task.text}</span>
-        ${task.category ? `<span class="task-category">${task.category}</span>` : ''}
-      </div>
-      <div class="task-check">
-        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-          <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>`;
+    
+    // create elements
+    const taskNum = document.createElement('span');
+    taskNum.className = 'task-num';
+    taskNum.textContent = toAr(i + 1);
+    
+    const taskBody = document.createElement('div');
+    taskBody.className = 'task-body';
+    
+    const taskText = document.createElement('span');
+    taskText.className = 'task-text';
+    taskText.textContent = task.text;
+    
+    const taskPurpose = document.createElement('span');
+    taskPurpose.className = 'task-purpose';
+    taskPurpose.textContent = `🎯 ${task.purpose}`;
+    
+    const categorySpan = task.category ? (() => {
+      const span = document.createElement('span');
+      span.className = 'task-category';
+      span.textContent = task.category;
+      return span;
+    })() : null;
+    
+    taskBody.appendChild(taskText);
+    if (categorySpan) taskBody.appendChild(categorySpan);
+    taskBody.appendChild(taskPurpose);
+    
+    const checkDiv = document.createElement('div');
+    checkDiv.className = 'task-check';
+    checkDiv.innerHTML = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+        <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+    
+    li.appendChild(taskNum);
+    li.appendChild(taskBody);
+    li.appendChild(checkDiv);
+    
     li.onclick = () => toggle(li);
     list.appendChild(li);
     setTimeout(() => li.classList.add('visible'), i * 55);
@@ -440,7 +485,6 @@ function updateProgress(n) {
   document.getElementById('progressLabel').textContent = `${toAr(n)} / ${toAr(total)}`;
 }
 
-// On regen button click → force new generation
 document.getElementById('regenBtn').onclick = () => generate(true);
 
 generate(false);
