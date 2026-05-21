@@ -20,13 +20,14 @@ body.ar{direction:rtl}
 
 /* ── HAMBURGER MENU ── */
 .hamburger-btn{
-  position:fixed;top:14px;left:16px;z-index:1001;
-  background:none;border:none;cursor:pointer;
-  width:36px;height:36px;display:flex;flex-direction:column;
+  position:fixed;top:14px;left:16px;z-index:2000;
+  background:var(--paper);border:1px solid var(--rule);
+  cursor:pointer;width:38px;height:38px;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:5px;padding:4px;
+  box-shadow:0 1px 6px rgba(26,26,24,0.08);
 }
 .hamburger-btn span{
-  display:block;width:22px;height:1.5px;background:var(--ink-2);
+  display:block;width:18px;height:1.5px;background:var(--ink-2);
   transition:all 0.3s ease;transform-origin:center;
 }
 .hamburger-btn.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
@@ -38,7 +39,7 @@ body.ar .hamburger-btn{left:auto;right:16px}
 #slide-menu{
   position:fixed;top:0;left:-320px;bottom:0;width:300px;
   background:var(--paper);border-right:1px solid var(--rule);
-  z-index:999;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);
+  z-index:1999;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);
   display:flex;flex-direction:column;
   box-shadow:4px 0 24px rgba(26,26,24,0);
 }
@@ -131,7 +132,7 @@ body.ar .menu-generate{font-family:var(--arabic);letter-spacing:0}
 /* Menu overlay */
 #menu-overlay{
   display:none;position:fixed;inset:0;
-  background:rgba(26,26,24,0.25);z-index:998;
+  background:rgba(26,26,24,0.25);z-index:1998;
 }
 #menu-overlay.active{display:block}
 
@@ -246,6 +247,27 @@ body.ar .step{flex-direction:row-reverse;font-family:var(--arabic);letter-spacin
 
 /* Article body — no top bar, just padding for hamburger btn */
 .article-body{max-width:720px;margin:0 auto;padding:72px 32px 120px}
+
+/* Hero image */
+.article-hero{
+  width:100%;aspect-ratio:16/7;overflow:hidden;
+  margin-bottom:40px;background:var(--paper-2);position:relative;
+}
+.article-hero img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:grayscale(12%);transition:opacity 0.5s ease;
+}
+.article-hero .hero-caption{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(26,26,24,0.55));
+  padding:28px 20px 12px;
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:1.5px;
+  text-transform:uppercase;color:rgba(245,242,236,0.7);
+}
+.article-hero-placeholder{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  color:var(--ink-4);font-size:2rem;
+}
 
 /* Kicker */
 .article-kicker{display:flex;align-items:center;gap:16px;margin-bottom:28px}
@@ -865,9 +887,15 @@ async function startGenerate(){
   resetSteps();
 
   const animal = ANIMALS[selectedAnimal];
-  const pool   = animal.diseases || Object.values(ANIMALS).flatMap(a=>a.diseases||[]);
-  const unique = [...new Set(pool)];
-  const disease = unique[Math.floor(Math.random()*unique.length)];
+  const animalFilter = selectedAnimal !== 'all' ? (currentLang==='ar' ? animal.ar : animal.en) : null;
+
+  let disease;
+  try { disease = await pickDisease(animalFilter); }
+  catch(e) {
+    const pool  = animal.diseases || Object.values(ANIMALS).flatMap(a=>a.diseases||[]);
+    const unique = [...new Set(pool)];
+    disease = unique[Math.floor(Math.random()*unique.length)];
+  }
   document.getElementById('loader-disease').textContent = disease;
 
   const stepTimes=[0,700,1400,2200,3100];
@@ -898,6 +926,39 @@ function setStep(id,state){
   document.getElementById(id).className='step'+(state?' '+state:'');
 }
 
+/* ════════════ PICK DISEASE ════════════ */
+async function pickDisease(animalFilter){
+  const filterLine = animalFilter
+    ? `The disease MUST affect ${animalFilter}.`
+    : 'The disease can affect any veterinary species (cattle, sheep, poultry, swine, equine, or companion animals).';
+
+  const prompt = `You are a veterinary medicine professor. Choose ONE interesting veterinary disease to write about today.
+${filterLine}
+Pick something varied — avoid choosing the same common diseases repeatedly. It can be bacterial, viral, parasitic, or fungal.
+Respond with ONLY the disease name, nothing else. No explanation, no punctuation, just the name.`;
+
+  const body = JSON.stringify({
+    model: NV_MODEL, max_tokens: 40, temperature: 1.0,
+    messages: [{ role: 'user', content: prompt }]
+  });
+
+  const endpoints = [NV_ENDPOINT, ...CORS_PROXIES.map(fn => fn(NV_ENDPOINT))];
+  for(const url of endpoints){
+    try{
+      const res = await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${NV_API_KEY}`},
+        body
+      });
+      if(!res.ok) continue;
+      const json = await res.json();
+      const name = (json.choices?.[0]?.message?.content || '').trim().replace(/[".]/g,'');
+      if(name.length > 2) return name;
+    } catch(e){ continue; }
+  }
+  throw new Error('pickDisease failed');
+}
+
 /* ════════════ API ════════════ */
 async function callAPI(disease){
   const isAr = currentLang==='ar';
@@ -913,6 +974,7 @@ Return ONLY valid JSON, no markdown fences:
   "isNotifiable":true|false,
   "severityScore":1-10,
   "quickFacts":{"speciesAffected":"list","gramStain":"value","mortality":"value","transmission":"value"},
+  "heroImageQuery":"A precise 4-6 word Unsplash search query for a real photo of this disease or affected animal, e.g. \"cow mastitis udder veterinary\" or \"swine fever pig farm\"",
   "didYouKnow":"One fascinating scientific fact.",
   "overview":"Two rich paragraphs.",
   "etiology":"Two paragraphs.",
@@ -952,6 +1014,7 @@ Return ONLY valid JSON, no markdown fences:
   "isNotifiable":true|false,
   "severityScore":1-10,
   "quickFacts":{"speciesAffected":"قائمة","gramStain":"القيمة","mortality":"القيمة","transmission":"القيمة"},
+  "heroImageQuery":"A precise 4-6 word English Unsplash search query for a real photo, e.g. \"cattle respiratory disease farm\"",
   "didYouKnow":"حقيقة علمية مثيرة.",
   "overview":"فقرتان شاملتان.",
   "etiology":"فقرتان.",
@@ -1159,6 +1222,9 @@ function render(data, disease, rerender=false){
   }
 
   const html=`
+    <div class="article-hero" id="article-hero">
+      <div class="article-hero-placeholder">🔬</div>
+    </div>
     <div class="article-kicker">
       <span class="kicker-tag">${t('kicker')}</span>
       <div class="kicker-rule"></div>
@@ -1226,8 +1292,32 @@ function render(data, disease, rerender=false){
     setTimeout(()=>{el.style.transition='opacity 0.3s';el.style.opacity='1'},i*60+200);
   }
 
+  // Load hero image
+  if(data.heroImageQuery){
+    const heroWrap = document.getElementById('article-hero');
+    fetchHeroImage(data.heroImageQuery).then(url => {
+      if(!url || !heroWrap) return;
+      heroWrap.innerHTML = `<img src="${url}" alt="${data.diseaseName||disease}" loading="lazy">
+        <div class="hero-caption">${data.heroImageQuery}</div>`;
+    });
+  }
+
   // Load clinical sign images
   if(cards.length) loadSignImages(cards);
+}
+
+/* ════════════ FETCH HERO IMAGE ════════════ */
+async function fetchHeroImage(query){
+  // Try Unsplash source redirect (follows to real CDN URL)
+  const q = encodeURIComponent(query + ' veterinary');
+  const src = `https://source.unsplash.com/1200x500/?${q}`;
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img.src);  // resolved URL after redirect
+    img.onerror = () => resolve(null);
+    img.src = src;
+    setTimeout(() => resolve(src), 4000); // timeout fallback: use src directly
+  });
 }
 
 /* ════════════ LOAD SIGN IMAGES ════════════ */
