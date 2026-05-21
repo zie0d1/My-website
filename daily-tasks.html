@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>today's tasks</title>
+<title>مهام اليوم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,47 +14,55 @@
     --ink: #111111;
     --muted: #999999;
     --rule: #e8e8e8;
-    --check: #111111;
   }
 
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Tajawal', sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 80px 24px 120px;
+    padding: 32px 24px 120px;
+    direction: rtl;
   }
 
   header {
     width: 100%;
     max-width: 560px;
-    margin-bottom: 64px;
+    margin-bottom: 40px;
   }
 
   .date {
-    font-family: 'DM Mono', monospace;
     font-weight: 300;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 12px;
     color: var(--muted);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(28px, 5vw, 40px);
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
+    font-size: clamp(24px, 4.5vw, 36px);
+    font-weight: 300;
+    line-height: 1.3;
   }
 
   h1 em {
-    font-style: italic;
+    font-style: normal;
+    font-weight: 500;
     color: var(--muted);
+  }
+
+  /* Category tag */
+  .task-category {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 5px;
+    white-space: nowrap;
   }
 
   /* Task list */
@@ -67,40 +75,40 @@
   .task-item {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
-    padding: 18px 0;
+    gap: 12px;
+    padding: 16px 0;
     border-bottom: 1px solid var(--rule);
     cursor: pointer;
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
     transition: opacity 0.4s ease, transform 0.4s ease;
     user-select: none;
   }
 
-  .task-item.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .task-item:first-child {
-    border-top: 1px solid var(--rule);
-  }
+  .task-item.visible { opacity: 1; transform: translateY(0); }
+  .task-item:first-child { border-top: 1px solid var(--rule); }
 
   .task-num {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 300;
     color: var(--muted);
-    letter-spacing: 0.08em;
     padding-top: 3px;
-    min-width: 20px;
+    min-width: 18px;
     flex-shrink: 0;
+    text-align: center;
+  }
+
+  .task-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
   }
 
   .task-text {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 400;
-    line-height: 1.55;
-    flex: 1;
+    line-height: 1.65;
     transition: color 0.2s ease;
   }
 
@@ -109,7 +117,7 @@
     height: 16px;
     border: 1px solid var(--rule);
     flex-shrink: 0;
-    margin-top: 3px;
+    margin-top: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -122,60 +130,49 @@
     text-decoration-color: var(--rule);
   }
 
+  .task-item.done .task-category { opacity: 0.4; }
+
   .task-item.done .task-check {
     background: var(--ink);
     border-color: var(--ink);
   }
 
-  .task-check svg {
-    opacity: 0;
-    transition: opacity 0.15s ease;
-  }
+  .task-check svg { opacity: 0; transition: opacity 0.15s ease; }
+  .task-item.done .task-check svg { opacity: 1; }
 
-  .task-item.done .task-check svg {
-    opacity: 1;
-  }
-
-  /* Loading state */
+  /* Loading */
   .loading {
     width: 100%;
     max-width: 560px;
     display: flex;
     flex-direction: column;
-    gap: 0;
   }
 
   .skeleton {
-    height: 55px;
+    height: 62px;
     border-bottom: 1px solid var(--rule);
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 0;
+    gap: 12px;
   }
 
   .skeleton:first-child { border-top: 1px solid var(--rule); }
 
-  .skel-num {
-    width: 14px;
-    height: 8px;
-    background: var(--rule);
-    flex-shrink: 0;
-  }
+  .skel-num { width: 14px; height: 8px; background: var(--rule); flex-shrink: 0; }
+
+  .skel-block { display: flex; flex-direction: column; gap: 7px; flex: 1; }
 
   .skel-line {
     height: 8px;
     background: var(--rule);
-    flex: 1;
     animation: pulse 1.4s ease-in-out infinite;
   }
 
-  .skel-line:nth-child(2) { animation-delay: 0.1s; max-width: 80%; }
-  .skel-line:nth-child(3) { animation-delay: 0.2s; max-width: 60%; }
-  .skel-line:nth-child(4) { animation-delay: 0.3s; max-width: 70%; }
+  .skel-line.long  { max-width: 78%; animation-delay: 0.05s; }
+  .skel-line.short { max-width: 32%; animation-delay: 0.15s; }
 
   @keyframes pulse {
-    0%, 100% { opacity: 0.4; }
+    0%, 100% { opacity: 0.35; }
     50% { opacity: 1; }
   }
 
@@ -183,18 +180,13 @@
   .progress-bar-wrap {
     width: 100%;
     max-width: 560px;
-    margin-top: 40px;
+    margin-top: 36px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
   }
 
-  .progress-bar {
-    flex: 1;
-    height: 1px;
-    background: var(--rule);
-    overflow: hidden;
-  }
+  .progress-bar { flex: 1; height: 1px; background: var(--rule); overflow: hidden; }
 
   .progress-fill {
     height: 100%;
@@ -204,47 +196,36 @@
   }
 
   .progress-label {
-    font-size: 10px;
-    letter-spacing: 0.1em;
+    font-size: 11px;
     color: var(--muted);
-    text-transform: uppercase;
     white-space: nowrap;
-    min-width: 48px;
-    text-align: right;
+    min-width: 44px;
+    text-align: left;
   }
 
-  /* Regenerate */
+  /* Regen */
   .regen-btn {
-    margin-top: 48px;
+    margin-top: 44px;
     background: none;
     border: 1px solid var(--rule);
     color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 20px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 9px 22px;
     cursor: pointer;
     transition: color 0.2s, border-color 0.2s;
   }
 
-  .regen-btn:hover {
-    color: var(--ink);
-    border-color: var(--ink);
-  }
+  .regen-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .regen-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-  .regen-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  /* Error */
   .error-msg {
     width: 100%;
     max-width: 560px;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted);
-    padding: 24px 0;
+    padding: 20px 0;
     border-top: 1px solid var(--rule);
     display: none;
   }
@@ -256,32 +237,31 @@
 
 <header>
   <div class="date" id="dateLabel"></div>
-  <h1>ten things to do<br><em>today.</em></h1>
+  <h1>عشرة أشياء تفعلها<br><em>اليوم.</em></h1>
 </header>
 
 <div class="loading" id="loadingState">
-  <div class="skeleton" style="animation-delay:0s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.07s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.14s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.21s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.28s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.35s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.42s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.49s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.56s"><div class="skel-num"></div><div class="skel-line"></div></div>
-  <div class="skeleton" style="animation-delay:.63s"><div class="skel-num"></div><div class="skel-line"></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
+  <div class="skeleton"><div class="skel-num"></div><div class="skel-block"><div class="skel-line long"></div><div class="skel-line short"></div></div></div>
 </div>
 
 <ul class="task-list hidden" id="taskList"></ul>
 
 <div class="progress-bar-wrap hidden" id="progressWrap">
   <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-label" id="progressLabel">0 / 10</div>
+  <div class="progress-label" id="progressLabel">٠ / ١٠</div>
 </div>
 
 <div class="error-msg" id="errorMsg"></div>
-
-<button class="regen-btn hidden" id="regenBtn" onclick="generate()">regenerate</button>
+<button class="regen-btn hidden" id="regenBtn" onclick="generate()">توليد جديد</button>
 
 <script>
 const NV_API_KEY  = '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';
@@ -293,12 +273,31 @@ const CORS_PROXIES = [
   url => `https://cors-anywhere.herokuapp.com/${url}`,
 ];
 
-// Date
+const ARABIC_NUMS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toAr(n) { return String(n).split('').map(d => ARABIC_NUMS[+d] ?? d).join(''); }
+
+// Storage key: one set per calendar date
+function todayKey() {
+  const d = new Date();
+  return `tasks_${d.getFullYear()}_${d.getMonth()+1}_${d.getDate()}`;
+}
+
+function saveToday(tasks, done) {
+  localStorage.setItem(todayKey(), JSON.stringify({ tasks, done }));
+}
+
+function loadToday() {
+  try { return JSON.parse(localStorage.getItem(todayKey())); } catch { return null; }
+}
+
+// Date label
 const d = new Date();
 document.getElementById('dateLabel').textContent =
-  d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  d.toLocaleDateString('ar-SA', { weekday: 'long', month: 'long', day: 'numeric' });
 
 let completed = 0;
+let currentTasks = []; // [{text, category}]
+let doneState = [];    // [bool x10]
 
 async function fetchWithProxy(body) {
   const direct = await fetch(NV_ENDPOINT, {
@@ -320,7 +319,16 @@ async function fetchWithProxy(body) {
   throw new Error('All proxies failed');
 }
 
-async function generate() {
+async function generate(forceNew = false) {
+  // Try loading saved tasks for today first
+  if (!forceNew) {
+    const saved = loadToday();
+    if (saved && saved.tasks && saved.tasks.length === 10) {
+      renderTasks(saved.tasks, saved.done || new Array(10).fill(false));
+      return;
+    }
+  }
+
   completed = 0;
   const list = document.getElementById('taskList');
   const loading = document.getElementById('loadingState');
@@ -336,16 +344,21 @@ async function generate() {
   list.innerHTML = '';
   updateProgress(0);
 
-  const prompt = `Generate exactly 10 unique, actionable daily tasks focused on self-improvement, personal growth, social connection, or life experience. Tasks should be small, achievable today, and varied. Mix physical, social, creative, and reflective activities. Examples: "Write down 3 things you are grateful for", "Take a 10-minute walk without your phone", "Send a genuine compliment to someone you know".
+  const prompt = `اكتب بالعربية بالضبط ١٠ مهام يومية متنوعة وعملية. لكل مهمة حدد فئتها من هذه الفئات فقط: صحة، علاقات، تطوير الذات، إبداع، تجربة جديدة، تأمل.
 
-Return ONLY a JSON array of 10 strings. No numbering, no markdown, no explanation. Just the raw JSON array.`;
+المهام يجب أن تكون صغيرة وقابلة للتنفيذ خلال اليوم. وزّع المهام على الفئات المختلفة.
+
+أعد فقط مصفوفة JSON تحتوي على ١٠ كائنات بهذا الشكل بالضبط:
+[{"text": "نص المهمة", "category": "الفئة"}, ...]
+
+بدون markdown، بدون شرح. فقط المصفوفة الخام.`;
 
   try {
     const res = await fetchWithProxy({
       model: NV_MODEL,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.9,
-      max_tokens: 1024,
+      max_tokens: 1500,
       top_p: 1.0
     });
 
@@ -354,53 +367,83 @@ Return ONLY a JSON array of 10 strings. No numbering, no markdown, no explanatio
     const clean = raw.replace(/```json|```/g, '').trim();
     const tasks = JSON.parse(clean);
 
-    loading.classList.add('hidden');
-    list.classList.remove('hidden');
-    progressWrap.classList.remove('hidden');
-    regen.classList.remove('hidden');
-    regen.disabled = false;
+    const normalized = tasks.slice(0, 10).map(t =>
+      typeof t === 'string' ? { text: t, category: '' } : { text: t.text || t, category: t.category || '' }
+    );
 
-    tasks.slice(0, 10).forEach((task, i) => {
-      const li = document.createElement('li');
-      li.className = 'task-item';
-      li.innerHTML = `
-        <span class="task-num">${String(i + 1).padStart(2, '0')}</span>
-        <span class="task-text">${task}</span>
-        <div class="task-check">
-          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-            <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>`;
-      li.onclick = () => toggle(li);
-      list.appendChild(li);
-      setTimeout(() => li.classList.add('visible'), i * 60);
-    });
-
-    updateProgress(0);
+    const done = new Array(normalized.length).fill(false);
+    saveToday(normalized, done);
+    renderTasks(normalized, done);
 
   } catch (e) {
     loading.classList.add('hidden');
     regen.classList.remove('hidden');
     regen.disabled = false;
     err.style.display = 'block';
-    err.textContent = 'Could not load tasks. Check your connection and try again.';
+    err.textContent = 'تعذّر تحميل المهام. تحقق من اتصالك وحاول مجدداً.';
   }
 }
 
+function renderTasks(tasks, done) {
+  currentTasks = tasks;
+  doneState = [...done];
+  completed = doneState.filter(Boolean).length;
+
+  const list = document.getElementById('taskList');
+  const loading = document.getElementById('loadingState');
+  const progressWrap = document.getElementById('progressWrap');
+  const regen = document.getElementById('regenBtn');
+
+  loading.classList.add('hidden');
+  list.classList.remove('hidden');
+  progressWrap.classList.remove('hidden');
+  regen.classList.remove('hidden');
+  regen.disabled = false;
+  list.innerHTML = '';
+
+  tasks.forEach((task, i) => {
+    const li = document.createElement('li');
+    li.className = 'task-item' + (doneState[i] ? ' done' : '');
+    li.dataset.index = i;
+    li.innerHTML = `
+      <span class="task-num">${toAr(i + 1)}</span>
+      <div class="task-body">
+        <span class="task-text">${task.text}</span>
+        ${task.category ? `<span class="task-category">${task.category}</span>` : ''}
+      </div>
+      <div class="task-check">
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+          <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>`;
+    li.onclick = () => toggle(li);
+    list.appendChild(li);
+    setTimeout(() => li.classList.add('visible'), i * 55);
+  });
+
+  updateProgress(completed);
+}
+
 function toggle(li) {
+  const i = parseInt(li.dataset.index);
   const wasDone = li.classList.contains('done');
   li.classList.toggle('done');
-  completed += wasDone ? -1 : 1;
+  doneState[i] = !wasDone;
+  completed = doneState.filter(Boolean).length;
+  saveToday(currentTasks, doneState);
   updateProgress(completed);
 }
 
 function updateProgress(n) {
   const total = 10;
   document.getElementById('progressFill').style.width = `${(n / total) * 100}%`;
-  document.getElementById('progressLabel').textContent = `${n} / ${total}`;
+  document.getElementById('progressLabel').textContent = `${toAr(n)} / ${toAr(total)}`;
 }
 
-generate();
+// On regen button click → force new generation
+document.getElementById('regenBtn').onclick = () => generate(true);
+
+generate(false);
 </script>
 </body>
 </html>
