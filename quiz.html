@@ -1627,7 +1627,7 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                             NVIDIA AI — متصل
                         </span></div>
-                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b</div>
+                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b · Streaming</div>
                         <div style="font-size:11px;padding:10px 12px;background:var(--success-bg);border:1px solid var(--success);color:var(--success);font-family:var(--mono)">
                             API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
                         </div>
@@ -2927,10 +2927,10 @@ ${text}`;
         }
     }
 
-    // ── AI API (NVIDIA NIM) ──────────────────────────
+    // ── AI API (NVIDIA NIM — gpt-oss-20b streaming) ──────────────────────────
     const NV_API_KEY  = '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';
-const NV_MODEL    = 'nvidia/ising-calibration-1-35b-a3b';
-const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+    const NV_MODEL    = 'openai/gpt-oss-20b';
+    const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
     // Multiple CORS proxies to try in order
     const CORS_PROXIES = [
         url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -2938,43 +2938,82 @@ const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
         url => `https://cors-anywhere.herokuapp.com/${url}`,
     ];
 
-    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=32768, temperature=0.0) {
+    // Parse an SSE stream response body into the full text content
+    async function readSSEStream(body) {
+        const reader = body.getReader();
+        const decoder = new TextDecoder();
+        let result = '';
+        let buffer = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // keep incomplete last line
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed === 'data: [DONE]') continue;
+                if (!trimmed.startsWith('data: ')) continue;
+                try {
+                    const chunk = JSON.parse(trimmed.slice(6));
+                    if (!chunk.choices?.length) continue;
+                    const delta = chunk.choices[0].delta;
+                    // skip reasoning_content, only collect content
+                    if (delta?.content != null) result += delta.content;
+                } catch (_) { /* malformed chunk, skip */ }
+            }
+        }
+        return result;
+    }
+
+    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=4096, temperature=1.0) {
         const body = JSON.stringify({
             model: NV_MODEL,
-            messages:[{role:'system',content:system},{role:'user',content:prompt}],
-            max_tokens: maxTokens,
+            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
             temperature: temperature,
-            top_p: 1.0,
+            top_p: 1,
+            max_tokens: maxTokens,
+            stream: true,
             chat_template_kwargs: { enable_thinking: false }
         });
-        const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
+        const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + NV_API_KEY };
 
         // 1. Try direct call first
         try {
-            const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
-            if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
-            const d = await r.json().catch(()=>({}));
-            // Real API error (not CORS) — throw immediately
-            throw new Error(d.error?.message || ('HTTP '+r.status));
-        } catch(directErr) {
-            // Only continue to proxy if it's a network/CORS TypeError
+            const r = await fetch(NV_ENDPOINT, { method: 'POST', headers, body });
+            if (!r.ok) {
+                const err = await r.json().catch(() => ({}));
+                throw new Error(err.error?.message || ('HTTP ' + r.status));
+            }
+            const result = await readSSEStream(r.body);
+            if (result) return result;
+            throw new Error('No response from model');
+        } catch (directErr) {
+            // Only fall through to proxies on network/CORS TypeError
             if (directErr.name !== 'TypeError') throw directErr;
         }
 
-        // 2. Try CORS proxies in sequence
+        // 2. Try CORS proxies in sequence (non-streaming fallback — proxies buffer the full response)
         let lastErr = null;
         for (const makeProxy of CORS_PROXIES) {
             try {
+                const nonStreamBody = JSON.stringify({
+                    model: NV_MODEL,
+                    messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+                    temperature: temperature,
+                    top_p: 1,
+                    max_tokens: maxTokens,
+                    chat_template_kwargs: { enable_thinking: false }
+                });
                 const proxyUrl = makeProxy(NV_ENDPOINT);
-                const r = await fetch(proxyUrl, {method:'POST', headers, body});
-                if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
+                const r = await fetch(proxyUrl, { method: 'POST', headers, body: nonStreamBody });
+                if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error?.message || ('HTTP ' + r.status)); }
                 const d = await r.json();
-                // allorigins wraps in {contents:...}
                 const parsed = d.contents ? JSON.parse(d.contents) : d;
                 return parsed.choices[0].message.content;
-            } catch(e) { lastErr = e; }
+            } catch (e) { lastErr = e; }
         }
-        throw new Error('Network error — check your connection. ' + (lastErr?.message||''));
+        throw new Error('Network error — check your connection. ' + (lastErr?.message || ''));
     }
 
     function parseJSON(t) {
@@ -6529,23 +6568,28 @@ ${text}`;
         const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
 
         try {
-            const body = JSON.stringify({
-                model: NV_MODEL,
-                messages: [{ role:'system', content: system }, ...historyForAPI],
-                max_tokens: 1000,
-                temperature: 0.5
-            });
+            const chatMsgs = [{ role:'system', content: system }, ...historyForAPI];
             const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+NV_API_KEY };
+            const streamBody = JSON.stringify({
+                model: NV_MODEL, messages: chatMsgs, max_tokens: 1000, temperature: 0.5, top_p: 1,
+                stream: true, chat_template_kwargs: { enable_thinking: false }
+            });
             let responseText = '';
+            // 1. Try direct streaming
             try {
-                const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body });
-                if (r.ok) { const d = await r.json(); responseText = d.choices[0].message.content; }
-                else throw new Error('HTTP ' + r.status);
+                const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body: streamBody });
+                if (!r.ok) { const err = await r.json().catch(()=>({})); throw new Error(err.error?.message||('HTTP '+r.status)); }
+                responseText = await readSSEStream(r.body);
             } catch(e) {
                 if (e.name !== 'TypeError') throw e;
+                // 2. CORS proxy fallback (non-streaming)
+                const fallbackBody = JSON.stringify({
+                    model: NV_MODEL, messages: chatMsgs, max_tokens: 1000, temperature: 0.5, top_p: 1,
+                    chat_template_kwargs: { enable_thinking: false }
+                });
                 for (const makeProxy of CORS_PROXIES) {
                     try {
-                        const r = await fetch(makeProxy(NV_ENDPOINT), { method:'POST', headers, body });
+                        const r = await fetch(makeProxy(NV_ENDPOINT), { method:'POST', headers, body: fallbackBody });
                         if (!r.ok) throw new Error('HTTP ' + r.status);
                         const d = await r.json();
                         const parsed = d.contents ? JSON.parse(d.contents) : d;
