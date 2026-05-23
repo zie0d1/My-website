@@ -1373,10 +1373,7 @@
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
                 <span class="si-label" data-t="summary_lib">الملخصات</span>
             </button>
-            <button class="sidebar-item disabled subject-only hidden" data-panel="translate" id="sidebarTranslate" onclick="switchPanel('translate')" title="افتح مادة أولاً لتفعيل هذا القسم">
-                <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg></span>
-                <span class="si-label">ترجمة PDF</span>
-            </button>
+
             <button class="sidebar-item disabled subject-only hidden" data-panel="decks" id="sidebarDecks" onclick="switchPanel('decks')" title="افتح مادة أولاً لتفعيل هذا القسم">
                 <span class="si-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
                 <span class="si-label" data-t="my_cards">بطاقاتي</span>
@@ -1627,7 +1624,7 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                             NVIDIA AI — متصل
                         </span></div>
-                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b · Streaming</div>
+                        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)">Model: openai/gpt-oss-20b</div>
                         <div style="font-size:11px;padding:10px 12px;background:var(--success-bg);border:1px solid var(--success);color:var(--success);font-family:var(--mono)">
                             API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
                         </div>
@@ -1693,70 +1690,6 @@
                         <div class="card-settings-label" style="margin-top:16px;margin-bottom:6px">ملاحظة إضافية للـ AI (اختياري)</div>
                         <input id="cardExtraNote" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px;margin-bottom:0">
                         <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:6px" id="focusActiveLabel">التركيز الحالي: General</div>
-                    </div>
-                </div>
-
-
-                <!-- TRANSLATE PANEL -->
-                <div class="panel" id="panel-translate">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-                        <h1 class="page-title" style="margin-bottom:0">ترجمة PDF إلى العربية</h1>
-                        <button class="panel-add-btn" onclick="openTranslateModal()" title="ترجمة جديدة">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            <span>ترجمة جديدة</span>
-                        </button>
-                    </div>
-                    <p class="page-subtitle">ترجمة دقيقة مع الحفاظ على المصطلحات العلمية — قابلة للتحميل كـ PDF</p>
-
-                    <!-- hidden elements for JS -->
-                    <div style="display:none">
-                        <input type="file" id="trPdfInput" accept=".pdf" onchange="setTrPDF(this.files[0])">
-                        <div id="trFilePill"><span id="trFileName"></span></div>
-                        <div id="trDropZone"></div>
-                        <div id="trDomainChips">
-                            <span class="chip active" data-domain="medical" onclick="setTrDomain(this)">طبي</span>
-                            <span class="chip" data-domain="pharma" onclick="setTrDomain(this)">صيدلاني</span>
-                            <span class="chip" data-domain="biology" onclick="setTrDomain(this)">أحياء</span>
-                            <span class="chip" data-domain="general" onclick="setTrDomain(this)">عام</span>
-                        </div>
-                        <input id="trExtraNote">
-                        <button id="btnGenTranslate" onclick="nvidiaTranslate()">ترجمة</button>
-                        <div id="trAiStatus"><div id="trSpinner"></div><span id="trStatusText"></span><div><div id="trProgressFill"></div></div><span id="trProgressPct"></span></div>
-                    </div>
-
-                    <!-- Result area -->
-                    <div id="trResultArea" style="display:none">
-                        <!-- Summary-like result card -->
-                        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)">
-                            <!-- Card topbar -->
-                            <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--surface2);border-bottom:1px solid var(--border)">
-                                <div style="width:8px;height:8px;background:var(--success);border-radius:50%;flex-shrink:0;box-shadow:0 0 0 3px var(--success-bg)"></div>
-                                <div style="flex:1;min-width:0">
-                                    <div id="trResultTitle" style="font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">ترجمة عربية</div>
-                                    <div id="trResultMeta" style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px"></div>
-                                </div>
-                                <button class="btn btn-sm" onclick="copyTrResult()" title="نسخ النص">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                                    نسخ
-                                </button>
-                                <button class="btn btn-sm" onclick="saveTrToLib()" title="حفظ الترجمة">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                                    حفظ
-                                </button>
-                                <button class="btn btn-primary btn-sm" onclick="downloadTrPDF()" title="تحميل PDF">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    PDF
-                                </button>
-                            </div>
-                            <!-- Rendered paragraphs -->
-                            <div id="trResultBox" dir="rtl" style="padding:20px 22px;max-height:62vh;overflow-y:auto;"></div>
-                        </div>
-
-                        <!-- Saved translations library -->
-                        <div id="trLibSection" style="display:none;margin-bottom:14px">
-                            <div class="section-label" style="margin-bottom:10px">الترجمات المحفوظة</div>
-                            <div id="trLibList"></div>
-                        </div>
                     </div>
                 </div>
 
@@ -2222,7 +2155,7 @@
         if (si) si.classList.add('active');
         hide($('quizArea'));
         hide($('flashArea'));
-        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:()=>{renderSettings();setTimeout(initCardSettings,50);}, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib(), translate:()=>renderTrLib()};
+        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:()=>{renderSettings();setTimeout(initCardSettings,50);}, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib()};
         if (renders[panelId]) renders[panelId]();
         window.scrollTo({top:0, behavior:'smooth'});
         closeMobileMenu();
@@ -2681,12 +2614,11 @@ DIFFICULTY: ${diff.toUpperCase()} — ${diffGuide}
 ═══ OUTPUT FORMAT ═══
 - Exactly 4 options per question: "A. ...", "B. ...", "C. ...", "D. ..."
 - "correct": 0-based index (0=A, 1=B, 2=C, 3=D)
-- CRITICAL: Vary the correct answer position across questions. Distribute "correct" values across 0, 1, 2, and 3 roughly equally. Never default to always using 0.
 - "explanation": (a) the exact phrase or sentence from the text that proves the correct answer, then (b) one sentence explaining why each wrong option is incorrect.
 - Output ONLY a raw JSON array. No markdown. No code fences. No text before or after.
 - If output is truncated, close the array with ] after the last complete object.
 
-[{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":2,"explanation":"..."},{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":1,"explanation":"..."}]
+[{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}]
 
 TEXT:
 ${text}`;
@@ -2928,10 +2860,10 @@ ${text}`;
         }
     }
 
-    // ── AI API (NVIDIA NIM — gpt-oss-20b streaming) ──────────────────────────
+    // ── AI API (NVIDIA NIM) ──────────────────────────
     const NV_API_KEY  = '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';
-    const NV_MODEL    = 'openai/gpt-oss-20b';
-    const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const NV_MODEL    = 'nvidia/ising-calibration-1-35b-a3b';
+const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
     // Multiple CORS proxies to try in order
     const CORS_PROXIES = [
         url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -2939,82 +2871,43 @@ ${text}`;
         url => `https://cors-anywhere.herokuapp.com/${url}`,
     ];
 
-    // Parse an SSE stream response body into the full text content
-    async function readSSEStream(body) {
-        const reader = body.getReader();
-        const decoder = new TextDecoder();
-        let result = '';
-        let buffer = '';
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop(); // keep incomplete last line
-            for (const line of lines) {
-                const trimmed = line.trim();
-                if (!trimmed || trimmed === 'data: [DONE]') continue;
-                if (!trimmed.startsWith('data: ')) continue;
-                try {
-                    const chunk = JSON.parse(trimmed.slice(6));
-                    if (!chunk.choices?.length) continue;
-                    const delta = chunk.choices[0].delta;
-                    // skip reasoning_content, only collect content
-                    if (delta?.content != null) result += delta.content;
-                } catch (_) { /* malformed chunk, skip */ }
-            }
-        }
-        return result;
-    }
-
-    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=4096, temperature=1.0) {
+    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=32768, temperature=0.0) {
         const body = JSON.stringify({
             model: NV_MODEL,
-            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-            temperature: temperature,
-            top_p: 1,
+            messages:[{role:'system',content:system},{role:'user',content:prompt}],
             max_tokens: maxTokens,
-            stream: true,
+            temperature: temperature,
+            top_p: 1.0,
             chat_template_kwargs: { enable_thinking: false }
         });
-        const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + NV_API_KEY };
+        const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
 
         // 1. Try direct call first
         try {
-            const r = await fetch(NV_ENDPOINT, { method: 'POST', headers, body });
-            if (!r.ok) {
-                const err = await r.json().catch(() => ({}));
-                throw new Error(err.error?.message || ('HTTP ' + r.status));
-            }
-            const result = await readSSEStream(r.body);
-            if (result) return result;
-            throw new Error('No response from model');
-        } catch (directErr) {
-            // Only fall through to proxies on network/CORS TypeError
+            const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
+            if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
+            const d = await r.json().catch(()=>({}));
+            // Real API error (not CORS) — throw immediately
+            throw new Error(d.error?.message || ('HTTP '+r.status));
+        } catch(directErr) {
+            // Only continue to proxy if it's a network/CORS TypeError
             if (directErr.name !== 'TypeError') throw directErr;
         }
 
-        // 2. Try CORS proxies in sequence (non-streaming fallback — proxies buffer the full response)
+        // 2. Try CORS proxies in sequence
         let lastErr = null;
         for (const makeProxy of CORS_PROXIES) {
             try {
-                const nonStreamBody = JSON.stringify({
-                    model: NV_MODEL,
-                    messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-                    temperature: temperature,
-                    top_p: 1,
-                    max_tokens: maxTokens,
-                    chat_template_kwargs: { enable_thinking: false }
-                });
                 const proxyUrl = makeProxy(NV_ENDPOINT);
-                const r = await fetch(proxyUrl, { method: 'POST', headers, body: nonStreamBody });
-                if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error?.message || ('HTTP ' + r.status)); }
+                const r = await fetch(proxyUrl, {method:'POST', headers, body});
+                if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
                 const d = await r.json();
+                // allorigins wraps in {contents:...}
                 const parsed = d.contents ? JSON.parse(d.contents) : d;
                 return parsed.choices[0].message.content;
-            } catch (e) { lastErr = e; }
+            } catch(e) { lastErr = e; }
         }
-        throw new Error('Network error — check your connection. ' + (lastErr?.message || ''));
+        throw new Error('Network error — check your connection. ' + (lastErr?.message||''));
     }
 
     function parseJSON(t) {
@@ -3688,7 +3581,6 @@ ${truncatedSource}`;
                                 <button class="sai-chip" onclick="sumAIQuick('explain_all')">${currentLang==='ar'?'اشرح كل شيء':'Explain all'}</button>
                                 <button class="sai-chip" onclick="sumAIQuick('key_terms')">${currentLang==='ar'?'المصطلحات':'Key terms'}</button>
                                 <button class="sai-chip" onclick="sumAIQuick('simplify')">${currentLang==='ar'?'بسّط':'Simplify'}</button>
-                                <button class="sai-chip" onclick="sumAIQuick('translate')">${currentLang==='ar'?'ترجم':'Translate'}</button>
                             </div>
                             <div class="sai-input-row">
                                 <textarea class="sai-input" id="sumAIInput" rows="1"
@@ -4085,374 +3977,6 @@ ${truncatedSource}`;
     // ══════════════════════════════════════════════════════════════════════
     // ── TRANSLATE PDF ─────────────────────────────────────────────────────
     // ══════════════════════════════════════════════════════════════════════
-    let trPdfText = '', trPdfFile = '', _trDomain = 'medical', _trResult = '';
-
-    function setTrDomain(el) {
-        document.querySelectorAll('#trDomainChips .chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        _trDomain = el.dataset.domain;
-    }
-
-    function handleTrDrop(e) {
-        e.preventDefault();
-        e.currentTarget.style.borderColor = '';
-        setTrPDF(e.dataTransfer.files[0]);
-    }
-
-    async function setTrPDF(file) {
-        if (!file || !file.name.toLowerCase().endsWith('.pdf')) return;
-        trPdfFile = file.name;
-        document.getElementById('trFileName').textContent = file.name;
-        const pill = document.getElementById('trFilePill');
-        pill.style.display = 'flex';
-        document.getElementById('trDropZone').style.display = 'none';
-        document.getElementById('trAiStatus').style.display = 'block';
-        document.getElementById('trStatusText').textContent = 'جاري قراءة الملف...';
-        document.getElementById('trProgressFill').style.width = '0%';
-        document.getElementById('trProgressPct').textContent = '0%';
-        try {
-            const ab = await file.arrayBuffer();
-            const doc = await pdfjsLib.getDocument({ data: ab }).promise;
-            let txt = '';
-            for (let i = 1; i <= Math.min(doc.numPages, 30); i++) {
-                const page = await doc.getPage(i);
-                const tc = await page.getTextContent();
-                txt += tc.items.map(it => it.str).join(' ') + '\n';
-            }
-            trPdfText = txt.trim();
-            document.getElementById('trAiStatus').style.display = 'none';
-            document.getElementById('btnGenTranslate').disabled = false;
-            toast(doc.numPages + ' صفحة');
-        } catch (e) {
-            document.getElementById('trAiStatus').style.display = 'none';
-            alertModal('خطأ في قراءة الملف: ' + e.message);
-            clearTrPDF();
-        }
-    }
-
-    function clearTrPDF() {
-        trPdfText = ''; trPdfFile = '';
-        document.getElementById('trFilePill').style.display = 'none';
-        document.getElementById('trDropZone').style.display = 'block';
-        document.getElementById('trAiStatus').style.display = 'none';
-        document.getElementById('trResultArea').style.display = 'none';
-        document.getElementById('btnGenTranslate').disabled = true;
-        document.getElementById('trPdfInput').value = '';
-        _trResult = '';
-    }
-
-    function setTrProgress(pct, msg) {
-        document.getElementById('trProgressFill').style.width = pct + '%';
-        document.getElementById('trProgressPct').textContent = Math.round(pct) + '%';
-        if (msg) document.getElementById('trStatusText').textContent = msg;
-    }
-
-    const TR_DOMAIN_PROMPTS = {
-        medical: 'النص من مجال طبي. احتفظ بأسماء الأمراض والأعراض والأجهزة والإجراءات بمصطلحاتها العلمية العربية الدقيقة. إذا لم يوجد مصطلح عربي راسخ، ضع الاسم العربي ثم الإنجليزي بين قوسين.',
-        pharma: 'النص من مجال صيدلاني. احتفظ بأسماء الأدوية والمركبات الكيميائية بالإنجليزية أو الـ INN، وترجم الآليات والتصنيفات والتأثيرات بمصطلحات علمية دقيقة.',
-        biology: 'النص من مجال الأحياء والكيمياء. استخدم المصطلحات العلمية العربية المعتمدة للخلايا والجزيئات والتفاعلات. حافظ على أسماء العلماء والجينات والبروتينات بالأصل اللاتيني.',
-        general: 'النص عام. ترجم بأسلوب واضح ومفهوم مع الحفاظ على الدقة. احتفظ بالأسماء الأعلام والمصطلحات التقنية إذا لم يكن لها مقابل عربي شائع.',
-    };
-
-    async function nvidiaTranslate() {
-        if (!trPdfText) return;
-        document.getElementById('btnGenTranslate').disabled = true;
-        document.getElementById('trAiStatus').style.display = 'block';
-        document.getElementById('trResultArea').style.display = 'none';
-        _trResult = '';
-
-        const domainNote = TR_DOMAIN_PROMPTS[_trDomain] || TR_DOMAIN_PROMPTS.general;
-        const extraNote = document.getElementById('trExtraNote').value.trim();
-        const CHUNK_SIZE = 3000; // chars per chunk
-        const chunks = [];
-        const txt = trPdfText;
-        for (let i = 0; i < txt.length; i += CHUNK_SIZE) {
-            chunks.push(txt.slice(i, i + CHUNK_SIZE));
-        }
-        const total = chunks.length;
-
-        const systemPrompt = `أنت مترجم أكاديمي متخصص. مهمتك ترجمة النص من الإنجليزية إلى العربية الفصحى الدقيقة.
-قواعد صارمة:
-1. ${domainNote}
-2. حافظ على البنية الأصلية: الفقرات، والنقاط، والعناوين.
-3. لا تحذف أي جملة أو معلومة — الترجمة شاملة.
-4. لا تضف تعليقات أو مقدمة — أخرج النص المترجم فقط.
-5. اتجاه الكتابة من اليمين لليسار، أسلوب رسمي علمي.${extraNote ? '\n6. ملاحظة إضافية: ' + extraNote : ''}`;
-
-        try {
-            const translations = [];
-            for (let i = 0; i < chunks.length; i++) {
-                const pct = Math.round((i / total) * 90);
-                setTrProgress(pct, `ترجمة الجزء ${i + 1} من ${total}...`);
-                const userMsg = `ترجم النص التالي إلى العربية:\n\n${chunks[i]}`;
-                const result = await nvidiaChat(userMsg, systemPrompt, 4000, 0.1);
-                translations.push(result.trim());
-            }
-            _trResult = translations.join('\n\n');
-            setTrProgress(100, 'اكتملت الترجمة ✓');
-            // Update result card header
-            const titleEl = document.getElementById('trResultTitle');
-            const metaEl = document.getElementById('trResultMeta');
-            if (titleEl) titleEl.textContent = (trPdfFile || 'ترجمة').replace(/\.pdf$/i,'') + ' — ترجمة عربية';
-            if (metaEl) metaEl.textContent = new Date().toLocaleDateString('ar-EG') + ' · ' + (_trDomain === 'medical' ? 'طبي' : _trDomain === 'pharma' ? 'صيدلاني' : _trDomain === 'biology' ? 'أحياء' : 'عام');
-            renderTrResultBox(_trResult);
-            renderTrLib();
-            document.getElementById('trResultArea').style.display = 'block';
-            setTimeout(() => { document.getElementById('trAiStatus').style.display = 'none'; }, 800);
-            toast('تمت الترجمة بنجاح ✓');
-        } catch (e) {
-            setTrProgress(0, 'خطأ: ' + e.message);
-            setTimeout(() => { document.getElementById('trAiStatus').style.display = 'none'; }, 4000);
-        } finally {
-            document.getElementById('btnGenTranslate').disabled = false;
-        }
-    }
-
-    async function copyTrResult() {
-        try { await navigator.clipboard.writeText(_trResult); toast('تم النسخ'); }
-        catch { toast('تم النسخ'); }
-    }
-
-    // ── Render translation result as styled HTML blocks ──────────────────
-    function renderTrResultBox(text) {
-        const box = document.getElementById('trResultBox');
-        if (!box) return;
-        const paras = text.split(/\n\n+/);
-        box.innerHTML = paras.map(p => {
-            const trimmed = p.trim();
-            if (!trimmed) return '';
-            const lines = trimmed.split('\n').map(l => l.trim()).filter(Boolean);
-            // Heading: single short line, no period at end
-            if (lines.length === 1 && trimmed.length < 80 && !trimmed.endsWith('.') && !trimmed.endsWith('،')) {
-                return `<div style="margin:18px 0 8px;padding:10px 14px 10px 14px;border-right:3px solid var(--accent);background:var(--accent-light);font-weight:700;font-size:13.5px;color:var(--accent);border-radius:0 var(--radius) var(--radius) 0;direction:rtl;text-align:right">${esc(trimmed)}</div>`;
-            }
-            // Regular paragraph
-            return `<p style="margin:0 0 14px;font-size:13.5px;line-height:2;color:var(--text2);direction:rtl;text-align:right;unicode-bidi:plaintext">${esc(trimmed).replace(/\n/g,'<br>')}</p>`;
-        }).join('');
-    }
-
-    // ── Save translation to local library ────────────────────────────────
-    function getTrLib() { return lj(subKey('tr_lib')) || []; }
-    function saveTrLibData(d) { ls(subKey('tr_lib'), JSON.stringify(d.slice(0,50))); }
-    let _trCurrentId = null; // track which saved entry is being viewed
-
-    function saveTrToLib() {
-        if (!_trResult) return;
-        const name = (trPdfFile || 'ترجمة').replace(/\.pdf$/i,'');
-        const lib = getTrLib();
-        // Check for duplicate name — update instead of duplicate
-        const existingIdx = lib.findIndex(x => x.name === name);
-        const entry = { id: existingIdx >= 0 ? lib[existingIdx].id : Date.now(), name, text: _trResult, date: new Date().toLocaleDateString('ar-EG'), domain: _trDomain };
-        if (existingIdx >= 0) lib[existingIdx] = entry;
-        else lib.unshift(entry);
-        saveTrLibData(lib);
-        _trCurrentId = entry.id;
-        renderTrLib();
-        toast('✓ تم حفظ الترجمة');
-    }
-
-    function renderTrLib() {
-        const lib = getTrLib();
-        const sec = document.getElementById('trLibSection');
-        const list = document.getElementById('trLibList');
-        if (!sec || !list) return;
-
-        // Restore previously viewed entry if panel was re-opened
-        if (_trCurrentId && !_trResult) {
-            const cached = lib.find(x => x.id === _trCurrentId);
-            if (cached) loadTrEntry(cached.id);
-        }
-
-        if (!lib.length) { sec.style.display = 'none'; return; }
-        sec.style.display = 'block';
-        list.innerHTML = lib.map(e => {
-            const isActive = e.id === _trCurrentId;
-            return `
-            <div style="background:var(--surface);border:1.5px solid ${isActive ? 'var(--accent)' : 'var(--border)'};border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all var(--transition);box-shadow:${isActive ? 'var(--shadow-accent)' : 'var(--shadow-sm)'}">
-                <div style="flex:1;min-width:0">
-                    <div style="font-weight:600;font-size:13px;color:${isActive ? 'var(--accent)' : 'var(--text)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap" dir="rtl">${esc(e.name)}</div>
-                    <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:2px">${e.date} · ${e.domain||'medical'}</div>
-                </div>
-                <button class="btn btn-sm${isActive ? ' btn-primary' : ''}" onclick="loadTrEntry(${e.id})">عرض</button>
-                <button class="btn btn-sm" onclick="downloadTrEntryPDF(${e.id})" title="PDF">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="delTrEntry(${e.id})">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-                </button>
-            </div>`;
-        }).join('');
-    }
-
-    function loadTrEntry(id) {
-        const e = getTrLib().find(x => x.id === id);
-        if (!e) return;
-        _trResult = e.text;
-        _trCurrentId = e.id;
-        trPdfFile = e.name;
-        _trDomain = e.domain || 'medical';
-        const titleEl = document.getElementById('trResultTitle');
-        const metaEl = document.getElementById('trResultMeta');
-        if (titleEl) titleEl.textContent = e.name + ' — ترجمة عربية';
-        if (metaEl) metaEl.textContent = e.date + ' · ' + (e.domain || 'medical');
-        renderTrResultBox(_trResult);
-        const area = document.getElementById('trResultArea');
-        if (area) area.style.display = 'block';
-        // Scroll to result
-        setTimeout(() => area?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-        renderTrLib(); // refresh highlights
-    }
-
-    function delTrEntry(id) {
-        confirmModal('حذف الترجمة؟', () => { saveTrLibData(getTrLib().filter(x => x.id !== id)); renderTrLib(); });
-    }
-
-    function downloadTrEntryPDF(id) {
-        const e = getTrLib().find(x => x.id === id);
-        if (!e) return;
-        const prev = _trResult, prevFile = trPdfFile;
-        _trResult = e.text; trPdfFile = e.name;
-        downloadTrPDF().then(() => { _trResult = prev; trPdfFile = prevFile; });
-    }
-
-    // ── Download translation as minimalist PDF ────────────────────────────
-    async function downloadTrPDF() {
-        if (!_trResult) return;
-        toast('⏳ جاري إنشاء PDF...');
-        try {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-            async function fetchB64(url) {
-                const r = await fetch(url);
-                if (!r.ok) throw new Error('fetch failed');
-                const buf = await r.arrayBuffer();
-                const u8 = new Uint8Array(buf);
-                let bin = '';
-                for (let i = 0; i < u8.length; i += 8192)
-                    bin += String.fromCharCode(...u8.subarray(i, i + 8192));
-                return btoa(bin);
-            }
-            let FA = 'helvetica';
-            try {
-                const b64 = await fetchB64('https://cdn.jsdelivr.net/gh/IBM/plex@master/packages/ibm-plex-sans-arabic/fonts/complete/ttf/IBMPlexSansArabic-Regular.ttf');
-                pdf.addFileToVFS('IBMPlexSansArabic.ttf', b64);
-                pdf.addFont('IBMPlexSansArabic.ttf', 'IBMPlexSansArabic', 'normal');
-                FA = 'IBMPlexSansArabic';
-            } catch (_) {}
-
-            // ── Page geometry ─────────────────────────────────────────────
-            const PW = 210, PH = 297, ML = 22, MR = 22, MT = 30, MB = 22;
-            const CW = PW - ML - MR;
-            const LH = sz => sz * 0.46;
-            let pageN = 1;
-
-            function stampFooter() {
-                // Hairline rule
-                pdf.setDrawColor(220, 220, 222);
-                pdf.setLineWidth(0.2);
-                pdf.line(ML, PH - 14, PW - MR, PH - 14);
-                // Page number centered, brand right
-                pdf.setFont('helvetica', 'normal');
-                pdf.setFontSize(7);
-                pdf.setTextColor(160, 160, 168);
-                pdf.text(String(pageN), PW / 2, PH - 9, { align: 'center' });
-                pdf.text('zStudy', PW - MR, PH - 9, { align: 'right' });
-                const docName = (trPdfFile || 'ترجمة').replace(/\.pdf$/i, '');
-                pdf.setFont(FA, 'normal');
-                pdf.text(docName.slice(0, 35), ML, PH - 9);
-                pageN++;
-            }
-            function newPage() { stampFooter(); pdf.addPage(); return MT; }
-            function ensureY(y, need) { return (y + need > PH - MB - 14) ? newPage() : y; }
-
-            // ── Cover: pure typographic, no color blobs ───────────────────
-            // Top hairline bar (amber)
-            pdf.setFillColor(200, 130, 10);
-            pdf.rect(0, 0, PW, 1.2, 'F');
-
-            // Title block
-            const docTitle = (trPdfFile || 'ترجمة').replace(/\.pdf$/i, '');
-            pdf.setFont(FA, 'normal');
-            pdf.setFontSize(22);
-            pdf.setTextColor(24, 24, 27);
-            const titleLines = pdf.splitTextToSize(docTitle, CW - 4);
-            let ty = 26;
-            for (const tl of titleLines) {
-                pdf.text(tl, PW - ML, ty, { align: 'right' });
-                ty += LH(22) + 2;
-            }
-
-            // Subtitle: Arabic translation label
-            pdf.setFont('helvetica', 'normal');
-            pdf.setFontSize(10);
-            pdf.setTextColor(107, 107, 120);
-            pdf.text('Arabic Translation', ML, 26);
-
-            // Hairline separator
-            pdf.setDrawColor(220, 220, 222);
-            pdf.setLineWidth(0.25);
-            pdf.line(ML, ty + 4, PW - MR, ty + 4);
-
-            // Date & domain
-            pdf.setFont('helvetica', 'normal');
-            pdf.setFontSize(7.5);
-            pdf.setTextColor(160, 160, 168);
-            const domainLabel = { medical:'طبي / علمي', pharma:'صيدلاني', biology:'أحياء / كيمياء', general:'عام' }[_trDomain] || 'علمي';
-            pdf.text(new Date().toLocaleDateString('ar-EG') + '  ·  ' + domainLabel, ML, ty + 10);
-
-            let y = ty + 20;
-
-            // ── Body: paragraphs ──────────────────────────────────────────
-            const paragraphs = _trResult.split(/\n\n+/);
-            let firstPara = true;
-
-            for (const rawPara of paragraphs) {
-                const para = rawPara.trim();
-                if (!para) continue;
-                const lines = para.split('\n').map(l => l.trim()).filter(Boolean);
-
-                // Detect heading: single short line, no period
-                const isHeading = lines.length === 1 && para.length < 80 && !para.endsWith('.') && !para.endsWith('،');
-
-                if (isHeading && !firstPara) {
-                    // Heading block: amber left bar + slightly larger text
-                    y = ensureY(y, 16);
-                    // Amber side bar (RTL: right side)
-                    pdf.setFillColor(200, 130, 10);
-                    pdf.rect(PW - MR, y - 4, 1.8, 11, 'F');
-                    pdf.setFont(FA, 'normal');
-                    pdf.setFontSize(11.5);
-                    pdf.setTextColor(24, 24, 27);
-                    pdf.text(para, PW - ML - 4, y + 3.5, { align: 'right' });
-                    y += 14;
-                } else {
-                    // Body paragraph
-                    y = ensureY(y, 6);
-                    pdf.setFont(FA, 'normal');
-                    pdf.setFontSize(10.5);
-                    pdf.setTextColor(55, 55, 68);
-                    const wrapped = pdf.splitTextToSize(para, CW);
-                    for (const wl of wrapped) {
-                        y = ensureY(y, LH(10.5) + 2.5);
-                        pdf.text(wl, PW - ML, y, { align: 'right' });
-                        y += LH(10.5) + 2.5;
-                    }
-                    y += 5; // paragraph gap
-                }
-                firstPara = false;
-            }
-
-            stampFooter();
-            const safeName = (trPdfFile || 'translation').replace(/\.pdf$/i, '').replace(/[/\\?%*:|"<>]/g, '_');
-            pdf.save(safeName + '_Arabic.pdf');
-            toast('✓ تم تحميل PDF');
-        } catch (e) {
-            toast('خطأ: ' + e.message);
-            console.error(e);
-        }
-    }
-    // ── END TRANSLATE ─────────────────────────────────────────────────────
 
     function saveApiKeys() { toast(t('saved')); }
 
@@ -5064,18 +4588,7 @@ ${textSlice}`;
     let qStartTime = 0; // time when current question was shown
 
     function startQuiz(questions, src) {
-        // Shuffle each question's options while keeping correct pointer accurate,
-        // so answers are never bunched at position A even if AI output them that way.
-        Qs = questions.map(q => {
-            const opts = [...(q.options || [])];
-            const correctText = opts[q.correct];
-            // Fisher-Yates shuffle
-            for (let i = opts.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [opts[i], opts[j]] = [opts[j], opts[i]];
-            }
-            return { ...q, options: opts, correct: opts.indexOf(correctText) };
-        });
+        Qs = [...questions];
         Ans = Qs.map(() => ({selected:null, confidence:null, timeMs:0}));
         qi = 0; qLive = true; qSource = src||'Unknown'; qSecs = 0;
         clearInterval(qTimer);
@@ -6422,13 +5935,12 @@ ${text}`;
 
         const prompts = {
             explain_all:  isAr ? `اشرح هذا الملخص بطريقة مبسطة وسهلة الفهم:\n\n${summaryText}` : `Explain this summary in a simple, easy-to-understand way:\n\n${summaryText}`,
-            translate:    isAr ? `ترجم هذا الملخص للغة الإنجليزية مع الحفاظ على البنية:\n\n${summaryText}` : `Translate this summary to Arabic while keeping the structure:\n\n${summaryText}`,
             key_terms:    isAr ? `اشرح المصطلحات الرئيسية في هذا الملخص بشكل مفصل:\n\n${summaryText}` : `Explain the key terms in this summary in detail:\n\n${summaryText}`,
             simplify:     isAr ? `بسّط لغة هذا الملخص واجعله أسهل للفهم لطالب مبتدئ:\n\n${summaryText}` : `Simplify the language of this summary for a beginner student:\n\n${summaryText}`,
             fix_json:     isAr ? `هذا JSON للملخص. إذا كان هناك خطأ في البنية أو محتوى ناقص، أصلحه وأعده كـ JSON صحيح فقط:\n\n${JSON.stringify(ctx.structured||{}, null, 2)}` : `This is the summary JSON. If there are structural errors or missing content, fix it and return only valid corrected JSON:\n\n${JSON.stringify(ctx.structured||{}, null, 2)}`,
         };
 
-        const userMsg = { explain_all: isAr?'اشرح الملخص':'Explain summary', translate: isAr?'ترجم للإنجليزية':'Translate to Arabic', key_terms: isAr?'اشرح المصطلحات':'Explain key terms', simplify: isAr?'بسّط اللغة':'Simplify language', fix_json: isAr?'إصلاح JSON':'Fix JSON errors' };
+        const userMsg = { explain_all: isAr?'اشرح الملخص':'Explain summary', key_terms: isAr?'اشرح المصطلحات':'Explain key terms', simplify: isAr?'بسّط اللغة':'Simplify language', fix_json: isAr?'إصلاح JSON':'Fix JSON errors' };
         _appendSumAIMsg(userMsg[type] || type, 'user');
         _doSumAICall(prompts[type]);
     }
@@ -6580,28 +6092,23 @@ ${text}`;
         const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
 
         try {
-            const chatMsgs = [{ role:'system', content: system }, ...historyForAPI];
-            const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+NV_API_KEY };
-            const streamBody = JSON.stringify({
-                model: NV_MODEL, messages: chatMsgs, max_tokens: 1000, temperature: 0.5, top_p: 1,
-                stream: true, chat_template_kwargs: { enable_thinking: false }
+            const body = JSON.stringify({
+                model: NV_MODEL,
+                messages: [{ role:'system', content: system }, ...historyForAPI],
+                max_tokens: 1000,
+                temperature: 0.5
             });
+            const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+NV_API_KEY };
             let responseText = '';
-            // 1. Try direct streaming
             try {
-                const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body: streamBody });
-                if (!r.ok) { const err = await r.json().catch(()=>({})); throw new Error(err.error?.message||('HTTP '+r.status)); }
-                responseText = await readSSEStream(r.body);
+                const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body });
+                if (r.ok) { const d = await r.json(); responseText = d.choices[0].message.content; }
+                else throw new Error('HTTP ' + r.status);
             } catch(e) {
                 if (e.name !== 'TypeError') throw e;
-                // 2. CORS proxy fallback (non-streaming)
-                const fallbackBody = JSON.stringify({
-                    model: NV_MODEL, messages: chatMsgs, max_tokens: 1000, temperature: 0.5, top_p: 1,
-                    chat_template_kwargs: { enable_thinking: false }
-                });
                 for (const makeProxy of CORS_PROXIES) {
                     try {
-                        const r = await fetch(makeProxy(NV_ENDPOINT), { method:'POST', headers, body: fallbackBody });
+                        const r = await fetch(makeProxy(NV_ENDPOINT), { method:'POST', headers, body });
                         if (!r.ok) throw new Error('HTTP ' + r.status);
                         const d = await r.json();
                         const parsed = d.contents ? JSON.parse(d.contents) : d;
@@ -6663,16 +6170,6 @@ ${text}`;
                     <div class="add-tool-picker-item-sub">${isAr ? 'لخّص PDF أو نص' : 'Summarize PDF or text'}</div>
                 </div>
             </button>
-            <div class="add-tool-picker-divider"></div>
-            <button class="add-tool-picker-item" onclick="closeAddToolPicker();openToolOverlay('translate')">
-                <div class="add-tool-picker-item-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
-                </div>
-                <div>
-                    <div class="add-tool-picker-label">${isAr ? 'ترجمة PDF' : 'Translate PDF'}</div>
-                    <div class="add-tool-picker-item-sub">${isAr ? 'ترجم إلى العربية' : 'Translate to Arabic'}</div>
-                </div>
-            </button>
         `;
         document.body.appendChild(menu);
     }
@@ -6694,7 +6191,6 @@ ${text}`;
 
         const titles = {
             summary:   { ar: 'ملخص ذكي',   en: 'AI Summary',   icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>` },
-            translate: { ar: 'ترجمة PDF', en: 'Translate PDF', icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>` },
         };
         const info = titles[type] || { ar: type, en: type, icon: '' };
 
@@ -6725,7 +6221,6 @@ ${text}`;
 
         // Re-run any panel init that's needed
         if (type === 'summary') renderSummaryLib();
-        if (type === 'translate') renderTrLib();
     }
 
     function closeToolOverlay(type) {
@@ -6994,151 +6489,6 @@ ${text}`;
         window._cmSumStatusHook = null;
     }
 
-    // ══════════════════════════════════════════════════════
-    // TRANSLATE MODAL
-    // ══════════════════════════════════════════════════════
-    let _trModalFile = null;
-    let _trModalDomain = 'medical';
-
-    function openTranslateModal() {
-        closeTranslateModal();
-        _trModalFile = null;
-        _trModalDomain = 'medical';
-
-        const isAr = currentLang === 'ar';
-        const overlay = document.createElement('div');
-        overlay.id = 'trCreationModal';
-        overlay.className = 'creation-modal-overlay';
-        overlay.innerHTML = `
-            <div class="creation-modal" id="trCreationModalBox">
-                <!-- Header -->
-                <div class="cm-header">
-                    <div class="cm-header-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
-                    </div>
-                    <div class="cm-header-info">
-                        <div class="cm-header-title">${isAr ? 'ترجمة PDF جديدة' : 'New PDF Translation'}</div>
-                        <div class="cm-header-sub">${isAr ? 'ترجمة إلى العربية' : 'Translate to Arabic'}</div>
-                    </div>
-                    <button class="cm-close" onclick="closeTranslateModal()">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                </div>
-
-                <!-- Body -->
-                <div class="cm-body" id="trModalBody">
-                    <!-- Upload -->
-                    <div class="cm-section">
-                        <div class="cm-section-label">${isAr ? 'ملف PDF' : 'PDF File'}</div>
-                        <input type="file" id="cmTrFileInput" accept=".pdf" style="display:none" onchange="cmTrHandleFile(this.files[0])">
-                        <div class="cm-dropzone" id="cmTrDropZone"
-                            onclick="document.getElementById('cmTrFileInput').click()"
-                            ondragover="event.preventDefault();this.classList.add('dragover')"
-                            ondragleave="this.classList.remove('dragover')"
-                            ondrop="event.preventDefault();this.classList.remove('dragover');cmTrHandleFile(event.dataTransfer.files[0])">
-                            <div class="cm-dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg></div>
-                            <div class="cm-dropzone-title">${isAr ? 'اسحب PDF هنا أو انقر للرفع' : 'Drop PDF here or click to upload'}</div>
-                            <div class="cm-dropzone-hint">${isAr ? 'حتى 30 صفحة · PDF فقط' : 'Up to 30 pages · PDF only'}</div>
-                        </div>
-                        <div class="cm-file-pill" id="cmTrFilePill" style="display:none">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <span class="cm-file-name" id="cmTrFileName"></span>
-                            <button class="cm-file-clear" onclick="cmTrClearFile()">×</button>
-                        </div>
-                    </div>
-
-                    <!-- Domain -->
-                    <div class="cm-section">
-                        <div class="cm-section-label">${isAr ? 'نوع النص' : 'Text Domain'}</div>
-                        <div class="cm-chips" id="cmTrDomainChips">
-                            <span class="chip active" data-domain="medical" onclick="cmTrSetDomain(this)">🩺 ${isAr ? 'طبي / علمي' : 'Medical'}</span>
-                            <span class="chip" data-domain="pharma" onclick="cmTrSetDomain(this)">💊 ${isAr ? 'صيدلاني' : 'Pharma'}</span>
-                            <span class="chip" data-domain="biology" onclick="cmTrSetDomain(this)">🧬 ${isAr ? 'أحياء / كيمياء' : 'Biology'}</span>
-                            <span class="chip" data-domain="general" onclick="cmTrSetDomain(this)">📄 ${isAr ? 'عام' : 'General'}</span>
-                        </div>
-                    </div>
-
-                    <!-- Note -->
-                    <div class="cm-section">
-                        <div class="cm-section-label">${isAr ? 'ملاحظة إضافية (اختياري)' : 'Extra Note (optional)'}</div>
-                        <input id="cmTrNote" placeholder="${isAr ? 'مثال: احتفظ بأسماء الأدوية بالإنجليزية...' : 'e.g. Keep drug names in English...'}">
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="cm-footer">
-                    <button class="btn btn-sm" onclick="closeTranslateModal()">${isAr ? 'إلغاء' : 'Cancel'}</button>
-                    <button class="btn btn-sm btn-primary" id="cmTrGenBtn" disabled onclick="cmTrGenerate()">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                        ${isAr ? 'ترجمة' : 'Translate'}
-                    </button>
-                </div>
-            </div>
-        `;
-        overlay.addEventListener('click', e => { if (e.target === overlay) closeTranslateModal(); });
-        document.body.appendChild(overlay);
-    }
-
-    function closeTranslateModal() {
-        document.getElementById('trCreationModal')?.remove();
-        _trModalFile = null;
-    }
-
-    function cmTrHandleFile(file) {
-        if (!file || file.type !== 'application/pdf') return;
-        _trModalFile = file;
-        document.getElementById('cmTrDropZone').style.display = 'none';
-        document.getElementById('cmTrFilePill').style.display = 'flex';
-        document.getElementById('cmTrFileName').textContent = file.name;
-        setTrPDF(file);
-        document.getElementById('cmTrGenBtn').disabled = false;
-    }
-
-    function cmTrClearFile() {
-        _trModalFile = null;
-        document.getElementById('cmTrDropZone').style.display = '';
-        document.getElementById('cmTrFilePill').style.display = 'none';
-        clearTrPDF();
-        document.getElementById('cmTrGenBtn').disabled = true;
-    }
-
-    function cmTrSetDomain(el) {
-        document.querySelectorAll('#cmTrDomainChips .chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        _trModalDomain = el.dataset.domain;
-        // Sync to hidden
-        document.querySelectorAll('#trDomainChips .chip').forEach(c => {
-            c.classList.toggle('active', c.dataset.domain === _trModalDomain);
-        });
-        setTrDomain(el);
-    }
-
-    async function cmTrGenerate() {
-        const note = document.getElementById('cmTrNote')?.value || '';
-        const noteEl = document.getElementById('trExtraNote');
-        if (noteEl) noteEl.value = note;
-
-        // Show loading
-        const body = document.getElementById('trModalBody');
-        const footer = document.querySelector('#trCreationModal .cm-footer');
-        if (body && footer) {
-            body.innerHTML = `
-                <div class="cm-loading">
-                    <div class="cm-loading-spinner"></div>
-                    <div class="cm-loading-title">${currentLang === 'ar' ? 'جاري الترجمة...' : 'Translating...'}</div>
-                    <div class="cm-loading-sub" id="cmTrLoadingStatus">${currentLang === 'ar' ? 'جاري استخراج النص...' : 'Extracting text...'}</div>
-                    <div class="cm-loading-bar-wrap"><div class="cm-loading-bar" id="cmTrLoadingBar"></div></div>
-                </div>`;
-            footer.style.display = 'none';
-        }
-
-        try {
-            await nvidiaTranslate();
-            closeTranslateModal();
-        } catch(e) {
-            closeTranslateModal();
-        }
-    }
 
     init();
 </script>
