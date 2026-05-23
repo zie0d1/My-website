@@ -2681,11 +2681,12 @@ DIFFICULTY: ${diff.toUpperCase()} — ${diffGuide}
 ═══ OUTPUT FORMAT ═══
 - Exactly 4 options per question: "A. ...", "B. ...", "C. ...", "D. ..."
 - "correct": 0-based index (0=A, 1=B, 2=C, 3=D)
+- CRITICAL: Vary the correct answer position across questions. Distribute "correct" values across 0, 1, 2, and 3 roughly equally. Never default to always using 0.
 - "explanation": (a) the exact phrase or sentence from the text that proves the correct answer, then (b) one sentence explaining why each wrong option is incorrect.
 - Output ONLY a raw JSON array. No markdown. No code fences. No text before or after.
 - If output is truncated, close the array with ] after the last complete object.
 
-[{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}]
+[{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":2,"explanation":"..."},{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":1,"explanation":"..."}]
 
 TEXT:
 ${text}`;
@@ -5063,7 +5064,18 @@ ${textSlice}`;
     let qStartTime = 0; // time when current question was shown
 
     function startQuiz(questions, src) {
-        Qs = [...questions];
+        // Shuffle each question's options while keeping correct pointer accurate,
+        // so answers are never bunched at position A even if AI output them that way.
+        Qs = questions.map(q => {
+            const opts = [...(q.options || [])];
+            const correctText = opts[q.correct];
+            // Fisher-Yates shuffle
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts, correct: opts.indexOf(correctText) };
+        });
         Ans = Qs.map(() => ({selected:null, confidence:null, timeMs:0}));
         qi = 0; qLive = true; qSource = src||'Unknown'; qSecs = 0;
         clearInterval(qTimer);
