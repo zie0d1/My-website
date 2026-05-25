@@ -6,7 +6,7 @@
 <title>FutureVets — Veterinary Slide Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=IBM+Plex+Mono:wght@400;500;600&family=Tajawal:wght@300;400;500;700;800&family=Noto+Kufi+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 /* ══ RESET ══════════════════════════════════════════════════════════════ */
@@ -23,8 +23,25 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
   --bg:#09090b;--surface:rgba(255,255,255,.03);
   --border:rgba(255,255,255,.07);--muted:rgba(255,255,255,.35);
   --fd:'Syne',sans-serif;--fm:'IBM Plex Mono',monospace;
+  --fa:'Tajawal',sans-serif;--fah:'Noto Kufi Arabic',sans-serif;
   --r:0px;
 }
+
+/* ══ Arabic slide overrides ═════════════════════════════════════════════ */
+.si.ar{direction:rtl;text-align:right;font-family:'Tajawal',sans-serif}
+.si.ar .s-h{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0}
+.si.ar .s-big-h{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0}
+.si.ar .s-agent-name{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0}
+.si.ar .s-logo{right:auto;left:14px}
+.si.ar .s-num{left:auto;right:14px}
+.si.ar .s-bul{flex-direction:row-reverse}
+.si.ar .s-step{flex-direction:row-reverse}
+.si.ar .s-agent{flex-direction:row-reverse}
+.si.ar .s-route{flex-direction:row-reverse}
+.si.ar .s-meth{flex-direction:row-reverse}
+.si.ar .s-fact{flex-direction:row-reverse}
+/* Scientific terms stay LTR inside Arabic slides */
+.si.ar .s-term{direction:ltr;display:inline;font-family:'IBM Plex Mono',monospace;font-size:.9em;color:inherit;unicode-bidi:embed}
 
 /* ══ KEYFRAMES ══════════════════════════════════════════════════════════ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -269,8 +286,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 .s-bd{font-size:10px;margin-top:2px;flex-shrink:0}
 .s-bt{font-size:12px;line-height:1.5}
 .s-logo{position:absolute;bottom:14px;right:14px;font-family:var(--fm);font-size:8px;letter-spacing:.06em;opacity:.25}
-.s-num{position:absolute;bottom:14px;left:14px;font-family:var(--fm);font-size:9px;opacity:.22}
-.s-stat{padding:10px 12px;margin-bottom:12px;flex-shrink:0}
+.s-num{position:absolute;bottom:14px;left:14px;font-family:var(--fm);font-size:9px;opacity:.22}.s-stat{padding:10px 12px;margin-bottom:12px;flex-shrink:0}
 .s-stat-lbl{font-family:var(--fm);font-size:8px;letter-spacing:.12em;margin-bottom:3px}
 .s-stat-v{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;line-height:1.3}
 .s-agent{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-shrink:0}
@@ -319,8 +335,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 @media(max-width:600px){.hero-title{font-size:30px}.feats,.theme-strip{display:none}.tb-r .btn-regen{display:none}}
 [dir="rtl"] .sidebar{border-right:none;border-left:1px solid var(--border)}
 [dir="rtl"] .info-panel{border-left:none;border-right:1px solid var(--border)}
-/* Slides always LTR regardless of page direction */
-#slide-frame, #slide-frame *{direction:ltr;text-align:left}
+/* slide direction controlled per-render via .si.ar class */
 </style>
 </head>
 <body>
@@ -769,7 +784,10 @@ Return EXACTLY this JSON structure:
 }`;
 
   const usr = State.lang==='ar'
-    ? `أنشئ محتوى شرائح تعليمية بيطرية عن مرض: ${State.diseaseName}. الإجابة باللغة العربية العلمية الفصحى مع التركيز على الطب البيطري والحيوانات.`
+    ? `أنشئ محتوى شرائح تعليمية بيطرية عن مرض: ${State.diseaseName}.
+اكتب الشرح والوصف باللغة العربية الفصحى.
+المهم جداً: احتفظ بجميع المصطلحات العلمية والطبية والبيطرية باللغة الإنجليزية فقط (مثل: Parvovirus، RNA virus، ELISA، PCR، Hemorrhagic gastroenteritis، Leukopenia، إلخ).
+اكتب المصطلح الإنجليزي أولاً ثم شرحه بالعربية إن لزم.`
     : `Generate complete veterinary educational slide content for: ${State.diseaseName}. Use ${State.mode==='scientific'?'precise scientific/veterinary terminology for vet students and clinicians':'clear accessible language for veterinary education and awareness'}. Emphasize animal species affected, veterinary diagnostics, and clinical management.`;
 
   try {
@@ -939,6 +957,8 @@ function renderSlide(idx) {
 }
 
 function buildSlideHTML(sid, s, t) {
+  const isAr = State.lang === 'ar';
+  const arCls = isAr ? ' ar' : '';
   const bg = `linear-gradient(155deg,${t.bg1} 0%,${t.bg2} 55%,${t.bg1} 100%)`;
   const deco = `
     <div class="sd1" style="background:radial-gradient(circle,${t.accent}18,transparent 70%)"></div>
@@ -948,8 +968,12 @@ function buildSlideHTML(sid, s, t) {
   const logo = `<div class="s-logo" style="color:${t.accent}">FutureVets</div>`;
   const tag = (ico,txt)=>`<div class="s-tag" style="background:${t.accent}18;border:1px solid ${t.accent}48;color:${t.accent}">${ico} ${esc(txt)}</div>`;
   const headline = (txt,sz=21)=>`<h2 class="s-h" style="font-size:${sz}px">${esc(txt)}</h2>`;
+  // wrap scientific terms so they stay LTR inline in Arabic text
+  const term = (txt) => isAr ? `<span class="s-term">${esc(txt)}</span>` : esc(txt);
   const bul = (ico,txt,c)=>`<div class="s-bul"><span class="s-bd" style="color:${c}">${ico}</span><span class="s-bt" style="color:${t.sub}">${esc(txt)}</span></div>`;
-  const wrap = (html,num)=>`<div class="si" style="background:${bg}">${deco}${html}${logo}<div class="s-num" style="color:${t.accent}55">0${num}</div></div>`;
+  const numPos = isAr ? `bottom:14px;right:14px` : `bottom:14px;left:14px`;
+  const logoPos = isAr ? `bottom:14px;left:14px` : `bottom:14px;right:14px`;
+  const wrap = (html,num)=>`<div class="si${arCls}" style="background:${bg}">${deco}${html}<div class="s-logo" style="color:${t.accent};position:absolute;${logoPos};font-family:var(--fm);font-size:8px;letter-spacing:.06em;opacity:.25">FutureVets</div><div class="s-num" style="color:${t.accent}55;position:absolute;${numPos};font-family:var(--fm);font-size:9px;opacity:.22">0${num}</div></div>`;
 
   if(sid==='title'){
     const d=s.title||{};
@@ -1270,23 +1294,23 @@ function updateLangUI() {
   document.getElementById('lang-toggle-landing').textContent = ar ? 'English' : 'العربية';
   document.getElementById('lang-toggle-editor').textContent  = ar ? 'EN' : 'AR';
   document.getElementById('hero-badge-text').textContent = ar
-    ? 'مدعوم بالذكاء الاصطناعي · درجة طبية'
-    : 'POWERED BY AI · MEDICAL GRADE';
+    ? 'مدعوم بالذكاء الاصطناعي · للطب البيطري'
+    : 'POWERED BY AI · VETERINARY GRADE';
   document.getElementById('hero-title').innerHTML = ar
-    ? 'أنشئ شرائح طبية<br>بـ<span class="hl">ذكاء اصطناعي</span>'
-    : 'Generate Medical Slides<br>with <span class="hl">AI Intelligence</span>';
+    ? 'أنشئ شرائح بيطرية<br>بـ<span class="hl">ذكاء اصطناعي</span>'
+    : 'Generate Veterinary Slides<br>with <span class="hl">AI Intelligence</span>';
   document.getElementById('hero-sub').textContent = ar
-    ? 'أدخل اسم المرض وشاهد الذكاء الاصطناعي يبني شرائح تعليمية كاملة خلال ثوانٍ'
-    : 'Type a disease name and watch AI build a complete educational slide deck in seconds.';
-  document.getElementById('disease-input').placeholder = ar ? 'مثال: داء الكلب' : 'e.g. Rabies';
+    ? 'أدخل اسم المرض البيطري وشاهد الذكاء الاصطناعي يبني شرائح تعليمية كاملة خلال ثوانٍ — للطلاب والأطباء البيطريين'
+    : 'Type an animal disease and watch AI build a complete educational slide deck in seconds. Built for vet students, clinicians & educators.';
+  document.getElementById('disease-input').placeholder = ar ? 'مثال: Canine Parvovirus' : 'e.g. Canine Parvovirus';
   document.getElementById('btn-generate').textContent = ar ? 'توليد ⚡' : 'Generate ⚡';
   document.getElementById('mode-simple').textContent   = ar ? '🎓 مبسط' : '🎓 Simple Mode';
   document.getElementById('mode-scientific').textContent = ar ? '🔬 علمي' : '🔬 Scientific Mode';
   document.getElementById('btn-history').textContent = ar ? '🗂 المشاريع' : '🗂 History';
 
-  const arP=['داء الكلب','السل','إنفلونزا الطيور','التهاب الضرع','الحمى القلاعية'];
-  const enP=['Rabies','Tuberculosis','Avian Influenza','Mastitis','FMD'];
-  document.querySelectorAll('.pill').forEach((p,i)=>{ p.textContent=(ar?arP:enP)[i]; p.dataset.val=(ar?arP:enP)[i]; });
+  const arP=['Canine Parvovirus','داء الكلب (Rabies)','Feline Panleukopenia','Foot and Mouth Disease','Bovine Respiratory Disease'];
+  const enP=['Canine Parvovirus','Rabies','Feline Panleukopenia','Foot and Mouth Disease','Bovine Respiratory Disease'];
+  document.querySelectorAll('.pill').forEach((p,i)=>{ p.textContent=(ar?arP:enP)[i]; p.dataset.val=enP[i]; });
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
