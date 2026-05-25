@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MedSlide AI — Medical Slide Generator</title>
+<title>FutureVets — Veterinary Slide Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -261,7 +261,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 .sd1,.sd2,.sd4{display:none !important}
 .sd3{position:absolute;top:0;left:0;right:0;height:1px;pointer-events:none}
 
-.si{width:100%;height:100%;padding:28px 24px;display:flex;flex-direction:column;position:relative;overflow:hidden;color:#e4e4e7;font-family:'DM Sans',sans-serif}
+.si{width:100%;height:100%;padding:28px 24px;display:flex;flex-direction:column;position:relative;overflow:hidden;color:#e4e4e7;font-family:'DM Sans',sans-serif;direction:ltr;text-align:left}
 .s-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;font-family:var(--fm);font-size:9px;letter-spacing:.1em;margin-bottom:12px;white-space:nowrap;flex-shrink:0;width:fit-content}
 .s-h{font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-.025em;line-height:1.08;color:#fff;margin-bottom:10px}
 .s-body{font-size:12px;line-height:1.65;margin-bottom:12px;flex-shrink:0}
@@ -304,7 +304,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 .s-fact-t{font-size:11px;line-height:1.5;opacity:.7}
 .s-mort{padding:7px 11px;margin-top:6px;flex-shrink:0;font-size:10px;background:rgba(255,80,80,.05);border:1px solid rgba(255,80,80,.18);color:#ff9090}
 .s-cit{font-family:var(--fm);font-size:8px;opacity:.35;margin-top:4px;flex-shrink:0}
-.s-title-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.s-title-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%}
 .s-emoji{font-size:56px;margin-bottom:14px;display:block}
 .s-big-h{font-family:'Syne',sans-serif;font-size:clamp(20px,4vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.05;color:#fff;margin-bottom:9px}
 .s-tagline{font-size:12px;line-height:1.65;opacity:.45;max-width:320px;margin-bottom:16px}
@@ -319,9 +319,8 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 @media(max-width:600px){.hero-title{font-size:30px}.feats,.theme-strip{display:none}.tb-r .btn-regen{display:none}}
 [dir="rtl"] .sidebar{border-right:none;border-left:1px solid var(--border)}
 [dir="rtl"] .info-panel{border-left:none;border-right:1px solid var(--border)}
-[dir="rtl"] .s-logo{right:auto;left:14px}
-[dir="rtl"] .s-num{left:auto;right:14px}
-[dir="rtl"] .s-bul,.s-step,.s-agent,.s-route{flex-direction:row-reverse}
+/* Slides always LTR regardless of page direction */
+#slide-frame, #slide-frame *{direction:ltr;text-align:left}
 </style>
 </head>
 <body>
@@ -335,7 +334,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
   <div class="bg-p" style="width:5px;height:5px;top:35%;left:68%;--d:6s;--dl:.5s"></div>
 
   <nav class="navbar">
-    <a class="logo" href="#"><div class="logo-icon">🧬</div>MedSlide<span class="logo-ac">AI</span></a>
+    <a class="logo" href="#"><div class="logo-icon">🐾</div>Future<span class="logo-ac">Vets</span></a>
     <div class="nav-r">
       <button class="btn-ghost" id="btn-history">🗂 History</button>
       <button class="btn-ghost" id="lang-toggle-landing">العربية</button>
@@ -344,22 +343,22 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
   </nav>
 
   <main class="hero">
-    <div class="hero-badge"><span class="hdot">◉</span><span id="hero-badge-text">POWERED BY AI · MEDICAL GRADE</span></div>
-    <h1 class="hero-title" id="hero-title">Generate Medical Slides<br>with <span class="hl">AI Intelligence</span></h1>
-    <p class="hero-sub" id="hero-sub">Type a disease name and watch AI build a complete educational slide deck in seconds. Ready for Instagram, TikTok &amp; clinical use.</p>
+    <div class="hero-badge"><span class="hdot">◉</span><span id="hero-badge-text">POWERED BY AI · VETERINARY GRADE</span></div>
+    <h1 class="hero-title" id="hero-title">Generate Veterinary Slides<br>with <span class="hl">AI Intelligence</span></h1>
+    <p class="hero-sub" id="hero-sub">Type an animal disease and watch AI build a complete educational slide deck in seconds. Built for vet students, clinicians &amp; educators.</p>
 
     <div class="input-wrap">
       <div class="input-box">
         <span class="input-ico">🔬</span>
-        <input type="text" id="disease-input" placeholder="e.g. Rabies" autocomplete="off" spellcheck="false"/>
+        <input type="text" id="disease-input" placeholder="e.g. Canine Parvovirus" autocomplete="off" spellcheck="false"/>
         <button class="btn-gen" id="btn-generate">Generate ⚡</button>
       </div>
       <div class="pills" id="sample-pills">
+        <button class="pill" data-val="Canine Parvovirus">Parvovirus</button>
         <button class="pill" data-val="Rabies">Rabies</button>
-        <button class="pill" data-val="Tuberculosis">Tuberculosis</button>
-        <button class="pill" data-val="Avian Influenza">Avian Influenza</button>
-        <button class="pill" data-val="Mastitis">Mastitis</button>
+        <button class="pill" data-val="Feline Panleukopenia">Panleukopenia</button>
         <button class="pill" data-val="Foot and Mouth Disease">FMD</button>
+        <button class="pill" data-val="Bovine Respiratory Disease">BRD</button>
       </div>
     </div>
 
@@ -380,7 +379,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
   </main>
 
   <div class="stats-bar">
-    <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">SLIDES GENERATED</div></div>
+    <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">SLIDES PER DECK</div></div>
     <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">DISEASE TYPES</div></div>
     <div class="stat-item"><div class="stat-num">4:5</div><div class="stat-label">SOCIAL FORMAT</div></div>
     <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">LANGUAGES</div></div>
@@ -399,7 +398,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 <div id="screen-history" class="screen">
   <div class="bg-grid"></div>
   <nav class="navbar">
-    <a class="logo" href="#"><div class="logo-icon">🧬</div>MedSlide<span class="logo-ac">AI</span></a>
+    <a class="logo" href="#"><div class="logo-icon">🐾</div>Future<span class="logo-ac">Vets</span></a>
     <div class="nav-r">
       <button class="btn-ghost" id="btn-history-back">← Back</button>
     </div>
@@ -416,7 +415,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 <!-- ═══════════════════════ GENERATING ════════════════════════════════════ -->
 <div id="screen-generating" class="screen">
   <div class="bg-grid"></div>
-  <div class="gen-orb">🧬</div>
+  <div class="gen-orb">🐾</div>
   <h2 class="gen-title">Analyzing: <span id="gen-disease-name"></span></h2>
   <p class="gen-status" id="gen-status">Initializing...</p>
   <div class="prog-track"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
@@ -715,20 +714,20 @@ function setProgress(pct, status) {
    DEMO DATA FALLBACK
 ══════════════════════════════════════════════════════════════════════════ */
 function getDemoSlides(name) {
-  const n = name || 'Influenza';
+  const n = name || 'Canine Parvovirus';
   return {
-    diseaseType:'viral', diseaseName:n, tagline:`Understanding ${n} — a critical threat to public health.`,
+    diseaseType:'viral', diseaseName:n, tagline:`${n} — a life-threatening threat to unvaccinated dogs worldwide.`,
     slides:{
-      title:{headline:n,subheadline:`A comprehensive educational overview of ${n}`,badge:'Viral | Medical Education',emoji:'🦠'},
-      overview:{headline:'What is it?',summary:`${n} is a significant infectious disease affecting millions worldwide. It presents with a range of clinical signs and requires prompt medical attention for optimal outcomes.`,bullets:['Highly contagious pathogen','Affects multiple organ systems','Global public health concern'],stat:'Affects 1 billion people annually worldwide'},
-      etiology:{headline:'Etiology & Cause',agent:'Influenzavirus A/B',agentType:'Negative-sense RNA virus',description:`${n} is caused by a highly adaptable RNA virus capable of antigenic drift and shift, enabling immune evasion and pandemic potential.`,bullets:['Enveloped virus with hemagglutinin (HA) and neuraminidase (NA)','16 HA subtypes, 9 NA subtypes identified','Rapid mutation rate drives seasonal variation']},
-      transmission:{headline:'How It Spreads',routes:[{icon:'💨',route:'Respiratory droplets',detail:'Primary route — coughing, sneezing within 2m'},{icon:'✋',route:'Contact transmission',detail:'Contaminated surfaces then touching mucous membranes'},{icon:'🌬️',route:'Airborne aerosols',detail:'Fine particles in enclosed, poorly ventilated spaces'}],note:'Infectious 1 day before and up to 5-7 days after symptom onset'},
-      symptoms:{headline:'Clinical Signs',onset:'Incubation: 1-4 days (avg 2)',stages:[{stage:'Early (0-2 days)',signs:['Sudden high fever (38-40°C)','Severe myalgia and fatigue']},{stage:'Acute (2-5 days)',signs:['Dry cough and sore throat','Headache, chills, rhinorrhea']},{stage:'Late / Complications',signs:['Secondary bacterial pneumonia','Respiratory failure in high-risk groups']}]},
-      pathogenesis:{headline:'Pathogenesis',summary:`The virus binds respiratory epithelial cells via hemagglutinin. Neuraminidase cleaves sialic acid to facilitate viral release. Host immune response drives both clearance and tissue damage.`,steps:['Step 1: Hemagglutinin binds sialic acid receptors on epithelial cells','Step 2: Endocytosis and viral RNA release into cytoplasm','Step 3: Viral replication and protein synthesis','Step 4: Neuraminidase-mediated budding and spread'],targetOrgan:'Respiratory epithelium'},
-      diagnosis:{headline:'Diagnosis',methods:[{name:'RT-PCR',type:'Gold standard',detail:'Nasopharyngeal swab — high sensitivity and specificity'},{name:'Rapid Antigen Test',type:'Point-of-care',detail:'Results in 15 min, lower sensitivity (50-70%)'},{name:'Clinical Diagnosis',type:'Presumptive',detail:'Syndromic criteria during confirmed outbreak'}]},
-      treatment:{headline:'Treatment',approach:'Antiviral therapy most effective within 48 hours of symptom onset',options:[{category:'Antiviral',items:['Oseltamivir (Tamiflu) 75mg BID x 5 days','Zanamivir (Relenza) inhaled BID x 5 days']},{category:'Supportive',items:['Antipyretics for fever management','Hydration and rest']},{category:'ICU / Severe',items:['Mechanical ventilation if respiratory failure']}]},
-      prevention:{headline:'Prevention & Control',measures:[{icon:'💉',title:'Vaccination',detail:'Annual seasonal influenza vaccine recommended for all ≥6 months'},{icon:'🧼',title:'Hand Hygiene',detail:'Frequent handwashing with soap and water for ≥20 seconds'},{icon:'😷',title:'Respiratory Etiquette',detail:'Mask use in crowded settings; cover coughs and sneezes'},{icon:'🏠',title:'Isolation',detail:'Stay home for ≥24h after fever resolves without antipyretics'}]},
-      keyfacts:{headline:'Key Facts',facts:['Influenza causes 290,000–650,000 respiratory deaths annually (WHO)','Vaccination reduces risk of illness by 40-60% in average seasons','Antigenic shift can cause pandemic strains (e.g. H1N1 2009)','High-risk groups: elderly, immunocompromised, pregnant women','Antiviral resistance is an emerging global concern'],mortality:'Seasonal: 0.1% CFR; Pandemic strains can exceed 2.5%',citation:'WHO Global Influenza Programme, 2023; CDC FluView'}
+      title:{headline:n,subheadline:`A comprehensive veterinary educational overview of ${n}`,badge:'Canine | Viral | Highly Contagious',emoji:'🐕'},
+      overview:{headline:'What is it?',summary:`${n} (CPV-2) is a highly contagious viral disease of dogs causing severe hemorrhagic gastroenteritis and myocarditis. It remains one of the most common infectious diseases in unvaccinated canines globally.`,bullets:['Affects dogs of all ages; puppies 6 weeks–6 months most vulnerable','Case fatality rate up to 91% untreated; <1% with aggressive therapy','Virus survives in environment for months to years'],stat:'Mortality up to 91% in untreated puppies (WSAVA)'},
+      etiology:{headline:'Etiology & Causative Agent',agent:'Canine Parvovirus type 2 (CPV-2)',agentType:'Non-enveloped, single-stranded DNA virus (Parvoviridae)',description:'CPV-2 emerged in the 1970s and rapidly spread worldwide. Variants CPV-2a, 2b, and 2c show expanded host range. The virus targets rapidly dividing cells, particularly intestinal crypts and lymphoid tissue.',bullets:['Extremely stable — resistant to heat, detergents, alcohol','Bleach (1:32 dilution) is the primary effective disinfectant','Can persist in soil for up to 1 year']},
+      transmission:{headline:'Transmission & Spread',routes:[{icon:'💩',route:'Fecal-oral',detail:'Primary route — ingestion of virus from contaminated feces'},{icon:'🌍',route:'Fomite / Environment',detail:'Contaminated surfaces, shoes, clothing, equipment'},{icon:'🐕',route:'Direct contact',detail:'Dog-to-dog contact with infected animals or carriers'}],note:'⚠ Zoonotic risk: NONE — CPV-2 does not infect humans'},
+      symptoms:{headline:'Clinical Signs in Dogs',onset:'Incubation: 3–7 days post-exposure',stages:[{stage:'Peracute (0–24h)',signs:['Sudden death (myocarditis form in neonates)','Profound lethargy and anorexia']},{stage:'Acute (1–3 days)',signs:['Profuse hemorrhagic vomiting and diarrhea','High fever (40–41°C), severe dehydration']},{stage:'Severe / Complications',signs:['Septic shock from bacterial translocation','Disseminated intravascular coagulation (DIC)']}]},
+      pathogenesis:{headline:'Pathogenesis',summary:'CPV-2 preferentially replicates in rapidly dividing cells. After oropharyngeal infection, viremia delivers virus to intestinal crypt epithelium and bone marrow, causing villous collapse and profound immunosuppression.',steps:['Step 1: Oropharyngeal infection → local lymph node replication','Step 2: Primary viremia — virus enters bloodstream','Step 3: Intestinal crypt cell destruction → villous atrophy → malabsorption','Step 4: Bone marrow suppression → leukopenia → secondary bacteremia'],targetOrgan:'Intestinal crypt epithelium & Bone marrow'},
+      diagnosis:{headline:'Veterinary Diagnosis',methods:[{name:'ELISA Fecal Antigen Test',type:'Point-of-care (Gold standard in field)',detail:'Fecal swab — results in 10 min; high sensitivity in acute phase'},{name:'PCR (Fecal/Blood)',type:'Confirmatory / Variant typing',detail:'Highest sensitivity; differentiates CPV-2a/2b/2c variants'},{name:'CBC + Clinical Signs',type:'Supportive diagnosis',detail:'Severe leukopenia (<2000 WBC/μL) + hemorrhagic GI signs'}]},
+      treatment:{headline:'Treatment & Management',approach:'No specific antiviral — aggressive supportive care is the cornerstone. Hospitalization essential. Prognosis good with early intensive therapy.',options:[{category:'Fluid Therapy',items:['IV crystalloids (LRS/NaCl 0.9%) — correct dehydration','Colloids (hetastarch) if hypoalbuminemia']},{category:'Supportive Care',items:['Antiemetics: Maropitant 1mg/kg IV SID','Broad-spectrum antibiotics: Ampicillin + Enrofloxacin']},{category:'Nutritional Support',items:['Early enteral feeding via nasoesophageal tube','Parvovirus-specific hyperimmune serum (early cases)']}]},
+      prevention:{headline:'Prevention & Biosecurity',measures:[{icon:'💉',title:'Vaccination',detail:'Core vaccine: MLV CPV-2 at 6, 8, 12, 16 weeks; booster at 1 year then every 3 years'},{icon:'🧼',title:'Disinfection',detail:'Sodium hypochlorite 1:32 (bleach) — only reliable environmental disinfectant'},{icon:'🚫',title:'Isolation',detail:'Strict isolation of suspected/confirmed cases; barrier nursing protocol'},{icon:'📋',title:'Quarantine',detail:'New dogs quarantined 2 weeks before introduction to multi-dog facilities'}]},
+      keyfacts:{headline:'Key Veterinary Facts',facts:['CPV-2 emerged globally in 1978 from a mutation of feline panleukopenia virus','Virus sheds in feces 3–4 days before clinical signs appear','Rottweilers, Dobermans, and American Pit Bulls show increased susceptibility','Maternal antibodies can interfere with vaccination until 16–18 weeks of age','Recovery dogs develop strong long-lasting immunity (years)'],mortality:'Untreated: 50–91% | With intensive care: <5% | Neonatal myocarditis: near 100%',citation:'WSAVA Vaccination Guidelines 2022; Greene & Decaro, Infectious Diseases of the Dog and Cat, 4th Ed.'}
     }
   };
 }
@@ -745,32 +744,33 @@ async function generate(disease) {
   showScreen('generating');
   setProgress(5, State.lang==='ar' ? 'تحليل المرض...' : 'Analyzing disease...');
 
-  const sys = `You are a medical education AI that creates concise, accurate slide content for disease education.
+  const sys = `You are a veterinary education AI that creates concise, accurate slide content for animal disease education.
 Output ONLY valid JSON — no markdown fences, no preamble, no extra text.
 Detect the disease type from: viral | bacterial | fungal | parasitic | metabolic
+Focus on VETERINARY context: affected animal species, zoonotic risk, veterinary diagnostics, animal-specific treatment protocols.
 
 Return EXACTLY this JSON structure:
 {
   "diseaseType":"viral",
-  "diseaseName":"Official name",
-  "tagline":"One powerful sentence about this disease",
+  "diseaseName":"Official veterinary disease name",
+  "tagline":"One powerful sentence about this disease in animals",
   "slides":{
-    "title":{"headline":"...","subheadline":"...","badge":"Type | Key fact","emoji":"🦠"},
-    "overview":{"headline":"What is it?","summary":"2-3 sentences","bullets":["pt1","pt2","pt3"],"stat":"Striking statistic"},
-    "etiology":{"headline":"Etiology & Cause","agent":"Agent name","agentType":"e.g. RNA virus","description":"2-3 sentences","bullets":["d1","d2","d3"]},
-    "transmission":{"headline":"How It Spreads","routes":[{"icon":"🐾","route":"Name","detail":"brief"},{"icon":"💨","route":"Name","detail":"brief"},{"icon":"🤝","route":"Name","detail":"brief"}],"note":"Important note"},
-    "symptoms":{"headline":"Clinical Signs","onset":"Incubation period","stages":[{"stage":"Early","signs":["s1","s2"]},{"stage":"Acute","signs":["s1","s2"]},{"stage":"Late","signs":["s1","s2"]}]},
-    "pathogenesis":{"headline":"Pathogenesis","summary":"2-3 sentence mechanism","steps":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ..."],"targetOrgan":"Primary organ"},
-    "diagnosis":{"headline":"Diagnosis","methods":[{"name":"Method 1","type":"Gold standard","detail":"brief"},{"name":"Method 2","type":"Lab","detail":"brief"},{"name":"Method 3","type":"Clinical","detail":"brief"}]},
-    "treatment":{"headline":"Treatment","approach":"General approach","options":[{"category":"First-line","items":["item1","item2"]},{"category":"Supportive","items":["item1","item2"]},{"category":"Monitoring","items":["item1"]}]},
-    "prevention":{"headline":"Prevention & Control","measures":[{"icon":"💉","title":"Vaccination","detail":"brief"},{"icon":"🧼","title":"Hygiene","detail":"brief"},{"icon":"🚫","title":"Control","detail":"brief"},{"icon":"📋","title":"Surveillance","detail":"brief"}]},
-    "keyfacts":{"headline":"Key Facts","facts":["fact1","fact2","fact3","fact4","fact5"],"mortality":"Mortality data","citation":"WHO/CDC or authority"}
+    "title":{"headline":"...","subheadline":"...","badge":"Species affected | Disease type","emoji":"🐾"},
+    "overview":{"headline":"What is it?","summary":"2-3 sentences about this animal disease","bullets":["pt1","pt2","pt3"],"stat":"Striking statistic about animal/veterinary impact"},
+    "etiology":{"headline":"Etiology & Causative Agent","agent":"Agent name","agentType":"e.g. RNA virus / Gram-positive bacterium","description":"2-3 sentences on the pathogen in veterinary context","bullets":["d1","d2","d3"]},
+    "transmission":{"headline":"Transmission & Spread","routes":[{"icon":"🐾","route":"Route name","detail":"brief veterinary detail"},{"icon":"💨","route":"Route name","detail":"brief"},{"icon":"🤝","route":"Route name","detail":"brief"}],"note":"Important veterinary/zoonotic note"},
+    "symptoms":{"headline":"Clinical Signs","onset":"Incubation period in animals","stages":[{"stage":"Peracute/Early","signs":["s1","s2"]},{"stage":"Acute","signs":["s1","s2"]},{"stage":"Chronic/Late","signs":["s1","s2"]}]},
+    "pathogenesis":{"headline":"Pathogenesis","summary":"2-3 sentence mechanism in the animal host","steps":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ..."],"targetOrgan":"Primary target organ/tissue in animals"},
+    "diagnosis":{"headline":"Veterinary Diagnosis","methods":[{"name":"Method 1","type":"Gold standard","detail":"brief vet lab detail"},{"name":"Method 2","type":"Field/Rapid test","detail":"brief"},{"name":"Method 3","type":"Clinical/Gross pathology","detail":"brief"}]},
+    "treatment":{"headline":"Treatment & Management","approach":"Veterinary treatment approach and prognosis","options":[{"category":"Specific/Antiviral","items":["item1","item2"]},{"category":"Supportive Care","items":["item1","item2"]},{"category":"Herd/Flock Management","items":["item1"]}]},
+    "prevention":{"headline":"Prevention & Biosecurity","measures":[{"icon":"💉","title":"Vaccination","detail":"veterinary vaccine protocol"},{"icon":"🧼","title":"Biosecurity","detail":"farm/clinic biosecurity measure"},{"icon":"🚫","title":"Quarantine","detail":"movement control detail"},{"icon":"📋","title":"Surveillance","detail":"monitoring and reporting"}]},
+    "keyfacts":{"headline":"Key Veterinary Facts","facts":["fact1","fact2","fact3","fact4","fact5"],"mortality":"Mortality/morbidity data in animals","citation":"OIE/WOAH, FAO, or peer-reviewed vet source"}
   }
 }`;
 
   const usr = State.lang==='ar'
-    ? `أنشئ محتوى شرائح طبية تعليمية عن مرض: ${State.diseaseName}. الإجابة باللغة العربية العلمية الفصحى.`
-    : `Generate complete medical educational slide content for: ${State.diseaseName}. Use ${State.mode==='scientific'?'scientific terminology for medical/veterinary students':'clear accessible language for general education'}.`;
+    ? `أنشئ محتوى شرائح تعليمية بيطرية عن مرض: ${State.diseaseName}. الإجابة باللغة العربية العلمية الفصحى مع التركيز على الطب البيطري والحيوانات.`
+    : `Generate complete veterinary educational slide content for: ${State.diseaseName}. Use ${State.mode==='scientific'?'precise scientific/veterinary terminology for vet students and clinicians':'clear accessible language for veterinary education and awareness'}. Emphasize animal species affected, veterinary diagnostics, and clinical management.`;
 
   try {
     await delay(350);
@@ -945,7 +945,7 @@ function buildSlideHTML(sid, s, t) {
     <div class="sd2" style="background:radial-gradient(circle,${t.accent2}12,transparent 70%)"></div>
     <div class="sd3" style="background:linear-gradient(90deg,transparent,${t.accent}75,transparent)"></div>
     <div class="sd4">${Array(16).fill(`<div class="sd4-d" style="background:${t.accent}"></div>`).join('')}</div>`;
-  const logo = `<div class="s-logo" style="color:${t.accent}">MedSlideAI</div>`;
+  const logo = `<div class="s-logo" style="color:${t.accent}">FutureVets</div>`;
   const tag = (ico,txt)=>`<div class="s-tag" style="background:${t.accent}18;border:1px solid ${t.accent}48;color:${t.accent}">${ico} ${esc(txt)}</div>`;
   const headline = (txt,sz=21)=>`<h2 class="s-h" style="font-size:${sz}px">${esc(txt)}</h2>`;
   const bul = (ico,txt,c)=>`<div class="s-bul"><span class="s-bd" style="color:${c}">${ico}</span><span class="s-bt" style="color:${t.sub}">${esc(txt)}</span></div>`;
@@ -1107,7 +1107,7 @@ async function exportPNG(platform) {
     const link = document.createElement('a');
     const secId = SECTIONS[State.activeSlide].id;
     const dname = (State.diseaseName||'slide').replace(/\s+/g,'-').toLowerCase();
-    link.download = `medslide-${dname}-${secId}.png`;
+    link.download = `futurevets-${dname}-${secId}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
     toast(`✅ Slide exported as PNG!`);
@@ -1129,7 +1129,7 @@ async function exportAllPNG() {
     try {
       const canvas = await html2canvas(frame,{scale:2.5,useCORS:true,backgroundColor:null,logging:false});
       const link = document.createElement('a');
-      link.download = `medslide-${dname}-${String(i+1).padStart(2,'0')}-${SECTIONS[i].id}.png`;
+      link.download = `futurevets-${dname}-${String(i+1).padStart(2,'0')}-${SECTIONS[i].id}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
       await delay(400);
@@ -1158,16 +1158,16 @@ async function openAITool(tool) {
 
   if(tool==='simplify'){
     titleText = '🎓 Explain Simply';
-    prompt = `Given this medical slide content about ${s.diseaseName} (section: ${sec.label}):\n${JSON.stringify(currentSlideData)}\n\nRewrite this content in simple, plain language suitable for a general audience with no medical background. Use short sentences, analogies, and avoid jargon. Return only the simplified explanation as plain text, 80-120 words.`;
+    prompt = `Given this veterinary slide content about ${s.diseaseName} (section: ${sec.label}):\n${JSON.stringify(currentSlideData)}\n\nRewrite this content in simple, plain language suitable for a general audience or first-year vet student with no prior knowledge. Use short sentences, relatable animal analogies, and avoid jargon. Return only the simplified explanation as plain text, 80-120 words.`;
   } else if(tool==='scientific'){
     titleText = '🔬 Scientific Mode';
-    prompt = `Given this medical slide content about ${s.diseaseName} (section: ${sec.label}):\n${JSON.stringify(currentSlideData)}\n\nRewrite this content in precise scientific/medical terminology suitable for veterinary or medical students. Include proper nomenclature, mechanisms, and technical detail. Return only the scientific explanation as plain text, 80-130 words.`;
+    prompt = `Given this veterinary slide content about ${s.diseaseName} (section: ${sec.label}):\n${JSON.stringify(currentSlideData)}\n\nRewrite this content in precise veterinary/scientific terminology suitable for final-year vet students or clinicians. Include proper nomenclature, pathophysiological mechanisms, and clinical relevance. Return only the scientific explanation as plain text, 80-130 words.`;
   } else if(tool==='citation'){
     titleText = '📚 Citation Generator';
-    prompt = `Generate 3 properly formatted academic citations (APA style) for the disease: ${s.diseaseName}. Include: 1) A WHO or CDC reference, 2) A peer-reviewed journal article, 3) A veterinary/medical textbook. Make them realistic and properly formatted. Return only the citations as plain text, numbered 1-3.`;
+    prompt = `Generate 3 properly formatted academic citations (APA style) for the veterinary disease: ${s.diseaseName}. Include: 1) A WOAH/OIE or FAO reference, 2) A peer-reviewed veterinary journal article, 3) A veterinary textbook (e.g. Greene's Infectious Diseases of the Dog and Cat). Make them realistic and properly formatted. Return only the citations as plain text, numbered 1-3.`;
   } else if(tool==='hashtags'){
     titleText = '#️⃣ Social Media Hashtags';
-    prompt = `Generate 15 relevant social media hashtags for educational content about ${s.diseaseName} (${s.diseaseType} disease). Mix English hashtags at different levels: broad medical (#veterinarymedicine), disease-specific, educational (#medicaleducation), and awareness tags. Return ONLY the hashtags separated by spaces, no other text. Each must start with #.`;
+    prompt = `Generate 15 relevant social media hashtags for veterinary educational content about ${s.diseaseName} (${s.diseaseType} disease in animals). Mix hashtags at different levels: broad veterinary (#veterinarymedicine #vetlife), disease-specific, species-specific, educational (#veteducation #animalhealth), and awareness tags. Return ONLY the hashtags separated by spaces, no other text. Each must start with #.`;
   }
 
   title.textContent = titleText;
