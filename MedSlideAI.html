@@ -588,6 +588,48 @@ body{font-family:'DM Sans',sans-serif;background:#060a0f;color:#e8f4ff;min-heigh
 
 <!-- ═══════════════════════ JAVASCRIPT ════════════════════════════════════ -->
 <script>
+/* ── NVIDIA API config ──────────────────────────────────────────────────── */
+const NV_API_KEY  = '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';
+const NV_MODEL    = 'openai/gpt-oss-120b';
+const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const CORS_PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+];
+
+async function nvFetch(messages, maxTokens=2000) {
+  const body = JSON.stringify({
+    model: NV_MODEL,
+    messages,
+    temperature: 0.7,
+    top_p: 1,
+    max_tokens: maxTokens,
+    stream: false,
+  });
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${NV_API_KEY}`,
+  };
+
+  // Try direct first, then each proxy
+  const attempts = [
+    () => fetch(NV_ENDPOINT, { method:'POST', headers, body }),
+    ...CORS_PROXIES.map(proxy => () => fetch(proxy(NV_ENDPOINT), { method:'POST', headers, body })),
+  ];
+
+  for (const attempt of attempts) {
+    try {
+      const res = await attempt();
+      if (!res.ok) { const e = await res.text(); console.warn('NV attempt failed:', e); continue; }
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content || '';
+      return text;
+    } catch(e) { console.warn('NV attempt error:', e.message); }
+  }
+  throw new Error('All API attempts failed. Check network / API key.');
+}
+
 /* ── Constants ──────────────────────────────────────────────────────────── */
 const THEMES = {
   viral:     {label:'Viral',    icon:'🦠',accent:'#00d4ff',accent2:'#ff3366',sub:'#7db8d4',bg1:'#0a1628',bg2:'#0d2b4e',glow:'rgba(0,212,255,.35)'},
@@ -713,20 +755,12 @@ Return EXACTLY this JSON structure:
     await delay(350);
     setProgress(15, State.lang==='ar' ? 'توليد المحتوى العلمي...' : 'Generating scientific content...');
 
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:sys,
-        messages:[{role:'user',content:usr}]
-      })
-    });
+    const raw = await nvFetch([
+      { role: 'system', content: sys },
+      { role: 'user',   content: usr },
+    ], 2000);
 
     setProgress(60, State.lang==='ar' ? 'بناء الشرائح المرئية...' : 'Building visual slides...');
-    const data = await res.json();
-    const raw = (data.content||[]).map(b=>b.text||'').join('');
     const clean = raw.replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(clean);
 
@@ -1092,21 +1126,11 @@ async function openAITool(tool) {
   title.textContent = titleText;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await res.json();
-    const result = (data.content||[]).map(b=>b.text||'').join('').trim();
-    State.lastModalResult = result;
+    const result = await nvFetch([{ role:'user', content:prompt }], 600);
+    State.lastModalResult = result.trim();
 
     if(tool==='hashtags'){
-      const tags = result.split(/\s+/).filter(t=>t.startsWith('#'));
+      const tags = State.lastModalResult.split(/\s+/).filter(t=>t.startsWith('#'));
       body.innerHTML = `<div class="modal-result">${tags.map(tag=>`<span style="display:inline-block;background:rgba(0,212,255,.1);color:#00d4ff;padding:3px 9px;border-radius:6px;margin:3px;font-family:var(--fm);font-size:12px;cursor:pointer" onclick="navigator.clipboard.writeText('${tag}');toast('Copied!')">${esc(tag)}</span>`).join('')}</div>`;
 
       // Also show in panel
@@ -1114,12 +1138,12 @@ async function openAITool(tool) {
       hp.style.display = 'block';
       document.getElementById('hashtag-list').innerHTML = tags.slice(0,8).map(tag=>`<div class="htag" onclick="navigator.clipboard.writeText('${tag}');toast('Copied!')">${esc(tag)}</div>`).join('');
     } else if(tool==='citation'){
-      body.innerHTML = `<div class="modal-result" style="white-space:pre-wrap">${esc(result)}</div>`;
+      body.innerHTML = `<div class="modal-result" style="white-space:pre-wrap">${esc(State.lastModalResult)}</div>`;
       const cp = document.getElementById('citation-panel');
       cp.style.display='block';
-      document.getElementById('citation-text').textContent = result.split('\n')[0].substring(0,100)+'...';
+      document.getElementById('citation-text').textContent = State.lastModalResult.split('\n')[0].substring(0,100)+'...';
     } else {
-      body.innerHTML = `<div class="modal-result">${esc(result)}</div>`;
+      body.innerHTML = `<div class="modal-result">${esc(State.lastModalResult)}</div>`;
     }
   } catch(err){
     body.innerHTML = `<div class="modal-result" style="color:#ff8080">Error: ${esc(err.message)}</div>`;
