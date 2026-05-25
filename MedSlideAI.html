@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MedSlide AI — Medical Slide Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ══ RESET ════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#060a0f;color:#e8f4ff;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px}
+
+/* ══ CSS VARS ═════════════════════════════════════════════════════════════ */
+:root{
+  --accent:#00d4ff;--accent2:#ff3366;
+  --bg:#060a0f;--surface:rgba(255,255,255,.04);
+  --border:rgba(255,255,255,.08);--muted:rgba(255,255,255,.4);
+  --fd:'Syne',sans-serif;--fm:'IBM Plex Mono',monospace;
+}
+
+/* ══ KEYFRAMES ════════════════════════════════════════════════════════════ */
+@keyframes fadeUp  {from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+@keyframes pulse   {0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes float   {0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes spin    {to{transform:rotate(360deg)}}
+@keyframes shimmer {0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes glowP   {0%,100%{box-shadow:0 0 20px var(--glow,rgba(0,212,255,.3))}50%{box-shadow:0 0 50px var(--glow,rgba(0,212,255,.5)),0 0 80px var(--glow,rgba(0,212,255,.2))}}
+@keyframes scaleIn {from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes gridMv  {from{background-position:0 0}to{background-position:60px 60px}}
+@keyframes typing  {from{width:0}to{width:100%}}
+@keyframes blink   {0%,100%{border-color:transparent}50%{border-color:var(--accent)}}
+@keyframes slideUp {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn   {from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+
+/* ══ SCREENS ══════════════════════════════════════════════════════════════ */
+.screen{display:none;min-height:100vh;position:relative}
+.screen.active{display:flex;flex-direction:column}
+#screen-editor{height:100vh;overflow:hidden}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SHARED NAV
+══════════════════════════════════════════════════════════════════════════ */
+.navbar{
+  position:relative;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:17px 40px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  backdrop-filter:blur(14px);
+  background:rgba(6,10,15,.75);
+  flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:700;font-size:18px;letter-spacing:-.02em;text-decoration:none;color:#fff}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#00d4ff,#0047ff);display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-ac{color:#00d4ff}
+.nav-r{display:flex;align-items:center;gap:9px}
+.btn-ghost{padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:#fff;background:rgba(255,255,255,.07)}
+.btn-icon{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.btn-icon:hover{border-color:rgba(255,255,255,.2);color:#fff}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LANDING
+══════════════════════════════════════════════════════════════════════════ */
+#screen-landing{background:#060a0f;overflow:hidden}
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);
+  background-size:60px 60px;animation:gridMv 10s linear infinite}
+.bg-g1{position:fixed;top:-25%;left:-15%;width:65vw;height:65vh;background:radial-gradient(ellipse,rgba(0,212,255,.07) 0%,transparent 65%);pointer-events:none;z-index:0}
+.bg-g2{position:fixed;bottom:-25%;right:-15%;width:55vw;height:55vh;background:radial-gradient(ellipse,rgba(0,71,255,.06) 0%,transparent 65%);pointer-events:none;z-index:0}
+.bg-p{position:fixed;border-radius:50%;pointer-events:none;z-index:0;animation:float var(--d,6s) ease-in-out infinite var(--dl,0s);background:var(--accent);opacity:.11}
+
+.hero{position:relative;z-index:10;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 18px;border-radius:20px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.07);color:#00d4ff;font-size:11px;letter-spacing:.1em;font-family:var(--fm);margin-bottom:28px;animation:fadeUp .6s ease both}
+.hdot{animation:pulse 2s infinite}
+.hero-title{font-family:var(--fd);font-size:clamp(36px,7vw,82px);font-weight:800;line-height:1.04;letter-spacing:-.035em;max-width:880px;margin-bottom:20px;animation:fadeUp .6s .1s ease both}
+.hl{color:#00d4ff;position:relative}
+.hl::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;background:linear-gradient(90deg,#00d4ff,#0047ff);border-radius:2px}
+.hero-sub{font-size:17px;color:rgba(255,255,255,.45);max-width:520px;line-height:1.65;margin-bottom:50px;animation:fadeUp .6s .2s ease both}
+
+/* Input */
+.input-wrap{width:100%;max-width:630px;animation:fadeUp .6s .3s ease both}
+.input-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(0,212,255,.25);border-radius:18px;padding:7px 7px 7px 22px;backdrop-filter:blur(14px);box-shadow:0 0 0 1px rgba(0,212,255,.04),0 24px 64px rgba(0,0,0,.45);transition:border-color .3s,box-shadow .3s}
+.input-box:focus-within{border-color:rgba(0,212,255,.55);box-shadow:0 0 0 4px rgba(0,212,255,.07),0 24px 64px rgba(0,0,0,.45)}
+.input-ico{font-size:20px;flex-shrink:0}
+#disease-input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:17px;font-family:'DM Sans',sans-serif}
+#disease-input::placeholder{color:rgba(255,255,255,.28)}
+.btn-gen{padding:14px 32px;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#0047ff);border:none;color:#fff;font-weight:700;font-size:15px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;letter-spacing:.01em;box-shadow:0 6px 24px rgba(0,212,255,.3);transition:all .2s}
+.btn-gen:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,212,255,.45);filter:brightness(1.08)}
+.btn-gen:active{transform:translateY(0)}
+
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center}
+.pill{padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:rgba(255,255,255,.4);cursor:pointer;transition:all .25s}
+.pill:hover,.pill.active{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.1);color:#00d4ff}
+
+.mode-row{display:flex;gap:8px;margin-top:26px;animation:fadeUp .6s .4s ease both}
+.mode-btn{padding:8px 22px;border-radius:20px;font-size:13px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .25s}
+.mode-btn.active{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.1);color:#00d4ff;font-weight:600}
+
+.feats{display:flex;flex-wrap:wrap;gap:10px;margin-top:60px;justify-content:center;max-width:740px;animation:fadeUp .6s .5s ease both}
+.feat-tag{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:30px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);font-size:12px;color:rgba(255,255,255,.45)}
+
+/* Stats bar */
+.stats-bar{position:relative;z-index:10;display:flex;justify-content:center;gap:0;padding:28px 40px;border-top:1px solid rgba(255,255,255,.05);animation:fadeUp .6s .6s ease both}
+.stat-item{display:flex;flex-direction:column;align-items:center;padding:0 40px;border-right:1px solid rgba(255,255,255,.07)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:var(--fd);font-size:28px;font-weight:800;letter-spacing:-.02em;color:#fff;background:linear-gradient(135deg,#00d4ff,#0047ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;letter-spacing:.04em}
+
+/* Theme strip */
+.theme-strip{position:relative;z-index:10;display:flex;justify-content:center;gap:10px;padding:0 24px 36px;flex-wrap:wrap}
+.t-chip{display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:20px;font-size:11px;font-family:var(--fm);letter-spacing:.05em;border:1px solid;transition:all .25s;cursor:default}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HISTORY PAGE
+══════════════════════════════════════════════════════════════════════════ */
+#screen-history{background:#060a0f}
+.history-header{position:relative;z-index:10;padding:40px 40px 0;animation:fadeUp .5s ease both}
+.history-header h1{font-family:var(--fd);font-size:32px;font-weight:800;letter-spacing:-.025em;margin-bottom:6px}
+.history-header p{font-size:14px;color:var(--muted)}
+.history-body{position:relative;z-index:10;padding:32px 40px;flex:1}
+.history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.history-card{padding:20px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.history-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);transform:translateY(-2px)}
+.hc-type{font-family:var(--fm);font-size:10px;letter-spacing:.08em;margin-bottom:10px}
+.hc-name{font-family:var(--fd);font-size:18px;font-weight:700;letter-spacing:-.02em;color:#fff;margin-bottom:6px}
+.hc-date{font-size:11px;color:var(--muted);margin-bottom:14px}
+.hc-slides{display:flex;gap:4px;margin-bottom:14px}
+.hc-slide-thumb{height:28px;border-radius:4px;flex:1;background:rgba(255,255,255,.06)}
+.hc-actions{display:flex;gap:8px}
+.hc-btn{padding:6px 14px;border-radius:7px;font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid;transition:all .2s}
+.hc-btn-open{background:rgba(0,212,255,.1);color:#00d4ff;border-color:rgba(0,212,255,.3)}
+.hc-btn-open:hover{background:rgba(0,212,255,.18)}
+.hc-btn-del{background:rgba(255,255,255,.03);color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.1)}
+.hc-btn-del:hover{background:rgba(255,80,80,.1);color:#ff8080;border-color:rgba(255,80,80,.3)}
+.hc-deco{position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;opacity:.06}
+.history-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center;color:var(--muted)}
+.history-empty .ei{font-size:48px;margin-bottom:16px;opacity:.4}
+.history-empty p{font-size:14px;line-height:1.6}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GENERATING
+══════════════════════════════════════════════════════════════════════════ */
+#screen-generating{background:#060a0f;align-items:center;justify-content:center;text-align:center}
+.gen-orb{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,71,255,.12));border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:28px;animation:float 3s ease infinite,glowP 3s ease infinite}
+.gen-title{font-family:var(--fd);font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.gen-status{color:rgba(255,255,255,.38);font-size:14px;margin-bottom:44px;min-height:20px}
+.prog-track{width:100%;max-width:380px;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.prog-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,#00d4ff,#0047ff);box-shadow:0 0 14px rgba(0,212,255,.7);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prog-pct{font-family:var(--fm);font-size:12px;color:rgba(255,255,255,.22);margin-bottom:40px;width:100%;max-width:380px;text-align:center}
+.gen-steps{display:flex;flex-direction:column;gap:9px;width:100%;max-width:320px;text-align:left}
+.gstep{display:flex;align-items:center;gap:12px;opacity:.22;transition:opacity .5s}
+.gstep.done{opacity:1}
+.gstep-dot{width:20px;height:20px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:background .5s;font-family:var(--fm)}
+.gstep.done .gstep-dot{background:#00d4ff;color:#000;font-weight:700}
+.gstep-lbl{font-size:13px;color:rgba(255,255,255,.5);transition:color .5s}
+.gstep.done .gstep-lbl{color:#e8f4ff}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EDITOR
+══════════════════════════════════════════════════════════════════════════ */
+#screen-editor{background:#060a0f}
+.ed-topbar{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(6,10,15,.96);backdrop-filter:blur(14px);flex-shrink:0;z-index:100;position:relative}
+.tb-l{display:flex;align-items:center;gap:10px}
+.btn-back{padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.45);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-back:hover{color:#fff;border-color:rgba(255,255,255,.2)}
+.dis-badge{display:flex;align-items:center;gap:8px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+.dis-name{font-family:var(--fd);font-weight:700;font-size:15px;color:#fff}
+.type-tag{padding:3px 12px;border-radius:20px;font-size:11px;font-family:var(--fm)}
+.tb-r{display:flex;align-items:center;gap:8px}
+.btn-regen{padding:7px 16px;border-radius:8px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.08);color:#00d4ff;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-regen:hover{background:rgba(0,212,255,.16)}
+.btn-primary{padding:8px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#0047ff);color:#fff;cursor:pointer;font-weight:600;font-size:13px;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(0,212,255,.25);transition:all .2s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,212,255,.4)}
+
+.ed-body{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* Sidebar */
+.sidebar{width:186px;overflow-y:auto;padding:12px 9px;border-right:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.015);display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.thumb{padding:9px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .2s}
+.thumb:hover{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1)}
+.thumb.active{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.35)}
+.th-hd{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.th-num{font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.05em}
+.thumb.active .th-num{color:var(--accent)}
+.th-ico{font-size:12px}
+.th-lbl{font-size:11px;font-weight:600;color:rgba(255,255,255,.45)}
+.thumb.active .th-lbl{color:#fff}
+.th-prev{height:30px;border-radius:5px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);margin-top:6px;overflow:hidden;position:relative}
+.thumb.active .th-prev{background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.15)}
+.th-bars{position:absolute;inset:4px;display:flex;flex-direction:column;gap:3px}
+.th-bar{border-radius:2px;background:rgba(255,255,255,.08)}
+.thumb.active .th-bar{background:rgba(0,212,255,.4)}
+
+/* Canvas */
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.015) 0%,transparent 65%)}
+.slide-wrapper{width:100%;max-width:456px}
+.slide-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.slide-ctr{font-family:var(--fm);font-size:11px;color:rgba(255,255,255,.2)}
+.sdots{display:flex;gap:4px}
+.sdot{height:4px;border-radius:2px;background:rgba(255,255,255,.13);cursor:pointer;transition:all .3s}
+.sdot.active{background:var(--accent)}
+#slide-frame{width:100%;aspect-ratio:4/5;border-radius:18px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06);position:relative}
+.slide-nav{display:flex;gap:9px;margin-top:14px;justify-content:center}
+.btn-snav{padding:8px 20px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.45);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:all .2s}
+.btn-snav:hover{color:#fff;border-color:rgba(255,255,255,.2)}
+.btn-snav:disabled{opacity:.25;cursor:not-allowed}
+.btn-spng{padding:8px 20px;border-radius:8px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.08);color:#00d4ff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:all .2s}
+.btn-spng:hover{background:rgba(0,212,255,.16)}
+
+/* Info panel */
+.info-panel{width:218px;padding:16px 13px;overflow-y:auto;border-left:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.01);flex-shrink:0}
+.pnl-title{font-size:10px;color:rgba(255,255,255,.27);font-family:var(--fm);letter-spacing:.1em;font-weight:600;margin-bottom:9px}
+.theme-card{padding:13px 12px;border-radius:10px;margin-bottom:11px;border:1px solid rgba(0,212,255,.25);background:rgba(0,212,255,.06)}
+.tc-lbl{font-size:10px;font-family:var(--fm);letter-spacing:.08em;margin-bottom:6px;color:var(--accent)}
+.tc-name{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#fff}
+.palette{display:flex;gap:6px;margin-bottom:14px}
+.swatch{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:transform .2s}
+.swatch:hover{transform:scale(1.12)}
+.exp-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;text-align:left}
+.exp-btn:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+.eb-lbl{font-size:13px;font-weight:600}
+.eb-sub{font-size:11px;color:rgba(255,255,255,.3)}
+.eb-ico{font-size:15px}
+.soc-row{display:flex;gap:6px;flex-wrap:wrap}
+.soc-btn{padding:6px 10px;border-radius:6px;font-size:11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.soc-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+
+/* AI Tools panel inside info */
+.ai-tools{margin-top:14px}
+.ai-tool-btn{width:100%;padding:9px 12px;border-radius:8px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.6);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;text-align:left;transition:all .2s;display:flex;align-items:center;gap:8px}
+.ai-tool-btn:hover{background:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.14)}
+.ai-tool-btn span{flex:1}
+
+/* Hashtag panel */
+.hashtag-panel{margin-top:10px;padding:11px 12px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)}
+.hashtag-panel .ht-title{font-size:10px;font-family:var(--fm);letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.hashtags{display:flex;flex-wrap:wrap;gap:5px}
+.htag{font-size:11px;color:#00d4ff;font-family:var(--fm);background:rgba(0,212,255,.08);padding:2px 8px;border-radius:4px;cursor:pointer}
+.htag:hover{background:rgba(0,212,255,.16)}
+
+/* Citation panel */
+.citation-panel{margin-top:10px;padding:11px 12px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)}
+.citation-panel .cit-title{font-size:10px;font-family:var(--fm);letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.cit-text{font-size:11px;color:rgba(255,255,255,.5);line-height:1.55;font-family:var(--fm)}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MODAL (AI Tools overlay)
+══════════════════════════════════════════════════════════════════════════ */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:24px}
+#modal-overlay.open{display:flex}
+.modal{background:#0d1520;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;animation:scaleIn .25s ease both}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.07)}
+.modal-title{font-family:var(--fd);font-size:17px;font-weight:700;letter-spacing:-.02em}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{color:#fff;background:rgba(255,255,255,.1)}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:9px;justify-content:flex-end}
+.modal-result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;font-size:13px;line-height:1.65;color:rgba(255,255,255,.75);min-height:80px;white-space:pre-wrap}
+.modal-spinner{display:flex;align-items:center;justify-content:center;padding:30px;gap:10px;color:var(--muted);font-size:14px}
+.spin-ico{font-size:22px;animation:spin 1s linear infinite;display:inline-block}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EXPORT MODAL
+══════════════════════════════════════════════════════════════════════════ */
+#export-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:24px}
+#export-modal.open{display:flex}
+.exp-modal{background:#0d1520;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:440px;overflow:hidden;animation:scaleIn .25s ease both}
+.exp-modal-hd{padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+.exp-modal-hd h2{font-family:var(--fd);font-size:17px;font-weight:700}
+.exp-grid{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.exp-card{padding:18px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .25s;text-align:center}
+.exp-card:hover{background:rgba(255,255,255,.07);transform:translateY(-2px)}
+.exp-card .ec-ico{font-size:28px;margin-bottom:8px}
+.exp-card .ec-lbl{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px}
+.exp-card .ec-sub{font-size:11px;color:var(--muted)}
+.exp-social{padding:0 24px 24px}
+.exp-social-title{font-size:11px;color:var(--muted);font-family:var(--fm);letter-spacing:.08em;margin-bottom:10px}
+.exp-social-btns{display:flex;gap:8px}
+.exp-soc{flex:1;padding:11px 8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,.5);transition:all .2s;text-align:center}
+.exp-soc:hover{background:rgba(255,255,255,.08);color:#fff}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SLIDE INNER STYLES
+══════════════════════════════════════════════════════════════════════════ */
+.si{width:100%;height:100%;padding:30px 26px;display:flex;flex-direction:column;position:relative;overflow:hidden;color:#e8f4ff;font-family:'DM Sans',sans-serif}
+.sd1{position:absolute;top:-70px;right:-70px;width:220px;height:220px;border-radius:50%;pointer-events:none}
+.sd2{position:absolute;bottom:-50px;left:-50px;width:160px;height:160px;border-radius:50%;pointer-events:none}
+.sd3{position:absolute;top:0;left:0;right:0;height:1px;pointer-events:none}
+.sd4{position:absolute;bottom:50px;right:18px;display:grid;grid-template-columns:repeat(4,6px);gap:4px;opacity:.1;pointer-events:none}
+.sd4-d{width:6px;height:6px;border-radius:50%}
+.s-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-family:var(--fm);font-size:10px;letter-spacing:.08em;margin-bottom:13px;white-space:nowrap;flex-shrink:0;width:fit-content}
+.s-h{font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-.025em;line-height:1.08;color:#fff;margin-bottom:11px}
+.s-body{font-size:12.5px;line-height:1.65;margin-bottom:13px;flex-shrink:0}
+.s-bul{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.s-bd{font-size:11px;margin-top:2px;flex-shrink:0}
+.s-bt{font-size:12.5px;line-height:1.5}
+.s-logo{position:absolute;bottom:16px;right:16px;font-family:var(--fm);font-size:9px;letter-spacing:.06em;opacity:.3}
+.s-num{position:absolute;bottom:16px;left:16px;font-family:var(--fm);font-size:10px;opacity:.28}
+.s-stat{padding:11px 13px;border-radius:10px;margin-bottom:13px;flex-shrink:0}
+.s-stat-lbl{font-family:var(--fm);font-size:9px;letter-spacing:.1em;margin-bottom:4px}
+.s-stat-v{font-family:'Syne',sans-serif;font-weight:700;font-size:14.5px;color:#fff;line-height:1.3}
+.s-agent{display:flex;align-items:center;gap:11px;margin-bottom:11px;flex-shrink:0}
+.s-agent-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.s-agent-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#fff}
+.s-agent-type{font-family:var(--fm);font-size:10px;margin-top:2px}
+.s-route{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:7px;flex-shrink:0}
+.s-route-ico{font-size:19px;flex-shrink:0}
+.s-route-n{font-size:12.5px;font-weight:600;color:#fff}
+.s-route-d{font-size:11px;opacity:.5;margin-top:1px}
+.s-note{padding:9px 12px;border-radius:8px;font-size:11.5px;line-height:1.5;flex-shrink:0}
+.s-stage{padding:10px 12px;border-radius:10px;margin-bottom:7px;flex-shrink:0}
+.s-stage-t{font-family:var(--fm);font-size:9.5px;font-weight:700;letter-spacing:.1em;margin-bottom:5px}
+.s-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;flex-shrink:0}
+.s-step-n{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:var(--fm)}
+.s-step-t{font-size:12px;line-height:1.5;padding-top:3px}
+.s-meth{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:11px;margin-bottom:8px;flex-shrink:0}
+.s-meth-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.s-meth-n{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:2px}
+.s-meth-t{font-family:var(--fm);font-size:9.5px;margin-bottom:3px}
+.s-meth-d{font-size:11px;opacity:.5}
+.s-tx{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);margin-bottom:8px;flex-shrink:0}
+.s-tx-cat{font-family:var(--fm);font-size:9.5px;font-weight:700;letter-spacing:.1em;margin-bottom:6px}
+.s-prev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0}
+.s-prev-c{padding:12px 10px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:5px}
+.s-prev-ico{font-size:22px}
+.s-prev-n{font-size:12px;font-weight:600;color:#fff}
+.s-prev-d{font-size:10.5px;opacity:.5;line-height:1.4}
+.s-fact{display:flex;gap:9px;padding:8px 10px;border-radius:8px;margin-bottom:5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.s-fact-n{font-family:var(--fm);font-size:9.5px;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px;font-weight:500}
+.s-fact-t{font-size:11.5px;line-height:1.5;opacity:.75}
+.s-mort{padding:8px 12px;border-radius:8px;margin-top:7px;flex-shrink:0;font-size:11px;background:rgba(255,100,100,.07);border:1px solid rgba(255,100,100,.2);color:#ff9090}
+.s-cit{font-family:var(--fm);font-size:9px;opacity:.4;margin-top:5px;flex-shrink:0}
+.s-title-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.s-emoji{font-size:64px;margin-bottom:16px;animation:float 4s ease infinite;display:block}
+.s-big-h{font-family:'Syne',sans-serif;font-size:clamp(22px,4.5vw,34px);font-weight:800;letter-spacing:-.03em;line-height:1.05;color:#fff;margin-bottom:10px}
+.s-tagline{font-size:12.5px;line-height:1.65;opacity:.5;max-width:340px;margin-bottom:18px}
+.s-tbadge{padding:7px 16px;border-radius:20px;font-family:var(--fm);font-size:10px;letter-spacing:.06em}
+
+/* ══ Toast ══════════════════════════════════════════════════════════════ */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);padding:11px 22px;border-radius:10px;background:rgba(15,22,32,.97);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;backdrop-filter:blur(14px);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ══ Responsive ══════════════════════════════════════════════════════════ */
+@media(max-width:900px){.sidebar,.info-panel{display:none}.stats-bar{padding:20px}.stat-item{padding:0 20px}}
+@media(max-width:600px){.hero-title{font-size:34px}.feats,.theme-strip{display:none}.tb-r .btn-regen{display:none}}
+[dir="rtl"] .sidebar{border-right:none;border-left:1px solid rgba(255,255,255,.05)}
+[dir="rtl"] .info-panel{border-left:none;border-right:1px solid rgba(255,255,255,.05)}
+[dir="rtl"] .s-logo{right:auto;left:16px}
+[dir="rtl"] .s-num{left:auto;right:16px}
+[dir="rtl"] .s-bul,.s-step,.s-agent,.s-route{flex-direction:row-reverse}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ LANDING ═══════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="bg-grid"></div><div class="bg-g1"></div><div class="bg-g2"></div>
+  <div class="bg-p" style="width:6px;height:6px;top:20%;left:15%;--d:7s;--dl:0s"></div>
+  <div class="bg-p" style="width:4px;height:4px;top:60%;left:80%;--d:5s;--dl:1s"></div>
+  <div class="bg-p" style="width:8px;height:8px;top:78%;left:42%;--d:9s;--dl:2s"></div>
+  <div class="bg-p" style="width:5px;height:5px;top:35%;left:68%;--d:6s;--dl:.5s"></div>
+
+  <nav class="navbar">
+    <a class="logo" href="#"><div class="logo-icon">🧬</div>MedSlide<span class="logo-ac">AI</span></a>
+    <div class="nav-r">
+      <button class="btn-ghost" id="btn-history">🗂 History</button>
+      <button class="btn-ghost" id="lang-toggle-landing">العربية</button>
+      <button class="btn-icon" id="dark-toggle" title="Toggle theme">☀️</button>
+    </div>
+  </nav>
+
+  <main class="hero">
+    <div class="hero-badge"><span class="hdot">◉</span><span id="hero-badge-text">POWERED BY AI · MEDICAL GRADE</span></div>
+    <h1 class="hero-title" id="hero-title">Generate Medical Slides<br>with <span class="hl">AI Intelligence</span></h1>
+    <p class="hero-sub" id="hero-sub">Type a disease name and watch AI build a complete educational slide deck in seconds. Ready for Instagram, TikTok &amp; clinical use.</p>
+
+    <div class="input-wrap">
+      <div class="input-box">
+        <span class="input-ico">🔬</span>
+        <input type="text" id="disease-input" placeholder="e.g. Rabies" autocomplete="off" spellcheck="false"/>
+        <button class="btn-gen" id="btn-generate">Generate ⚡</button>
+      </div>
+      <div class="pills" id="sample-pills">
+        <button class="pill" data-val="Rabies">Rabies</button>
+        <button class="pill" data-val="Tuberculosis">Tuberculosis</button>
+        <button class="pill" data-val="Avian Influenza">Avian Influenza</button>
+        <button class="pill" data-val="Mastitis">Mastitis</button>
+        <button class="pill" data-val="Foot and Mouth Disease">FMD</button>
+      </div>
+    </div>
+
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="simple" id="mode-simple">🎓 Simple Mode</button>
+      <button class="mode-btn" data-mode="scientific" id="mode-scientific">🔬 Scientific Mode</button>
+    </div>
+
+    <div class="feats">
+      <div class="feat-tag">🎨 Smart Visual Identity</div>
+      <div class="feat-tag">📱 Mobile Optimized 4:5</div>
+      <div class="feat-tag">🌍 Arabic &amp; English</div>
+      <div class="feat-tag">⚡ 10 Slides in Seconds</div>
+      <div class="feat-tag">📤 PNG / PDF Export</div>
+      <div class="feat-tag">🤖 AI Content Tools</div>
+      <div class="feat-tag">🗂 Saved Projects</div>
+    </div>
+  </main>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">SLIDES GENERATED</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">DISEASE TYPES</div></div>
+    <div class="stat-item"><div class="stat-num">4:5</div><div class="stat-label">SOCIAL FORMAT</div></div>
+    <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">LANGUAGES</div></div>
+  </div>
+
+  <div class="theme-strip">
+    <div class="t-chip" style="color:#00d4ff;border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.06)">🦠 VIRAL</div>
+    <div class="t-chip" style="color:#00e87a;border-color:rgba(0,232,122,.3);background:rgba(0,232,122,.06)">🧫 BACTERIAL</div>
+    <div class="t-chip" style="color:#c77dff;border-color:rgba(199,125,255,.3);background:rgba(199,125,255,.06)">🍄 FUNGAL</div>
+    <div class="t-chip" style="color:#ffc300;border-color:rgba(255,195,0,.3);background:rgba(255,195,0,.06)">🪱 PARASITIC</div>
+    <div class="t-chip" style="color:#ff6b6b;border-color:rgba(255,107,107,.3);background:rgba(255,107,107,.06)">⚗️ METABOLIC</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ HISTORY ═══════════════════════════════════════ -->
+<div id="screen-history" class="screen">
+  <div class="bg-grid"></div>
+  <nav class="navbar">
+    <a class="logo" href="#"><div class="logo-icon">🧬</div>MedSlide<span class="logo-ac">AI</span></a>
+    <div class="nav-r">
+      <button class="btn-ghost" id="btn-history-back">← Back</button>
+    </div>
+  </nav>
+  <div class="history-header">
+    <h1>🗂 Saved Projects</h1>
+    <p>Your previously generated slide decks</p>
+  </div>
+  <div class="history-body">
+    <div class="history-grid" id="history-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ GENERATING ════════════════════════════════════ -->
+<div id="screen-generating" class="screen">
+  <div class="bg-grid"></div>
+  <div class="gen-orb">🧬</div>
+  <h2 class="gen-title">Analyzing: <span id="gen-disease-name"></span></h2>
+  <p class="gen-status" id="gen-status">Initializing...</p>
+  <div class="prog-track"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+  <p class="prog-pct" id="prog-pct">0%</p>
+  <div class="gen-steps">
+    <div class="gstep" id="gstep-0"><div class="gstep-dot">✓</div><span class="gstep-lbl">Classify disease type</span></div>
+    <div class="gstep" id="gstep-1"><div class="gstep-dot">✓</div><span class="gstep-lbl">Generate scientific content</span></div>
+    <div class="gstep" id="gstep-2"><div class="gstep-dot">✓</div><span class="gstep-lbl">Build visual identity</span></div>
+    <div class="gstep" id="gstep-3"><div class="gstep-dot">✓</div><span class="gstep-lbl">Assemble slide deck</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ EDITOR ════════════════════════════════════════ -->
+<div id="screen-editor" class="screen">
+  <header class="ed-topbar">
+    <div class="tb-l">
+      <button class="btn-back" id="btn-back">← Back</button>
+      <div class="dis-badge">
+        <div class="live-dot" id="live-dot"></div>
+        <span class="dis-name" id="ed-disease-name">Disease</span>
+        <span class="type-tag" id="ed-type-tag">🦠 Viral</span>
+      </div>
+    </div>
+    <div class="tb-r">
+      <button class="btn-regen" id="btn-regen">⟳ Regenerate</button>
+      <button class="btn-ghost" id="lang-toggle-editor">AR</button>
+      <button class="btn-primary" id="btn-export-all">Export ↓</button>
+    </div>
+  </header>
+
+  <div class="ed-body">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="canvas-area">
+      <div class="slide-wrapper">
+        <div class="slide-meta">
+          <span class="slide-ctr" id="slide-ctr">01 / 10</span>
+          <div class="sdots" id="sdots"></div>
+        </div>
+        <div id="slide-frame"></div>
+        <div class="slide-nav">
+          <button class="btn-snav" id="btn-prev">← Prev</button>
+          <button class="btn-spng" id="btn-png">↓ PNG</button>
+          <button class="btn-snav" id="btn-next">Next →</button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="info-panel">
+      <div class="pnl-title">SLIDE INFO</div>
+      <div class="theme-card" id="theme-card">
+        <div class="tc-lbl">VISUAL THEME</div>
+        <div class="tc-name"><span id="ti-icon">🦠</span><span id="ti-name">Viral Disease</span></div>
+      </div>
+      <div class="pnl-title" style="margin-bottom:7px">COLOR PALETTE</div>
+      <div class="palette" id="palette"></div>
+
+      <div class="pnl-title" style="margin:12px 0 7px">EXPORT</div>
+      <button class="exp-btn" onclick="showExportModal()"><div><div class="eb-lbl">PNG</div><div class="eb-sub">Current slide</div></div><span class="eb-ico">↓</span></button>
+      <button class="exp-btn" onclick="showExportModal()"><div><div class="eb-lbl">PDF</div><div class="eb-sub">All 10 slides</div></div><span class="eb-ico">↓</span></button>
+      <button class="exp-btn" onclick="showExportModal()"><div><div class="eb-lbl">PPTX</div><div class="eb-sub">Editable deck</div></div><span class="eb-ico">↓</span></button>
+
+      <div class="pnl-title" style="margin:12px 0 7px">SOCIAL</div>
+      <div class="soc-row">
+        <button class="soc-btn" onclick="showExportModal()">📸 IG</button>
+        <button class="soc-btn" onclick="showExportModal()">🎵 TK</button>
+        <button class="soc-btn" onclick="showExportModal()">👥 FB</button>
+      </div>
+
+      <div class="pnl-title" style="margin:14px 0 7px">AI TOOLS</div>
+      <div class="ai-tools">
+        <button class="ai-tool-btn" onclick="openAITool('simplify')"><span>🎓</span><span>Explain Simply</span></button>
+        <button class="ai-tool-btn" onclick="openAITool('scientific')"><span>🔬</span><span>Scientific Mode</span></button>
+        <button class="ai-tool-btn" onclick="openAITool('citation')"><span>📚</span><span>Generate Citation</span></button>
+        <button class="ai-tool-btn" onclick="openAITool('hashtags')"><span>#️⃣</span><span>Auto Hashtags</span></button>
+      </div>
+
+      <div id="hashtag-panel" class="hashtag-panel" style="display:none">
+        <div class="ht-title">HASHTAGS</div>
+        <div class="hashtags" id="hashtag-list"></div>
+      </div>
+
+      <div id="citation-panel" class="citation-panel" style="display:none">
+        <div class="cit-title">CITATION</div>
+        <div class="cit-text" id="citation-text"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ═══════════════════════ EXPORT MODAL ══════════════════════════════════ -->
+<div id="export-modal">
+  <div class="exp-modal">
+    <div class="exp-modal-hd">
+      <h2>Export Slides</h2>
+      <button class="modal-close" onclick="closeExportModal()">✕</button>
+    </div>
+    <div class="exp-grid">
+      <div class="exp-card" onclick="exportPNG()"><div class="ec-ico">🖼</div><div class="ec-lbl">PNG</div><div class="ec-sub">Current slide<br>1080 × 1350</div></div>
+      <div class="exp-card" onclick="exportAllPNG()"><div class="ec-ico">📦</div><div class="ec-lbl">All PNGs</div><div class="ec-sub">All 10 slides<br>ZIP archive</div></div>
+      <div class="exp-card" onclick="toast('PDF export: connect jsPDF in production.')"><div class="ec-ico">📄</div><div class="ec-lbl">PDF</div><div class="ec-sub">All slides<br>Print-ready</div></div>
+      <div class="exp-card" onclick="toast('PPTX export: connect PptxGenJS in production.')"><div class="ec-ico">📊</div><div class="ec-lbl">PPTX</div><div class="ec-sub">Editable deck<br>PowerPoint</div></div>
+    </div>
+    <div class="exp-social">
+      <div class="exp-social-title">ONE-CLICK SOCIAL</div>
+      <div class="exp-social-btns">
+        <div class="exp-soc" onclick="exportPNG('instagram')">📸 Instagram</div>
+        <div class="exp-soc" onclick="exportPNG('tiktok')">🎵 TikTok</div>
+        <div class="exp-soc" onclick="exportPNG('facebook')">👥 Facebook</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ AI TOOL MODAL ═════════════════════════════════ -->
+<div id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">AI Tool</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="modal-spinner"><span class="spin-ico">⟳</span> Generating...</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn-primary" id="modal-copy-btn" onclick="copyModalResult()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════ JAVASCRIPT ════════════════════════════════════ -->
+<script>
+/* ── Constants ──────────────────────────────────────────────────────────── */
+const THEMES = {
+  viral:     {label:'Viral',    icon:'🦠',accent:'#00d4ff',accent2:'#ff3366',sub:'#7db8d4',bg1:'#0a1628',bg2:'#0d2b4e',glow:'rgba(0,212,255,.35)'},
+  bacterial: {label:'Bacterial',icon:'🧫',accent:'#00e87a',accent2:'#b8ff6e',sub:'#7dbb8c',bg1:'#0a1f0a',bg2:'#0d3318',glow:'rgba(0,232,122,.35)'},
+  fungal:    {label:'Fungal',   icon:'🍄',accent:'#c77dff',accent2:'#ffd166',sub:'#a87dbb',bg1:'#1a0a2e',bg2:'#2d1052',glow:'rgba(199,125,255,.35)'},
+  parasitic: {label:'Parasitic',icon:'🪱',accent:'#ffc300',accent2:'#ff6b35',sub:'#bbaa7d',bg1:'#1a1200',bg2:'#332400',glow:'rgba(255,195,0,.35)'},
+  metabolic: {label:'Metabolic',icon:'⚗️',accent:'#ff6b6b',accent2:'#ffa07a',sub:'#bb8888',bg1:'#1a0808',bg2:'#3d0f0f',glow:'rgba(255,107,107,.35)'},
+};
+
+const SECTIONS = [
+  {id:'title',        label:'Title',        icon:'◈'},
+  {id:'overview',     label:'Overview',     icon:'📋'},
+  {id:'etiology',     label:'Etiology',     icon:'🔬'},
+  {id:'transmission', label:'Transmission', icon:'↔'},
+  {id:'symptoms',     label:'Symptoms',     icon:'🩺'},
+  {id:'pathogenesis', label:'Pathogenesis', icon:'⚡'},
+  {id:'diagnosis',    label:'Diagnosis',    icon:'🧪'},
+  {id:'treatment',    label:'Treatment',    icon:'💊'},
+  {id:'prevention',   label:'Prevention',   icon:'🛡'},
+  {id:'keyfacts',     label:'Key Facts',    icon:'⭐'},
+];
+
+const STORAGE_KEY = 'medslide_history';
+
+/* ── App state ──────────────────────────────────────────────────────────── */
+let State = {
+  lang:'en', mode:'simple', activeSlide:0,
+  slides:null, theme:null, diseaseName:'',
+  isGenerating:false,
+  lastModalResult:'',
+};
+
+/* ── Screen routing ─────────────────────────────────────────────────────── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.body.setAttribute('dir', State.lang==='ar' ? 'rtl' : 'ltr');
+}
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+function toast(msg, dur=3200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+/* ── HTML escape ────────────────────────────────────────────────────────── */
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Local storage history ──────────────────────────────────────────────── */
+function saveToHistory(data) {
+  try {
+    let h = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+    h.unshift({...data, savedAt: new Date().toISOString(), id: Date.now()});
+    if (h.length > 20) h = h.slice(0,20);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
+  } catch(e){}
+}
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch(e){ return []; }
+}
+
+function deleteHistory(id) {
+  try {
+    let h = loadHistory().filter(x => x.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
+  } catch(e){}
+}
+
+/* ── Progress ───────────────────────────────────────────────────────────── */
+function setProgress(pct, status) {
+  document.getElementById('prog-bar').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent = pct+'%';
+  document.getElementById('gen-status').textContent = status;
+  [5,25,70,92].forEach((t,i) => document.getElementById('gstep-'+i).classList.toggle('done', pct>=t));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GENERATE
+══════════════════════════════════════════════════════════════════════════ */
+async function generate(disease) {
+  if (State.isGenerating || !disease.trim()) return;
+  State.isGenerating = true;
+  State.diseaseName = disease.trim();
+
+  document.getElementById('gen-disease-name').textContent = State.diseaseName;
+  showScreen('generating');
+  setProgress(5, State.lang==='ar' ? 'تحليل المرض...' : 'Analyzing disease...');
+
+  const sys = `You are a medical education AI that creates concise, accurate slide content for disease education.
+Output ONLY valid JSON — no markdown fences, no preamble, no extra text.
+Detect the disease type from: viral | bacterial | fungal | parasitic | metabolic
+
+Return EXACTLY this JSON structure:
+{
+  "diseaseType":"viral",
+  "diseaseName":"Official name",
+  "tagline":"One powerful sentence about this disease",
+  "slides":{
+    "title":{"headline":"...","subheadline":"...","badge":"Type | Key fact","emoji":"🦠"},
+    "overview":{"headline":"What is it?","summary":"2-3 sentences","bullets":["pt1","pt2","pt3"],"stat":"Striking statistic"},
+    "etiology":{"headline":"Etiology & Cause","agent":"Agent name","agentType":"e.g. RNA virus","description":"2-3 sentences","bullets":["d1","d2","d3"]},
+    "transmission":{"headline":"How It Spreads","routes":[{"icon":"🐾","route":"Name","detail":"brief"},{"icon":"💨","route":"Name","detail":"brief"},{"icon":"🤝","route":"Name","detail":"brief"}],"note":"Important note"},
+    "symptoms":{"headline":"Clinical Signs","onset":"Incubation period","stages":[{"stage":"Early","signs":["s1","s2"]},{"stage":"Acute","signs":["s1","s2"]},{"stage":"Late","signs":["s1","s2"]}]},
+    "pathogenesis":{"headline":"Pathogenesis","summary":"2-3 sentence mechanism","steps":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ..."],"targetOrgan":"Primary organ"},
+    "diagnosis":{"headline":"Diagnosis","methods":[{"name":"Method 1","type":"Gold standard","detail":"brief"},{"name":"Method 2","type":"Lab","detail":"brief"},{"name":"Method 3","type":"Clinical","detail":"brief"}]},
+    "treatment":{"headline":"Treatment","approach":"General approach","options":[{"category":"First-line","items":["item1","item2"]},{"category":"Supportive","items":["item1","item2"]},{"category":"Monitoring","items":["item1"]}]},
+    "prevention":{"headline":"Prevention & Control","measures":[{"icon":"💉","title":"Vaccination","detail":"brief"},{"icon":"🧼","title":"Hygiene","detail":"brief"},{"icon":"🚫","title":"Control","detail":"brief"},{"icon":"📋","title":"Surveillance","detail":"brief"}]},
+    "keyfacts":{"headline":"Key Facts","facts":["fact1","fact2","fact3","fact4","fact5"],"mortality":"Mortality data","citation":"WHO/CDC or authority"}
+  }
+}`;
+
+  const usr = State.lang==='ar'
+    ? `أنشئ محتوى شرائح طبية تعليمية عن مرض: ${State.diseaseName}. الإجابة باللغة العربية العلمية الفصحى.`
+    : `Generate complete medical educational slide content for: ${State.diseaseName}. Use ${State.mode==='scientific'?'scientific terminology for medical/veterinary students':'clear accessible language for general education'}.`;
+
+  try {
+    await delay(350);
+    setProgress(15, State.lang==='ar' ? 'توليد المحتوى العلمي...' : 'Generating scientific content...');
+
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:sys,
+        messages:[{role:'user',content:usr}]
+      })
+    });
+
+    setProgress(60, State.lang==='ar' ? 'بناء الشرائح المرئية...' : 'Building visual slides...');
+    const data = await res.json();
+    const raw = (data.content||[]).map(b=>b.text||'').join('');
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    State.slides = parsed;
+    State.theme = THEMES[parsed.diseaseType] || THEMES.viral;
+    State.diseaseName = parsed.diseaseName || State.diseaseName;
+
+    setProgress(82, State.lang==='ar' ? 'تطبيق الهوية البصرية...' : 'Applying visual identity...');
+    await delay(450);
+
+    // Save to history
+    saveToHistory({
+      diseaseName: State.diseaseName,
+      diseaseType: parsed.diseaseType,
+      tagline: parsed.tagline,
+      slides: parsed,
+      themeKey: parsed.diseaseType,
+    });
+
+    setProgress(100, State.lang==='ar' ? 'اكتمل! 🎉' : 'Complete! 🎉');
+    await delay(500);
+
+    buildEditor();
+    showScreen('editor');
+  } catch(err) {
+    console.error(err);
+    setProgress(0, '❌ Error: '+(err.message||'Something went wrong. Please try again.'));
+    await delay(2800);
+    showScreen('landing');
+  } finally {
+    State.isGenerating = false;
+  }
+}
+
+function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BUILD EDITOR
+══════════════════════════════════════════════════════════════════════════ */
+function buildEditor() {
+  const t = State.theme;
+
+  // Topbar
+  document.getElementById('ed-disease-name').textContent = State.diseaseName;
+  const tt = document.getElementById('ed-type-tag');
+  tt.textContent = t.icon+' '+t.label;
+  tt.style.cssText = `color:${t.accent};border-color:${t.accent}55;background:${t.accent}16;padding:3px 12px;border-radius:20px;font-size:11px;font-family:var(--fm);border:1px solid`;
+  document.getElementById('live-dot').style.background = t.accent;
+
+  // Theme card
+  const tc = document.getElementById('theme-card');
+  tc.style.cssText = `padding:13px 12px;border-radius:10px;margin-bottom:11px;background:${t.accent}0e;border:1px solid ${t.accent}35`;
+  tc.querySelector('.tc-lbl').style.color = t.accent;
+  document.getElementById('ti-icon').textContent = t.icon;
+  document.getElementById('ti-name').textContent = t.label+' Disease';
+
+  // Palette
+  document.getElementById('palette').innerHTML =
+    [t.accent,t.accent2,t.bg1,t.bg2].map(c=>
+      `<div class="swatch" style="background:${c}" title="${c}" onclick="toast('Copied: ${c}')"></div>`
+    ).join('');
+
+  // Slide frame glow
+  document.getElementById('slide-frame').style.boxShadow =
+    `0 32px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06),0 0 60px ${t.accent}22`;
+
+  buildSidebar();
+  buildDots();
+  State.activeSlide = 0;
+  renderSlide(0);
+  updateNav();
+
+  // Hide AI panels until used
+  document.getElementById('hashtag-panel').style.display = 'none';
+  document.getElementById('citation-panel').style.display = 'none';
+}
+
+function buildSidebar() {
+  document.getElementById('sidebar').innerHTML = SECTIONS.map((s,i)=>`
+    <div class="thumb ${i===0?'active':''}" onclick="goSlide(${i})" id="thumb-${i}">
+      <div class="th-hd"><span class="th-ico">${s.icon}</span><span class="th-num">0${i+1}</span></div>
+      <div class="th-lbl">${s.label}</div>
+      <div class="th-prev"><div class="th-bars">
+        <div class="th-bar" style="height:3px;width:60%"></div>
+        <div class="th-bar" style="height:2px;width:88%"></div>
+        <div class="th-bar" style="height:2px;width:72%"></div>
+      </div></div>
+    </div>
+  `).join('');
+}
+
+function buildDots() {
+  const t = State.theme;
+  document.getElementById('sdots').innerHTML = SECTIONS.map((_,i)=>
+    `<div class="sdot ${i===0?'active':''}" id="sdot-${i}" style="width:${i===0?16:4}px;${i===0?'background:'+t.accent:''}" onclick="goSlide(${i})"></div>`
+  ).join('');
+}
+
+function goSlide(i) {
+  State.activeSlide = i;
+  renderSlide(i);
+  updateNav();
+  document.querySelectorAll('.thumb').forEach((el,j)=>el.classList.toggle('active',j===i));
+  document.querySelectorAll('.sdot').forEach((el,j)=>{
+    el.classList.toggle('active',j===i);
+    el.style.width = (j===i?16:4)+'px';
+    el.style.background = j===i ? State.theme.accent : 'rgba(255,255,255,.13)';
+  });
+  document.getElementById('slide-ctr').textContent =
+    String(i+1).padStart(2,'0')+' / '+String(SECTIONS.length).padStart(2,'0');
+}
+
+function updateNav() {
+  document.getElementById('btn-prev').disabled = State.activeSlide===0;
+  document.getElementById('btn-next').disabled = State.activeSlide===SECTIONS.length-1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RENDER SLIDE
+══════════════════════════════════════════════════════════════════════════ */
+function renderSlide(idx) {
+  const frame = document.getElementById('slide-frame');
+  frame.style.opacity='0'; frame.style.transform='scale(.96)';
+  setTimeout(()=>{
+    frame.innerHTML = buildSlideHTML(SECTIONS[idx].id, State.slides.slides, State.theme);
+    frame.style.transition='opacity .28s ease,transform .28s ease';
+    frame.style.opacity='1'; frame.style.transform='scale(1)';
+  },110);
+}
+
+function buildSlideHTML(sid, s, t) {
+  const bg = `linear-gradient(155deg,${t.bg1} 0%,${t.bg2} 55%,${t.bg1} 100%)`;
+  const deco = `
+    <div class="sd1" style="background:radial-gradient(circle,${t.accent}18,transparent 70%)"></div>
+    <div class="sd2" style="background:radial-gradient(circle,${t.accent2}12,transparent 70%)"></div>
+    <div class="sd3" style="background:linear-gradient(90deg,transparent,${t.accent}75,transparent)"></div>
+    <div class="sd4">${Array(16).fill(`<div class="sd4-d" style="background:${t.accent}"></div>`).join('')}</div>`;
+  const logo = `<div class="s-logo" style="color:${t.accent}">MedSlideAI</div>`;
+  const tag = (ico,txt)=>`<div class="s-tag" style="background:${t.accent}18;border:1px solid ${t.accent}48;color:${t.accent}">${ico} ${esc(txt)}</div>`;
+  const headline = (txt,sz=21)=>`<h2 class="s-h" style="font-size:${sz}px">${esc(txt)}</h2>`;
+  const bul = (ico,txt,c)=>`<div class="s-bul"><span class="s-bd" style="color:${c}">${ico}</span><span class="s-bt" style="color:${t.sub}">${esc(txt)}</span></div>`;
+  const wrap = (html,num)=>`<div class="si" style="background:${bg}">${deco}${html}${logo}<div class="s-num" style="color:${t.accent}55">0${num}</div></div>`;
+
+  if(sid==='title'){
+    const d=s.title||{};
+    return wrap(`<div class="s-title-inner">
+      <span class="s-emoji" style="filter:drop-shadow(0 0 22px ${t.glow})">${esc(d.emoji||t.icon)}</span>
+      ${tag(t.icon, t.label+' Disease')}
+      <h1 class="s-big-h">${esc(d.headline||State.diseaseName)}</h1>
+      <p class="s-tagline">${esc(d.subheadline||State.slides.tagline||'')}</p>
+      <div class="s-tbadge" style="background:${t.accent}15;border:1px solid ${t.accent}38;color:${t.accent}">${esc(d.badge||'Medical Education Series')}</div>
+    </div>`,1);
+  }
+
+  if(sid==='overview'){
+    const d=s.overview||{};
+    return wrap(`
+      ${tag('📋',d.headline||'Overview')}
+      ${headline(State.diseaseName,19)}
+      <p class="s-body" style="color:${t.sub}">${esc(d.summary)}</p>
+      <div class="s-stat" style="background:${t.accent}10;border:1px solid ${t.accent}2a">
+        <div class="s-stat-lbl" style="color:${t.accent}">KEY STATISTIC</div>
+        <div class="s-stat-v">${esc(d.stat)}</div>
+      </div>
+      <div style="flex:1">${(d.bullets||[]).map(b=>bul('▸',b,t.accent)).join('')}</div>
+    `,2);
+  }
+
+  if(sid==='etiology'){
+    const d=s.etiology||{};
+    return wrap(`
+      ${tag('🔬',d.headline||'Etiology')}
+      <div class="s-agent">
+        <div class="s-agent-ico" style="background:${t.accent}18;border:1px solid ${t.accent}38">🦠</div>
+        <div><div class="s-agent-name">${esc(d.agent)}</div><div class="s-agent-type" style="color:${t.accent}">${esc(d.agentType)}</div></div>
+      </div>
+      <p class="s-body" style="color:${t.sub}">${esc(d.description)}</p>
+      <div style="border-top:1px solid ${t.accent}22;padding-top:11px;flex:1">${(d.bullets||[]).map(b=>bul('▸',b,t.accent)).join('')}</div>
+    `,3);
+  }
+
+  if(sid==='transmission'){
+    const d=s.transmission||{};
+    return wrap(`
+      ${tag('↔',d.headline||'Transmission')}
+      ${headline(d.headline||'How It Spreads',17)}
+      <div style="flex:1">${(d.routes||[]).map(r=>`
+        <div class="s-route">
+          <span class="s-route-ico">${r.icon||'•'}</span>
+          <div><div class="s-route-n">${esc(r.route)}</div><div class="s-route-d" style="color:${t.sub}">${esc(r.detail)}</div></div>
+        </div>`).join('')}</div>
+      ${d.note?`<div class="s-note" style="background:${t.accent2}14;border:1px solid ${t.accent2}38;color:${t.sub}">⚠ ${esc(d.note)}</div>`:''}
+    `,4);
+  }
+
+  if(sid==='symptoms'){
+    const d=s.symptoms||{};
+    const sc=[t.accent,t.accent2,'#ff7070'];
+    return wrap(`
+      ${tag('🩺',d.headline||'Symptoms')}
+      <div style="margin-bottom:11px"><div style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;background:${t.accent2}18;color:${t.accent2};border:1px solid ${t.accent2}40;font-family:var(--fm)">⏱ ${esc(d.onset)}</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:7px">${(d.stages||[]).map((st,i)=>`
+        <div class="s-stage" style="background:${sc[i]||t.accent}0f;border:1px solid ${sc[i]||t.accent}2a">
+          <div class="s-stage-t" style="color:${sc[i]||t.accent}">${esc((st.stage||'').toUpperCase())}</div>
+          ${(st.signs||[]).map(sg=>bul('·',sg,sc[i]||t.accent)).join('')}
+        </div>`).join('')}</div>
+    `,5);
+  }
+
+  if(sid==='pathogenesis'){
+    const d=s.pathogenesis||{};
+    return wrap(`
+      ${tag('⚡',d.headline||'Pathogenesis')}
+      <p class="s-body" style="color:${t.sub}">${esc(d.summary)}</p>
+      <div style="padding:7px 12px;border-radius:8px;background:${t.accent}10;border:1px solid ${t.accent}2a;font-size:11px;color:${t.accent};font-family:var(--fm);margin-bottom:12px;flex-shrink:0">🎯 Target: ${esc(d.targetOrgan)}</div>
+      <div style="flex:1">${(d.steps||[]).map((st,i)=>`
+        <div class="s-step">
+          <div class="s-step-n" style="background:${t.accent}28;border:1px solid ${t.accent}58;color:${t.accent}">${i+1}</div>
+          <span class="s-step-t" style="color:${t.sub}">${esc(st)}</span>
+        </div>`).join('')}</div>
+    `,6);
+  }
+
+  if(sid==='diagnosis'){
+    const d=s.diagnosis||{};
+    const mi=['⭐','🔬','📊'];
+    return wrap(`
+      ${tag('🧪',d.headline||'Diagnosis')}
+      ${headline(d.headline||'Diagnosis',17)}
+      <div style="flex:1">${(d.methods||[]).map((m,i)=>`
+        <div class="s-meth" style="background:${i===0?t.accent+'12':'rgba(255,255,255,.03)'};border:1px solid ${i===0?t.accent+'42':'rgba(255,255,255,.08)'}">
+          <div class="s-meth-ico" style="background:${t.accent}20">${mi[i]||'•'}</div>
+          <div><div class="s-meth-n">${esc(m.name)}</div><div class="s-meth-t" style="color:${t.accent}">${esc(m.type)}</div><div class="s-meth-d">${esc(m.detail)}</div></div>
+        </div>`).join('')}</div>
+    `,7);
+  }
+
+  if(sid==='treatment'){
+    const d=s.treatment||{};
+    return wrap(`
+      ${tag('💊',d.headline||'Treatment')}
+      <p class="s-body" style="color:${t.sub}">${esc(d.approach)}</p>
+      <div style="flex:1">${(d.options||[]).map(o=>`
+        <div class="s-tx">
+          <div class="s-tx-cat" style="color:${t.accent}">${esc((o.category||'').toUpperCase())}</div>
+          ${(o.items||[]).map(it=>bul('+',it,t.accent)).join('')}
+        </div>`).join('')}</div>
+    `,8);
+  }
+
+  if(sid==='prevention'){
+    const d=s.prevention||{};
+    return wrap(`
+      ${tag('🛡',d.headline||'Prevention')}
+      <div class="s-prev-grid">${(d.measures||[]).map(m=>`
+        <div class="s-prev-c">
+          <span class="s-prev-ico">${m.icon||'•'}</span>
+          <div class="s-prev-n">${esc(m.title)}</div>
+          <div class="s-prev-d" style="color:${t.sub}">${esc(m.detail)}</div>
+        </div>`).join('')}</div>
+    `,9);
+  }
+
+  if(sid==='keyfacts'){
+    const d=s.keyfacts||{};
+    return wrap(`
+      ${tag('⭐',d.headline||'Key Facts')}
+      <div style="flex:1;overflow:hidden">${(d.facts||[]).map((f,i)=>`
+        <div class="s-fact">
+          <div class="s-fact-n" style="background:${t.accent}20;color:${t.accent}">${String(i+1).padStart(2,'0')}</div>
+          <span class="s-fact-t">${esc(f)}</span>
+        </div>`).join('')}</div>
+      ${d.mortality?`<div class="s-mort">📊 ${esc(d.mortality)}</div>`:''}
+      ${d.citation?`<div class="s-cit" style="color:${t.accent}60">— ${esc(d.citation)}</div>`:''}
+    `,10);
+  }
+
+  return `<div class="si" style="background:${bg};align-items:center;justify-content:center">${deco}<span style="font-size:40px">🔧</span></div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PNG EXPORT (html2canvas)
+══════════════════════════════════════════════════════════════════════════ */
+async function exportPNG(platform) {
+  closeExportModal();
+  toast('🖼 Capturing slide...');
+  try {
+    const frame = document.getElementById('slide-frame');
+    const canvas = await html2canvas(frame, {
+      scale: 2.5,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+      width: frame.offsetWidth,
+      height: frame.offsetHeight,
+    });
+    const link = document.createElement('a');
+    const secId = SECTIONS[State.activeSlide].id;
+    const dname = (State.diseaseName||'slide').replace(/\s+/g,'-').toLowerCase();
+    link.download = `medslide-${dname}-${secId}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast(`✅ Slide exported as PNG!`);
+  } catch(err) {
+    console.error(err);
+    toast('❌ Export failed: '+err.message);
+  }
+}
+
+async function exportAllPNG() {
+  closeExportModal();
+  toast('📦 Exporting all slides... This may take a moment.');
+  const frame = document.getElementById('slide-frame');
+  const dname = (State.diseaseName||'deck').replace(/\s+/g,'-').toLowerCase();
+
+  for(let i=0; i<SECTIONS.length; i++){
+    goSlide(i);
+    await delay(300); // let render settle
+    try {
+      const canvas = await html2canvas(frame,{scale:2.5,useCORS:true,backgroundColor:null,logging:false});
+      const link = document.createElement('a');
+      link.download = `medslide-${dname}-${String(i+1).padStart(2,'0')}-${SECTIONS[i].id}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      await delay(400);
+    } catch(e){ console.error('Slide '+i+' failed',e); }
+  }
+  toast('✅ All slides exported!');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AI TOOLS
+══════════════════════════════════════════════════════════════════════════ */
+async function openAITool(tool) {
+  const overlay = document.getElementById('modal-overlay');
+  const body    = document.getElementById('modal-body');
+  const title   = document.getElementById('modal-title');
+  overlay.classList.add('open');
+  body.innerHTML = `<div class="modal-spinner"><span class="spin-ico">⟳</span> Generating with AI...</div>`;
+
+  const s = State.slides;
+  const t = State.theme;
+  const sec = SECTIONS[State.activeSlide];
+  const currentSlideData = s.slides[sec.id] || {};
+
+  let prompt = '';
+  let titleText = '';
+
+  if(tool==='simplify'){
+    titleText = '🎓 Explain Simply';
+    prompt = `Given this medical slide content about ${s.diseaseName} (section: ${sec.label}):\n${JSON.stringify(currentSlideData)}\n\nRewrite this content in simple, plain language suitable for a general audience with no medical background. Use short sentences, analogies, and avoid jargon. Return only the simplified explanation as plain text, 80-120 words.`;
+  } else if(tool==='scientific'){
+    titleText = '🔬 Scientific Mode';
+    prompt = `Given this medical slide content about ${s.diseaseName} (section: ${sec.label}):\n${JSON.stringify(currentSlideData)}\n\nRewrite this content in precise scientific/medical terminology suitable for veterinary or medical students. Include proper nomenclature, mechanisms, and technical detail. Return only the scientific explanation as plain text, 80-130 words.`;
+  } else if(tool==='citation'){
+    titleText = '📚 Citation Generator';
+    prompt = `Generate 3 properly formatted academic citations (APA style) for the disease: ${s.diseaseName}. Include: 1) A WHO or CDC reference, 2) A peer-reviewed journal article, 3) A veterinary/medical textbook. Make them realistic and properly formatted. Return only the citations as plain text, numbered 1-3.`;
+  } else if(tool==='hashtags'){
+    titleText = '#️⃣ Social Media Hashtags';
+    prompt = `Generate 15 relevant social media hashtags for educational content about ${s.diseaseName} (${s.diseaseType} disease). Mix English hashtags at different levels: broad medical (#veterinarymedicine), disease-specific, educational (#medicaleducation), and awareness tags. Return ONLY the hashtags separated by spaces, no other text. Each must start with #.`;
+  }
+
+  title.textContent = titleText;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const result = (data.content||[]).map(b=>b.text||'').join('').trim();
+    State.lastModalResult = result;
+
+    if(tool==='hashtags'){
+      const tags = result.split(/\s+/).filter(t=>t.startsWith('#'));
+      body.innerHTML = `<div class="modal-result">${tags.map(tag=>`<span style="display:inline-block;background:rgba(0,212,255,.1);color:#00d4ff;padding:3px 9px;border-radius:6px;margin:3px;font-family:var(--fm);font-size:12px;cursor:pointer" onclick="navigator.clipboard.writeText('${tag}');toast('Copied!')">${esc(tag)}</span>`).join('')}</div>`;
+
+      // Also show in panel
+      const hp = document.getElementById('hashtag-panel');
+      hp.style.display = 'block';
+      document.getElementById('hashtag-list').innerHTML = tags.slice(0,8).map(tag=>`<div class="htag" onclick="navigator.clipboard.writeText('${tag}');toast('Copied!')">${esc(tag)}</div>`).join('');
+    } else if(tool==='citation'){
+      body.innerHTML = `<div class="modal-result" style="white-space:pre-wrap">${esc(result)}</div>`;
+      const cp = document.getElementById('citation-panel');
+      cp.style.display='block';
+      document.getElementById('citation-text').textContent = result.split('\n')[0].substring(0,100)+'...';
+    } else {
+      body.innerHTML = `<div class="modal-result">${esc(result)}</div>`;
+    }
+  } catch(err){
+    body.innerHTML = `<div class="modal-result" style="color:#ff8080">Error: ${esc(err.message)}</div>`;
+  }
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function copyModalResult(){
+  if(State.lastModalResult){
+    navigator.clipboard.writeText(State.lastModalResult).then(()=>toast('✅ Copied to clipboard!'));
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EXPORT MODAL
+══════════════════════════════════════════════════════════════════════════ */
+function showExportModal(){ document.getElementById('export-modal').classList.add('open'); }
+function closeExportModal(){ document.getElementById('export-modal').classList.remove('open'); }
+document.getElementById('export-modal').addEventListener('click', e=>{
+  if(e.target===document.getElementById('export-modal')) closeExportModal();
+});
+document.getElementById('modal-overlay').addEventListener('click', e=>{
+  if(e.target===document.getElementById('modal-overlay')) closeModal();
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HISTORY
+══════════════════════════════════════════════════════════════════════════ */
+function renderHistory() {
+  const h = loadHistory();
+  const grid = document.getElementById('history-grid');
+  if(!h.length){
+    grid.innerHTML = `<div class="history-empty" style="grid-column:1/-1"><div class="ei">🗂</div><p>No saved projects yet.<br>Generate your first slide deck to get started!</p></div>`;
+    return;
+  }
+  grid.innerHTML = h.map(item => {
+    const th = THEMES[item.themeKey] || THEMES.viral;
+    const date = new Date(item.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+    return `
+    <div class="history-card">
+      <div class="hc-deco" style="background:${th.accent}"></div>
+      <div class="hc-type" style="color:${th.accent}">${th.icon} ${th.label.toUpperCase()}</div>
+      <div class="hc-name">${esc(item.diseaseName)}</div>
+      <div class="hc-date">📅 ${date}</div>
+      <div class="hc-slides">${SECTIONS.map(()=>`<div class="hc-slide-thumb" style="background:linear-gradient(135deg,${th.bg1},${th.bg2})"></div>`).join('')}</div>
+      <div class="hc-actions">
+        <button class="hc-btn hc-btn-open" onclick='loadFromHistory(${JSON.stringify(item).replace(/'/g,"&#39;")})'>Open</button>
+        <button class="hc-btn hc-btn-del" onclick="deleteHistoryItem(${item.id})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadFromHistory(item) {
+  State.slides = item.slides;
+  State.theme = THEMES[item.themeKey] || THEMES.viral;
+  State.diseaseName = item.diseaseName;
+  buildEditor();
+  showScreen('editor');
+}
+
+function deleteHistoryItem(id) {
+  deleteHistory(id);
+  renderHistory();
+  toast('🗑 Project deleted');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LANGUAGE
+══════════════════════════════════════════════════════════════════════════ */
+function updateLangUI() {
+  const ar = State.lang==='ar';
+  document.body.setAttribute('dir', ar?'rtl':'ltr');
+  document.getElementById('lang-toggle-landing').textContent = ar ? 'English' : 'العربية';
+  document.getElementById('lang-toggle-editor').textContent  = ar ? 'EN' : 'AR';
+  document.getElementById('hero-badge-text').textContent = ar
+    ? 'مدعوم بالذكاء الاصطناعي · درجة طبية'
+    : 'POWERED BY AI · MEDICAL GRADE';
+  document.getElementById('hero-title').innerHTML = ar
+    ? 'أنشئ شرائح طبية<br>بـ<span class="hl">ذكاء اصطناعي</span>'
+    : 'Generate Medical Slides<br>with <span class="hl">AI Intelligence</span>';
+  document.getElementById('hero-sub').textContent = ar
+    ? 'أدخل اسم المرض وشاهد الذكاء الاصطناعي يبني شرائح تعليمية كاملة خلال ثوانٍ'
+    : 'Type a disease name and watch AI build a complete educational slide deck in seconds.';
+  document.getElementById('disease-input').placeholder = ar ? 'مثال: داء الكلب' : 'e.g. Rabies';
+  document.getElementById('btn-generate').textContent = ar ? 'توليد ⚡' : 'Generate ⚡';
+  document.getElementById('mode-simple').textContent   = ar ? '🎓 مبسط' : '🎓 Simple Mode';
+  document.getElementById('mode-scientific').textContent = ar ? '🔬 علمي' : '🔬 Scientific Mode';
+  document.getElementById('btn-history').textContent = ar ? '🗂 المشاريع' : '🗂 History';
+
+  const arP=['داء الكلب','السل','إنفلونزا الطيور','التهاب الضرع','الحمى القلاعية'];
+  const enP=['Rabies','Tuberculosis','Avian Influenza','Mastitis','FMD'];
+  document.querySelectorAll('.pill').forEach((p,i)=>{ p.textContent=(ar?arP:enP)[i]; p.dataset.val=(ar?arP:enP)[i]; });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EVENT LISTENERS
+══════════════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', ()=>{
+
+  // Generate
+  document.getElementById('btn-generate').addEventListener('click',()=>{
+    const v = document.getElementById('disease-input').value.trim();
+    v ? generate(v) : (document.getElementById('disease-input').focus(), toast('Please enter a disease name 🔬'));
+  });
+  document.getElementById('disease-input').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){ const v=e.target.value.trim(); if(v) generate(v); }
+  });
+
+  // Sample pills
+  document.getElementById('sample-pills').addEventListener('click',e=>{
+    const p = e.target.closest('.pill');
+    if(!p) return;
+    document.getElementById('disease-input').value = p.dataset.val;
+    document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+  });
+
+  // Mode
+  document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    State.mode = btn.dataset.mode;
+  }));
+
+  // Lang
+  document.getElementById('lang-toggle-landing').addEventListener('click',()=>{ State.lang=State.lang==='en'?'ar':'en'; updateLangUI(); });
+  document.getElementById('lang-toggle-editor').addEventListener('click',()=>{
+    State.lang=State.lang==='en'?'ar':'en';
+    updateLangUI();
+    if(State.slides) renderSlide(State.activeSlide);
+    toast(State.lang==='ar'?'تم تفعيل العربية':'Switched to English');
+  });
+
+  // Dark mode
+  document.getElementById('dark-toggle').addEventListener('click',()=>{
+    document.getElementById('dark-toggle').textContent = '🌙';
+    toast('Dark mode always on for best medical aesthetics');
+  });
+
+  // History
+  document.getElementById('btn-history').addEventListener('click',()=>{ renderHistory(); showScreen('history'); });
+  document.getElementById('btn-history-back').addEventListener('click',()=>showScreen('landing'));
+
+  // Back
+  document.getElementById('btn-back').addEventListener('click',()=>{ showScreen('landing'); document.getElementById('disease-input').value=''; });
+
+  // Regenerate
+  document.getElementById('btn-regen').addEventListener('click',()=>{ if(State.diseaseName) generate(State.diseaseName); });
+
+  // Nav
+  document.getElementById('btn-prev').addEventListener('click',()=>{ if(State.activeSlide>0) goSlide(State.activeSlide-1); });
+  document.getElementById('btn-next').addEventListener('click',()=>{ if(State.activeSlide<SECTIONS.length-1) goSlide(State.activeSlide+1); });
+
+  // PNG
+  document.getElementById('btn-png').addEventListener('click',()=>exportPNG());
+
+  // Export all modal
+  document.getElementById('btn-export-all').addEventListener('click',showExportModal);
+
+  // Keyboard nav
+  document.addEventListener('keydown',e=>{
+    if(!document.getElementById('screen-editor').classList.contains('active')) return;
+    if(document.getElementById('modal-overlay').classList.contains('open')) return;
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'){ if(State.activeSlide<SECTIONS.length-1) goSlide(State.activeSlide+1); }
+    else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ if(State.activeSlide>0) goSlide(State.activeSlide-1); }
+    else if(e.key==='Escape') closeModal();
+  });
+
+  // Pill rotation
+  let pi=0; const pills=document.querySelectorAll('.pill');
+  setInterval(()=>{ pills.forEach(p=>p.classList.remove('active')); pills[pi%pills.length].classList.add('active'); pi++; },2600);
+});
+</script>
+</body>
+</html>
