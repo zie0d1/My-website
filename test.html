@@ -300,6 +300,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 .s-note{padding:8px 11px;font-size:11px;line-height:1.5;flex-shrink:0}
 .s-stage{padding:9px 11px;margin-bottom:6px;flex-shrink:0}
 .s-stage-t{font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:.1em;margin-bottom:4px}
+.si.ar .s-stage-t{text-align:right}
 .s-step{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;flex-shrink:0}
 .s-step-n{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:var(--fm)}
 .s-step-t{font-size:11.5px;line-height:1.5;padding-top:2px}
@@ -970,7 +971,9 @@ function buildSlideHTML(sid, s, t) {
   const headline = (txt,sz=21)=>`<h2 class="s-h" style="font-size:${sz}px">${esc(txt)}</h2>`;
   // wrap scientific terms so they stay LTR inline in Arabic text
   const term = (txt) => isAr ? `<span class="s-term">${esc(txt)}</span>` : esc(txt);
-  const bul = (ico,txt,c)=>`<div class="s-bul"><span class="s-bd" style="color:${c}">${ico}</span><span class="s-bt" style="color:${t.sub}">${esc(txt)}</span></div>`;
+  const bul = (ico,txt,c) => isAr
+    ? `<div class="s-bul"><span class="s-bt" style="color:${t.sub}">${esc(txt)}</span><span class="s-bd" style="color:${c}">${ico}</span></div>`
+    : `<div class="s-bul"><span class="s-bd" style="color:${c}">${ico}</span><span class="s-bt" style="color:${t.sub}">${esc(txt)}</span></div>`;
   const numPos = isAr ? `bottom:14px;right:14px` : `bottom:14px;left:14px`;
   const logoPos = isAr ? `bottom:14px;left:14px` : `bottom:14px;right:14px`;
   const wrap = (html,num)=>`<div class="si${arCls}" style="background:${bg}">${deco}${html}<div class="s-logo" style="color:${t.accent};position:absolute;${logoPos};font-family:var(--fm);font-size:8px;letter-spacing:.06em;opacity:.25">FutureVets</div><div class="s-num" style="color:${t.accent}55;position:absolute;${numPos};font-family:var(--fm);font-size:9px;opacity:.22">0${num}</div></div>`;
@@ -1005,8 +1008,10 @@ function buildSlideHTML(sid, s, t) {
     return wrap(`
       ${tag('🔬',d.headline||'Etiology')}
       <div class="s-agent">
-        <div class="s-agent-ico" style="background:${t.accent}18;border:1px solid ${t.accent}38">🦠</div>
-        <div><div class="s-agent-name">${esc(d.agent)}</div><div class="s-agent-type" style="color:${t.accent}">${esc(d.agentType)}</div></div>
+        ${isAr
+          ? `<div><div class="s-agent-name">${esc(d.agent)}</div><div class="s-agent-type" style="color:${t.accent}">${esc(d.agentType)}</div></div><div class="s-agent-ico" style="background:${t.accent}18;border:1px solid ${t.accent}38">🦠</div>`
+          : `<div class="s-agent-ico" style="background:${t.accent}18;border:1px solid ${t.accent}38">🦠</div><div><div class="s-agent-name">${esc(d.agent)}</div><div class="s-agent-type" style="color:${t.accent}">${esc(d.agentType)}</div></div>`
+        }
       </div>
       <p class="s-body" style="color:${t.sub}">${esc(d.description)}</p>
       <div style="border-top:1px solid ${t.accent}22;padding-top:11px;flex:1">${(d.bullets||[]).map(b=>bul('▸',b,t.accent)).join('')}</div>
@@ -1020,8 +1025,10 @@ function buildSlideHTML(sid, s, t) {
       ${headline(d.headline||'How It Spreads',17)}
       <div style="flex:1">${(d.routes||[]).map(r=>`
         <div class="s-route">
-          <span class="s-route-ico">${r.icon||'•'}</span>
-          <div><div class="s-route-n">${esc(r.route)}</div><div class="s-route-d" style="color:${t.sub}">${esc(r.detail)}</div></div>
+          ${isAr
+            ? `<div><div class="s-route-n">${esc(r.route)}</div><div class="s-route-d" style="color:${t.sub}">${esc(r.detail)}</div></div><span class="s-route-ico">${r.icon||'•'}</span>`
+            : `<span class="s-route-ico">${r.icon||'•'}</span><div><div class="s-route-n">${esc(r.route)}</div><div class="s-route-d" style="color:${t.sub}">${esc(r.detail)}</div></div>`
+          }
         </div>`).join('')}</div>
       ${d.note?`<div class="s-note" style="background:${t.accent2}14;border:1px solid ${t.accent2}38;color:${t.sub}">⚠ ${esc(d.note)}</div>`:''}
     `,4);
@@ -1049,8 +1056,10 @@ function buildSlideHTML(sid, s, t) {
       <div style="padding:7px 12px;background:${t.accent}10;border:1px solid ${t.accent}2a;font-size:11px;color:${t.accent};font-family:var(--fm);margin-bottom:12px;flex-shrink:0">🎯 Target: ${esc(d.targetOrgan)}</div>
       <div style="flex:1">${(d.steps||[]).map((st,i)=>`
         <div class="s-step">
-          <div class="s-step-n" style="background:${t.accent}28;border:1px solid ${t.accent}58;color:${t.accent}">${i+1}</div>
-          <span class="s-step-t" style="color:${t.sub}">${esc(st)}</span>
+          ${isAr
+            ? `<span class="s-step-t" style="color:${t.sub}">${esc(st)}</span><div class="s-step-n" style="background:${t.accent}28;border:1px solid ${t.accent}58;color:${t.accent}">${i+1}</div>`
+            : `<div class="s-step-n" style="background:${t.accent}28;border:1px solid ${t.accent}58;color:${t.accent}">${i+1}</div><span class="s-step-t" style="color:${t.sub}">${esc(st)}</span>`
+          }
         </div>`).join('')}</div>
     `,6);
   }
@@ -1063,8 +1072,10 @@ function buildSlideHTML(sid, s, t) {
       ${headline(d.headline||'Diagnosis',17)}
       <div style="flex:1">${(d.methods||[]).map((m,i)=>`
         <div class="s-meth" style="background:${i===0?t.accent+'12':'rgba(255,255,255,.03)'};border:1px solid ${i===0?t.accent+'42':'rgba(255,255,255,.08)'}">
-          <div class="s-meth-ico" style="background:${t.accent}20">${mi[i]||'•'}</div>
-          <div><div class="s-meth-n">${esc(m.name)}</div><div class="s-meth-t" style="color:${t.accent}">${esc(m.type)}</div><div class="s-meth-d">${esc(m.detail)}</div></div>
+          ${isAr
+            ? `<div><div class="s-meth-n">${esc(m.name)}</div><div class="s-meth-t" style="color:${t.accent}">${esc(m.type)}</div><div class="s-meth-d">${esc(m.detail)}</div></div><div class="s-meth-ico" style="background:${t.accent}20">${mi[i]||'•'}</div>`
+            : `<div class="s-meth-ico" style="background:${t.accent}20">${mi[i]||'•'}</div><div><div class="s-meth-n">${esc(m.name)}</div><div class="s-meth-t" style="color:${t.accent}">${esc(m.type)}</div><div class="s-meth-d">${esc(m.detail)}</div></div>`
+          }
         </div>`).join('')}</div>
     `,7);
   }
@@ -1101,8 +1112,10 @@ function buildSlideHTML(sid, s, t) {
       ${tag('⭐',d.headline||'Key Facts')}
       <div style="flex:1;overflow:hidden">${(d.facts||[]).map((f,i)=>`
         <div class="s-fact">
-          <div class="s-fact-n" style="background:${t.accent}20;color:${t.accent}">${String(i+1).padStart(2,'0')}</div>
-          <span class="s-fact-t">${esc(f)}</span>
+          ${isAr
+            ? `<span class="s-fact-t">${esc(f)}</span><div class="s-fact-n" style="background:${t.accent}20;color:${t.accent}">${String(i+1).padStart(2,'0')}</div>`
+            : `<div class="s-fact-n" style="background:${t.accent}20;color:${t.accent}">${String(i+1).padStart(2,'0')}</div><span class="s-fact-t">${esc(f)}</span>`
+          }
         </div>`).join('')}</div>
       ${d.mortality?`<div class="s-mort">📊 ${esc(d.mortality)}</div>`:''}
       ${d.citation?`<div class="s-cit" style="color:${t.accent}60">— ${esc(d.citation)}</div>`:''}
