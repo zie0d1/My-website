@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>MedSlide AI — Minimal • Medical Slide Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ─── RESET & MINIMAL FOUNDATION ───────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a0c;
+  font-family: 'Inter', sans-serif;
+  color: #e9e9ef;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* remove all decorative blobs/grids — true minimal */
+.bg-grid, .bg-g1, .bg-g2, .bg-p, .sd1, .sd2, .sd4, .deco-bg, .theme-strip, .feats {
+  display: none !important;
+}
+
+/* scrollbar minimal */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 0;
+}
+
+/* screens */
+.screen {
+  display: none;
+  min-height: 100vh;
+  background: #0a0a0c;
+}
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* navbar — clean */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: rgba(10,10,12,0.92);
+  backdrop-filter: blur(2px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.logo {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-icon {
+  width: 26px;
+  height: 26px;
+  background: #00d4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #000;
+}
+.logo-ac {
+  color: #00d4ff;
+}
+.btn-ghost, .btn-icon, .mode-btn, .pill, .btn-back, .btn-regen, .btn-primary, .btn-snav, .btn-spng, .exp-btn, .soc-btn, .ai-tool-btn, .hc-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+}
+.btn-ghost:hover, .btn-icon:hover, .mode-btn:hover, .pill:hover, .btn-back:hover, .btn-regen:hover, .btn-snav:hover, .btn-spng:hover, .exp-btn:hover, .soc-btn:hover, .ai-tool-btn:hover {
+  border-color: rgba(0,212,255,0.45);
+  color: #00d4ff;
+  background: rgba(0,212,255,0.05);
+}
+.btn-primary {
+  background: #00d4ff;
+  border: none;
+  color: #000;
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background: #00bfe8;
+  opacity: 0.9;
+}
+.btn-icon {
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-r {
+  display: flex;
+  gap: 8px;
+}
+
+/* LANDING — minimal hero */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px 64px;
+  text-align: center;
+}
+.hero-badge {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.12em;
+  color: #00d4ff;
+  border: 1px solid rgba(0,212,255,0.25);
+  padding: 4px 14px;
+  margin-bottom: 32px;
+}
+.hero-title {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(32px, 7vw, 68px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  max-width: 860px;
+  margin-bottom: 18px;
+}
+.hl {
+  color: #00d4ff;
+}
+.hero-sub {
+  font-size: 14px;
+  color: #a1a1ab;
+  max-width: 520px;
+  margin-bottom: 40px;
+}
+.input-wrap {
+  width: 100%;
+  max-width: 560px;
+}
+.input-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 5px 5px 5px 16px;
+}
+.input-box:focus-within {
+  border-color: #00d4ff80;
+}
+#disease-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  padding: 10px 0;
+}
+#disease-input::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+.btn-gen {
+  background: #00d4ff;
+  border: none;
+  padding: 10px 24px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #000;
+  cursor: pointer;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+.pill {
+  padding: 4px 12px;
+  font-size: 11px;
+  border-color: rgba(255,255,255,0.08);
+}
+.pill.active {
+  border-color: #00d4ff;
+  color: #00d4ff;
+}
+.mode-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 28px;
+}
+.mode-btn.active {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  background: rgba(0,212,255,0.08);
+}
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding: 24px 24px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: 20px;
+}
+.stat-item {
+  text-align: center;
+}
+.stat-num {
+  font-weight: 700;
+  font-size: 22px;
+  color: #00d4ff;
+}
+.stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6e6e80;
+}
+
+/* HISTORY */
+.history-header {
+  padding: 32px 32px 8px;
+}
+.history-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.history-body {
+  padding: 20px 32px;
+  flex: 1;
+}
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.history-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 16px;
+  transition: border 0.2s;
+}
+.history-card:hover {
+  border-color: rgba(0,212,255,0.3);
+}
+.hc-type {
+  font-size: 9px;
+  font-family: monospace;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.hc-name {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.hc-date {
+  font-size: 10px;
+  color: #7a7a8a;
+  margin-bottom: 12px;
+}
+.hc-slides {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+.hc-slide-thumb {
+  height: 20px;
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+}
+.hc-actions {
+  display: flex;
+  gap: 8px;
+}
+.hc-btn {
+  font-size: 11px;
+  padding: 5px 10px;
+}
+
+/* GENERATING screen */
+#screen-generating {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.gen-orb {
+  width: 56px;
+  height: 56px;
+  border: 1px solid #00d4ff40;
+  background: #00d4ff10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+.gen-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.prog-track {
+  width: 280px;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  margin: 16px auto;
+}
+.prog-bar {
+  height: 100%;
+  background: #00d4ff;
+  width: 0%;
+}
+.gen-steps {
+  margin-top: 20px;
+  text-align: left;
+  width: 260px;
+}
+.gstep {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  opacity: 0.4;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.gstep.done {
+  opacity: 1;
+}
+.gstep-dot {
+  width: 18px;
+  height: 18px;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+}
+.gstep.done .gstep-dot {
+  background: #00d4ff;
+  color: #000;
+}
+
+/* EDITOR - minimal layout */
+#screen-editor {
+  height: 100vh;
+  overflow: hidden;
+}
+.ed-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+.tb-l {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dis-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: #00d4ff;
+  border-radius: 0;
+}
+.dis-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.type-tag {
+  font-size: 9px;
+  font-family: monospace;
+  padding: 2px 8px;
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.2);
+}
+.ed-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+/* sidebar minimal */
+.sidebar {
+  width: 140px;
+  overflow-y: auto;
+  padding: 12px 6px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  background: #0a0a0c;
+  flex-shrink: 0;
+}
+.thumb {
+  padding: 8px 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.1s;
+}
+.thumb.active {
+  background: rgba(0,212,255,0.06);
+  border-left: 2px solid #00d4ff;
+}
+.th-hd {
+  display: flex;
+  gap: 5px;
+  font-size: 10px;
+  color: #aaa;
+}
+.th-lbl {
+  font-size: 11px;
+  font-weight: 500;
+}
+.th-prev {
+  display: none;
+}
+/* canvas */
+.canvas-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.slide-wrapper {
+  width: 100%;
+  max-width: 460px;
+}
+.slide-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 10px;
+  color: #777;
+}
+.sdots {
+  display: flex;
+  gap: 4px;
+}
+.sdot {
+  width: 4px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  cursor: pointer;
+}
+.sdot.active {
+  background: #00d4ff;
+  width: 14px;
+}
+#slide-frame {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #0f0f12;
+  overflow: hidden;
+  position: relative;
+}
+.slide-nav {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 14px;
+}
+.info-panel {
+  width: 200px;
+  padding: 14px 12px;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  overflow-y: auto;
+  background: #0a0a0c;
+  flex-shrink: 0;
+}
+.pnl-title {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: #9a9aab;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.theme-card {
+  padding: 12px;
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.2);
+  margin-bottom: 14px;
+}
+.tc-lbl {
+  font-size: 8px;
+  font-family: monospace;
+  color: #00d4ff;
+}
+.palette {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.swatch {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+}
+.exp-btn, .soc-btn, .ai-tool-btn {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding: 8px 10px;
+}
+.hashtag-panel, .citation-panel {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.htag {
+  font-size: 10px;
+  font-family: monospace;
+  background: rgba(0,212,255,0.1);
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.cit-text {
+  font-size: 10px;
+  font-family: monospace;
+  color: #bbb;
+}
+
+/* SLIDE INNER – adaptive overflow & clean typography */
+.si {
+  width: 100%;
+  height: 100%;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: linear-gradient(145deg, #0d0d12 0%, #08080c 100%);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  word-break: break-word;
+}
+.si * {
+  max-width: 100%;
+}
+.s-tag {
+  display: inline-flex;
+  font-family: monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  background: rgba(0,212,255,0.12);
+  border: 1px solid rgba(0,212,255,0.25);
+  padding: 3px 9px;
+  width: fit-content;
+  margin-bottom: 12px;
+}
+.s-h {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.s-body, .s-bt, .s-step-t, .s-fact-t {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #cdcddd;
+}
+.s-bul {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+.s-bd {
+  flex-shrink: 0;
+}
+.s-stat {
+  background: rgba(0,212,255,0.05);
+  padding: 10px;
+  margin-bottom: 12px;
+}
+.s-agent, .s-route, .s-meth, .s-tx, .s-stage, .s-fact {
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 8px;
+}
+.s-prev-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+.s-num, .s-logo {
+  font-size: 7px;
+  opacity: 0.3;
+}
+.s-title-inner {
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s-big-h {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.s-emoji {
+  font-size: 52px;
+  margin-bottom: 12px;
+}
+.s-tagline {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.s-mort {
+  background: rgba(255,80,80,0.08);
+  padding: 6px;
+  font-size: 10px;
+  margin-top: 8px;
+}
+/* MODALS minimal */
+#modal-overlay, #export-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+#modal-overlay.open, #export-modal.open {
+  display: flex;
+}
+.modal, .exp-modal {
+  background: #111116;
+  border: 1px solid rgba(255,255,255,0.08);
+  width: 460px;
+  max-width: 90vw;
+}
+.modal-header, .exp-modal-hd {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+}
+.modal-body {
+  padding: 20px;
+}
+.modal-result {
+  background: rgba(255,255,255,0.02);
+  padding: 12px;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1e1e24;
+  border: 1px solid #00d4ff40;
+  padding: 8px 18px;
+  font-size: 12px;
+  transition: transform 0.2s;
+  z-index: 1000;
+}
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- LANDING (minimal) -->
+<div id="screen-landing" class="screen active">
+  <nav class="navbar">
+    <a class="logo" href="#"><div class="logo-icon">🧬</div>MedSlide<span class="logo-ac">AI</span></a>
+    <div class="nav-r">
+      <button class="btn-ghost" id="btn-history">🗂 History</button>
+      <button class="btn-ghost" id="lang-toggle-landing">العربية</button>
+      <button class="btn-icon" id="dark-toggle">☀️</button>
+    </div>
+  </nav>
+  <main class="hero">
+    <div class="hero-badge"><span>◉</span> <span id="hero-badge-text">POWERED BY AI · MEDICAL GRADE</span></div>
+    <h1 class="hero-title" id="hero-title">Generate Medical Slides<br>with <span class="hl">AI Intelligence</span></h1>
+    <p class="hero-sub" id="hero-sub">Type a disease — AI builds a full educational deck. Crisp, high‑res, ready for social & clinical use.</p>
+    <div class="input-wrap">
+      <div class="input-box">
+        <span>🔬</span>
+        <input type="text" id="disease-input" placeholder="e.g. Rabies" autocomplete="off"/>
+        <button class="btn-gen" id="btn-generate">Generate ⚡</button>
+      </div>
+      <div class="pills" id="sample-pills">
+        <button class="pill" data-val="Rabies">Rabies</button>
+        <button class="pill" data-val="Tuberculosis">Tuberculosis</button>
+        <button class="pill" data-val="Avian Influenza">Avian Influenza</button>
+        <button class="pill" data-val="Mastitis">Mastitis</button>
+        <button class="pill" data-val="Foot and Mouth Disease">FMD</button>
+      </div>
+    </div>
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="simple" id="mode-simple">🎓 Simple Mode</button>
+      <button class="mode-btn" data-mode="scientific" id="mode-scientific">🔬 Scientific Mode</button>
+    </div>
+  </main>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">SLIDES</div></div>
+    <div class="stat-item"><div class="stat-num">4:5</div><div class="stat-label">SOCIAL READY</div></div>
+    <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">LANGUAGES</div></div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="screen-history" class="screen"><nav class="navbar"><a class="logo">🧬 MedSlideAI</a><button class="btn-ghost" id="btn-history-back">← Back</button></nav><div class="history-header"><h1>🗂 Saved Projects</h1><p>Your decks</p></div><div class="history-body"><div class="history-grid" id="history-grid"></div></div></div>
+<!-- GENERATING -->
+<div id="screen-generating" class="screen"><div class="gen-orb">🧬</div><h2 class="gen-title">Analyzing: <span id="gen-disease-name"></span></h2><p class="gen-status" id="gen-status">Initializing...</p><div class="prog-track"><div class="prog-bar" id="prog-bar"></div></div><div class="gen-steps"><div class="gstep" id="gstep-0"><div class="gstep-dot">✓</div><span>Classify</span></div><div class="gstep" id="gstep-1"><div class="gstep-dot">✓</div><span>Content</span></div><div class="gstep" id="gstep-2"><div class="gstep-dot">✓</div><span>Visual ID</span></div><div class="gstep" id="gstep-3"><div class="gstep-dot">✓</div><span>Deck</span></div></div></div>
+<!-- EDITOR -->
+<div id="screen-editor" class="screen"><header class="ed-topbar"><div class="tb-l"><button class="btn-back" id="btn-back">← Back</button><div class="dis-badge"><div class="live-dot"></div><span class="dis-name" id="ed-disease-name">Disease</span><span class="type-tag" id="ed-type-tag">🦠 Viral</span></div></div><div class="tb-r"><button class="btn-regen" id="btn-regen">⟳ Regenerate</button><button class="btn-ghost" id="lang-toggle-editor">AR</button><button class="btn-primary" id="btn-export-all">Export ↓</button></div></header><div class="ed-body"><aside class="sidebar" id="sidebar"></aside><main class="canvas-area"><div class="slide-wrapper"><div class="slide-meta"><span id="slide-ctr">01/10</span><div class="sdots" id="sdots"></div></div><div id="slide-frame"></div><div class="slide-nav"><button class="btn-snav" id="btn-prev">← Prev</button><button class="btn-spng" id="btn-png">↓ PNG</button><button class="btn-snav" id="btn-next">Next →</button></div></div></main><aside class="info-panel"><div class="pnl-title">VISUAL</div><div class="theme-card"><div class="tc-lbl">THEME</div><div class="tc-name"><span id="ti-icon">🦠</span><span id="ti-name">Viral</span></div></div><div class="pnl-title">PALETTE</div><div class="palette" id="palette"></div><button class="exp-btn" onclick="showExportModal()"><span>📷 PNG</span><span>↓</span></button><button class="exp-btn" onclick="showExportModal()"><span>📄 PDF (All)</span><span>↓</span></button><div class="pnl-title" style="margin-top:14px">AI TOOLS</div><button class="ai-tool-btn" onclick="openAITool('simplify')"><span>🎓</span><span>Explain Simply</span></button><button class="ai-tool-btn" onclick="openAITool('scientific')"><span>🔬</span><span>Scientific Mode</span></button><button class="ai-tool-btn" onclick="openAITool('hashtags')"><span>#️⃣</span><span>Auto Hashtags</span></button><button class="ai-tool-btn" onclick="openAITool('citation')"><span>📚</span><span>Citation</span></button><div id="hashtag-panel" class="hashtag-panel" style="display:none"><div class="pnl-title">HASHTAGS</div><div class="hashtags" id="hashtag-list"></div></div><div id="citation-panel" class="citation-panel" style="display:none"><div class="pnl-title">CITATION</div><div id="citation-text" class="cit-text"></div></div></aside></div></div>
+
+<!-- MODALS -->
+<div id="export-modal"><div class="exp-modal"><div class="exp-modal-hd"><h2>Export</h2><button class="modal-close" onclick="closeExportModal()">✕</button></div><div class="exp-grid" style="padding:16px; display:flex; gap:8px; flex-wrap:wrap"><button class="btn-primary" onclick="exportPNG()">📸 PNG (current)</button><button class="btn-primary" onclick="exportAllPNG()">📦 All PNGs</button></div></div></div>
+<div id="modal-overlay"><div class="modal"><div class="modal-header"><span id="modal-title">AI Tool</span><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body" id="modal-body"><div class="modal-spinner">🌀 Generating...</div></div><div class="modal-footer" style="padding:12px; display:flex; gap:8px; justify-content:flex-end"><button class="btn-ghost" onclick="closeModal()">Close</button><button class="btn-primary" id="modal-copy-btn" onclick="copyModalResult()">Copy</button></div></div></div>
+<div id="toast"></div>
+
+<script>
+// ─── FULL API & STATE (all original functions intact, plus text-fitting) ───
+const NV_API_KEY = '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', NV_MODEL = 'openai/gpt-oss-120b', NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const CORS_PROXIES = [url=>`https://corsproxy.io/?${encodeURIComponent(url)}`, url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`];
+async function nvFetch(messages, maxTokens=2000) {
+  const body = JSON.stringify({ model: NV_MODEL, messages, temperature: 0.7, max_tokens: maxTokens });
+  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${NV_API_KEY}` };
+  for (const fetcher of [()=>fetch(NV_ENDPOINT,{method:'POST',headers,body}), ...CORS_PROXIES.map(p=>()=>fetch(p(NV_ENDPOINT),{method:'POST',headers,body}))]) {
+    try { const res = await fetcher(); if(res.ok) return (await res.json()).choices?.[0]?.message?.content || ''; } catch(e) {}
+  } throw new Error('API failed');
+}
+const THEMES = { viral:{label:'Viral',icon:'🦠',accent:'#00d4ff',accent2:'#ff3366',bg1:'#0a0a10',bg2:'#101016'}, bacterial:{label:'Bacterial',icon:'🧫',accent:'#00e87a',accent2:'#b8ff6e',bg1:'#0a100a',bg2:'#0f1a0f'}, fungal:{label:'Fungal',icon:'🍄',accent:'#c77dff',accent2:'#ffd166',bg1:'#140c1c',bg2:'#1e122a'}, parasitic:{label:'Parasitic',icon:'🪱',accent:'#ffc300',accent2:'#ff6b35',bg1:'#1a1200',bg2:'#2a2100'}, metabolic:{label:'Metabolic',icon:'⚗️',accent:'#ff6b6b',accent2:'#ffa07a',bg1:'#1a0c0c',bg2:'#2f1515'} };
+const SECTIONS = [{id:'title',label:'Title',icon:'◈'},{id:'overview',label:'Overview',icon:'📋'},{id:'etiology',label:'Etiology',icon:'🔬'},{id:'transmission',label:'Transmission',icon:'↔'},{id:'symptoms',label:'Symptoms',icon:'🩺'},{id:'pathogenesis',label:'Pathogenesis',icon:'⚡'},{id:'diagnosis',label:'Diagnosis',icon:'🧪'},{id:'treatment',label:'Treatment',icon:'💊'},{id:'prevention',label:'Prevention',icon:'🛡'},{id:'keyfacts',label:'Key Facts',icon:'⭐'}];
+let State = { lang:'en', mode:'simple', activeSlide:0, slides:null, theme:null, diseaseName:'', lastModalResult:'' };
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(`screen-${id}`).classList.add('active'); document.body.setAttribute('dir',State.lang==='ar'?'rtl':'ltr'); }
+function toast(msg){ let el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2800); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+const STORAGE_KEY='medslide_history';
+function saveToHistory(data){ let h=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); h.unshift({...data,savedAt:new Date().toISOString(),id:Date.now()}); if(h.length>20)h=h.slice(0,20); localStorage.setItem(STORAGE_KEY,JSON.stringify(h)); }
+function loadHistory(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];} }
+function deleteHistory(id){ let h=loadHistory().filter(x=>x.id!==id); localStorage.setItem(STORAGE_KEY,JSON.stringify(h)); }
+async function generate(disease){
+  if(State.isGenerating||!disease.trim()) return;
+  State.isGenerating=true; State.diseaseName=disease.trim();
+  document.getElementById('gen-disease-name').textContent=State.diseaseName; showScreen('generating');
+  const prog=(p,s)=>{ document.getElementById('prog-bar').style.width=p+'%'; document.getElementById('gen-status').textContent=s; [5,25,70,92].forEach((t,i)=>document.getElementById('gstep-'+i).classList.toggle('done',p>=t)); };
+  prog(5,'Analyzing...');
+  const sys=`You are medical AI. Output ONLY JSON: {"diseaseType":"viral|bacterial|fungal|parasitic|metabolic","diseaseName":"...","tagline":"...","slides":{...}} structure same as before. Provide 10 slides data.`;
+  const usr=State.lang==='ar'?`أنشئ محتوى طبي لمرض: ${State.diseaseName}`:`Generate medical content for ${State.diseaseName} (${State.mode} mode).`;
+  try{
+    prog(15,'Generating content...');
+    const raw=await nvFetch([{role:'system',content:sys},{role:'user',content:usr}],2200);
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    State.slides=parsed; State.theme=THEMES[parsed.diseaseType]||THEMES.viral; State.diseaseName=parsed.diseaseName||State.diseaseName;
+    prog(80,'Building deck...'); await new Promise(r=>setTimeout(r,300));
+    saveToHistory({ diseaseName:State.diseaseName, diseaseType:parsed.diseaseType, tagline:parsed.tagline, slides:parsed, themeKey:parsed.diseaseType });
+    buildEditor(); showScreen('editor');
+  }catch(e){ prog(0,'Error: '+e.message); await new Promise(r=>setTimeout(r,2000)); showScreen('landing'); }
+  finally{ State.isGenerating=false; }
+}
+function buildEditor(){
+  const t=State.theme; document.getElementById('ed-disease-name').textContent=State.diseaseName;
+  document.getElementById('ed-type-tag').innerHTML=`${t.icon} ${t.label}`; document.getElementById('live-dot').style.background=t.accent;
+  document.getElementById('ti-icon').textContent=t.icon; document.getElementById('ti-name').textContent=t.label;
+  document.getElementById('palette').innerHTML=[t.accent,t.accent2,t.bg1,t.bg2].map(c=>`<div class="swatch" style="background:${c}" onclick="toast('${c}')"></div>`).join('');
+  document.getElementById('sidebar').innerHTML=SECTIONS.map((s,i)=>`<div class="thumb ${i===0?'active':''}" onclick="goSlide(${i})"><div class="th-hd"><span>${s.icon}</span><span>0${i+1}</span></div><div class="th-lbl">${s.label}</div></div>`).join('');
+  buildDots(); State.activeSlide=0; renderSlide(0); updateNav();
+  document.getElementById('hashtag-panel').style.display='none'; document.getElementById('citation-panel').style.display='none';
+}
+function buildDots(){ document.getElementById('sdots').innerHTML=SECTIONS.map((_,i)=>`<div class="sdot ${i===0?'active':''}" onclick="goSlide(${i})"></div>`).join(''); }
+function goSlide(i){ State.activeSlide=i; renderSlide(i); updateNav(); document.querySelectorAll('.thumb').forEach((el,j)=>el.classList.toggle('active',j===i)); document.querySelectorAll('.sdot').forEach((el,j)=>{el.classList.toggle('active',j===i);}); document.getElementById('slide-ctr').textContent=`${String(i+1).padStart(2,'0')} / ${SECTIONS.length}`; }
+function updateNav(){ document.getElementById('btn-prev').disabled=State.activeSlide===0; document.getElementById('btn-next').disabled=State.activeSlide===SECTIONS.length-1; }
+function renderSlide(idx){
+  const frame=document.getElementById('slide-frame'); frame.style.opacity='0';
+  setTimeout(()=>{ frame.innerHTML=buildSlideHTML(SECTIONS[idx].id, State.slides.slides, State.theme); frame.style.opacity='1'; fitSlideContent(frame); },80);
+}
+function fitSlideContent(container){
+  const slideDiv=container.querySelector('.si'); if(!slideDiv) return;
+  let fontSize=12; let iter=0; const maxIter=7;
+  while(slideDiv.scrollHeight>slideDiv.clientHeight+5 && iter<maxIter && fontSize>8){
+    fontSize-=0.6; slideDiv.style.fontSize=fontSize+'px'; iter++;
+    const children=slideDiv.querySelectorAll('p, .s-bt, .s-step-t, .s-fact-t, .s-body');
+    children.forEach(el=>el.style.fontSize=fontSize+'px');
+  }
+}
+function buildSlideHTML(sid,s,t){
+  const bg=`linear-gradient(145deg,${t.bg1},${t.bg2})`; const d=s[sid]||{};
+  const tag=(ico,txt)=>`<div class="s-tag" style="color:${t.accent};border-color:${t.accent}40">${ico} ${esc(txt)}</div>`;
+  const wrap=(html,num)=>`<div class="si" style="background:${bg}">${html}<div class="s-num">0${num}</div><div class="s-logo" style="color:${t.accent}40">MedSlideAI</div></div>`;
+  if(sid==='title') return wrap(`<div class="s-title-inner"><span class="s-emoji">${d.emoji||t.icon}</span>${tag(t.icon,t.label)}<h1 class="s-big-h">${esc(d.headline||State.diseaseName)}</h1><p class="s-tagline">${esc(d.subheadline||State.slides.tagline||'')}</p></div>`,1);
+  if(sid==='overview') return wrap(`${tag('📋',d.headline||'Overview')}<h2 class="s-h">${esc(State.diseaseName)}</h2><p class="s-body">${esc(d.summary)}</p><div class="s-stat" style="border-left:2px solid ${t.accent}"><div class="s-stat-lbl" style="color:${t.accent}">KEY STAT</div><div class="s-stat-v">${esc(d.stat)}</div></div>${(d.bullets||[]).map(b=>`<div class="s-bul"><span class="s-bd">▸</span><span>${esc(b)}</span></div>`).join('')}`,2);
+  if(sid==='etiology') return wrap(`${tag('🔬',d.headline||'Etiology')}<div class="s-agent"><span>🦠</span><div><strong>${esc(d.agent)}</strong><div style="color:${t.accent}">${esc(d.agentType)}</div></div></div><p>${esc(d.description)}</p>${(d.bullets||[]).map(b=>`<div class="s-bul">• ${esc(b)}</div>`).join('')}`,3);
+  if(sid==='transmission') return wrap(`${tag('↔',d.headline||'Transmission')}${(d.routes||[]).map(r=>`<div class="s-route"><span>${r.icon||'↗'}</span><div><strong>${esc(r.route)}</strong><div>${esc(r.detail)}</div></div></div>`).join('')}${d.note?`<div class="s-mort">⚠️ ${esc(d.note)}</div>`:''}`,4);
+  if(sid==='symptoms') return wrap(`${tag('🩺',d.headline||'Symptoms')}<div style="font-family:monospace;font-size:10px;margin-bottom:10px">⏱ ${esc(d.onset)}</div>${(d.stages||[]).map(st=>`<div class="s-stage"><div style="color:${t.accent}">${esc(st.stage)}</div>${(st.signs||[]).map(sg=>`<div>• ${esc(sg)}</div>`).join('')}</div>`).join('')}`,5);
+  if(sid==='pathogenesis') return wrap(`${tag('⚡',d.headline||'Pathogenesis')}<p>${esc(d.summary)}</p><div class="s-stat" style="background:${t.accent}10">🎯 target: ${esc(d.targetOrgan)}</div>${(d.steps||[]).map((st,i)=>`<div class="s-step"><div class="s-step-n">${i+1}</div><div>${esc(st)}</div></div>`).join('')}`,6);
+  if(sid==='diagnosis') return wrap(`${tag('🧪',d.headline||'Diagnosis')}${(d.methods||[]).map(m=>`<div class="s-meth"><span>🔬</span><div><strong>${esc(m.name)}</strong><div>${esc(m.type)} — ${esc(m.detail)}</div></div></div>`).join('')}`,7);
+  if(sid==='treatment') return wrap(`${tag('💊',d.headline||'Treatment')}<p>${esc(d.approach)}</p>${(d.options||[]).map(o=>`<div class="s-tx"><div style="color:${t.accent}">${esc(o.category)}</div>${(o.items||[]).map(it=>`<div>+ ${esc(it)}</div>`).join('')}</div>`).join('')}`,8);
+  if(sid==='prevention') return wrap(`${tag('🛡',d.headline||'Prevention')}<div class="s-prev-grid">${(d.measures||[]).map(m=>`<div><span>${m.icon||'🛡'}</span><div><strong>${esc(m.title)}</strong><div>${esc(m.detail)}</div></div></div>`).join('')}</div>`,9);
+  if(sid==='keyfacts') return wrap(`${tag('⭐',d.headline||'Key Facts')}${(d.facts||[]).map((f,i)=>`<div class="s-fact"><div>${String(i+1).padStart(2,'0')}</div><div>${esc(f)}</div></div>`).join('')}${d.mortality?`<div class="s-mort">📊 ${esc(d.mortality)}</div>`:''}${d.citation?`<div class="s-cit">— ${esc(d.citation)}</div>`:''}`,10);
+  return wrap(`<div>🔧 content</div>`,0);
+}
+// EXPORT high quality
+async function exportPNG(){ closeExportModal(); toast('📸 Capturing high‑res...'); try{ const frame=document.getElementById('slide-frame'); const canvas=await html2canvas(frame,{scale:3,useCORS:true,backgroundColor:'#0a0a0c',logging:false}); const a=document.createElement('a'); a.download=`medslide-${State.diseaseName.replace(/\s/g,'-')}-${SECTIONS[State.activeSlide].id}.png`; a.href=canvas.toDataURL('image/png'); a.click(); toast('✅ Exported HD PNG'); }catch(e){ toast('Export error'); } }
+async function exportAllPNG(){ closeExportModal(); toast('📦 Exporting all slides (HD)...'); for(let i=0;i<SECTIONS.length;i++){ goSlide(i); await new Promise(r=>setTimeout(r,300)); const frame=document.getElementById('slide-frame'); const canvas=await html2canvas(frame,{scale:3,useCORS:true,backgroundColor:'#0a0a0c'}); const a=document.createElement('a'); a.download=`slide-${String(i+1).padStart(2,'0')}.png`; a.href=canvas.toDataURL(); a.click(); await new Promise(r=>setTimeout(r,200)); } toast('All slides exported.'); }
+async function openAITool(tool){ const overlay=document.getElementById('modal-overlay'), body=document.getElementById('modal-body'), title=document.getElementById('modal-title'); overlay.classList.add('open'); body.innerHTML='<div class="modal-spinner">🤖 generating...</div>'; let prompt=''; if(tool==='simplify'){ title.innerText='🎓 Explain Simply'; prompt=`Simplify this slide content about ${State.slides.diseaseName}: ${JSON.stringify(State.slides.slides[SECTIONS[State.activeSlide].id])}. Respond in 80 words plain.`; } else if(tool==='scientific'){ title.innerText='🔬 Scientific Mode'; prompt=`Rewrite this slide in medical terminology: ${JSON.stringify(State.slides.slides[SECTIONS[State.activeSlide].id])}`; } else if(tool==='hashtags'){ title.innerText='#️⃣ Hashtags'; prompt=`Generate 12 medical hashtags for ${State.slides.diseaseName} (spaced, start with #).`; } else if(tool==='citation'){ title.innerText='📚 Citation'; prompt=`Generate APA citation for ${State.slides.diseaseName} (WHO, journal, textbook).`; }
+try{ const res=await nvFetch([{role:'user',content:prompt}],500); State.lastModalResult=res; if(tool==='hashtags'){ const tags=res.split(/\s+/).filter(t=>t.startsWith('#')); body.innerHTML=`<div class="modal-result">${tags.map(t=>`<span class="htag" style="display:inline-block;margin:4px" onclick="navigator.clipboard.writeText('${t}');toast('Copied')">${esc(t)}</span>`).join('')}</div>`; const hp=document.getElementById('hashtag-panel'); hp.style.display='block'; document.getElementById('hashtag-list').innerHTML=tags.slice(0,8).map(t=>`<div class="htag" onclick="navigator.clipboard.writeText('${t}')">${esc(t)}</div>`).join(''); } else if(tool==='citation'){ body.innerHTML=`<div class="modal-result">${esc(res)}</div>`; document.getElementById('citation-panel').style.display='block'; document.getElementById('citation-text').innerHTML=res.substring(0,200); } else body.innerHTML=`<div class="modal-result">${esc(res)}</div>`; }catch(e){ body.innerHTML=`<div class="modal-result" style="color:#ff8">Error</div>`; } }
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
+function copyModalResult(){ if(State.lastModalResult){ navigator.clipboard.writeText(State.lastModalResult); toast('Copied!'); } }
+function showExportModal(){ document.getElementById('export-modal').classList.add('open'); }
+function closeExportModal(){ document.getElementById('export-modal').classList.remove('open'); }
+function renderHistory(){ const h=loadHistory(); const grid=document.getElementById('history-grid'); if(!h.length){ grid.innerHTML='<div class="history-empty" style="text-align:center;padding:80px">🗂 No projects</div>'; return; } grid.innerHTML=h.map(item=>`<div class="history-card"><div class="hc-type" style="color:${THEMES[item.themeKey]?.accent||'#00d4ff'}">${THEMES[item.themeKey]?.icon||'📁'}</div><div class="hc-name">${esc(item.diseaseName)}</div><div class="hc-date">${new Date(item.savedAt).toLocaleDateString()}</div><div class="hc-actions"><button class="hc-btn hc-btn-open" onclick='loadFromHistory(${JSON.stringify(item).replace(/'/g,"&#39;")})'>Open</button><button class="hc-btn hc-btn-del" onclick="deleteHistoryItem(${item.id})">Delete</button></div></div>`).join(''); }
+function loadFromHistory(item){ State.slides=item.slides; State.theme=THEMES[item.themeKey]||THEMES.viral; State.diseaseName=item.diseaseName; buildEditor(); showScreen('editor'); }
+function deleteHistoryItem(id){ deleteHistory(id); renderHistory(); toast('Deleted'); }
+function updateLangUI(){ const ar=State.lang==='ar'; document.body.setAttribute('dir',ar?'rtl':'ltr'); document.getElementById('lang-toggle-landing').textContent=ar?'English':'العربية'; document.getElementById('lang-toggle-editor').textContent=ar?'EN':'AR'; document.getElementById('hero-badge-text').textContent=ar?'مدعوم بالذكاء الاصطناعي • طبى':'POWERED BY AI · MEDICAL GRADE'; document.getElementById('hero-title').innerHTML=ar?'أنشئ شرائح طبية<br>بـ<span class="hl">ذكاء اصطناعي</span>':'Generate Medical Slides<br>with <span class="hl">AI Intelligence</span>'; document.getElementById('hero-sub').textContent=ar?'أدخل اسم المرض لإنشاء شرائح':'Type a disease name'; document.getElementById('disease-input').placeholder=ar?'مثال: داء الكلب':'e.g. Rabies'; document.getElementById('btn-generate').textContent=ar?'توليد ⚡':'Generate ⚡'; }
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('btn-generate').onclick=()=>{ let v=document.getElementById('disease-input').value.trim(); if(v) generate(v); else toast('Enter disease'); };
+  document.getElementById('sample-pills').onclick=e=>{ let p=e.target.closest('.pill'); if(p){ document.getElementById('disease-input').value=p.dataset.val; document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active')); p.classList.add('active'); } };
+  document.querySelectorAll('.mode-btn').forEach(btn=>btn.onclick=()=>{ document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); State.mode=btn.dataset.mode; });
+  document.getElementById('lang-toggle-landing').onclick=()=>{ State.lang=State.lang==='en'?'ar':'en'; updateLangUI(); };
+  document.getElementById('lang-toggle-editor').onclick=()=>{ State.lang=State.lang==='en'?'ar':'en'; updateLangUI(); if(State.slides) renderSlide(State.activeSlide); };
+  document.getElementById('dark-toggle').onclick=()=>toast('Minimal dark always on');
+  document.getElementById('btn-history').onclick=()=>{ renderHistory(); showScreen('history'); };
+  document.getElementById('btn-history-back').onclick=()=>showScreen('landing');
+  document.getElementById('btn-back').onclick=()=>showScreen('landing');
+  document.getElementById('btn-regen').onclick=()=>{ if(State.diseaseName) generate(State.diseaseName); };
+  document.getElementById('btn-prev').onclick=()=>{ if(State.activeSlide>0) goSlide(State.activeSlide-1); };
+  document.getElementById('btn-next').onclick=()=>{ if(State.activeSlide<SECTIONS.length-1) goSlide(State.activeSlide+1); };
+  document.getElementById('btn-png').onclick=()=>exportPNG();
+  document.getElementById('btn-export-all').onclick=showExportModal;
+  document.getElementById('modal-overlay').onclick=e=>{ if(e.target===document.getElementById('modal-overlay')) closeModal(); };
+  document.getElementById('export-modal').onclick=e=>{ if(e.target===document.getElementById('export-modal')) closeExportModal(); };
+  updateLangUI();
+  let pi=0, pills=document.querySelectorAll('.pill'); setInterval(()=>{ pills.forEach(p=>p.classList.remove('active')); pills[pi%pills.length]?.classList.add('active'); pi++; },3200);
+});
+</script>
+</body>
+</html>
