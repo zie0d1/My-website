@@ -800,25 +800,37 @@ async function generate(disease) {
     : `Disease: ${d}
 diseaseType (pick one): viral | bacterial | fungal | parasitic | metabolic`;
 
+  const wordRule = `WORD COUNT PER SLIDE: 60-90 words of visible text only. Bullets: 8-12 words each. Summary/description: 2 short sentences. Detail fields: one tight sentence. Stay within the cap.`;
+
   // ── CALL 1: meta + title + overview ──
   const sys1 = `${baseCtx}
+${wordRule}
 Return ONLY valid JSON, no extra text:
-{"diseaseType":"viral","diseaseName":"Name (Scientific)","tagline":"One sentence.","slides":{"title":{"headline":"Name","subheadline":"Brief desc","badge":"Species | Type","emoji":"🐾"},"overview":{"headline":"What is it?","summary":"2 sentences max.","bullets":["bullet","bullet","bullet"],"stat":"Stat with number"}}}`;
+{"diseaseType":"viral","diseaseName":"Name (Scientific)","tagline":"One sentence.","slides":{"title":{"headline":"Name","subheadline":"Brief desc","badge":"Species | Type","emoji":"🐾"},"overview":{"headline":"What is it?","summary":"2 short sentences.","bullets":["bullet 8-12 words","bullet 8-12 words","bullet 8-12 words"],"stat":"Stat with number"}}}`;
 
-  // ── CALL 2: etiology + transmission + symptoms ──
+  // ── CALL 2: etiology only ──
   const sys2 = `${baseCtx}
+${wordRule}
 Return ONLY valid JSON, no extra text:
-{"slides":{"etiology":{"headline":"Etiology","agent":"Agent","agentType":"Type","description":"2 sentences.","bullets":["bullet","bullet","bullet"]},"transmission":{"headline":"Transmission","routes":[{"icon":"💩","route":"Route","detail":"sentence"},{"icon":"🌍","route":"Route","detail":"sentence"},{"icon":"🐾","route":"Route","detail":"sentence"}],"note":"Zoonotic note"},"symptoms":{"headline":"Clinical Signs","onset":"X days","stages":[{"stage":"Early","signs":["sign","sign"]},{"stage":"Acute","signs":["sign","sign"]},{"stage":"Late","signs":["sign","sign"]}]}}}`;
+{"slides":{"etiology":{"headline":"Etiology","agent":"Agent name","agentType":"Type","description":"2 short sentences.","bullets":["bullet 8-12 words","bullet 8-12 words","bullet 8-12 words"]}}}`;
 
-  // ── CALL 3: pathogenesis + diagnosis ──
+  // ── CALL 3 (was 2): transmission + symptoms ──
+  const sys3b = `${baseCtx}
+${wordRule}
+Return ONLY valid JSON, no extra text:
+{"slides":{"transmission":{"headline":"Transmission","routes":[{"icon":"💩","route":"Route","detail":"one sentence"},{"icon":"🌍","route":"Route","detail":"one sentence"},{"icon":"🐾","route":"Route","detail":"one sentence"}],"note":"Zoonotic note"},"symptoms":{"headline":"Clinical Signs","onset":"X days","stages":[{"stage":"Early","signs":["sign","sign"]},{"stage":"Acute","signs":["sign","sign"]},{"stage":"Late","signs":["sign","sign"]}]}}}`;
+
+  // ── CALL 4 (was 3): pathogenesis + diagnosis ──
   const sys3 = `${baseCtx}
+${wordRule}
 Return ONLY valid JSON, no extra text:
-{"slides":{"pathogenesis":{"headline":"Pathogenesis","summary":"2 sentences.","steps":["Step 1","Step 2","Step 3","Step 4"],"targetOrgan":"Organ"},"diagnosis":{"headline":"Diagnosis","methods":[{"name":"Test","type":"Gold standard","detail":"sentence"},{"name":"Test","type":"Rapid","detail":"sentence"},{"name":"Test","type":"Clinical","detail":"sentence"}]}}}`;
+{"slides":{"pathogenesis":{"headline":"Pathogenesis","summary":"2 short sentences.","steps":["Step 1","Step 2","Step 3","Step 4"],"targetOrgan":"Organ"},"diagnosis":{"headline":"Diagnosis","methods":[{"name":"Test","type":"Gold standard","detail":"one sentence"},{"name":"Test","type":"Rapid","detail":"one sentence"},{"name":"Test","type":"Clinical","detail":"one sentence"}]}}}`;
 
-  // ── CALL 4: treatment + prevention + keyfacts ──
+  // ── CALL 5 (was 4): treatment + prevention + keyfacts ──
   const sys4 = `${baseCtx}
+${wordRule}
 Return ONLY valid JSON, no extra text:
-{"slides":{"treatment":{"headline":"Treatment","approach":"2 sentences.","options":[{"category":"Specific","items":["item","item"]},{"category":"Supportive","items":["item","item"]},{"category":"Herd","items":["item"]}]},"prevention":{"headline":"Prevention","measures":[{"icon":"💉","title":"Vaccination","detail":"sentence"},{"icon":"🧼","title":"Disinfection","detail":"sentence"},{"icon":"🚫","title":"Isolation","detail":"sentence"},{"icon":"📋","title":"Surveillance","detail":"sentence"}]},"keyfacts":{"headline":"Key Facts","facts":["fact","fact","fact","fact","fact"],"mortality":"Untreated vs treated","citation":"Source year"}}}`;
+{"slides":{"treatment":{"headline":"Treatment","approach":"2 short sentences.","options":[{"category":"Specific","items":["item","item"]},{"category":"Supportive","items":["item","item"]},{"category":"Herd","items":["item"]}]},"prevention":{"headline":"Prevention","measures":[{"icon":"💉","title":"Vaccination","detail":"one sentence"},{"icon":"🧼","title":"Disinfection","detail":"one sentence"},{"icon":"🚫","title":"Isolation","detail":"one sentence"},{"icon":"📋","title":"Surveillance","detail":"one sentence"}]},"keyfacts":{"headline":"Key Facts","facts":["fact","fact","fact","fact","fact"],"mortality":"Untreated vs treated","citation":"Source year"}}}`;
 
   const userMsg = ar
     ? `${diseaseCtx}
@@ -828,20 +840,22 @@ Return ONLY valid JSON, no extra text:
   try {
     setProgress(10, ar ? 'تحليل المرض...' : 'Analyzing disease...');
 
-    // Fire all 4 calls in parallel
-    const [raw1, raw2, raw3, raw4] = await Promise.all([
+    // Fire all 5 calls in parallel
+    const [raw1, raw2, raw3b, raw3, raw4] = await Promise.all([
       nvFetch([{role:'system',content:sys1},{role:'user',content:userMsg}], 4000),
       nvFetch([{role:'system',content:sys2},{role:'user',content:userMsg}], 4000),
+      nvFetch([{role:'system',content:sys3b},{role:'user',content:userMsg}], 4000),
       nvFetch([{role:'system',content:sys3},{role:'user',content:userMsg}], 4000),
       nvFetch([{role:'system',content:sys4},{role:'user',content:userMsg}], 4000),
     ]);
 
     setProgress(70, ar ? 'دمج الشرائح...' : 'Merging slides...');
 
-    const p1 = await parseJSON(raw1);
-    const p2 = await parseJSON(raw2);
-    const p3 = await parseJSON(raw3);
-    const p4 = await parseJSON(raw4);
+    const p1  = await parseJSON(raw1);
+    const p2  = await parseJSON(raw2);
+    const p3b = await parseJSON(raw3b);
+    const p3  = await parseJSON(raw3);
+    const p4  = await parseJSON(raw4);
 
     // Merge all slides together
     const merged = {
@@ -851,6 +865,7 @@ Return ONLY valid JSON, no extra text:
       slides: {
         ...p1.slides,
         ...p2.slides,
+        ...p3b.slides,
         ...p3.slides,
         ...p4.slides,
       }
