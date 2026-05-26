@@ -213,7 +213,12 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 .sdots{display:flex;gap:3px}
 .sdot{height:3px;background:rgba(255,255,255,.1);cursor:pointer;transition:all .25s}
 .sdot.active{background:var(--accent)}
-#slide-frame{width:100%;aspect-ratio:4/5;border-radius:0 !important;overflow:hidden;border:1px solid rgba(255,255,255,.08);position:relative;box-shadow:none !important}
+#slide-frame{width:100%;aspect-ratio:4/5;border-radius:0 !important;overflow:hidden;border:1px solid rgba(255,255,255,.08);position:relative;box-shadow:none !important;transition:aspect-ratio .25s ease}
+#slide-frame.story{aspect-ratio:9/16}
+.format-row{display:flex;gap:6px;margin-top:8px;justify-content:center}
+.fmt-btn{padding:5px 16px;font-size:11px;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.fmt-btn:hover{color:#fff;border-color:rgba(255,255,255,.2)}
+.fmt-btn.active{border-color:rgba(0,212,255,.4);color:#00d4ff;background:rgba(0,212,255,.06)}
 .slide-nav{display:flex;gap:7px;margin-top:12px;justify-content:center}
 .btn-snav{padding:7px 18px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;transition:color .15s}
 .btn-snav:hover{color:#fff;border-color:rgba(255,255,255,.18)}
@@ -471,6 +476,10 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
           <button class="btn-spng" id="btn-png">↓ PNG</button>
           <button class="btn-snav" id="btn-next">Next →</button>
         </div>
+        <div class="format-row">
+          <button class="fmt-btn active" id="fmt-post" onclick="setFormat('post')">▭ Post 4:5</button>
+          <button class="fmt-btn" id="fmt-story" onclick="setFormat('story')">▯ Story 9:16</button>
+        </div>
       </div>
     </main>
 
@@ -524,17 +533,16 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
       <button class="modal-close" onclick="closeExportModal()">✕</button>
     </div>
     <div class="exp-grid">
-      <div class="exp-card" onclick="exportPNG()"><div class="ec-ico">🖼</div><div class="ec-lbl">PNG</div><div class="ec-sub">Current slide<br>1080 × 1350</div></div>
-      <div class="exp-card" onclick="exportAllPNG()"><div class="ec-ico">📦</div><div class="ec-lbl">All PNGs</div><div class="ec-sub">All 10 slides<br>ZIP archive</div></div>
-      <div class="exp-card" onclick="toast('PDF export: connect jsPDF in production.')"><div class="ec-ico">📄</div><div class="ec-lbl">PDF</div><div class="ec-sub">All slides<br>Print-ready</div></div>
-      <div class="exp-card" onclick="toast('PPTX export: connect PptxGenJS in production.')"><div class="ec-ico">📊</div><div class="ec-lbl">PPTX</div><div class="ec-sub">Editable deck<br>PowerPoint</div></div>
+      <div class="exp-card" onclick="exportPNG()"><div class="ec-ico">🖼</div><div class="ec-lbl">PNG</div><div class="ec-sub">Current slide<br><span id="exp-fmt-label">Post 4:5</span></div></div>
+      <div class="exp-card" onclick="exportAllPNG()"><div class="ec-ico">📦</div><div class="ec-lbl">All PNGs</div><div class="ec-sub">All 10 slides<br><span id="exp-fmt-label2">Post 4:5</span></div></div>
+      <div class="exp-card" onclick="toast('PDF export: coming soon.')"><div class="ec-ico">📄</div><div class="ec-lbl">PDF</div><div class="ec-sub">All slides<br>Print-ready</div></div>
+      <div class="exp-card" onclick="toast('PPTX export: coming soon.')"><div class="ec-ico">📊</div><div class="ec-lbl">PPTX</div><div class="ec-sub">Editable deck<br>PowerPoint</div></div>
     </div>
     <div class="exp-social">
-      <div class="exp-social-title">ONE-CLICK SOCIAL</div>
+      <div class="exp-social-title">FORMAT SELECTED</div>
       <div class="exp-social-btns">
-        <div class="exp-soc" onclick="exportPNG('instagram')">📸 Instagram</div>
-        <div class="exp-soc" onclick="exportPNG('tiktok')">🎵 TikTok</div>
-        <div class="exp-soc" onclick="exportPNG('facebook')">👥 Facebook</div>
+        <div class="exp-soc" id="exp-soc-post" onclick="setFormat('post');closeExportModal()" style="color:#00d4ff;border-color:rgba(0,212,255,.3)">▭ Post 4:5</div>
+        <div class="exp-soc" id="exp-soc-story" onclick="setFormat('story');closeExportModal()">▯ Story 9:16</div>
       </div>
     </div>
   </div>
@@ -668,7 +676,23 @@ let State = {
   slides:null, theme:null, diseaseName:'',
   isGenerating:false,
   lastModalResult:'',
+  format: 'post', // 'post' = 4:5, 'story' = 9:16
 };
+
+/* ── Format toggle ──────────────────────────────────────────────────────── */
+function setFormat(fmt) {
+  State.format = fmt;
+  const frame = document.getElementById('slide-frame');
+  if (fmt === 'story') {
+    frame.classList.add('story');
+  } else {
+    frame.classList.remove('story');
+  }
+  document.getElementById('fmt-post').classList.toggle('active', fmt === 'post');
+  document.getElementById('fmt-story').classList.toggle('active', fmt === 'story');
+  // re-render current slide to fit new dimensions
+  goSlide(State.activeSlide);
+}
 
 /* ── Screen routing ─────────────────────────────────────────────────────── */
 function showScreen(id) {
@@ -1114,81 +1138,13 @@ function buildSlideHTML(sid, s, t) {
 /* ══════════════════════════════════════════════════════════════════════════
    PNG EXPORT (html2canvas)
 ══════════════════════════════════════════════════════════════════════════ */
-function getSlideBackground() {
-  // Read the actual background from the .si element inside the frame
-  const si = document.querySelector('#slide-frame .si');
-  if (si) {
-    const bg = si.style.background || si.style.backgroundColor;
-    if (bg) return bg;
-  }
-  // fallback to theme bg
-  return State.theme?.bg1 || '#060a0f';
-}
-
-async function exportPNG(platform) {
-  closeExportModal();
-  toast('🖼 Capturing slide...');
-  try {
-    const frame = document.getElementById('slide-frame');
-    const rect  = frame.getBoundingClientRect();
-    const W = Math.round(rect.width);
-    const H = Math.round(rect.height);
-
-    const canvas = await html2canvas(frame, {
-      scale: 4,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#060a0f',
-      logging: false,
-      width: W,
-      height: H,
-      x: 0,
-      y: 0,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-      imageTimeout: 0,
-      removeContainer: true,
-      onclone: (doc) => {
-        // ensure the cloned slide-frame has no overflow clipping issues
-        const f = doc.getElementById('slide-frame');
-        if (f) { f.style.overflow = 'hidden'; f.style.borderRadius = '0'; }
-      }
-    });
-
-    // Composite onto a solid background canvas to eliminate any alpha
-    const out = document.createElement('canvas');
-    out.width  = canvas.width;
-    out.height = canvas.height;
-    const ctx = out.getContext('2d');
-    ctx.fillStyle = '#060a0f';
-    ctx.fillRect(0, 0, out.width, out.height);
-    ctx.drawImage(canvas, 0, 0);
-
-    const link = document.createElement('a');
-    const secId = SECTIONS[State.activeSlide].id;
-    const dname = (State.diseaseName||'slide').replace(/\s+/g,'-').toLowerCase();
-    link.download = `futurevets-${dname}-${secId}.png`;
-    link.href = out.toDataURL('image/png', 1.0);
-    link.click();
-    toast(`✅ Exported ${out.width}×${out.height}px`);
-  } catch(err) {
-    console.error(err);
-    toast('❌ Export failed: '+err.message);
-  }
-}
-
-async function exportAllPNG() {
-  closeExportModal();
-  toast('📦 Exporting all slides at 4× quality...');
+async function captureSlide() {
   const frame = document.getElementById('slide-frame');
   const rect  = frame.getBoundingClientRect();
   const W = Math.round(rect.width);
   const H = Math.round(rect.height);
-  const dname = (State.diseaseName||'deck').replace(/\s+/g,'-').toLowerCase();
 
-  const captureOpts = {
+  const canvas = await html2canvas(frame, {
     scale: 4,
     useCORS: true,
     allowTaint: true,
@@ -1208,31 +1164,57 @@ async function exportAllPNG() {
       const f = doc.getElementById('slide-frame');
       if (f) { f.style.overflow = 'hidden'; f.style.borderRadius = '0'; }
     }
-  };
+  });
+
+  // Composite onto solid bg to kill any alpha
+  const out = document.createElement('canvas');
+  out.width  = canvas.width;
+  out.height = canvas.height;
+  const ctx = out.getContext('2d');
+  ctx.fillStyle = '#060a0f';
+  ctx.fillRect(0, 0, out.width, out.height);
+  ctx.drawImage(canvas, 0, 0);
+  return out;
+}
+
+async function exportPNG(platform) {
+  closeExportModal();
+  const fmt = State.format === 'story' ? 'story-9x16' : 'post-4x5';
+  toast(`🖼 Capturing ${State.format === 'story' ? 'Story 9:16' : 'Post 4:5'}...`);
+  try {
+    const out = await captureSlide();
+    const link = document.createElement('a');
+    const secId = SECTIONS[State.activeSlide].id;
+    const dname = (State.diseaseName||'slide').replace(/\s+/g,'-').toLowerCase();
+    link.download = `futurevets-${dname}-${secId}-${fmt}.png`;
+    link.href = out.toDataURL('image/png', 1.0);
+    link.click();
+    toast(`✅ ${out.width}×${out.height}px exported`);
+  } catch(err) {
+    console.error(err);
+    toast('❌ Export failed: '+err.message);
+  }
+}
+
+async function exportAllPNG() {
+  closeExportModal();
+  const fmt = State.format === 'story' ? 'story-9x16' : 'post-4x5';
+  toast(`📦 Exporting all slides (${State.format === 'story' ? 'Story 9:16' : 'Post 4:5'})...`);
+  const dname = (State.diseaseName||'deck').replace(/\s+/g,'-').toLowerCase();
 
   for(let i=0; i<SECTIONS.length; i++){
     goSlide(i);
     await delay(450);
     try {
-      const canvas = await html2canvas(frame, captureOpts);
-
-      // Composite onto solid bg
-      const out = document.createElement('canvas');
-      out.width  = canvas.width;
-      out.height = canvas.height;
-      const ctx = out.getContext('2d');
-      ctx.fillStyle = '#060a0f';
-      ctx.fillRect(0, 0, out.width, out.height);
-      ctx.drawImage(canvas, 0, 0);
-
+      const out = await captureSlide();
       const link = document.createElement('a');
-      link.download = `futurevets-${dname}-${String(i+1).padStart(2,'0')}-${SECTIONS[i].id}.png`;
+      link.download = `futurevets-${dname}-${String(i+1).padStart(2,'0')}-${SECTIONS[i].id}-${fmt}.png`;
       link.href = out.toDataURL('image/png', 1.0);
       link.click();
       await delay(350);
     } catch(e){ console.error('Slide '+i+' failed',e); }
   }
-  toast('✅ All slides exported at 4× quality!');
+  toast('✅ All slides exported!');
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1307,7 +1289,20 @@ function copyModalResult(){
 /* ══════════════════════════════════════════════════════════════════════════
    EXPORT MODAL
 ══════════════════════════════════════════════════════════════════════════ */
-function showExportModal(){ document.getElementById('export-modal').classList.add('open'); }
+function showExportModal(){
+  // Sync format labels
+  const isStory = State.format === 'story';
+  const lbl = isStory ? 'Story 9:16' : 'Post 4:5';
+  document.getElementById('exp-fmt-label').textContent  = lbl;
+  document.getElementById('exp-fmt-label2').textContent = lbl;
+  const socPost  = document.getElementById('exp-soc-post');
+  const socStory = document.getElementById('exp-soc-story');
+  socPost.style.color  = isStory ? '' : '#00d4ff';
+  socPost.style.borderColor = isStory ? '' : 'rgba(0,212,255,.3)';
+  socStory.style.color = isStory ? '#00d4ff' : '';
+  socStory.style.borderColor = isStory ? 'rgba(0,212,255,.3)' : '';
+  document.getElementById('export-modal').classList.add('open');
+}
 function closeExportModal(){ document.getElementById('export-modal').classList.remove('open'); }
 document.getElementById('export-modal').addEventListener('click', e=>{
   if(e.target===document.getElementById('export-modal')) closeExportModal();
