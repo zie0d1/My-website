@@ -800,45 +800,25 @@ async function generate(disease) {
     : `Disease: ${d}
 diseaseType (pick one): viral | bacterial | fungal | parasitic | metabolic`;
 
-  // ── CALL 1: meta + title + overview + etiology + transmission ──
+  // ── CALL 1: meta + title + overview ──
   const sys1 = `${baseCtx}
+Return ONLY valid JSON, no extra text:
+{"diseaseType":"viral","diseaseName":"Name (Scientific)","tagline":"One sentence.","slides":{"title":{"headline":"Name","subheadline":"Brief desc","badge":"Species | Type","emoji":"🐾"},"overview":{"headline":"What is it?","summary":"2 sentences max.","bullets":["bullet","bullet","bullet"],"stat":"Stat with number"}}}`;
 
-Return ONLY this JSON (no extra keys):
-{
-  "diseaseType": "viral",
-  "diseaseName": "Popular name (Scientific name)",
-  "tagline": "One powerful sentence about this disease in animals",
-  "slides": {
-    "title": {"headline":"Disease name","subheadline":"Brief significance + species affected","badge":"Species | Disease type","emoji":"🐾"},
-    "overview": {"headline":"What is it?","summary":"2-3 sentences on disease, prevalence, severity","bullets":["bullet 1","bullet 2","bullet 3"],"stat":"Key statistic with numbers"},
-    "etiology": {"headline":"Etiology & Causative Agent","agent":"Agent name","agentType":"e.g. RNA virus","description":"2-3 sentences on pathogen biology","bullets":["bullet 1","bullet 2","bullet 3"]},
-    "transmission": {"headline":"Transmission & Spread","routes":[{"icon":"💩","route":"Route","detail":"one sentence"},{"icon":"🌍","route":"Route","detail":"one sentence"},{"icon":"🐾","route":"Route","detail":"one sentence"}],"note":"Zoonotic/biosecurity note"}
-  }
-}`;
-
-  // ── CALL 2: symptoms + pathogenesis + diagnosis ──
+  // ── CALL 2: etiology + transmission + symptoms ──
   const sys2 = `${baseCtx}
+Return ONLY valid JSON, no extra text:
+{"slides":{"etiology":{"headline":"Etiology","agent":"Agent","agentType":"Type","description":"2 sentences.","bullets":["bullet","bullet","bullet"]},"transmission":{"headline":"Transmission","routes":[{"icon":"💩","route":"Route","detail":"sentence"},{"icon":"🌍","route":"Route","detail":"sentence"},{"icon":"🐾","route":"Route","detail":"sentence"}],"note":"Zoonotic note"},"symptoms":{"headline":"Clinical Signs","onset":"X days","stages":[{"stage":"Early","signs":["sign","sign"]},{"stage":"Acute","signs":["sign","sign"]},{"stage":"Late","signs":["sign","sign"]}]}}}`;
 
-Return ONLY this JSON (no extra keys):
-{
-  "slides": {
-    "symptoms": {"headline":"Clinical Signs","onset":"Incubation period","stages":[{"stage":"Early","signs":["sign 1","sign 2"]},{"stage":"Acute","signs":["sign 1","sign 2"]},{"stage":"Late/Severe","signs":["sign 1","sign 2"]}]},
-    "pathogenesis": {"headline":"Pathogenesis","summary":"2-3 sentences on disease mechanism","steps":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ..."],"targetOrgan":"Target organ + why"},
-    "diagnosis": {"headline":"Veterinary Diagnosis","methods":[{"name":"Test 1","type":"Gold standard","detail":"one sentence"},{"name":"Test 2","type":"Rapid/Field","detail":"one sentence"},{"name":"Test 3","type":"Clinical/Lab","detail":"one sentence"}]}
-  }
-}`;
-
-  // ── CALL 3: treatment + prevention + keyfacts ──
+  // ── CALL 3: pathogenesis + diagnosis ──
   const sys3 = `${baseCtx}
+Return ONLY valid JSON, no extra text:
+{"slides":{"pathogenesis":{"headline":"Pathogenesis","summary":"2 sentences.","steps":["Step 1","Step 2","Step 3","Step 4"],"targetOrgan":"Organ"},"diagnosis":{"headline":"Diagnosis","methods":[{"name":"Test","type":"Gold standard","detail":"sentence"},{"name":"Test","type":"Rapid","detail":"sentence"},{"name":"Test","type":"Clinical","detail":"sentence"}]}}}`;
 
-Return ONLY this JSON (no extra keys):
-{
-  "slides": {
-    "treatment": {"headline":"Treatment & Management","approach":"2-3 sentences on approach and prognosis","options":[{"category":"Specific Therapy","items":["item 1","item 2"]},{"category":"Supportive Care","items":["item 1","item 2"]},{"category":"Herd/Population","items":["item 1"]}]},
-    "prevention": {"headline":"Prevention & Biosecurity","measures":[{"icon":"💉","title":"Vaccination","detail":"one sentence"},{"icon":"🧼","title":"Disinfection","detail":"one sentence"},{"icon":"🚫","title":"Isolation","detail":"one sentence"},{"icon":"📋","title":"Surveillance","detail":"one sentence"}]},
-    "keyfacts": {"headline":"Key Veterinary Facts","facts":["fact 1","fact 2","fact 3","fact 4","fact 5"],"mortality":"Untreated vs treated mortality","citation":"Source + year"}
-  }
-}`;
+  // ── CALL 4: treatment + prevention + keyfacts ──
+  const sys4 = `${baseCtx}
+Return ONLY valid JSON, no extra text:
+{"slides":{"treatment":{"headline":"Treatment","approach":"2 sentences.","options":[{"category":"Specific","items":["item","item"]},{"category":"Supportive","items":["item","item"]},{"category":"Herd","items":["item"]}]},"prevention":{"headline":"Prevention","measures":[{"icon":"💉","title":"Vaccination","detail":"sentence"},{"icon":"🧼","title":"Disinfection","detail":"sentence"},{"icon":"🚫","title":"Isolation","detail":"sentence"},{"icon":"📋","title":"Surveillance","detail":"sentence"}]},"keyfacts":{"headline":"Key Facts","facts":["fact","fact","fact","fact","fact"],"mortality":"Untreated vs treated","citation":"Source year"}}}`;
 
   const userMsg = ar
     ? `${diseaseCtx}
@@ -848,11 +828,12 @@ Return ONLY this JSON (no extra keys):
   try {
     setProgress(10, ar ? 'تحليل المرض...' : 'Analyzing disease...');
 
-    // Fire all 3 calls in parallel
-    const [raw1, raw2, raw3] = await Promise.all([
-      nvFetch([{role:'system',content:sys1},{role:'user',content:userMsg}], 1800),
-      nvFetch([{role:'system',content:sys2},{role:'user',content:userMsg}], 1600),
-      nvFetch([{role:'system',content:sys3},{role:'user',content:userMsg}], 1600),
+    // Fire all 4 calls in parallel
+    const [raw1, raw2, raw3, raw4] = await Promise.all([
+      nvFetch([{role:'system',content:sys1},{role:'user',content:userMsg}], 4000),
+      nvFetch([{role:'system',content:sys2},{role:'user',content:userMsg}], 4000),
+      nvFetch([{role:'system',content:sys3},{role:'user',content:userMsg}], 4000),
+      nvFetch([{role:'system',content:sys4},{role:'user',content:userMsg}], 4000),
     ]);
 
     setProgress(70, ar ? 'دمج الشرائح...' : 'Merging slides...');
@@ -860,6 +841,7 @@ Return ONLY this JSON (no extra keys):
     const p1 = await parseJSON(raw1);
     const p2 = await parseJSON(raw2);
     const p3 = await parseJSON(raw3);
+    const p4 = await parseJSON(raw4);
 
     // Merge all slides together
     const merged = {
@@ -870,6 +852,7 @@ Return ONLY this JSON (no extra keys):
         ...p1.slides,
         ...p2.slides,
         ...p3.slides,
+        ...p4.slides,
       }
     };
 
