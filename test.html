@@ -1174,35 +1174,17 @@ function buildSlideHTML(sid, s, t) {
 ══════════════════════════════════════════════════════════════════════════ */
 async function captureSlide() {
   const frame = document.getElementById('slide-frame');
+  if (!frame) throw new Error('Slide frame not found');
+  
   const rect  = frame.getBoundingClientRect();
   const W = Math.round(rect.width);
   const H = Math.round(rect.height);
 
-  // Clone the frame وتأكد من الـ RTL والفونت قبل الحفظ
-  const clonedFrame = frame.cloneNode(true);
-  const isArabic = State.lang === 'ar';
-  
-  // Force proper text rendering for Arabic
-  if (isArabic) {
-    // أضف قواعد CSS خاصة للعربية
-    const styleEl = document.createElement('style');
-    styleEl.textContent = `
-      [dir="rtl"], .si.ar {
-        direction: rtl !important;
-        text-align: right !important;
-        font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif !important;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-      .si.ar .s-h, .si.ar .s-big-h {
-        font-family: 'Noto Kufi Arabic', sans-serif !important;
-        letter-spacing: 0 !important;
-      }
-    `;
-    clonedFrame.insertBefore(styleEl, clonedFrame.firstChild);
+  if (W <= 0 || H <= 0) {
+    throw new Error('Invalid slide dimensions: ' + W + 'x' + H);
   }
 
-  const canvas = await html2canvas(clonedFrame, {
+  const canvas = await html2canvas(frame, {
     scale: 4,
     useCORS: true,
     allowTaint: true,
@@ -1220,11 +1202,11 @@ async function captureSlide() {
     removeContainer: true,
     foreignObjectRendering: true,
     onclone: (doc) => {
-      const f = doc.getElementById('slide-frame') || doc.querySelector('[class*="si"]');
+      const f = doc.querySelector('[id="slide-frame"]') || doc.querySelector('[class*="si"]');
       if (f) { 
         f.style.overflow = 'hidden'; 
         f.style.borderRadius = '0';
-        // تأكد من الـ direction بالـ cloned document أيضاً
+        const isArabic = State.lang === 'ar';
         if (isArabic) {
           f.setAttribute('dir', 'rtl');
           f.classList.add('ar');
@@ -1233,11 +1215,17 @@ async function captureSlide() {
     }
   });
 
+  if (!canvas) {
+    throw new Error('Canvas rendering failed');
+  }
+
   // Composite onto solid bg to kill any alpha
   const out = document.createElement('canvas');
   out.width  = canvas.width;
   out.height = canvas.height;
   const ctx = out.getContext('2d');
+  if (!ctx) throw new Error('Cannot get canvas context');
+  
   ctx.fillStyle = '#060a0f';
   ctx.fillRect(0, 0, out.width, out.height);
   ctx.drawImage(canvas, 0, 0);
@@ -1250,8 +1238,12 @@ async function exportPNG(platform) {
   toast(`🖼 Capturing ${State.format === 'story' ? 'Story 9:16' : 'Post 4:5'}...`);
   try {
     // تأكد من تحميل الفونت قبل الحفظ
-    await document.fonts.ready;
-    await new Promise(r => setTimeout(r, 300)); // انتظر شوي للـ rendering
+    try {
+      await document.fonts.ready;
+    } catch(e) {
+      console.warn('Fonts not ready, continuing anyway', e);
+    }
+    await new Promise(r => setTimeout(r, 500)); // انتظر شوي للـ rendering
     
     const out = await captureSlide();
     const link = document.createElement('a');
@@ -1262,8 +1254,9 @@ async function exportPNG(platform) {
     link.click();
     toast(`✅ ${out.width}×${out.height}px exported`);
   } catch(err) {
-    console.error(err);
-    toast('❌ Export failed: '+err.message);
+    console.error('Export error:', err);
+    const errMsg = (err && err.message) ? err.message : 'Unknown error occurred';
+    toast('❌ Export failed: ' + errMsg);
   }
 }
 
@@ -1274,7 +1267,14 @@ async function exportAllPNG() {
   const dname = (State.diseaseName||'deck').replace(/\s+/g,'-').toLowerCase();
 
   // تأكد من تحميل الفونت مرة واحدة
-  await document.fonts.ready;
+  try {
+    await document.fonts.ready;
+  } catch(e) {
+    console.warn('Fonts not ready, continuing anyway', e);
+  }
+  
+  let successCount = 0;
+  let failCount = 0;
   
   for(let i=0; i<SECTIONS.length; i++){
     goSlide(i);
@@ -1285,10 +1285,19 @@ async function exportAllPNG() {
       link.download = `futurevets-${dname}-${String(i+1).padStart(2,'0')}-${SECTIONS[i].id}-${fmt}.png`;
       link.href = out.toDataURL('image/png', 1.0);
       link.click();
+      successCount++;
       await delay(350);
-    } catch(e){ console.error('Slide '+i+' failed',e); }
+    } catch(e){ 
+      console.error('Slide '+i+' failed:', e); 
+      failCount++;
+    }
   }
-  toast('✅ All slides exported!');
+  
+  if (failCount > 0) {
+    toast(`⚠️ ${successCount} exported, ${failCount} failed`);
+  } else {
+    toast('✅ All ' + successCount + ' slides exported!');
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
