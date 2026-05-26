@@ -769,6 +769,14 @@ function getDemoSlides(name) {
 /* ══════════════════════════════════════════════════════════════════════════
    GENERATE
 ══════════════════════════════════════════════════════════════════════════ */
+async function parseJSON(raw) {
+  let clean = raw.replace(/```json|```/g, '').trim();
+  const first = clean.indexOf('{');
+  const last  = clean.lastIndexOf('}');
+  if (first !== -1 && last !== -1) clean = clean.slice(first, last + 1);
+  return JSON.parse(clean);
+}
+
 async function generate(disease) {
   if (State.isGenerating || !disease.trim()) return;
   State.isGenerating = true;
@@ -778,98 +786,123 @@ async function generate(disease) {
   showScreen('generating');
   setProgress(5, State.lang==='ar' ? 'تحليل المرض...' : 'Analyzing disease...');
 
-  const sys = `You are a veterinary education AI that creates detailed, informative slide content for animal disease education.
-Output ONLY valid JSON — no markdown fences, no preamble, no extra text.
-Detect the disease type from: viral | bacterial | fungal | parasitic | metabolic
-Focus on VETERINARY context: affected animal species, zoonotic risk, veterinary diagnostics, animal-specific treatment protocols.
+  const ar = State.lang === 'ar';
+  const sci = State.mode === 'scientific';
+  const d = State.diseaseName;
 
-IMPORTANT: Use the most well-known, commonly used name for the disease (e.g. "Parvo" not just "CPV-2", "Distemper" not just "CDV", "Kennel Cough" alongside "Infectious Tracheobronchitis"). In Arabic, use the popular Arabic name alongside the English scientific term.
+  const baseCtx = ar
+    ? `أنت ذكاء اصطناعي متخصص في التعليم البيطري. اكتب بالعربية الفصحى البسيطة. احتفظ بالمصطلحات العلمية بالإنجليزية (مثل: ELISA، PCR، Leukopenia). استخدم الاسم الشائع للمرض. أخرج JSON صالح فقط — بدون markdown أو أي نص إضافي.`
+    : `You are a veterinary education AI. Output ONLY valid JSON — no markdown, no preamble. Use the most common/popular name for the disease. ${sci ? 'Use precise scientific veterinary terminology.' : 'Use clear accessible language.'} Each text field: 15-25 words max. Bullets: 8-12 words each.`;
 
-WORD COUNT — CRITICAL: Each slide must contain exactly 60-90 words of visible text total (excluding labels, icons, and field names). Count carefully.
-- Write concise but complete sentences
-- Bullets: 8-15 words each
-- summary/description: 2-3 short sentences
-- detail fields: one tight sentence each
-- Keep every field brief — the 90-word cap is a hard limit per slide
+  const diseaseCtx = ar
+    ? `المرض: ${d}
+نوع المرض (اختر واحداً): viral | bacterial | fungal | parasitic | metabolic`
+    : `Disease: ${d}
+diseaseType (pick one): viral | bacterial | fungal | parasitic | metabolic`;
 
-Return EXACTLY this JSON structure:
+  // ── CALL 1: meta + title + overview + etiology + transmission ──
+  const sys1 = `${baseCtx}
+
+Return ONLY this JSON (no extra keys):
 {
-  "diseaseType":"viral",
-  "diseaseName":"Common popular name (Scientific name)",
-  "tagline":"One powerful sentence about this disease in animals",
-  "slides":{
-    "title":{"headline":"Popular disease name","subheadline":"Detailed subheadline describing disease significance and affected species","badge":"Species affected | Disease type","emoji":"🐾"},
-    "overview":{"headline":"What is it?","summary":"3-4 detailed sentences about this animal disease including prevalence, severity, and clinical importance","bullets":["Complete informative sentence with epidemiology or risk data","Complete sentence with specific mortality/morbidity numbers","Complete sentence about economic or public health impact"],"stat":"Specific statistic with numbers and context about animal/veterinary impact"},
-    "etiology":{"headline":"Etiology & Causative Agent","agent":"Agent name (common name)","agentType":"e.g. RNA virus / Gram-positive bacterium","description":"3-4 sentences on pathogen biology, virulence factors, and environmental stability","bullets":["Complete sentence about pathogen characteristics or variants","Complete sentence about environmental survival or resistance","Complete sentence about host range or susceptibility factors"]},
-    "transmission":{"headline":"Transmission & Spread","routes":[{"icon":"🐾","route":"Route name","detail":"1-2 full sentences describing this transmission route with clinical veterinary context"},{"icon":"💨","route":"Route name","detail":"1-2 full sentences with specific epidemiological details"},{"icon":"🤝","route":"Route name","detail":"1-2 full sentences with specific details"}],"note":"Important veterinary/zoonotic note with specific guidance"},
-    "symptoms":{"headline":"Clinical Signs","onset":"Incubation period with specific timeframe","stages":[{"stage":"Peracute/Early","signs":["Complete sentence describing clinical sign with detail","Complete sentence describing another sign"]},{"stage":"Acute","signs":["Complete sentence with sign and severity","Complete sentence with another sign"]},{"stage":"Chronic/Late","signs":["Complete sentence describing late sign","Complete sentence describing complication"]}]},
-    "pathogenesis":{"headline":"Pathogenesis","summary":"3-4 sentence detailed mechanism of how pathogen causes disease in the animal host","steps":["Step 1: Complete sentence describing entry and initial infection mechanism","Step 2: Complete sentence describing replication or systemic spread","Step 3: Complete sentence describing tissue damage or immune evasion","Step 4: Complete sentence describing clinical outcome and complications"],"targetOrgan":"Primary target organ/tissue with brief explanation of why"},
-    "diagnosis":{"headline":"Veterinary Diagnosis","methods":[{"name":"Method 1","type":"Gold standard","detail":"1-2 sentences on procedure, sensitivity, specificity, and when to use"},{"name":"Method 2","type":"Field/Rapid test","detail":"1-2 sentences with practical field application and limitations"},{"name":"Method 3","type":"Clinical/Gross pathology","detail":"1-2 sentences describing clinical indicators and pathological findings"}]},
-    "treatment":{"headline":"Treatment & Management","approach":"3-4 sentences on treatment philosophy, prognosis with/without treatment, hospitalization needs, and key management objectives","options":[{"category":"Specific/Antiviral","items":["Complete sentence: drug name, dose, route, and indication","Complete sentence with another specific treatment detail"]},{"category":"Supportive Care","items":["Complete sentence with specific supportive measure and clinical rationale","Complete sentence with another supportive care detail"]},{"category":"Herd/Flock Management","items":["Complete sentence about population-level management strategy"]}]},
-    "prevention":{"headline":"Prevention & Biosecurity","measures":[{"icon":"💉","title":"Vaccination","detail":"1-2 sentences with vaccine type, schedule, booster intervals, and efficacy"},{"icon":"🧼","title":"Biosecurity","detail":"1-2 sentences with specific disinfection protocols and effective agents"},{"icon":"🚫","title":"Quarantine","detail":"1-2 sentences with specific duration and monitoring requirements"},{"icon":"📋","title":"Surveillance","detail":"1-2 sentences on monitoring systems and reporting protocols"}]},
-    "keyfacts":{"headline":"Key Veterinary Facts","facts":["Complete sentence with specific historical/epidemiological fact with dates","Complete sentence with specific pathogen biology data","Complete sentence with susceptibility or host factor data","Complete sentence with diagnostic or clinical fact","Complete sentence with public health or economic impact data"],"mortality":"Comparative mortality data: untreated vs treated outcomes with percentages","citation":"OIE/WOAH, FAO, or peer-reviewed vet source with year"}
+  "diseaseType": "viral",
+  "diseaseName": "Popular name (Scientific name)",
+  "tagline": "One powerful sentence about this disease in animals",
+  "slides": {
+    "title": {"headline":"Disease name","subheadline":"Brief significance + species affected","badge":"Species | Disease type","emoji":"🐾"},
+    "overview": {"headline":"What is it?","summary":"2-3 sentences on disease, prevalence, severity","bullets":["bullet 1","bullet 2","bullet 3"],"stat":"Key statistic with numbers"},
+    "etiology": {"headline":"Etiology & Causative Agent","agent":"Agent name","agentType":"e.g. RNA virus","description":"2-3 sentences on pathogen biology","bullets":["bullet 1","bullet 2","bullet 3"]},
+    "transmission": {"headline":"Transmission & Spread","routes":[{"icon":"💩","route":"Route","detail":"one sentence"},{"icon":"🌍","route":"Route","detail":"one sentence"},{"icon":"🐾","route":"Route","detail":"one sentence"}],"note":"Zoonotic/biosecurity note"}
   }
 }`;
 
-  const usr = State.lang==='ar'
-    ? `أنشئ محتوى شرائح تعليمية بيطرية عن مرض: ${State.diseaseName}.
-استخدم الاسم الشائع المعروف للمرض (مثل "البارفو" بدل "CPV-2"، "السعار" بدل "داء الكلب الفيروسي").
-اكتب الشرح والوصف باللغة العربية الفصحى البسيطة.
-المهم جداً: احتفظ بجميع المصطلحات العلمية باللغة الإنجليزية (مثل: Parvovirus، ELISA، PCR، Leukopenia).
-في حقل "category" داخل treatment options، اكتب الفئة بالعربية (مثل: العلاج الداعم، المضادات الحيوية، إدارة القطيع).`
-    : `Generate complete veterinary educational slide content for: ${State.diseaseName}. Use the most popular/common name for this disease that vets and students actually use. Use ${State.mode==='scientific'?'precise scientific/veterinary terminology for vet students and clinicians':'clear accessible language for veterinary education and awareness'}. Emphasize animal species affected, veterinary diagnostics, and clinical management.`;
+  // ── CALL 2: symptoms + pathogenesis + diagnosis ──
+  const sys2 = `${baseCtx}
+
+Return ONLY this JSON (no extra keys):
+{
+  "slides": {
+    "symptoms": {"headline":"Clinical Signs","onset":"Incubation period","stages":[{"stage":"Early","signs":["sign 1","sign 2"]},{"stage":"Acute","signs":["sign 1","sign 2"]},{"stage":"Late/Severe","signs":["sign 1","sign 2"]}]},
+    "pathogenesis": {"headline":"Pathogenesis","summary":"2-3 sentences on disease mechanism","steps":["Step 1: ...","Step 2: ...","Step 3: ...","Step 4: ..."],"targetOrgan":"Target organ + why"},
+    "diagnosis": {"headline":"Veterinary Diagnosis","methods":[{"name":"Test 1","type":"Gold standard","detail":"one sentence"},{"name":"Test 2","type":"Rapid/Field","detail":"one sentence"},{"name":"Test 3","type":"Clinical/Lab","detail":"one sentence"}]}
+  }
+}`;
+
+  // ── CALL 3: treatment + prevention + keyfacts ──
+  const sys3 = `${baseCtx}
+
+Return ONLY this JSON (no extra keys):
+{
+  "slides": {
+    "treatment": {"headline":"Treatment & Management","approach":"2-3 sentences on approach and prognosis","options":[{"category":"Specific Therapy","items":["item 1","item 2"]},{"category":"Supportive Care","items":["item 1","item 2"]},{"category":"Herd/Population","items":["item 1"]}]},
+    "prevention": {"headline":"Prevention & Biosecurity","measures":[{"icon":"💉","title":"Vaccination","detail":"one sentence"},{"icon":"🧼","title":"Disinfection","detail":"one sentence"},{"icon":"🚫","title":"Isolation","detail":"one sentence"},{"icon":"📋","title":"Surveillance","detail":"one sentence"}]},
+    "keyfacts": {"headline":"Key Veterinary Facts","facts":["fact 1","fact 2","fact 3","fact 4","fact 5"],"mortality":"Untreated vs treated mortality","citation":"Source + year"}
+  }
+}`;
+
+  const userMsg = ar
+    ? `${diseaseCtx}
+اكتب المحتوى باللغة العربية، واحتفظ بالمصطلحات العلمية بالإنجليزية.`
+    : diseaseCtx;
 
   try {
+    setProgress(10, ar ? 'تحليل المرض...' : 'Analyzing disease...');
+
+    // Fire all 3 calls in parallel
+    const [raw1, raw2, raw3] = await Promise.all([
+      nvFetch([{role:'system',content:sys1},{role:'user',content:userMsg}], 1800),
+      nvFetch([{role:'system',content:sys2},{role:'user',content:userMsg}], 1600),
+      nvFetch([{role:'system',content:sys3},{role:'user',content:userMsg}], 1600),
+    ]);
+
+    setProgress(70, ar ? 'دمج الشرائح...' : 'Merging slides...');
+
+    const p1 = await parseJSON(raw1);
+    const p2 = await parseJSON(raw2);
+    const p3 = await parseJSON(raw3);
+
+    // Merge all slides together
+    const merged = {
+      diseaseType: p1.diseaseType || 'viral',
+      diseaseName: p1.diseaseName || d,
+      tagline:     p1.tagline || '',
+      slides: {
+        ...p1.slides,
+        ...p2.slides,
+        ...p3.slides,
+      }
+    };
+
+    State.slides      = merged;
+    State.theme       = THEMES[merged.diseaseType] || THEMES.viral;
+    State.diseaseName = merged.diseaseName || d;
+
+    setProgress(88, ar ? 'تطبيق الهوية البصرية...' : 'Applying visual identity...');
     await delay(350);
-    setProgress(15, State.lang==='ar' ? 'توليد المحتوى العلمي...' : 'Generating scientific content...');
 
-    const raw = await nvFetch([
-      { role: 'system', content: sys },
-      { role: 'user',   content: usr },
-    ], 4096);
-
-    setProgress(60, State.lang==='ar' ? 'بناء الشرائح المرئية...' : 'Building visual slides...');
-
-    // Extract JSON robustly — find first { ... last }
-    let clean = raw.replace(/```json|```/g,'').trim();
-    const firstBrace = clean.indexOf('{');
-    const lastBrace  = clean.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      clean = clean.slice(firstBrace, lastBrace + 1);
-    }
-    const parsed = JSON.parse(clean);
-
-    State.slides = parsed;
-    State.theme = THEMES[parsed.diseaseType] || THEMES.viral;
-    State.diseaseName = parsed.diseaseName || State.diseaseName;
-
-    setProgress(82, State.lang==='ar' ? 'تطبيق الهوية البصرية...' : 'Applying visual identity...');
-    await delay(450);
-
-    // Save to history
     saveToHistory({
       diseaseName: State.diseaseName,
-      diseaseType: parsed.diseaseType,
-      tagline: parsed.tagline,
-      slides: parsed,
-      themeKey: parsed.diseaseType,
+      diseaseType: merged.diseaseType,
+      tagline:     merged.tagline,
+      slides:      merged,
+      themeKey:    merged.diseaseType,
     });
 
-    setProgress(100, State.lang==='ar' ? 'اكتمل! 🎉' : 'Complete! 🎉');
-    await delay(500);
+    setProgress(100, ar ? 'اكتمل! 🎉' : 'Complete! 🎉');
+    await delay(400);
 
     buildEditor();
     showScreen('editor');
+
   } catch(err) {
     console.error('Generate error:', err);
-    // If API totally failed, offer demo mode
     const usedemo = confirm(
       '⚠️ API connection failed.\n\n' + err.message +
       '\n\nLoad a DEMO slide deck instead to preview the app?'
     );
     if (usedemo) {
-      State.slides = getDemoSlides(State.diseaseName);
-      State.theme  = THEMES.viral;
+      State.slides      = getDemoSlides(State.diseaseName);
+      State.theme       = THEMES.viral;
       State.diseaseName = State.slides.diseaseName;
       setProgress(100, 'Demo loaded ✓');
       await delay(400);
@@ -880,7 +913,7 @@ Return EXACTLY this JSON structure:
     }
     const msg = err instanceof SyntaxError
       ? '❌ JSON parse failed — response was incomplete.'
-      : '❌ '+(err.message||'Something went wrong.');
+      : '❌ ' + (err.message || 'Something went wrong.');
     setProgress(0, msg);
     await delay(3500);
     showScreen('landing');
