@@ -1175,61 +1175,82 @@ function buildSlideHTML(sid, s, t) {
 async function captureSlide() {
   const frame = document.getElementById('slide-frame');
   if (!frame) throw new Error('Slide frame not found');
-  
-  const rect  = frame.getBoundingClientRect();
-  const W = Math.round(rect.width);
-  const H = Math.round(rect.height);
 
-  if (W <= 0 || H <= 0) {
-    throw new Error('Invalid slide dimensions: ' + W + 'x' + H);
+  const isStory = State.format === 'story';
+  const TARGET_W = 1080;
+  const TARGET_H = isStory ? Math.round(1080 * 16/9) : Math.round(1080 * 5/4);
+
+  // نعمل container مؤقت خارج الـ viewport تماماً
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: ${TARGET_W}px;
+    height: ${TARGET_H}px;
+    overflow: hidden;
+    z-index: -1;
+    background: #060a0f;
+  `;
+
+  // نسخ محتوى الـ slide فقط (الـ .si element)
+  const slideEl = frame.querySelector('.si');
+  if (!slideEl) throw new Error('Slide content not found inside frame');
+
+  const clone = slideEl.cloneNode(true);
+  clone.style.cssText = `
+    width: ${TARGET_W}px !important;
+    height: ${TARGET_H}px !important;
+    min-width: ${TARGET_W}px !important;
+    min-height: ${TARGET_H}px !important;
+    max-width: ${TARGET_W}px !important;
+    max-height: ${TARGET_H}px !important;
+    padding: 72px 64px !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    font-size: 2.2em !important;
+  `;
+
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  // انتظر شوي حتى يتم الـ render
+  await new Promise(r => setTimeout(r, 200));
+
+  try {
+    const canvas = await html2canvas(wrapper, {
+      scale: 1,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#060a0f',
+      logging: false,
+      width: TARGET_W,
+      height: TARGET_H,
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
+      imageTimeout: 0,
+      removeContainer: false,
+    });
+
+    if (!canvas || canvas.width === 0) throw new Error('Canvas rendering failed');
+
+    const out = document.createElement('canvas');
+    out.width  = TARGET_W;
+    out.height = TARGET_H;
+    const ctx = out.getContext('2d');
+    ctx.fillStyle = '#060a0f';
+    ctx.fillRect(0, 0, TARGET_W, TARGET_H);
+    ctx.drawImage(canvas, 0, 0, TARGET_W, TARGET_H);
+    return out;
+
+  } finally {
+    document.body.removeChild(wrapper);
   }
-
-  const canvas = await html2canvas(frame, {
-    scale: 4,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: '#060a0f',
-    logging: false,
-    width: W,
-    height: H,
-    x: 0,
-    y: 0,
-    scrollX: 0,
-    scrollY: 0,
-    windowWidth: window.innerWidth,
-    windowHeight: window.innerHeight,
-    imageTimeout: 0,
-    removeContainer: true,
-    foreignObjectRendering: true,
-    onclone: (doc) => {
-      const f = doc.querySelector('[id="slide-frame"]') || doc.querySelector('[class*="si"]');
-      if (f) { 
-        f.style.overflow = 'hidden'; 
-        f.style.borderRadius = '0';
-        const isArabic = State.lang === 'ar';
-        if (isArabic) {
-          f.setAttribute('dir', 'rtl');
-          f.classList.add('ar');
-        }
-      }
-    }
-  });
-
-  if (!canvas) {
-    throw new Error('Canvas rendering failed');
-  }
-
-  // Composite onto solid bg to kill any alpha
-  const out = document.createElement('canvas');
-  out.width  = canvas.width;
-  out.height = canvas.height;
-  const ctx = out.getContext('2d');
-  if (!ctx) throw new Error('Cannot get canvas context');
-  
-  ctx.fillStyle = '#060a0f';
-  ctx.fillRect(0, 0, out.width, out.height);
-  ctx.drawImage(canvas, 0, 0);
-  return out;
 }
 
 async function exportPNG(platform) {
