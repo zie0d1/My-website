@@ -11,8 +11,8 @@
 <style>
 /* ══ RESET ══════════════════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-height:100vh;overflow-x:hidden}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
@@ -28,13 +28,16 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 }
 
 /* ══ Arabic slide overrides ═════════════════════════════════════════════ */
-.si.ar{direction:rtl;text-align:right;font-family:'Tajawal',sans-serif}
-.si.ar .s-h{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0}
-.si.ar .s-big-h{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0}
-.si.ar .s-agent-name{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0}
+.si.ar{direction:rtl;text-align:right;font-family:'Tajawal',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.si.ar .s-h{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0;-webkit-font-smoothing:antialiased}
+.si.ar .s-big-h{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0;-webkit-font-smoothing:antialiased}
+.si.ar .s-agent-name{font-family:'Noto Kufi Arabic',sans-serif;letter-spacing:0;-webkit-font-smoothing:antialiased}
 .si.ar .s-stage-t{text-align:right}
 .si.ar .s-tx-cat{text-align:right}
 .si.ar .s-stat-lbl{text-align:right}
+.si.ar .s-body{text-align:right;word-break:break-word}
+.si.ar .s-bt{text-align:right}
+.si.ar .s-route-n,.si.ar .s-route-d{text-align:right}
 /* Scientific terms stay LTR inside Arabic slides */
 .si.ar .s-term{direction:ltr;display:inline;font-family:'IBM Plex Mono',monospace;font-size:.9em;color:inherit;unicode-bidi:embed}
 /* Fix flex items inside RTL — text must have flex:1 and min-width:0 */
@@ -656,16 +659,16 @@ const THEMES = {
 };
 
 const SECTIONS = [
-  {id:'title',        label:'Title',        icon:'◈'},
-  {id:'overview',     label:'Overview',     icon:'📋'},
-  {id:'etiology',     label:'Etiology',     icon:'🔬'},
-  {id:'transmission', label:'Transmission', icon:'↔'},
-  {id:'symptoms',     label:'Symptoms',     icon:'🩺'},
-  {id:'pathogenesis', label:'Pathogenesis', icon:'⚡'},
-  {id:'diagnosis',    label:'Diagnosis',    icon:'🧪'},
-  {id:'treatment',    label:'Treatment',    icon:'💊'},
-  {id:'prevention',   label:'Prevention',   icon:'🛡'},
-  {id:'keyfacts',     label:'Key Facts',    icon:'⭐'},
+  {id:'title',        label:'Title',        ar_label:'العنوان',       icon:'◈'},
+  {id:'overview',     label:'Overview',     ar_label:'نظرة عامة',     icon:'📋'},
+  {id:'etiology',     label:'Etiology',     ar_label:'السبب',         icon:'🔬'},
+  {id:'transmission', label:'Transmission', ar_label:'طرق العدوى',    icon:'↔'},
+  {id:'symptoms',     label:'Symptoms',     ar_label:'الأعراض',        icon:'🩺'},
+  {id:'pathogenesis', label:'Pathogenesis', ar_label:'الآلية المرضية',icon:'⚡'},
+  {id:'diagnosis',    label:'Diagnosis',    ar_label:'التشخيص',       icon:'🧪'},
+  {id:'treatment',    label:'Treatment',    ar_label:'العلاج',        icon:'💊'},
+  {id:'prevention',   label:'Prevention',   ar_label:'الوقاية',       icon:'🛡'},
+  {id:'keyfacts',     label:'Key Facts',    ar_label:'حقائق مهمة',    icon:'⭐'},
 ];
 
 const STORAGE_KEY = 'medslide_history';
@@ -953,7 +956,7 @@ function buildSidebar() {
   document.getElementById('sidebar').innerHTML = SECTIONS.map((s,i)=>`
     <div class="thumb ${i===0?'active':''}" onclick="goSlide(${i})" id="thumb-${i}">
       <div class="th-hd"><span class="th-ico">${s.icon}</span><span class="th-num">0${i+1}</span></div>
-      <div class="th-lbl">${s.label}</div>
+      <div class="th-lbl">${State.lang==='ar'?s.ar_label:s.label}</div>
       <div class="th-prev"><div class="th-bars">
         <div class="th-bar" style="height:3px;width:60%"></div>
         <div class="th-bar" style="height:2px;width:88%"></div>
@@ -1015,6 +1018,13 @@ function buildSlideHTML(sid, s, t) {
   const logoPos = isAr ? 'bottom:14px;left:14px' : 'bottom:14px;right:14px';
   const numPos  = isAr ? 'bottom:14px;right:14px' : 'bottom:14px;left:14px';
 
+  // Get current section label
+  const currentSection = SECTIONS.find(sec => sec.id === sid);
+  const getSectionLabel = () => {
+    if (!currentSection) return '';
+    return isAr ? currentSection.ar_label : currentSection.label;
+  };
+
   // tag always flows with slide direction
   const tag = (ico,txt) => `<div class="s-tag" style="background:${t.accent}18;border:1px solid ${t.accent}48;color:${t.accent}">${ico} ${esc(txt)}</div>`;
   const headline = (txt,sz=24) => `<h2 class="s-h" style="font-size:${sz}px">${esc(txt)}</h2>`;
@@ -1036,7 +1046,7 @@ function buildSlideHTML(sid, s, t) {
   if(sid==='overview'){
     const d=s.overview||{};
     return wrap(`
-      ${tag('📋',d.headline||'Overview')}
+      ${tag('📋',getSectionLabel())}
       ${headline(State.diseaseName,22)}
       <p class="s-body" style="color:${t.sub}">${esc(d.summary)}</p>
       <div class="s-stat" style="background:${t.accent}10;border:1px solid ${t.accent}2a">
@@ -1050,7 +1060,7 @@ function buildSlideHTML(sid, s, t) {
   if(sid==='etiology'){
     const d=s.etiology||{};
     return wrap(`
-      ${tag('🔬',d.headline||'Etiology')}
+      ${tag('🔬',getSectionLabel())}
       <div class="s-agent">
         <div class="s-agent-ico" style="background:${t.accent}18;border:1px solid ${t.accent}38">🦠</div>
         <div><div class="s-agent-name">${esc(d.agent)}</div><div class="s-agent-type" style="color:${t.accent}">${esc(d.agentType)}</div></div>
@@ -1063,8 +1073,8 @@ function buildSlideHTML(sid, s, t) {
   if(sid==='transmission'){
     const d=s.transmission||{};
     return wrap(`
-      ${tag('↔',d.headline||'Transmission')}
-      ${headline(d.headline||'Transmission',20)}
+      ${tag('↔',getSectionLabel())}
+      ${headline(getSectionLabel(),20)}
       <div style="flex:1">${(d.routes||[]).map(r=>`
         <div class="s-route">
           <span class="s-route-ico">${r.icon||'•'}</span>
@@ -1078,7 +1088,7 @@ function buildSlideHTML(sid, s, t) {
     const d=s.symptoms||{};
     const sc=[t.accent,t.accent2,'#ff7070'];
     return wrap(`
-      ${tag('🩺',d.headline||'Symptoms')}
+      ${tag('🩺',getSectionLabel())}
       <div style="margin-bottom:13px"><div style="display:inline-block;padding:5px 14px;font-size:12px;background:${t.accent2}18;color:${t.accent2};border:1px solid ${t.accent2}40;font-family:var(--fm)">⏱ ${esc(d.onset)}</div></div>
       <div style="flex:1;display:flex;flex-direction:column;gap:8px">${(d.stages||[]).map((st,i)=>`
         <div class="s-stage" style="background:${sc[i]||t.accent}0f;border:1px solid ${sc[i]||t.accent}2a">
@@ -1091,7 +1101,7 @@ function buildSlideHTML(sid, s, t) {
   if(sid==='pathogenesis'){
     const d=s.pathogenesis||{};
     return wrap(`
-      ${tag('⚡',d.headline||'Pathogenesis')}
+      ${tag('⚡',getSectionLabel())}
       <p class="s-body" style="color:${t.sub}">${esc(d.summary)}</p>
       <div style="padding:7px 12px;background:${t.accent}10;border:1px solid ${t.accent}2a;font-size:11px;color:${t.accent};font-family:var(--fm);margin-bottom:12px;flex-shrink:0;display:flex;align-items:center;gap:8px"><span>🎯</span><span>Target: ${esc(d.targetOrgan)}</span></div>
       <div style="flex:1">${(d.steps||[]).map((st,i)=>`
@@ -1106,8 +1116,8 @@ function buildSlideHTML(sid, s, t) {
     const d=s.diagnosis||{};
     const mi=['⭐','🔬','📊'];
     return wrap(`
-      ${tag('🧪',d.headline||'Diagnosis')}
-      ${headline(d.headline||'Diagnosis',20)}
+      ${tag('🧪',getSectionLabel())}
+      ${headline(getSectionLabel(),20)}
       <div style="flex:1">${(d.methods||[]).map((m,i)=>`
         <div class="s-meth" style="background:${i===0?t.accent+'12':'rgba(255,255,255,.03)'};border:1px solid ${i===0?t.accent+'42':'rgba(255,255,255,.08)'}">
           <div class="s-meth-ico" style="background:${t.accent}20;flex-shrink:0">${mi[i]||'•'}</div>
@@ -1119,7 +1129,7 @@ function buildSlideHTML(sid, s, t) {
   if(sid==='treatment'){
     const d=s.treatment||{};
     return wrap(`
-      ${tag('💊',d.headline||'Treatment')}
+      ${tag('💊',getSectionLabel())}
       <p class="s-body" style="color:${t.sub}">${esc(d.approach)}</p>
       <div style="flex:1">${(d.options||[]).map(o=>`
         <div class="s-tx">
@@ -1132,7 +1142,7 @@ function buildSlideHTML(sid, s, t) {
   if(sid==='prevention'){
     const d=s.prevention||{};
     return wrap(`
-      ${tag('🛡',d.headline||'Prevention')}
+      ${tag('🛡',getSectionLabel())}
       <div class="s-prev-grid">${(d.measures||[]).map(m=>`
         <div class="s-prev-c">
           <span class="s-prev-ico">${m.icon||'•'}</span>
@@ -1145,7 +1155,7 @@ function buildSlideHTML(sid, s, t) {
   if(sid==='keyfacts'){
     const d=s.keyfacts||{};
     return wrap(`
-      ${tag('⭐',d.headline||'Key Facts')}
+      ${tag('⭐',getSectionLabel())}
       <div style="flex:1;overflow:hidden">${(d.facts||[]).map((f,i)=>`
         <div class="s-fact">
           <div class="s-fact-n" style="background:${t.accent}20;color:${t.accent};flex-shrink:0">${String(i+1).padStart(2,'0')}</div>
@@ -1168,7 +1178,31 @@ async function captureSlide() {
   const W = Math.round(rect.width);
   const H = Math.round(rect.height);
 
-  const canvas = await html2canvas(frame, {
+  // Clone the frame وتأكد من الـ RTL والفونت قبل الحفظ
+  const clonedFrame = frame.cloneNode(true);
+  const isArabic = State.lang === 'ar';
+  
+  // Force proper text rendering for Arabic
+  if (isArabic) {
+    // أضف قواعد CSS خاصة للعربية
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      [dir="rtl"], .si.ar {
+        direction: rtl !important;
+        text-align: right !important;
+        font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .si.ar .s-h, .si.ar .s-big-h {
+        font-family: 'Noto Kufi Arabic', sans-serif !important;
+        letter-spacing: 0 !important;
+      }
+    `;
+    clonedFrame.insertBefore(styleEl, clonedFrame.firstChild);
+  }
+
+  const canvas = await html2canvas(clonedFrame, {
     scale: 4,
     useCORS: true,
     allowTaint: true,
@@ -1184,9 +1218,18 @@ async function captureSlide() {
     windowHeight: window.innerHeight,
     imageTimeout: 0,
     removeContainer: true,
+    foreignObjectRendering: true,
     onclone: (doc) => {
-      const f = doc.getElementById('slide-frame');
-      if (f) { f.style.overflow = 'hidden'; f.style.borderRadius = '0'; }
+      const f = doc.getElementById('slide-frame') || doc.querySelector('[class*="si"]');
+      if (f) { 
+        f.style.overflow = 'hidden'; 
+        f.style.borderRadius = '0';
+        // تأكد من الـ direction بالـ cloned document أيضاً
+        if (isArabic) {
+          f.setAttribute('dir', 'rtl');
+          f.classList.add('ar');
+        }
+      }
     }
   });
 
@@ -1206,6 +1249,10 @@ async function exportPNG(platform) {
   const fmt = State.format === 'story' ? 'story-9x16' : 'post-4x5';
   toast(`🖼 Capturing ${State.format === 'story' ? 'Story 9:16' : 'Post 4:5'}...`);
   try {
+    // تأكد من تحميل الفونت قبل الحفظ
+    await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 300)); // انتظر شوي للـ rendering
+    
     const out = await captureSlide();
     const link = document.createElement('a');
     const secId = SECTIONS[State.activeSlide].id;
@@ -1226,6 +1273,9 @@ async function exportAllPNG() {
   toast(`📦 Exporting all slides (${State.format === 'story' ? 'Story 9:16' : 'Post 4:5'})...`);
   const dname = (State.diseaseName||'deck').replace(/\s+/g,'-').toLowerCase();
 
+  // تأكد من تحميل الفونت مرة واحدة
+  await document.fonts.ready;
+  
   for(let i=0; i<SECTIONS.length; i++){
     goSlide(i);
     await delay(450);
@@ -1382,6 +1432,8 @@ function deleteHistoryItem(id) {
 ══════════════════════════════════════════════════════════════════════════ */
 function updateLangUI() {
   const ar = State.lang==='ar';
+  document.documentElement.setAttribute('lang', ar?'ar':'en');
+  document.documentElement.setAttribute('dir', ar?'rtl':'ltr');
   document.body.setAttribute('dir', ar?'rtl':'ltr');
   document.getElementById('lang-toggle-landing').textContent = ar ? 'English' : 'العربية';
   document.getElementById('lang-toggle-editor').textContent  = ar ? 'EN' : 'AR';
@@ -1400,8 +1452,8 @@ function updateLangUI() {
   document.getElementById('mode-scientific').textContent = ar ? '🔬 علمي' : '🔬 Scientific Mode';
   document.getElementById('btn-history').textContent = ar ? '🗂 المشاريع' : '🗂 History';
 
-  const arP=['Canine Parvovirus','داء الكلب (Rabies)','Feline Panleukopenia','Foot and Mouth Disease','Bovine Respiratory Disease'];
-  const enP=['Canine Parvovirus','Rabies','Feline Panleukopenia','Foot and Mouth Disease','Bovine Respiratory Disease'];
+  const arP=['عدوى بارفو الكلاب 🐕','داء الكلب 🦊','عدوى البانليكوبينيا 🐱','حمى القدم والفم 🐄','أمراض الجهاز التنفسي البقري 🫁'];
+  const enP=['Canine Parvovirus 🐕','Rabies 🦊','Feline Panleukopenia 🐱','Foot and Mouth Disease 🐄','Bovine Respiratory Disease 🫁'];
   document.querySelectorAll('.pill').forEach((p,i)=>{ p.textContent=(ar?arP:enP)[i]; p.dataset.val=enP[i]; });
 }
 
