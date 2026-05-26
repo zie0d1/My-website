@@ -1178,54 +1178,37 @@ async function captureSlide() {
 
   const isStory = State.format === 'story';
   const TARGET_W = 1080;
-  const TARGET_H = isStory ? Math.round(1080 * 16/9) : Math.round(1080 * 5/4);
+  const TARGET_H = isStory ? 1920 : 1350;
 
-  // نعمل container مؤقت خارج الـ viewport تماماً
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = `
-    position: fixed;
-    top: -9999px;
-    left: -9999px;
-    width: ${TARGET_W}px;
-    height: ${TARGET_H}px;
-    overflow: hidden;
-    z-index: -1;
-    background: #060a0f;
-  `;
+  // احفظ الـ styles الأصلية
+  const origWidth    = frame.style.width;
+  const origHeight   = frame.style.height;
+  const origMinW     = frame.style.minWidth;
+  const origMinH     = frame.style.minHeight;
+  const origPosition = frame.style.position;
+  const origZIndex   = frame.style.zIndex;
+  const origAspect   = frame.style.aspectRatio;
 
-  // نسخ محتوى الـ slide فقط (الـ .si element)
-  const slideEl = frame.querySelector('.si');
-  if (!slideEl) throw new Error('Slide content not found inside frame');
+  // وسّع الـ frame لأبعاد الـ export مؤقتاً
+  frame.style.width        = TARGET_W + 'px';
+  frame.style.height       = TARGET_H + 'px';
+  frame.style.minWidth     = TARGET_W + 'px';
+  frame.style.minHeight    = TARGET_H + 'px';
+  frame.style.aspectRatio  = 'unset';
+  frame.style.position     = 'fixed';
+  frame.style.top          = '-9999px';
+  frame.style.left         = '-9999px';
+  frame.style.zIndex       = '-1';
 
-  const clone = slideEl.cloneNode(true);
-  clone.style.cssText = `
-    width: ${TARGET_W}px !important;
-    height: ${TARGET_H}px !important;
-    min-width: ${TARGET_W}px !important;
-    min-height: ${TARGET_H}px !important;
-    max-width: ${TARGET_W}px !important;
-    max-height: ${TARGET_H}px !important;
-    padding: 72px 64px !important;
-    position: relative !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-    font-size: 2.2em !important;
-  `;
-
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
-
-  // انتظر شوي حتى يتم الـ render
-  await new Promise(r => setTimeout(r, 200));
+  // انتظر الـ render
+  await new Promise(r => setTimeout(r, 300));
 
   try {
-    const canvas = await html2canvas(wrapper, {
+    const canvas = await html2canvas(frame, {
       scale: 1,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: '#060a0f',
+      backgroundColor: null,
       logging: false,
       width: TARGET_W,
       height: TARGET_H,
@@ -1243,13 +1226,20 @@ async function captureSlide() {
     out.width  = TARGET_W;
     out.height = TARGET_H;
     const ctx = out.getContext('2d');
-    ctx.fillStyle = '#060a0f';
-    ctx.fillRect(0, 0, TARGET_W, TARGET_H);
     ctx.drawImage(canvas, 0, 0, TARGET_W, TARGET_H);
     return out;
 
   } finally {
-    document.body.removeChild(wrapper);
+    // رجّع الـ frame لحالته الأصلية
+    frame.style.width       = origWidth;
+    frame.style.height      = origHeight;
+    frame.style.minWidth    = origMinW;
+    frame.style.minHeight   = origMinH;
+    frame.style.aspectRatio = origAspect;
+    frame.style.position    = origPosition;
+    frame.style.zIndex      = origZIndex;
+    frame.style.top         = '';
+    frame.style.left        = '';
   }
 }
 
