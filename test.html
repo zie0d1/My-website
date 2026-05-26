@@ -772,8 +772,17 @@ function getDemoSlides(name) {
 async function parseJSON(raw) {
   let clean = raw.replace(/```json|```/g, '').trim();
   const first = clean.indexOf('{');
-  const last  = clean.lastIndexOf('}');
-  if (first !== -1 && last !== -1) clean = clean.slice(first, last + 1);
+  if (first === -1) throw new SyntaxError('No JSON object found in response');
+  clean = clean.slice(first);
+
+  // Walk from the end to find the real closing brace by counting depth
+  let depth = 0, end = -1;
+  for (let i = 0; i < clean.length; i++) {
+    const ch = clean[i];
+    if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth === 0) { end = i; break; } }
+  }
+  if (end !== -1) clean = clean.slice(0, end + 1);
   return JSON.parse(clean);
 }
 
@@ -800,37 +809,26 @@ async function generate(disease) {
     : `Disease: ${d}
 diseaseType (pick one): viral | bacterial | fungal | parasitic | metabolic`;
 
-  const wordRule = `WORD COUNT PER SLIDE: 60-90 words of visible text only. Bullets: 8-12 words each. Summary/description: 2 short sentences. Detail fields: one tight sentence. Stay within the cap.`;
+  const wordRule = `60-90 words of visible text per slide. Bullets: 8-12 words. Summary: 2 short sentences. Detail fields: one tight sentence.`;
 
-  // ── CALL 1: meta + title + overview ──
-  const sys1 = `${baseCtx}
+  const mkSys = (schema) => `${baseCtx}
 ${wordRule}
 Return ONLY valid JSON, no extra text:
-{"diseaseType":"viral","diseaseName":"Name (Scientific)","tagline":"One sentence.","slides":{"title":{"headline":"Name","subheadline":"Brief desc","badge":"Species | Type","emoji":"🐾"},"overview":{"headline":"What is it?","summary":"2 short sentences.","bullets":["bullet 8-12 words","bullet 8-12 words","bullet 8-12 words"],"stat":"Stat with number"}}}`;
+${schema}`;
 
-  // ── CALL 2: etiology only ──
-  const sys2 = `${baseCtx}
-${wordRule}
-Return ONLY valid JSON, no extra text:
-{"slides":{"etiology":{"headline":"Etiology","agent":"Agent name","agentType":"Type","description":"2 short sentences.","bullets":["bullet 8-12 words","bullet 8-12 words","bullet 8-12 words"]}}}`;
-
-  // ── CALL 3 (was 2): transmission + symptoms ──
-  const sys3b = `${baseCtx}
-${wordRule}
-Return ONLY valid JSON, no extra text:
-{"slides":{"transmission":{"headline":"Transmission","routes":[{"icon":"💩","route":"Route","detail":"one sentence"},{"icon":"🌍","route":"Route","detail":"one sentence"},{"icon":"🐾","route":"Route","detail":"one sentence"}],"note":"Zoonotic note"},"symptoms":{"headline":"Clinical Signs","onset":"X days","stages":[{"stage":"Early","signs":["sign","sign"]},{"stage":"Acute","signs":["sign","sign"]},{"stage":"Late","signs":["sign","sign"]}]}}}`;
-
-  // ── CALL 4 (was 3): pathogenesis + diagnosis ──
-  const sys3 = `${baseCtx}
-${wordRule}
-Return ONLY valid JSON, no extra text:
-{"slides":{"pathogenesis":{"headline":"Pathogenesis","summary":"2 short sentences.","steps":["Step 1","Step 2","Step 3","Step 4"],"targetOrgan":"Organ"},"diagnosis":{"headline":"Diagnosis","methods":[{"name":"Test","type":"Gold standard","detail":"one sentence"},{"name":"Test","type":"Rapid","detail":"one sentence"},{"name":"Test","type":"Clinical","detail":"one sentence"}]}}}`;
-
-  // ── CALL 5 (was 4): treatment + prevention + keyfacts ──
-  const sys4 = `${baseCtx}
-${wordRule}
-Return ONLY valid JSON, no extra text:
-{"slides":{"treatment":{"headline":"Treatment","approach":"2 short sentences.","options":[{"category":"Specific","items":["item","item"]},{"category":"Supportive","items":["item","item"]},{"category":"Herd","items":["item"]}]},"prevention":{"headline":"Prevention","measures":[{"icon":"💉","title":"Vaccination","detail":"one sentence"},{"icon":"🧼","title":"Disinfection","detail":"one sentence"},{"icon":"🚫","title":"Isolation","detail":"one sentence"},{"icon":"📋","title":"Surveillance","detail":"one sentence"}]},"keyfacts":{"headline":"Key Facts","facts":["fact","fact","fact","fact","fact"],"mortality":"Untreated vs treated","citation":"Source year"}}}`;
+  // One system prompt per slide
+  const SLIDE_PROMPTS = {
+    title:        mkSys(`{"diseaseType":"viral","diseaseName":"Name (Scientific)","tagline":"One sentence.","slides":{"title":{"headline":"Name","subheadline":"Brief desc","badge":"Species | Type","emoji":"🐾"}}}`),
+    overview:     mkSys(`{"slides":{"overview":{"headline":"What is it?","summary":"2 short sentences.","bullets":["bullet","bullet","bullet"],"stat":"Stat with number"}}}`),
+    etiology:     mkSys(`{"slides":{"etiology":{"headline":"Etiology","agent":"Agent name","agentType":"Type","description":"2 short sentences.","bullets":["bullet","bullet","bullet"]}}}`),
+    transmission: mkSys(`{"slides":{"transmission":{"headline":"Transmission","routes":[{"icon":"💩","route":"Route","detail":"one sentence"},{"icon":"🌍","route":"Route","detail":"one sentence"},{"icon":"🐾","route":"Route","detail":"one sentence"}],"note":"Zoonotic note"}}}`),
+    symptoms:     mkSys(`{"slides":{"symptoms":{"headline":"Clinical Signs","onset":"X days","stages":[{"stage":"Early","signs":["sign","sign"]},{"stage":"Acute","signs":["sign","sign"]},{"stage":"Late","signs":["sign","sign"]}]}}}`),
+    pathogenesis: mkSys(`{"slides":{"pathogenesis":{"headline":"Pathogenesis","summary":"2 short sentences.","steps":["Step 1","Step 2","Step 3","Step 4"],"targetOrgan":"Organ"}}}`),
+    diagnosis:    mkSys(`{"slides":{"diagnosis":{"headline":"Diagnosis","methods":[{"name":"Test","type":"Gold standard","detail":"one sentence"},{"name":"Test","type":"Rapid","detail":"one sentence"},{"name":"Test","type":"Clinical","detail":"one sentence"}]}}}`),
+    treatment:    mkSys(`{"slides":{"treatment":{"headline":"Treatment","approach":"2 short sentences.","options":[{"category":"Specific","items":["item","item"]},{"category":"Supportive","items":["item","item"]},{"category":"Herd","items":["item"]}]}}}`),
+    prevention:   mkSys(`{"slides":{"prevention":{"headline":"Prevention","measures":[{"icon":"💉","title":"Vaccination","detail":"one sentence"},{"icon":"🧼","title":"Disinfection","detail":"one sentence"},{"icon":"🚫","title":"Isolation","detail":"one sentence"},{"icon":"📋","title":"Surveillance","detail":"one sentence"}]}}}`),
+    keyfacts:     mkSys(`{"slides":{"keyfacts":{"headline":"Key Facts","facts":["fact","fact","fact","fact","fact"],"mortality":"Untreated vs treated","citation":"Source year"}}}`),
+  };
 
   const userMsg = ar
     ? `${diseaseCtx}
@@ -840,35 +838,23 @@ Return ONLY valid JSON, no extra text:
   try {
     setProgress(10, ar ? 'تحليل المرض...' : 'Analyzing disease...');
 
-    // Fire all 5 calls in parallel
-    const [raw1, raw2, raw3b, raw3, raw4] = await Promise.all([
-      nvFetch([{role:'system',content:sys1},{role:'user',content:userMsg}], 4000),
-      nvFetch([{role:'system',content:sys2},{role:'user',content:userMsg}], 4000),
-      nvFetch([{role:'system',content:sys3b},{role:'user',content:userMsg}], 4000),
-      nvFetch([{role:'system',content:sys3},{role:'user',content:userMsg}], 4000),
-      nvFetch([{role:'system',content:sys4},{role:'user',content:userMsg}], 4000),
-    ]);
+    // Fire all 10 calls in parallel — one per slide
+    const slideKeys = Object.keys(SLIDE_PROMPTS);
+    const raws = await Promise.all(
+      slideKeys.map(key => nvFetch([{role:'system',content:SLIDE_PROMPTS[key]},{role:'user',content:userMsg}], 4000))
+    );
 
     setProgress(70, ar ? 'دمج الشرائح...' : 'Merging slides...');
 
-    const p1  = await parseJSON(raw1);
-    const p2  = await parseJSON(raw2);
-    const p3b = await parseJSON(raw3b);
-    const p3  = await parseJSON(raw3);
-    const p4  = await parseJSON(raw4);
+    const parsed = await Promise.all(raws.map(r => parseJSON(r)));
 
-    // Merge all slides together
+    // Extract meta from title call, merge all slides
+    const meta = parsed[0]; // title call has diseaseType, diseaseName, tagline
     const merged = {
-      diseaseType: p1.diseaseType || 'viral',
-      diseaseName: p1.diseaseName || d,
-      tagline:     p1.tagline || '',
-      slides: {
-        ...p1.slides,
-        ...p2.slides,
-        ...p3b.slides,
-        ...p3.slides,
-        ...p4.slides,
-      }
+      diseaseType: meta.diseaseType || 'viral',
+      diseaseName: meta.diseaseName || d,
+      tagline:     meta.tagline || '',
+      slides: Object.assign({}, ...parsed.map(p => p.slides || {})),
     };
 
     State.slides      = merged;
