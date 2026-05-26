@@ -83,7 +83,7 @@
   .slide{
     width:min(520px,90vw);
     aspect-ratio:4/5;
-    border-radius:18px;
+    border-radius:0;
     background:linear-gradient(160deg,var(--s1,#1e3a5f),var(--s2,#0c2340));
     color:#fff;
     padding:40px 36px;
@@ -340,21 +340,23 @@ Return ONLY a JSON object (no markdown, no commentary) with this exact shape:
   "species": "main affected species (in ${langName})",
   "slides": [
     { "type":"cover",        "title":"...", "subtitle":"..." },
-    { "type":"overview",     "title":"...", "body":"2-3 sentences" },
-    { "type":"etiology",     "title":"...", "body":"2-3 sentences" },
-    { "type":"transmission", "title":"...", "bullets":["...","...","..."] },
-    { "type":"symptoms",     "title":"...", "bullets":["...","...","...","..."] },
-    { "type":"pathogenesis", "title":"...", "body":"2-3 sentences" },
-    { "type":"diagnosis",    "title":"...", "bullets":["...","...","..."] },
-    { "type":"treatment",    "title":"...", "bullets":["...","...","..."] },
-    { "type":"prevention",   "title":"...", "bullets":["...","...","..."] },
-    { "type":"facts",        "title":"...", "bullets":["...","...","...","..."] }
+    { "type":"overview",     "title":"...", "body":"..." },
+    { "type":"etiology",     "title":"...", "body":"..." },
+    { "type":"transmission", "title":"...", "bullets":["...","...","...","..."] },
+    { "type":"symptoms",     "title":"...", "bullets":["...","...","...","...","..."] },
+    { "type":"pathogenesis", "title":"...", "body":"..." },
+    { "type":"diagnosis",    "title":"...", "bullets":["...","...","...","..."] },
+    { "type":"treatment",    "title":"...", "bullets":["...","...","...","..."] },
+    { "type":"prevention",   "title":"...", "bullets":["...","...","...","..."] },
+    { "type":"facts",        "title":"...", "bullets":["...","...","...","...","..."] }
   ]
 }
 
 Rules:
 - Output valid JSON only. No code fences. No prose before or after.
-- Bullets must be short (max ~14 words). Body fields concise.
+- EVERY slide's textual content (body OR the sum of all bullets) MUST be between 50 and 80 words. Count carefully. This is mandatory.
+- For the cover slide, "subtitle" must be 50-80 words.
+- For bullet slides, distribute the 50-80 words across the bullets (each bullet roughly 10-18 words).
 - All text in ${langName}.
 - If the disease name is unknown or not a real animal disease, still produce best-effort content based on the literal name.`;
 }
@@ -570,11 +572,38 @@ function openProjectsModal(){
 async function exportPng(){
   const el = document.getElementById("theSlide");
   if(!el) return;
-  const canvas = await html2canvas(el,{scale:2, backgroundColor:null, useCORS:true});
-  const link = document.createElement("a");
-  link.download = `${state.disease.replace(/\s+/g,'_')}_slide_${state.currentSlide+1}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+  const fileName = `${(state.disease||'slide').replace(/\s+/g,'_')}_slide_${state.currentSlide+1}.png`;
+  try{
+    const canvas = await html2canvas(el,{scale:3, backgroundColor:null, useCORS:true, logging:false});
+    canvas.toBlob(blob=>{
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = fileName; link.href = url;
+      document.body.appendChild(link); link.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); link.remove(); },200);
+    },"image/png");
+  }catch(err){
+    // Fallback: SVG foreignObject snapshot
+    try{
+      const rect = el.getBoundingClientRect();
+      const w = Math.ceil(rect.width), h = Math.ceil(rect.height);
+      const clone = el.cloneNode(true);
+      // inline computed styles for the snapshot
+      const serializer = new XMLSerializer();
+      const xhtml = serializer.serializeToString(clone);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w*2}" height="${h*2}" viewBox="0 0 ${w} ${h}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${xhtml}</div></foreignObject></svg>`;
+      const img = new Image();
+      img.onload = ()=>{
+        const c = document.createElement("canvas");
+        c.width = w*2; c.height = h*2;
+        c.getContext("2d").drawImage(img,0,0);
+        const link = document.createElement("a");
+        link.download = fileName; link.href = c.toDataURL("image/png");
+        link.click();
+      };
+      img.src = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+    }catch(e2){ alert("Export failed: "+err.message); }
+  }
 }
 
 /* =========================
