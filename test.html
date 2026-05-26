@@ -782,6 +782,7 @@ Return EXACTLY this JSON structure:
     ? `أنشئ محتوى شرائح تعليمية بيطرية عن مرض: ${State.diseaseName}.
 اكتب الشرح والوصف باللغة العربية الفصحى.
 المهم جداً: احتفظ بجميع المصطلحات العلمية والطبية والبيطرية باللغة الإنجليزية فقط (مثل: Parvovirus، RNA virus، ELISA، PCR، Hemorrhagic gastroenteritis، Leukopenia، إلخ).
+في حقل "category" داخل treatment options، اكتب الفئة بالعربية (مثل: العلاج الداعم، المضادات الحيوية، السوائل الوريدية).
 اكتب المصطلح الإنجليزي أولاً ثم شرحه بالعربية إن لزم.`
     : `Generate complete veterinary educational slide content for: ${State.diseaseName}. Use ${State.mode==='scientific'?'precise scientific/veterinary terminology for vet students and clinicians':'clear accessible language for veterinary education and awareness'}. Emphasize animal species affected, veterinary diagnostics, and clinical management.`;
 
@@ -1072,7 +1073,7 @@ function buildSlideHTML(sid, s, t) {
       <p class="s-body" style="color:${t.sub}">${esc(d.approach)}</p>
       <div style="flex:1">${(d.options||[]).map(o=>`
         <div class="s-tx">
-          <div class="s-tx-cat" style="color:${t.accent}">${esc((o.category||'').toUpperCase())}</div>
+          <div class="s-tx-cat" style="color:${t.accent}">${isAr ? `<span class="s-term">${esc((o.category||'').toUpperCase())}</span>` : esc((o.category||'').toUpperCase())}</div>
           ${(o.items||[]).map(it=>bul('+',it,t.accent)).join('')}
         </div>`).join('')}</div>
     `,8);
@@ -1116,21 +1117,29 @@ async function exportPNG(platform) {
   toast('🖼 Capturing slide...');
   try {
     const frame = document.getElementById('slide-frame');
+    const W = frame.offsetWidth;
+    const H = frame.offsetHeight;
     const canvas = await html2canvas(frame, {
-      scale: 2.5,
+      scale: 4,
       useCORS: true,
+      allowTaint: true,
       backgroundColor: null,
       logging: false,
-      width: frame.offsetWidth,
-      height: frame.offsetHeight,
+      width: W,
+      height: H,
+      windowWidth: W,
+      windowHeight: H,
+      imageTimeout: 0,
+      removeContainer: true,
     });
+    // Export as max-quality PNG
     const link = document.createElement('a');
     const secId = SECTIONS[State.activeSlide].id;
     const dname = (State.diseaseName||'slide').replace(/\s+/g,'-').toLowerCase();
     link.download = `futurevets-${dname}-${secId}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href = canvas.toDataURL('image/png', 1.0);
     link.click();
-    toast(`✅ Slide exported as PNG!`);
+    toast(`✅ Exported at ${canvas.width}×${canvas.height}px`);
   } catch(err) {
     console.error(err);
     toast('❌ Export failed: '+err.message);
@@ -1139,23 +1148,38 @@ async function exportPNG(platform) {
 
 async function exportAllPNG() {
   closeExportModal();
-  toast('📦 Exporting all slides... This may take a moment.');
+  toast('📦 Exporting all slides at 4× quality...');
   const frame = document.getElementById('slide-frame');
+  const W = frame.offsetWidth;
+  const H = frame.offsetHeight;
   const dname = (State.diseaseName||'deck').replace(/\s+/g,'-').toLowerCase();
+  const opts = {
+    scale: 4,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: null,
+    logging: false,
+    width: W,
+    height: H,
+    windowWidth: W,
+    windowHeight: H,
+    imageTimeout: 0,
+    removeContainer: true,
+  };
 
   for(let i=0; i<SECTIONS.length; i++){
     goSlide(i);
-    await delay(300); // let render settle
+    await delay(400); // let render + fonts settle
     try {
-      const canvas = await html2canvas(frame,{scale:2.5,useCORS:true,backgroundColor:null,logging:false});
+      const canvas = await html2canvas(frame, opts);
       const link = document.createElement('a');
       link.download = `futurevets-${dname}-${String(i+1).padStart(2,'0')}-${SECTIONS[i].id}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
-      await delay(400);
+      await delay(350);
     } catch(e){ console.error('Slide '+i+' failed',e); }
   }
-  toast('✅ All slides exported!');
+  toast('✅ All slides exported at 4× quality!');
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
