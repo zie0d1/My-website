@@ -27,15 +27,15 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 }
 
 /* ══ Arabic slide overrides ═════════════════════════════════════════════ */
-.si.ar{direction:rtl;text-align:right;font-family:'DM Sans',sans-serif}
-.si.ar .s-h{font-family:'Syne',sans-serif;letter-spacing:-.02em}
-.si.ar .s-big-h{font-family:'Syne',sans-serif;letter-spacing:-.02em}
-.si.ar .s-agent-name{font-family:'Syne',sans-serif;letter-spacing:-.02em}
+.si.ar{direction:rtl;text-align:right}
+.si.ar .s-h{letter-spacing:0}
+.si.ar .s-big-h{letter-spacing:0}
+.si.ar .s-agent-name{letter-spacing:0}
 .si.ar .s-stage-t{text-align:right}
 .si.ar .s-tx-cat{text-align:right}
 .si.ar .s-stat-lbl{text-align:right}
 /* Scientific terms stay LTR inside Arabic slides */
-.si.ar .s-term{direction:ltr;display:inline;font-family:'IBM Plex Mono',monospace;font-size:.9em;color:inherit;unicode-bidi:embed}
+.si.ar .s-term{direction:ltr;display:inline;font-size:.9em;color:inherit;unicode-bidi:embed}
 /* Fix flex items inside RTL — text must have flex:1 and min-width:0 */
 .s-bul{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px}
 .s-bd{font-size:12px;margin-top:2px;flex-shrink:0;min-width:14px}
