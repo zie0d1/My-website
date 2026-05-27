@@ -56,10 +56,15 @@
   .saved-link button{text-decoration:underline;color:var(--accent)}
 
   /* Loading */
-  .loading-wrap{min-height:calc(100vh - 65px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+  .loading-wrap{min-height:calc(100vh - 65px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:30px}
   .spinner{width:38px;height:38px;border:3px solid #2a2a32;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .loading-wrap .step{color:var(--muted);font-size:13px}
+  .loading-wrap .step{color:var(--muted);font-size:13px;text-align:center;max-width:420px}
+  .progress-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;max-width:380px;width:100%;margin-top:6px}
+  .progress-cell{height:7px;border-radius:4px;background:var(--panel-2);border:1px solid var(--border);transition:.25s}
+  .progress-cell.done{background:linear-gradient(90deg,var(--accent),var(--accent-2));border-color:transparent}
+  .progress-cell.active{background:var(--accent);border-color:transparent;animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.45}}
 
   /* Editor */
   .editor{display:grid;grid-template-columns:260px 1fr;gap:0;min-height:calc(100vh - 65px)}
@@ -81,32 +86,47 @@
 
   /* Slide 4:5 */
   .slide{
-    width:min(520px,90vw);
+    width:min(540px,92vw);
     aspect-ratio:4/5;
     border-radius:0;
-    background:linear-gradient(160deg,var(--s1,#1e3a5f),var(--s2,#0c2340));
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,.10), transparent 60%),
+      radial-gradient(100% 70% at 0% 100%, rgba(0,0,0,.35), transparent 55%),
+      linear-gradient(155deg,var(--s1,#1e3a5f) 0%, var(--s2,#0c2340) 100%);
     color:#fff;
-    padding:40px 36px;
+    padding:46px 40px 78px;
     display:flex;flex-direction:column;
     position:relative;overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,.4);
+    box-shadow:0 30px 80px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06);
     font-family:'Inter',sans-serif;
   }
   body.rtl .slide{font-family:'Cairo','Inter',sans-serif}
-  .slide.cover{justify-content:center;align-items:flex-start;text-align:left}
+  .slide.cover{justify-content:center;align-items:flex-start;text-align:left;padding-top:60px}
   body.rtl .slide.cover{align-items:flex-end;text-align:right}
-  .slide .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.7;margin-bottom:14px;font-weight:600}
-  .slide h2.s-title{font-size:34px;line-height:1.15;margin:0 0 14px;font-weight:700;letter-spacing:-.01em}
-  .slide.cover h2.s-title{font-size:42px}
-  .slide .s-body{font-size:15px;line-height:1.6;opacity:.92;white-space:pre-wrap}
-  .slide ul.s-list{margin:6px 0 0;padding:0;list-style:none}
-  .slide ul.s-list li{position:relative;padding-left:18px;margin-bottom:10px;font-size:14.5px;line-height:1.55;opacity:.95}
-  body.rtl .slide ul.s-list li{padding-left:0;padding-right:18px}
-  .slide ul.s-list li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:#fff;opacity:.7}
-  body.rtl .slide ul.s-list li::before{left:auto;right:0}
-  .slide .footer-bar{position:absolute;bottom:18px;left:36px;right:36px;display:flex;justify-content:space-between;align-items:center;font-size:11px;opacity:.55;letter-spacing:.08em}
-  .slide .deco{position:absolute;top:-80px;right:-80px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
-  body.rtl .slide .deco{right:auto;left:-80px}
+  .slide .accent-bar{position:absolute;top:0;left:0;width:100%;height:5px;background:linear-gradient(90deg, rgba(255,255,255,.7), rgba(255,255,255,.1));}
+  body.rtl .slide .accent-bar{background:linear-gradient(270deg, rgba(255,255,255,.7), rgba(255,255,255,.1));}
+  .slide .slide-num{position:absolute;top:22px;right:28px;font-size:64px;font-weight:800;line-height:1;opacity:.10;letter-spacing:-.04em;font-family:'Inter',sans-serif}
+  body.rtl .slide .slide-num{right:auto;left:28px}
+  .slide .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.85;margin-bottom:18px;font-weight:700;padding:6px 12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-radius:999px;align-self:flex-start}
+  body.rtl .slide .kicker{align-self:flex-end}
+  .slide h2.s-title{font-size:30px;line-height:1.2;margin:0 0 16px;font-weight:700;letter-spacing:-.015em}
+  .slide.cover h2.s-title{font-size:40px;line-height:1.12}
+  .slide .title-underline{width:48px;height:3px;background:#fff;opacity:.85;margin:0 0 18px;border-radius:2px}
+  body.rtl .slide .title-underline{margin-left:auto}
+  .slide .s-body{font-size:15px;line-height:1.65;opacity:.94;white-space:pre-wrap}
+  .slide.cover .s-body{font-size:14.5px;line-height:1.7;opacity:.88;max-width:95%}
+  .slide ul.s-list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+  .slide ul.s-list li{position:relative;padding:10px 14px 10px 34px;font-size:14px;line-height:1.5;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:10px;backdrop-filter:blur(4px)}
+  body.rtl .slide ul.s-list li{padding:10px 34px 10px 14px}
+  .slide ul.s-list li::before{content:"";position:absolute;left:14px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.15)}
+  body.rtl .slide ul.s-list li::before{left:auto;right:14px}
+  .slide .footer-bar{position:absolute;bottom:20px;left:40px;right:40px;display:flex;justify-content:space-between;align-items:center;font-size:11px;opacity:.6;letter-spacing:.1em;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;font-weight:500}
+  .slide .deco{position:absolute;top:-100px;right:-100px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,.08), transparent 70%);pointer-events:none}
+  body.rtl .slide .deco{right:auto;left:-100px}
+  .slide .deco-2{position:absolute;bottom:-60px;left:-60px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,.08);pointer-events:none}
+  body.rtl .slide .deco-2{left:auto;right:-60px}
+  /* Mixed Arabic + English scientific terms */
+  body.rtl .slide [data-sci], body.rtl .slide em.sci{font-family:'Inter',sans-serif;font-style:normal;direction:ltr;display:inline-block;unicode-bidi:isolate}
 
   .empty-state{color:var(--muted);font-size:13px;text-align:center;padding:30px 10px}
 
@@ -174,6 +194,7 @@
 <section id="loadingView" class="loading-wrap" style="display:none">
   <div class="spinner"></div>
   <div data-i18n="generating">Generating slides…</div>
+  <div class="progress-grid" id="progressGrid"></div>
   <div class="step" id="loadStep"></div>
 </section>
 
@@ -220,7 +241,7 @@ const I18N = {
     errParse:"The model returned an unexpected response. Please try again.",
     savedProjects:"Saved Projects", noProjects:"No saved projects yet.",
     open:"Open", delete:"Delete", close:"Close",
-    step1:"Contacting NVIDIA API…", step2:"Parsing response…", step3:"Preparing slides…",
+    step1:"Planning the deck…", step2:"Generating slide", step3:"Finalizing…", stepOf:"of",
     slideNames:["Title","Overview","Etiology","Transmission","Symptoms","Pathogenesis","Diagnosis","Treatment","Prevention","Quick Facts"]
   },
   ar:{
@@ -237,7 +258,7 @@ const I18N = {
     errParse:"استجابة غير متوقعة من النموذج. حاول مرة أخرى.",
     savedProjects:"المشاريع المحفوظة", noProjects:"لا توجد مشاريع محفوظة بعد.",
     open:"فتح", delete:"حذف", close:"إغلاق",
-    step1:"الاتصال بواجهة NVIDIA…", step2:"تحليل الاستجابة…", step3:"تجهيز الشرائح…",
+    step1:"تخطيط العرض…", step2:"توليد الشريحة", step3:"اللمسات الأخيرة…", stepOf:"من",
     slideNames:["العنوان","نظرة عامة","المسبب","الانتقال","الأعراض","الإمراضية","التشخيص","العلاج","الوقاية","حقائق سريعة"]
   }
 };
@@ -293,9 +314,9 @@ async function callNvidia(prompt){
       { role:"system", content:"You are a veterinary medicine expert. You output strictly valid JSON with no markdown fencing." },
       { role:"user", content: prompt }
     ],
-    temperature: 0.5,
+    temperature: 0.4,
     top_p: 0.9,
-    max_tokens: 2200,
+    max_tokens: 700,
     stream: false
   };
   const headers = {
@@ -322,43 +343,70 @@ async function callNvidia(prompt){
 /* =========================
    Prompt builder
 ========================= */
-function buildPrompt(disease, lang, mode){
-  const langName = lang==="ar" ? "Arabic" : "English";
+const SLIDE_SPECS = [
+  { type:"cover",        topic:"Title slide: disease name and a 50-80 word teaser/summary",                              field:"subtitle" },
+  { type:"overview",     topic:"Overview: definition, importance and affected species",                                   field:"body" },
+  { type:"etiology",     topic:"Etiology: causative agent (taxonomy, family/genus, key biological traits)",               field:"body" },
+  { type:"transmission", topic:"Transmission: routes, vectors, reservoirs and risk factors",                              field:"bullets", count:4 },
+  { type:"symptoms",     topic:"Clinical signs and symptoms in affected animals",                                          field:"bullets", count:5 },
+  { type:"pathogenesis", topic:"Pathogenesis: mechanism of disease, target tissues, immune response",                     field:"body" },
+  { type:"diagnosis",    topic:"Diagnosis: clinical, laboratory tests, imaging and differential diagnoses",               field:"bullets", count:4 },
+  { type:"treatment",    topic:"Treatment: supportive care, specific therapies, drug classes, dosing principles",         field:"bullets", count:4 },
+  { type:"prevention",   topic:"Prevention and control: vaccination, biosecurity, hygiene, quarantine",                   field:"bullets", count:4 },
+  { type:"facts",        topic:"Quick veterinary facts: incubation, mortality, zoonotic potential, geographic spread",    field:"bullets", count:5 },
+];
+
+function langInstructions(lang){
+  if(lang==="ar"){
+    return `Write all narrative text in Modern Standard Arabic.
+CRITICAL: keep ALL scientific / medical / technical terms in their original English or Latin form (do NOT transliterate). This includes:
+- pathogen names (e.g. Canine Parvovirus, Escherichia coli, Mycobacterium bovis)
+- drug names (e.g. Amoxicillin, Ivermectin)
+- anatomical and physiological terms (e.g. myocardium, lymphocyte)
+- laboratory tests (e.g. PCR, ELISA, CBC)
+- taxonomy (family, genus, species in Latin)
+Wrap each such inline English term in <em class="sci">…</em> tags inside the JSON string values so it renders left-to-right.`;
+  }
+  return `Write everything in clear English. Use correct scientific and Latin terminology.`;
+}
+
+function buildMetaPrompt(disease, lang){
+  return `For the animal disease: "${disease}"
+Return ONLY a JSON object (no markdown, no commentary):
+{
+  "diseaseName": "canonical disease name (English)",
+  "pathogenType": "one of: viral, bacterial, parasitic, fungal, prion, nutritional, toxic, other",
+  "species": "main affected animal species (English)"
+}`;
+}
+
+function buildSlidePrompt(disease, lang, mode, spec, idx, meta){
   const tone = mode==="scientific"
     ? "Use precise scientific terminology suitable for veterinary students and clinicians."
     : "Use clear, simplified language suitable for animal owners and general learners.";
-  return `Generate a 10-slide veterinary educational deck about the disease: "${disease}".
-
-Language: write ALL slide text in ${langName}.
+  const langBlock = langInstructions(lang);
+  const shape = spec.field==="bullets"
+    ? `{ "title":"short title (max 6 words)", "bullets": [${Array(spec.count).fill('"…"').join(", ")}] }`
+    : spec.field==="subtitle"
+      ? `{ "title":"the disease name", "subtitle":"50-80 words teaser" }`
+      : `{ "title":"short title (max 6 words)", "body":"50-80 words paragraph" }`;
+  const wordRule = spec.field==="bullets"
+    ? `The SUM of all bullets MUST be 50-80 words. Each bullet ~ ${Math.round(65/spec.count)} words. Count carefully.`
+    : `The "${spec.field}" value MUST be a single text of 50-80 words. Count carefully.`;
+  return `You are generating slide ${idx+1} of 10 in a veterinary educational deck about: "${disease}".
+Disease meta: ${JSON.stringify(meta)}
+Slide topic: ${spec.topic}
 Style: ${tone}
 
-Return ONLY a JSON object (no markdown, no commentary) with this exact shape:
+${langBlock}
 
-{
-  "diseaseName": "string (canonical disease name in ${langName})",
-  "pathogenType": "one of: viral, bacterial, parasitic, fungal, prion, nutritional, toxic, other",
-  "species": "main affected species (in ${langName})",
-  "slides": [
-    { "type":"cover",        "title":"...", "subtitle":"..." },
-    { "type":"overview",     "title":"...", "body":"..." },
-    { "type":"etiology",     "title":"...", "body":"..." },
-    { "type":"transmission", "title":"...", "bullets":["...","...","...","..."] },
-    { "type":"symptoms",     "title":"...", "bullets":["...","...","...","...","..."] },
-    { "type":"pathogenesis", "title":"...", "body":"..." },
-    { "type":"diagnosis",    "title":"...", "bullets":["...","...","...","..."] },
-    { "type":"treatment",    "title":"...", "bullets":["...","...","...","..."] },
-    { "type":"prevention",   "title":"...", "bullets":["...","...","...","..."] },
-    { "type":"facts",        "title":"...", "bullets":["...","...","...","...","..."] }
-  ]
-}
+Return ONLY valid JSON with this exact shape (no code fences, no commentary):
+${shape}
 
 Rules:
-- Output valid JSON only. No code fences. No prose before or after.
-- EVERY slide's textual content (body OR the sum of all bullets) MUST be between 50 and 80 words. Count carefully. This is mandatory.
-- For the cover slide, "subtitle" must be 50-80 words.
-- For bullet slides, distribute the 50-80 words across the bullets (each bullet roughly 10-18 words).
-- All text in ${langName}.
-- If the disease name is unknown or not a real animal disease, still produce best-effort content based on the literal name.`;
+- ${wordRule}
+- No markdown formatting inside strings (except the allowed <em class="sci">…</em> wrappers for English terms when language is Arabic).
+- Be specific and accurate. If the disease is unknown, produce best-effort content.`;
 }
 
 function extractJson(text){
@@ -418,16 +466,21 @@ function renderSlide(){
 
   container.innerHTML = `
     <div class="slide ${isCover?'cover':''}" id="theSlide" style="--s1:${c1};--s2:${c2}">
+      <div class="accent-bar"></div>
       <div class="deco"></div>
+      <div class="deco-2"></div>
+      <div class="slide-num">${String(state.currentSlide+1).padStart(2,'0')}</div>
       ${isCover ? `
         <div class="kicker">${escapeHtml(state.lang==='ar'?'عرض بيطري تعليمي':'Veterinary Educational Deck')}</div>
-        <h2 class="s-title">${escapeHtml(s.title||state.disease)}</h2>
-        ${s.subtitle?`<div class="s-body" style="opacity:.85">${escapeHtml(s.subtitle)}</div>`:""}
+        <h2 class="s-title">${safeHtml(s.title||state.disease)}</h2>
+        <div class="title-underline"></div>
+        ${s.subtitle?`<div class="s-body">${safeHtml(s.subtitle)}</div>`:""}
       ` : `
         <div class="kicker">${escapeHtml(slideKicker(s.type))}</div>
-        <h2 class="s-title">${escapeHtml(s.title||"")}</h2>
-        ${bullets ? `<ul class="s-list">${bullets.map(b=>`<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-                  : `<div class="s-body">${escapeHtml(body)}</div>`}
+        <h2 class="s-title">${safeHtml(s.title||"")}</h2>
+        <div class="title-underline"></div>
+        ${bullets ? `<ul class="s-list">${bullets.map(b=>`<li>${safeHtml(b)}</li>`).join("")}</ul>`
+                  : `<div class="s-body">${safeHtml(body)}</div>`}
       `}
       <div class="footer-bar">
         <span>${escapeHtml(state.disease)}</span>
@@ -460,41 +513,96 @@ function renderSlideList(){
 }
 
 function escapeHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function safeHtml(s){
+  // Escape everything, then re-allow <em class="sci">…</em> wrappers for inline LTR scientific terms.
+  let out = escapeHtml(s);
+  out = out.replace(/&lt;em class=&quot;sci&quot;&gt;/g,'<em class="sci">')
+           .replace(/&lt;\/em&gt;/g,'</em>');
+  return out;
+}
 
 /* =========================
    Generate flow
 ========================= */
+function renderProgressGrid(active, done){
+  const grid = $("#progressGrid"); if(!grid) return;
+  grid.innerHTML = SLIDE_SPECS.map((_,i)=>{
+    const cls = i<done ? "done" : (i===active ? "active" : "");
+    return `<div class="progress-cell ${cls}"></div>`;
+  }).join("");
+}
+
+async function generateSlideWithRetry(disease, lang, mode, spec, idx, meta){
+  let lastErr;
+  for(let attempt=0; attempt<2; attempt++){
+    try{
+      const raw = await callNvidia(buildSlidePrompt(disease, lang, mode, spec, idx, meta));
+      const parsed = extractJson(raw);
+      if(!parsed) { lastErr=new Error("parse"); continue; }
+      return Object.assign({ type: spec.type }, parsed);
+    }catch(e){ lastErr=e; }
+  }
+  // Fallback placeholder so the deck stays complete
+  return {
+    type: spec.type,
+    title: spec.type,
+    body: spec.field!=="bullets" ? "—" : undefined,
+    bullets: spec.field==="bullets" ? Array(spec.count||4).fill("—") : undefined,
+    subtitle: spec.field==="subtitle" ? "—" : undefined,
+    _error: true
+  };
+}
+
+async function generateAllSlides(disease, lang, mode){
+  // 1) meta
+  setStep(t("step1"));
+  renderProgressGrid(-1, 0);
+  let meta = { diseaseName: disease, pathogenType: "other", species: "" };
+  try{
+    const raw = await callNvidia(buildMetaPrompt(disease, lang));
+    const parsed = extractJson(raw);
+    if(parsed) meta = Object.assign(meta, parsed);
+  }catch(e){ /* keep defaults */ }
+
+  state.pathogenType = meta.pathogenType || null;
+  state.disease = meta.diseaseName || disease;
+  state.slides = [];
+  showView("editor");
+  // Show an empty placeholder slide so user sees deck building live
+  renderSlideList = renderSlideList; // noop ref
+
+  // 2) per-slide
+  for(let i=0;i<SLIDE_SPECS.length;i++){
+    setStep(`${t("step2")} ${i+1} ${t("stepOf")} ${SLIDE_SPECS.length}…`);
+    renderProgressGrid(i, i);
+    // Stay on loading view but also update preview
+    showView("loading");
+    const slide = await generateSlideWithRetry(state.disease, lang, mode, SLIDE_SPECS[i], i, meta);
+    state.slides.push(slide);
+  }
+  renderProgressGrid(-1, SLIDE_SPECS.length);
+  setStep(t("step3"));
+}
+
 async function generate(){
   const disease = $("#diseaseInput").value.trim();
   $("#errorBox").style.display="none";
-  if(!disease){
-    showError(t("errEmpty")); return;
-  }
+  if(!disease){ showError(t("errEmpty")); return; }
   state.disease = disease;
   showView("loading");
-  setStep(t("step1"));
   try{
-    const raw = await callNvidia(buildPrompt(disease, state.lang, state.mode));
-    setStep(t("step2"));
-    const parsed = extractJson(raw);
-    if(!parsed || !Array.isArray(parsed.slides) || parsed.slides.length<1){
-      throw new Error("parse");
-    }
-    setStep(t("step3"));
-    state.slides = parsed.slides;
-    state.pathogenType = parsed.pathogenType || null;
-    state.disease = parsed.diseaseName || disease;
+    await generateAllSlides(disease, state.lang, state.mode);
     state.currentSlide = 0;
     saveProject();
     showView("editor");
     renderSlide();
   }catch(e){
     showView("home");
-    showError(e.message==="parse" ? t("errParse") : t("errApi"));
+    showError(t("errApi"));
   }
 }
 
-function setStep(s){ $("#loadStep").textContent = s; }
+function setStep(s){ const el=$("#loadStep"); if(el) el.textContent = s; }
 function showError(msg){ const b=$("#errorBox"); b.textContent=msg; b.style.display="block"; }
 
 /* =========================
@@ -611,19 +719,15 @@ async function exportPng(){
 ========================= */
 async function regenerateForChange(){
   if(!state.slides) return;
-  showView("loading"); setStep(t("step1"));
+  showView("loading");
   try{
-    const raw = await callNvidia(buildPrompt(state.disease, state.lang, state.mode));
-    const parsed = extractJson(raw);
-    if(!parsed||!Array.isArray(parsed.slides)) throw new Error("parse");
-    state.slides = parsed.slides;
-    state.pathogenType = parsed.pathogenType || state.pathogenType;
+    await generateAllSlides(state.disease, state.lang, state.mode);
     state.currentSlide = 0;
     saveProject();
     showView("editor"); renderSlide();
   }catch(e){
     showView("editor"); renderSlide();
-    alert(e.message==="parse"? t("errParse") : t("errApi"));
+    alert(t("errApi"));
   }
 }
 
