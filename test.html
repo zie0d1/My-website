@@ -566,21 +566,32 @@ async function generateAllSlides(disease, lang, mode){
 
   state.pathogenType = meta.pathogenType || null;
   state.disease = meta.diseaseName || disease;
-  state.slides = [];
-  showView("editor");
-  // Show an empty placeholder slide so user sees deck building live
-  renderSlideList = renderSlideList; // noop ref
+  state.slides = new Array(SLIDE_SPECS.length).fill(null);
 
-  // 2) per-slide
-  for(let i=0;i<SLIDE_SPECS.length;i++){
-    setStep(`${t("step2")} ${i+1} ${t("stepOf")} ${SLIDE_SPECS.length}…`);
-    renderProgressGrid(i, i);
-    // Stay on loading view but also update preview
-    showView("loading");
-    const slide = await generateSlideWithRetry(state.disease, lang, mode, SLIDE_SPECS[i], i, meta);
-    state.slides.push(slide);
+  // 2) fire ALL slide requests in parallel
+  let doneCount = 0;
+  const total = SLIDE_SPECS.length;
+  // mark all as active
+  const grid = $("#progressGrid");
+  if(grid){
+    grid.innerHTML = SLIDE_SPECS.map(()=>`<div class="progress-cell active"></div>`).join("");
   }
-  renderProgressGrid(-1, SLIDE_SPECS.length);
+  setStep(`${t("step2")} 0 ${t("stepOf")} ${total}…`);
+
+  const tasks = SLIDE_SPECS.map((spec, i) =>
+    generateSlideWithRetry(state.disease, lang, mode, spec, i, meta).then(slide => {
+      state.slides[i] = slide;
+      doneCount++;
+      // mark this cell done
+      if(grid){
+        const cell = grid.children[i];
+        if(cell){ cell.classList.remove("active"); cell.classList.add("done"); }
+      }
+      setStep(`${t("step2")} ${doneCount} ${t("stepOf")} ${total}…`);
+      return slide;
+    })
+  );
+  await Promise.all(tasks);
   setStep(t("step3"));
 }
 
