@@ -31,7 +31,7 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,17,.85);backdrop-filter:blur(10px);z-index:10}
   .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
   .brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
-  .topbar-actions{display:flex;gap:8px;align-items:center}
+  .topbar-actions{display:flex;gap:8px;align-items:center;direction:ltr}
   .btn{padding:9px 14px;border-radius:10px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);font-size:13px;font-weight:500;transition:.15s;display:inline-flex;align-items:center;gap:6px}
   .btn:hover{background:#23232b;border-color:#34343d}
   .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#0b0b10;border:none;font-weight:600}
@@ -47,9 +47,11 @@
   .home-card{width:100%;max-width:560px;text-align:center}
   .home h1{font-size:34px;font-weight:700;margin:0 0 10px;letter-spacing:-.02em}
   .home p.lead{color:var(--muted);margin:0 0 28px;font-size:15px;line-height:1.6}
-  .input-row{display:flex;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:6px;align-items:center}
-  .input-row input{flex:1;background:transparent;border:none;outline:none;color:var(--text);padding:12px 14px;font-size:15px}
-  .home-options{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .input-row{display:flex;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:6px;align-items:center;direction:ltr}
+  body.rtl .input-row{direction:rtl}
+  .input-row input{flex:1;background:transparent;border:none;outline:none;color:var(--text);padding:12px 14px;font-size:15px;text-align:left}
+  body.rtl .input-row input{text-align:right}
+  .home-options{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;direction:ltr}
   .err{margin-top:18px;padding:12px 14px;background:#2a1418;border:1px solid #4a1f25;color:#ffb3b9;border-radius:10px;font-size:13.5px;text-align:left}
   body.rtl .err{text-align:right}
   .saved-link{margin-top:24px;color:var(--muted);font-size:13px}
@@ -68,7 +70,6 @@
 
   /* Editor */
   .editor{display:grid;grid-template-columns:260px 1fr;gap:0;min-height:calc(100vh - 65px)}
-  body.rtl .editor{grid-template-columns:1fr 260px}
   .sidebar{border-right:1px solid var(--border);padding:14px;overflow-y:auto;max-height:calc(100vh - 65px);position:sticky;top:65px}
   body.rtl .sidebar{border-right:none;border-left:1px solid var(--border)}
   .sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:6px 4px 12px;font-weight:600}
@@ -80,8 +81,9 @@
   .slide-item .label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   .canvas-wrap{padding:28px;display:flex;flex-direction:column;align-items:center;gap:18px}
-  .canvas-toolbar{display:flex;gap:8px;align-items:center;width:100%;max-width:520px;justify-content:space-between;flex-wrap:wrap}
-  .canvas-toolbar .left{display:flex;gap:8px;align-items:center}
+  .canvas-toolbar{display:flex;gap:8px;align-items:center;width:100%;max-width:520px;justify-content:space-between;flex-wrap:wrap;direction:ltr}
+  body.rtl .canvas-toolbar{direction:rtl}
+  .canvas-toolbar .left{display:flex;gap:8px;align-items:center;direction:ltr}
   .canvas-toolbar .right{display:flex;gap:8px;align-items:center}
 
   /* Slide 4:5 */
@@ -120,7 +122,8 @@
   body.rtl .slide ul.s-list li{padding:10px 34px 10px 14px}
   .slide ul.s-list li::before{content:"";position:absolute;left:14px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.15)}
   body.rtl .slide ul.s-list li::before{left:auto;right:14px}
-  .slide .footer-bar{position:absolute;bottom:20px;left:40px;right:40px;display:flex;justify-content:space-between;align-items:center;font-size:11px;opacity:.6;letter-spacing:.1em;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;font-weight:500}
+  .slide .footer-bar{position:absolute;bottom:20px;left:40px;right:40px;display:flex;justify-content:space-between;align-items:center;font-size:11px;opacity:.6;letter-spacing:.1em;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;font-weight:500;direction:ltr}
+  body.rtl .slide .footer-bar{direction:rtl}
   .slide .deco{position:absolute;top:-100px;right:-100px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,.08), transparent 70%);pointer-events:none}
   body.rtl .slide .deco{right:auto;left:-100px}
   .slide .deco-2{position:absolute;bottom:-60px;left:-60px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,.08);pointer-events:none}
@@ -133,7 +136,8 @@
   /* Projects modal */
   .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
   .modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;width:100%;max-width:560px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
-  .modal header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .modal header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;direction:ltr}
+  body.rtl .modal header{direction:rtl}
   .modal header h3{margin:0;font-size:15px;font-weight:600}
   .modal .body{padding:8px;overflow-y:auto}
   .proj-item{padding:12px 14px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -462,7 +466,12 @@ function renderSlide(){
   const isCover = s.type==="cover";
   const container = $("#slideContainer");
   const bullets = Array.isArray(s.bullets)?s.bullets:null;
-  const body = s.body || s.subtitle || "";
+  const body = s.body || "";
+
+  // Determine content: title-only slides show nothing below the title (no empty body/bullets)
+  const hasBullets = bullets && bullets.length > 0 && bullets.some(b => b && b !== "—" && b.trim() !== "");
+  const hasBody = body && body !== "—" && body.trim() !== "";
+  const hasSubtitle = s.subtitle && s.subtitle !== "—" && s.subtitle.trim() !== "";
 
   container.innerHTML = `
     <div class="slide ${isCover?'cover':''}" id="theSlide" style="--s1:${c1};--s2:${c2}">
@@ -474,13 +483,14 @@ function renderSlide(){
         <div class="kicker">${escapeHtml(state.lang==='ar'?'عرض بيطري تعليمي':'Veterinary Educational Deck')}</div>
         <h2 class="s-title">${safeHtml(s.title||state.disease)}</h2>
         <div class="title-underline"></div>
-        ${s.subtitle?`<div class="s-body">${safeHtml(s.subtitle)}</div>`:""}
+        ${hasSubtitle?`<div class="s-body">${safeHtml(s.subtitle)}</div>`:""}
       ` : `
         <div class="kicker">${escapeHtml(slideKicker(s.type))}</div>
         <h2 class="s-title">${safeHtml(s.title||"")}</h2>
         <div class="title-underline"></div>
-        ${bullets ? `<ul class="s-list">${bullets.map(b=>`<li>${safeHtml(b)}</li>`).join("")}</ul>`
-                  : `<div class="s-body">${safeHtml(body)}</div>`}
+        ${hasBullets ? `<ul class="s-list">${bullets.filter(b=>b&&b.trim()!=="").map(b=>`<li>${safeHtml(b)}</li>`).join("")}</ul>`
+          : hasBody ? `<div class="s-body">${safeHtml(body)}</div>`
+          : ""}
       `}
       <div class="footer-bar">
         <span>${escapeHtml(state.disease)}</span>
