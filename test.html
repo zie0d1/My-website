@@ -771,10 +771,13 @@ function saveApiConfig(cfg) {
 
 let ApiConfig = loadApiConfig();
 
+// Each entry: fn(endpoint) -> proxied URL.
+// corsproxy.io uses ?url= and correctly forwards POST + Authorization headers.
+// thingproxy is a fallback that also supports POST.
+// allorigins and cors-anywhere are excluded — they strip headers or block POST.
 const CORS_PROXIES = [
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://cors-anywhere.herokuapp.com/${url}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
 /* ── Settings modal logic ───────────────────────────────────────────────── */
@@ -843,16 +846,25 @@ async function testApiConnection() {
     status.style.color = '#ff8080';
     return;
   }
-  status.textContent = '⟳ Testing...';
-  status.style.color = 'rgba(255,255,255,.4)';
+  if (!key) {
+    status.textContent = '⚠ API key is empty.';
+    status.style.color = '#ff8080';
+    return;
+  }
+  status.textContent = '⟳ Testing connection…';
+  status.style.color = 'rgba(255,255,255,.35)';
   const testCfg = { endpoint, key, model };
   try {
     const resp = await apiFetch([{ role:'user', content:'Reply with only the word: OK' }], 32, testCfg);
-    status.textContent = `✓ Connected — model replied: "${resp.slice(0,40)}"`;
+    status.textContent = `✓ Connected — model replied: "${resp.slice(0,60)}"`;
     status.style.color = '#00e87a';
   } catch(e) {
-    status.textContent = `✗ Failed: ${e.message}`;
+    // Show first line of error (the most useful part) in the modal
+    const firstLine = e.message.split('\n')[0];
+    status.textContent = `✗ ${firstLine}`;
     status.style.color = '#ff8080';
+    // Full detail in console
+    console.error('[testApiConnection]', e.message);
   }
 }
 
@@ -866,6 +878,7 @@ document.addEventListener('click', e => {
 async function apiFetch(messages, maxTokens=4096, cfg=null) {
   const { endpoint, key, model } = cfg || ApiConfig;
   if (!endpoint) throw new Error('No API endpoint configured. Open ⚙ Settings to set one.');
+  if (!key)      throw new Error('No API key set. Open ⚙ Settings and enter your key.');
 
   const payload = {
     model,
@@ -875,32 +888,68 @@ async function apiFetch(messages, maxTokens=4096, cfg=null) {
     max_tokens: maxTokens,
     stream: false,
   };
-  const body    = JSON.stringify(payload);
-  const headers = { 'Content-Type': 'application/json' };
-  if (key) headers['Authorization'] = `Bearer ${key}`;
+  const body = JSON.stringify(payload);
 
+  // Build attempt list: direct first (works when page is served from disk or same origin),
+  // then each CORS proxy. Proxies support POST + Authorization headers.
   const attempts = [
     { label: 'direct', url: endpoint },
     ...CORS_PROXIES.map((proxy, i) => ({ label: `proxy-${i}`, url: proxy(endpoint) })),
   ];
 
+  const errors = [];
+
   for (const { label, url } of attempts) {
+    // Authorization header must be sent with each request, including via proxy.
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`,
+    };
+    // corsproxy.io also needs x-requested-with to bypass CORS preflight rejection
+    if (label.startsWith('proxy')) {
+      headers['x-requested-with'] = 'XMLHttpRequest';
+    }
+
     try {
+      console.log(`[apiFetch] trying ${label}: ${url.slice(0,80)}...`);
       const res = await fetch(url, { method: 'POST', headers, body });
+
       if (!res.ok) {
-        const err = await res.text().catch(() => res.status);
-        console.warn(`[apiFetch] ${label} HTTP ${res.status}:`, err);
+        let errBody = '';
+        try { errBody = await res.text(); } catch(_) {}
+        const detail = `HTTP ${res.status} ${res.statusText}` + (errBody ? `: ${errBody.slice(0,200)}` : '');
+        console.warn(`[apiFetch] ${label} failed — ${detail}`);
+        errors.push(`${label}: ${detail}`);
+        // 401 = bad key, 403 = forbidden — no point trying other proxies with same key
+        if (res.status === 401 || res.status === 403) {
+          throw new Error(`Authentication failed (${res.status}). Check your API key in ⚙ Settings.`);
+        }
         continue;
       }
+
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content || '';
-      if (text) { console.log(`[apiFetch] ✅ via ${label}`); return text; }
-      console.warn(`[apiFetch] ${label} empty content`);
+      if (text) {
+        console.log(`[apiFetch] ✅ success via ${label}`);
+        return text;
+      }
+      // Unexpected empty response
+      const emptyDetail = JSON.stringify(data).slice(0, 200);
+      console.warn(`[apiFetch] ${label} empty content — raw:`, emptyDetail);
+      errors.push(`${label}: empty response — ${emptyDetail}`);
+
     } catch (e) {
-      console.warn(`[apiFetch] ${label} failed:`, e.message);
+      // Re-throw auth errors immediately
+      if (e.message.includes('Authentication failed')) throw e;
+      console.warn(`[apiFetch] ${label} exception:`, e.message);
+      errors.push(`${label}: ${e.message}`);
     }
   }
-  throw new Error('All API attempts failed — check console (F12) for details.');
+
+  throw new Error(
+    'All API attempts failed.\n\nDetails:\n' + errors.map((e,i)=>`${i+1}. ${e}`).join('\n') +
+    '\n\nCheck ⚙ Settings — verify your endpoint, model, and API key.'
+  );
 }
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
@@ -1114,7 +1163,22 @@ Return EXACTLY this JSON structure:
     showScreen('editor');
   } catch(err) {
     console.error('Generate error:', err);
-    // If API totally failed, offer demo mode
+
+    // Distinguish auth / config errors from network errors
+    const isAuthErr   = err.message.includes('Authentication failed') || err.message.includes('API key');
+    const isConfigErr = err.message.includes('No API endpoint') || err.message.includes('No API key');
+
+    if (isAuthErr || isConfigErr) {
+      // Don't offer demo — point the user straight to settings
+      setProgress(0, '❌ ' + err.message.split('\n')[0]);
+      await delay(400);
+      showScreen('landing');
+      setTimeout(() => { openSettings(); toast('⚙ Check your API key and endpoint'); }, 300);
+      State.isGenerating = false;
+      return;
+    }
+
+    // Generic failure — offer demo mode
     const usedemo = confirm(
       '⚠️ API connection failed.\n\n' + err.message +
       '\n\nLoad a DEMO slide deck instead to preview the app?'
@@ -1132,9 +1196,9 @@ Return EXACTLY this JSON structure:
     }
     const msg = err instanceof SyntaxError
       ? '❌ JSON parse failed — response was incomplete.'
-      : '❌ '+(err.message||'Something went wrong.');
+      : '❌ ' + (err.message.split('\n')[0] || 'Something went wrong.');
     setProgress(0, msg);
-    await delay(3500);
+    await delay(4500);
     showScreen('landing');
   } finally {
     State.isGenerating = false;
