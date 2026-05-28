@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>FutureVets — Veterinary Slide Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 /* ══ RESET ══════════════════════════════════════════════════════════════ */
@@ -22,36 +22,96 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
   --accent:#00d4ff;--accent2:#ff3366;
   --bg:#09090b;--surface:rgba(255,255,255,.03);
   --border:rgba(255,255,255,.07);--muted:rgba(255,255,255,.35);
-  --fd:'Syne',sans-serif;--fm:'IBM Plex Mono',monospace;
+  --fd:'Cairo',sans-serif;--fm:'DM Mono',monospace;
+  --far:'Cairo','Tajawal','Noto Sans Arabic',sans-serif;
   --r:0px;
 }
 
+/* ══ Global text rendering ══════════════════════════════════════════════ */
+*{text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+
 /* ══ Arabic slide overrides ═════════════════════════════════════════════ */
-.si.ar{direction:rtl;text-align:right}
-.si.ar .s-h{letter-spacing:0}
-.si.ar .s-big-h{letter-spacing:0}
-.si.ar .s-agent-name{letter-spacing:0}
-.si.ar .s-stage-t{text-align:right}
-.si.ar .s-tx-cat{text-align:right}
-.si.ar .s-stat-lbl{text-align:right}
-/* Scientific terms stay LTR inside Arabic slides */
-.si.ar .s-term{direction:ltr;display:inline;font-size:.9em;color:inherit;unicode-bidi:embed}
-/* Fix flex items inside RTL — text must have flex:1 and min-width:0 */
+/* All Arabic text elements use Cairo/Tajawal; letter-spacing must be 0 */
+.si.ar{
+  direction:rtl;
+  text-align:right;
+  font-family:var(--far);
+}
+.si.ar .s-h,
+.si.ar .s-big-h,
+.si.ar .s-agent-name{
+  letter-spacing:0;
+  font-family:var(--far);
+  font-weight:700;
+  unicode-bidi:plaintext;
+}
+/* Labels and category tags: RTL with plaintext bidi so mixed content resolves correctly */
+.si.ar .s-tag,
+.si.ar .s-stage-t,
+.si.ar .s-tx-cat,
+.si.ar .s-stat-lbl,
+.si.ar .s-meth-n,
+.si.ar .s-meth-t,
+.si.ar .s-meth-d,
+.si.ar .s-route-n,
+.si.ar .s-route-d,
+.si.ar .s-prev-n,
+.si.ar .s-prev-d{
+  direction:rtl;
+  unicode-bidi:plaintext;
+  font-family:var(--far);
+  letter-spacing:0;
+}
+/* Body text */
+.si.ar .s-body,
+.si.ar .s-bt,
+.si.ar .s-step-t,
+.si.ar .s-fact-t,
+.si.ar .s-tagline,
+.si.ar .s-note{
+  direction:rtl;
+  unicode-bidi:plaintext;
+  font-family:var(--far);
+  letter-spacing:0;
+  line-height:1.75;
+}
+/* Scientific / English terms: always LTR, isolated from surrounding bidi */
+.s-term,
+.scientific,
+.en{
+  direction:ltr;
+  unicode-bidi:isolate;
+  display:inline-block;
+  font-family:'DM Mono',monospace;
+  letter-spacing:.03em;
+}
+
+/* ══ Flex layout — bullet/step/fact/route ═══════════════════════════════ */
 .s-bul{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px}
-.s-bd{font-size:12px;margin-top:2px;flex-shrink:0;min-width:14px}
-.s-bt{font-size:14px;line-height:1.55;flex:1;min-width:0}
+/* In RTL slides, dot goes on the right (start side) */
+.si.ar .s-bul{flex-direction:row-reverse}
+.s-bd{font-size:12px;margin-top:2px;flex-shrink:0;min-width:14px;text-align:center}
+.s-bt{font-size:14px;line-height:1.6;flex:1;min-width:0;word-break:break-word}
+
 .s-route{display:flex;align-items:center;gap:12px;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:7px;flex-shrink:0}
+.si.ar .s-route{flex-direction:row-reverse}
 .s-route-ico{font-size:20px;flex-shrink:0}
 .s-route-n{font-size:14px;font-weight:600;color:#fff}
 .s-route-d{font-size:11px;opacity:.45;margin-top:2px}
+
 .s-step{display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;flex-shrink:0}
+.si.ar .s-step{flex-direction:row-reverse}
 .s-step-n{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:var(--fm)}
-.s-step-t{font-size:13px;line-height:1.55;flex:1;min-width:0}
+.s-step-t{font-size:13px;line-height:1.6;flex:1;min-width:0;word-break:break-word}
+
 .s-meth{display:flex;gap:11px;align-items:flex-start;padding:12px 13px;margin-bottom:8px;flex-shrink:0}
+.si.ar .s-meth{flex-direction:row-reverse}
 .s-meth-ico{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
 .s-fact{display:flex;gap:10px;padding:9px 11px;margin-bottom:5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);flex-shrink:0;align-items:flex-start}
+.si.ar .s-fact{flex-direction:row-reverse}
 .s-fact-n{font-family:var(--fm);font-size:10px;padding:2px 6px;flex-shrink:0;margin-top:1px;font-weight:500}
-.s-fact-t{font-size:13px;line-height:1.55;flex:1;min-width:0}
+.s-fact-t{font-size:13px;line-height:1.6;flex:1;min-width:0;word-break:break-word}
 
 /* ══ KEYFRAMES ══════════════════════════════════════════════════════════ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -215,7 +275,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 #slide-frame{width:100%;aspect-ratio:4/5;border-radius:0 !important;overflow:hidden;border:1px solid rgba(255,255,255,.08);position:relative;box-shadow:none !important;transition:aspect-ratio .25s ease}
 #slide-frame.story{aspect-ratio:9/16}
 .format-row{display:flex;gap:6px;margin-top:8px;justify-content:center}
-.fmt-btn{padding:5px 16px;font-size:11px;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.fmt-btn{padding:5px 16px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.05em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
 .fmt-btn:hover{color:#fff;border-color:rgba(255,255,255,.2)}
 .fmt-btn.active{border-color:rgba(0,212,255,.4);color:#00d4ff;background:rgba(0,212,255,.06)}
 .slide-nav{display:flex;gap:7px;margin-top:12px;justify-content:center}
@@ -295,14 +355,14 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 
 .si{width:100%;height:100%;padding:32px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;color:#e4e4e7;font-family:'DM Sans',sans-serif;direction:ltr;text-align:left}
 .s-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;font-family:var(--fm);font-size:10px;letter-spacing:.1em;margin-bottom:14px;white-space:nowrap;flex-shrink:0;width:fit-content}
-.s-h{font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-.025em;line-height:1.08;color:#fff;margin-bottom:12px}
+.s-h{font-family:'Cairo',sans-serif;font-weight:800;letter-spacing:-.025em;line-height:1.08;color:#fff;margin-bottom:12px}
 .s-body{font-size:14px;line-height:1.7;margin-bottom:14px;flex-shrink:0}
 .s-stat{padding:12px 14px;margin-bottom:14px;flex-shrink:0}
 .s-stat-lbl{font-family:var(--fm);font-size:9px;letter-spacing:.12em;margin-bottom:4px}
-.s-stat-v{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#fff;line-height:1.3}
+.s-stat-v{font-family:'Cairo',sans-serif;font-weight:700;font-size:16px;color:#fff;line-height:1.3}
 .s-agent{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-shrink:0}
 .s-agent-ico{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.s-agent-name{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:#fff}
+.s-agent-name{font-family:'Cairo',sans-serif;font-weight:700;font-size:17px;color:#fff}
 .s-agent-type{font-family:var(--fm);font-size:10px;margin-top:3px}
 .s-note{padding:10px 13px;font-size:13px;line-height:1.55;flex-shrink:0}
 .s-stage{padding:10px 13px;margin-bottom:7px;flex-shrink:0}
@@ -313,6 +373,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 .s-tx{padding:11px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);margin-bottom:8px;flex-shrink:0}
 .s-tx-cat{font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.1em;margin-bottom:7px}
 .s-prev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0}
+.si.ar .s-prev-grid{direction:rtl}
 .s-prev-c{padding:13px 11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:5px}
 .s-prev-ico{font-size:22px}
 .s-prev-n{font-size:13px;font-weight:600;color:#fff}
@@ -320,10 +381,16 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 .s-mort{padding:9px 13px;margin-top:7px;flex-shrink:0;font-size:12px;background:rgba(255,80,80,.05);border:1px solid rgba(255,80,80,.18);color:#ff9090}
 .s-cit{font-family:var(--fm);font-size:9px;opacity:.35;margin-top:5px;flex-shrink:0}
 .s-title-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%}
+.si.ar .s-title-inner{text-align:center;direction:rtl}
 .s-emoji{font-size:64px;margin-bottom:16px;display:block}
-.s-big-h{font-family:'Syne',sans-serif;font-size:clamp(22px,4.5vw,36px);font-weight:800;letter-spacing:-.03em;line-height:1.05;color:#fff;margin-bottom:11px}
+.s-big-h{font-family:'Cairo',sans-serif;font-size:clamp(22px,4.5vw,36px);font-weight:800;letter-spacing:-.03em;line-height:1.05;color:#fff;margin-bottom:11px}
 .s-tagline{font-size:14px;line-height:1.65;opacity:.45;max-width:340px;margin-bottom:18px}
 .s-tbadge{padding:6px 16px;font-family:var(--fm);font-size:10px;letter-spacing:.07em}
+
+/* ══ Settings modal preset buttons ══════════════════════════════════════ */
+.preset-btn{padding:4px 11px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.05em;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;transition:all .15s}
+.preset-btn:hover{border-color:rgba(0,212,255,.3);color:#00d4ff}
+.preset-btn.active{border-color:rgba(0,212,255,.5);color:#00d4ff;background:rgba(0,212,255,.08)}
 
 /* ══ Toast ══════════════════════════════════════════════════════════════ */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:9px 20px;background:#111113;border:1px solid rgba(255,255,255,.1);color:#fff;font-size:12px;transition:transform .25s ease;z-index:999;white-space:nowrap}
@@ -332,6 +399,8 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
 /* ══ Responsive ══════════════════════════════════════════════════════════ */
 @media(max-width:900px){.sidebar,.info-panel{display:none}.stats-bar{padding:18px}.stat-item{padding:0 18px}}
 @media(max-width:600px){.hero-title{font-size:30px}.feats,.theme-strip{display:none}.tb-r .btn-regen{display:none}}
+/* sidebar and info panel always LTR layout regardless of body dir */
+.sidebar,.info-panel{direction:ltr}
 [dir="rtl"] .sidebar{border-right:none;border-left:1px solid var(--border)}
 [dir="rtl"] .info-panel{border-left:none;border-right:1px solid var(--border)}
 /* slide direction controlled per-render via .si.ar class */
@@ -352,6 +421,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
     <div class="nav-r">
       <button class="btn-ghost" id="btn-history">🗂 History</button>
       <button class="btn-ghost" id="lang-toggle-landing">العربية</button>
+      <button class="btn-icon" id="btn-settings-landing" title="API Settings" onclick="openSettings()">⚙</button>
       <button class="btn-icon" id="dark-toggle" title="Toggle theme">☀️</button>
     </div>
   </nav>
@@ -456,6 +526,7 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
     <div class="tb-r">
       <button class="btn-regen" id="btn-regen">⟳ Regenerate</button>
       <button class="btn-ghost" id="lang-toggle-editor">AR</button>
+      <button class="btn-icon" title="API Settings" onclick="openSettings()">⚙</button>
       <button class="btn-primary" id="btn-export-all">Export ↓</button>
     </div>
   </header>
@@ -564,40 +635,253 @@ body{font-family:'DM Sans',sans-serif;background:#09090b;color:#e4e4e7;min-heigh
   </div>
 </div>
 
+<!-- ═══════════════════════ SETTINGS MODAL ════════════════════════════════ -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#111113;border:1px solid rgba(255,255,255,.1);width:100%;max-width:480px;overflow:hidden;animation:scaleIn .2s ease both">
+
+    <!-- header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07)">
+      <span style="font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;color:#fff">⚙ API Settings</span>
+      <button onclick="closeSettings()" style="width:28px;height:28px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+
+    <!-- body -->
+    <div style="padding:20px 22px;display:flex;flex-direction:column;gap:14px">
+
+      <!-- Provider preset strip -->
+      <div>
+        <div style="font-size:9px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;letter-spacing:.1em;margin-bottom:8px">PROVIDER PRESET</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="preset-btns">
+          <button class="preset-btn active" data-preset="nvidia"   onclick="applyPreset('nvidia')">NVIDIA NIM</button>
+          <button class="preset-btn"        data-preset="openai"   onclick="applyPreset('openai')">OpenAI</button>
+          <button class="preset-btn"        data-preset="groq"     onclick="applyPreset('groq')">Groq</button>
+          <button class="preset-btn"        data-preset="together" onclick="applyPreset('together')">Together AI</button>
+          <button class="preset-btn"        data-preset="openrouter" onclick="applyPreset('openrouter')">OpenRouter</button>
+          <button class="preset-btn"        data-preset="custom"   onclick="applyPreset('custom')">Custom</button>
+        </div>
+      </div>
+
+      <!-- Endpoint -->
+      <div>
+        <label style="font-size:9px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;letter-spacing:.1em;display:block;margin-bottom:5px">ENDPOINT URL</label>
+        <input id="cfg-endpoint" type="text" spellcheck="false" autocomplete="off"
+          style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 11px;font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='rgba(0,212,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
+      </div>
+
+      <!-- API Key -->
+      <div>
+        <label style="font-size:9px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;letter-spacing:.1em;display:block;margin-bottom:5px">API KEY</label>
+        <div style="display:flex;gap:6px">
+          <input id="cfg-key" type="password" spellcheck="false" autocomplete="off" placeholder="sk-... / nvapi-..."
+            style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 11px;font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='rgba(0,212,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
+          <button onclick="toggleKeyVisibility()" id="btn-show-key"
+            style="padding:0 10px;background:transparent;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);cursor:pointer;font-size:13px;flex-shrink:0">👁</button>
+        </div>
+      </div>
+
+      <!-- Model -->
+      <div>
+        <label style="font-size:9px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;letter-spacing:.1em;display:block;margin-bottom:5px">MODEL</label>
+        <input id="cfg-model" type="text" spellcheck="false" autocomplete="off" placeholder="e.g. meta/llama-3.3-70b-instruct"
+          style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 11px;font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='rgba(0,212,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
+      </div>
+
+      <!-- Status indicator -->
+      <div id="cfg-status" style="font-size:11px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;min-height:16px"></div>
+    </div>
+
+    <!-- footer -->
+    <div style="padding:14px 22px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px;justify-content:space-between;align-items:center">
+      <button onclick="testApiConnection()"
+        style="padding:7px 16px;border:1px solid rgba(0,212,255,.3);background:transparent;color:#00d4ff;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:background .15s"
+        onmouseover="this.style.background='rgba(0,212,255,.07)'" onmouseout="this.style.background='transparent'">Test Connection</button>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeSettings()"
+          style="padding:7px 16px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif">Cancel</button>
+        <button onclick="saveSettings()"
+          style="padding:7px 20px;border:none;background:#00d4ff;color:#000;cursor:pointer;font-weight:700;font-size:12px;font-family:'DM Sans',sans-serif;transition:opacity .15s"
+          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
 <!-- ═══════════════════════ JAVASCRIPT ════════════════════════════════════ -->
 <script>
-/* ── NVIDIA API config ──────────────────────────────────────────────────── */
-const NV_API_KEY  = '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';
-const NV_MODEL    = 'meta/llama-3.3-70b-instruct';
-const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+/* ── API Config — loaded from localStorage, falls back to built-in defaults ── */
+const API_STORAGE_KEY = 'futurevets_api_cfg';
+
+const API_PRESETS = {
+  nvidia: {
+    label:    'NVIDIA NIM',
+    endpoint: 'https://integrate.api.nvidia.com/v1/chat/completions',
+    model:    'meta/llama-3.3-70b-instruct',
+    key:      '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',
+  },
+  openai: {
+    label:    'OpenAI',
+    endpoint: 'https://api.openai.com/v1/chat/completions',
+    model:    'gpt-4o-mini',
+    key:      '',
+  },
+  groq: {
+    label:    'Groq',
+    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+    model:    'llama-3.3-70b-versatile',
+    key:      '',
+  },
+  together: {
+    label:    'Together AI',
+    endpoint: 'https://api.together.xyz/v1/chat/completions',
+    model:    'meta-llama/Llama-3-70b-chat-hf',
+    key:      '',
+  },
+  openrouter: {
+    label:    'OpenRouter',
+    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+    model:    'meta-llama/llama-3.3-70b-instruct',
+    key:      '',
+  },
+  custom: {
+    label:    'Custom',
+    endpoint: '',
+    model:    '',
+    key:      '',
+  },
+};
+
+function loadApiConfig() {
+  try {
+    const saved = localStorage.getItem(API_STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  // Default: NVIDIA preset
+  return { ...API_PRESETS.nvidia };
+}
+
+function saveApiConfig(cfg) {
+  localStorage.setItem(API_STORAGE_KEY, JSON.stringify(cfg));
+}
+
+let ApiConfig = loadApiConfig();
+
 const CORS_PROXIES = [
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url => `https://cors-anywhere.herokuapp.com/${url}`,
 ];
 
-async function nvFetch(messages, maxTokens=4096) {
+/* ── Settings modal logic ───────────────────────────────────────────────── */
+function openSettings() {
+  const m = document.getElementById('settings-modal');
+  document.getElementById('cfg-endpoint').value = ApiConfig.endpoint || '';
+  document.getElementById('cfg-key').value      = ApiConfig.key      || '';
+  document.getElementById('cfg-model').value    = ApiConfig.model    || '';
+  document.getElementById('cfg-status').textContent = '';
+  // Highlight matching preset
+  const match = Object.entries(API_PRESETS).find(([,p]) =>
+    p.endpoint === ApiConfig.endpoint && p.model === ApiConfig.model
+  );
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', match ? b.dataset.preset === match[0] : b.dataset.preset === 'custom');
+  });
+  m.style.display = 'flex';
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').style.display = 'none';
+}
+
+function applyPreset(key) {
+  const p = API_PRESETS[key];
+  if (!p) return;
+  document.getElementById('cfg-endpoint').value = p.endpoint;
+  document.getElementById('cfg-model').value    = p.model;
+  // Only overwrite key if preset has one; otherwise keep whatever user typed
+  if (p.key) document.getElementById('cfg-key').value = p.key;
+  document.querySelectorAll('.preset-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.preset === key)
+  );
+  document.getElementById('cfg-status').textContent = '';
+}
+
+function toggleKeyVisibility() {
+  const inp = document.getElementById('cfg-key');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function saveSettings() {
+  const endpoint = document.getElementById('cfg-endpoint').value.trim();
+  const key      = document.getElementById('cfg-key').value.trim();
+  const model    = document.getElementById('cfg-model').value.trim();
+  if (!endpoint || !model) {
+    document.getElementById('cfg-status').textContent = '⚠ Endpoint and model are required.';
+    document.getElementById('cfg-status').style.color = '#ff8080';
+    return;
+  }
+  ApiConfig = { endpoint, key, model };
+  saveApiConfig(ApiConfig);
+  document.getElementById('cfg-status').textContent = '✓ Saved';
+  document.getElementById('cfg-status').style.color = '#00e87a';
+  setTimeout(closeSettings, 700);
+  toast('✓ API config saved');
+}
+
+async function testApiConnection() {
+  const endpoint = document.getElementById('cfg-endpoint').value.trim();
+  const key      = document.getElementById('cfg-key').value.trim();
+  const model    = document.getElementById('cfg-model').value.trim();
+  const status   = document.getElementById('cfg-status');
+  if (!endpoint || !model) {
+    status.textContent = '⚠ Fill in endpoint and model first.';
+    status.style.color = '#ff8080';
+    return;
+  }
+  status.textContent = '⟳ Testing...';
+  status.style.color = 'rgba(255,255,255,.4)';
+  const testCfg = { endpoint, key, model };
+  try {
+    const resp = await apiFetch([{ role:'user', content:'Reply with only the word: OK' }], 32, testCfg);
+    status.textContent = `✓ Connected — model replied: "${resp.slice(0,40)}"`;
+    status.style.color = '#00e87a';
+  } catch(e) {
+    status.textContent = `✗ Failed: ${e.message}`;
+    status.style.color = '#ff8080';
+  }
+}
+
+// Close settings modal when clicking backdrop
+document.addEventListener('click', e => {
+  const m = document.getElementById('settings-modal');
+  if (m && m.style.display === 'flex' && e.target === m) closeSettings();
+});
+
+/* ── Core fetch — OpenAI-compatible, uses active ApiConfig + CORS_PROXIES ── */
+async function apiFetch(messages, maxTokens=4096, cfg=null) {
+  const { endpoint, key, model } = cfg || ApiConfig;
+  if (!endpoint) throw new Error('No API endpoint configured. Open ⚙ Settings to set one.');
+
   const payload = {
-    model: NV_MODEL,
+    model,
     messages,
     temperature: 0.7,
     top_p: 1,
     max_tokens: maxTokens,
     stream: false,
   };
-  const body = JSON.stringify(payload);
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${NV_API_KEY}`,
-  };
+  const body    = JSON.stringify(payload);
+  const headers = { 'Content-Type': 'application/json' };
+  if (key) headers['Authorization'] = `Bearer ${key}`;
 
-  // Build all attempts: direct first, then each proxy
   const attempts = [
-    { label: 'direct',   url: NV_ENDPOINT },
-    ...CORS_PROXIES.map((proxy, i) => ({ label: `proxy-${i}`, url: proxy(NV_ENDPOINT) })),
+    { label: 'direct', url: endpoint },
+    ...CORS_PROXIES.map((proxy, i) => ({ label: `proxy-${i}`, url: proxy(endpoint) })),
   ];
 
   for (const { label, url } of attempts) {
@@ -605,18 +889,15 @@ async function nvFetch(messages, maxTokens=4096) {
       const res = await fetch(url, { method: 'POST', headers, body });
       if (!res.ok) {
         const err = await res.text().catch(() => res.status);
-        console.warn(`[nvFetch] ${label} HTTP ${res.status}:`, err);
+        console.warn(`[apiFetch] ${label} HTTP ${res.status}:`, err);
         continue;
       }
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content || '';
-      if (text) {
-        console.log(`[nvFetch] ✅ success via ${label}`);
-        return text;
-      }
-      console.warn(`[nvFetch] ${label} returned empty content`);
+      if (text) { console.log(`[apiFetch] ✅ via ${label}`); return text; }
+      console.warn(`[apiFetch] ${label} empty content`);
     } catch (e) {
-      console.warn(`[nvFetch] ${label} failed:`, e.message);
+      console.warn(`[apiFetch] ${label} failed:`, e.message);
     }
   }
   throw new Error('All API attempts failed — check console (F12) for details.');
@@ -674,7 +955,9 @@ function setFormat(fmt) {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
-  document.body.setAttribute('dir', State.lang==='ar' ? 'rtl' : 'ltr');
+  const ar = State.lang === 'ar';
+  document.documentElement.setAttribute('lang', ar ? 'ar' : 'en');
+  document.body.setAttribute('dir', ar ? 'rtl' : 'ltr');
 }
 
 /* ── Toast ──────────────────────────────────────────────────────────────── */
@@ -792,7 +1075,7 @@ Return EXACTLY this JSON structure:
     await delay(350);
     setProgress(15, State.lang==='ar' ? 'توليد المحتوى العلمي...' : 'Generating scientific content...');
 
-    const raw = await nvFetch([
+    const raw = await apiFetch([
       { role: 'system', content: sys },
       { role: 'user',   content: usr },
     ], 4096);
@@ -967,11 +1250,19 @@ function buildSlideHTML(sid, s, t) {
   const logoPos = isAr ? 'bottom:14px;left:14px' : 'bottom:14px;right:14px';
   const numPos  = isAr ? 'bottom:14px;right:14px' : 'bottom:14px;left:14px';
 
+  // Helper: wrap English/scientific terms in bidi-isolate spans
+  const wrapTerms = (txt) => {
+    if (!isAr || !txt) return esc(txt||'');
+    // Wrap runs of Latin + digits + common scientific punctuation in .scientific spans
+    return esc(txt).replace(/([A-Za-z0-9][\w\s\-\.\/\(\)%°+]*[A-Za-z0-9]|[A-Za-z0-9]+)/g,
+      m => `<span class="scientific">${m}</span>`);
+  };
+
   // tag always flows with slide direction
-  const tag = (ico,txt) => `<div class="s-tag" style="background:${t.accent}18;border:1px solid ${t.accent}48;color:${t.accent}">${ico} ${esc(txt)}</div>`;
-  const headline = (txt,sz=24) => `<h2 class="s-h" style="font-size:${sz}px">${esc(txt)}</h2>`;
-  // simple bullet — dot always on the "start" side (CSS direction handles it)
-  const bul = (ico,txt,c) => `<div class="s-bul"><span class="s-bd" style="color:${c}">${ico}</span><span class="s-bt" style="color:${t.sub}">${esc(txt)}</span></div>`;
+  const tag = (ico,txt) => `<div class="s-tag" style="background:${t.accent}18;border:1px solid ${t.accent}48;color:${t.accent}">${ico} ${isAr ? wrapTerms(txt) : esc(txt)}</div>`;
+  const headline = (txt,sz=24) => `<h2 class="s-h" style="font-size:${sz}px">${isAr ? wrapTerms(txt) : esc(txt)}</h2>`;
+  // simple bullet — dot always on the "start" side (CSS flex-direction handles RTL)
+  const bul = (ico,txt,c) => `<div class="s-bul"><span class="s-bd" style="color:${c}">${ico}</span><span class="s-bt" style="color:${t.sub}">${isAr ? wrapTerms(txt) : esc(txt)}</span></div>`;
   const wrap = (html,num) => `<div class="si${arCls}" style="background:${bg}">${deco}${html}<div style="color:${t.accent};position:absolute;${logoPos};font-family:var(--fm);font-size:8px;letter-spacing:.06em;opacity:.25">FutureVets</div><div style="color:${t.accent}55;position:absolute;${numPos};font-family:var(--fm);font-size:9px;opacity:.22">0${num}</div></div>`;
 
   if(sid==='title'){
@@ -979,9 +1270,9 @@ function buildSlideHTML(sid, s, t) {
     return wrap(`<div class="s-title-inner">
       <span class="s-emoji" style="filter:drop-shadow(0 0 22px ${t.glow})">${esc(d.emoji||t.icon)}</span>
       ${tag(t.icon, t.label+' Disease')}
-      <h1 class="s-big-h">${esc(d.headline||State.diseaseName)}</h1>
-      <p class="s-tagline">${esc(d.subheadline||State.slides.tagline||'')}</p>
-      <div class="s-tbadge" style="background:${t.accent}15;border:1px solid ${t.accent}38;color:${t.accent}">${esc(d.badge||'Veterinary Education Series')}</div>
+      <h1 class="s-big-h">${isAr ? wrapTerms(d.headline||State.diseaseName) : esc(d.headline||State.diseaseName)}</h1>
+      <p class="s-tagline">${isAr ? wrapTerms(d.subheadline||State.slides.tagline||'') : esc(d.subheadline||State.slides.tagline||'')}</p>
+      <div class="s-tbadge" style="background:${t.accent}15;border:1px solid ${t.accent}38;color:${t.accent}">${isAr ? wrapTerms(d.badge||'Veterinary Education Series') : esc(d.badge||'Veterinary Education Series')}</div>
     </div>`,1);
   }
 
@@ -990,10 +1281,10 @@ function buildSlideHTML(sid, s, t) {
     return wrap(`
       ${tag('📋',d.headline||'Overview')}
       ${headline(State.diseaseName,22)}
-      <p class="s-body" style="color:${t.sub}">${esc(d.summary)}</p>
+      <p class="s-body" style="color:${t.sub}">${isAr ? wrapTerms(d.summary) : esc(d.summary)}</p>
       <div class="s-stat" style="background:${t.accent}10;border:1px solid ${t.accent}2a">
         <div class="s-stat-lbl" style="color:${t.accent}">KEY STATISTIC</div>
-        <div class="s-stat-v">${esc(d.stat)}</div>
+        <div class="s-stat-v">${isAr ? wrapTerms(d.stat) : esc(d.stat)}</div>
       </div>
       <div style="flex:1">${(d.bullets||[]).map(b=>bul('▸',b,t.accent)).join('')}</div>
     `,2);
@@ -1005,9 +1296,9 @@ function buildSlideHTML(sid, s, t) {
       ${tag('🔬',d.headline||'Etiology')}
       <div class="s-agent">
         <div class="s-agent-ico" style="background:${t.accent}18;border:1px solid ${t.accent}38">🦠</div>
-        <div><div class="s-agent-name">${esc(d.agent)}</div><div class="s-agent-type" style="color:${t.accent}">${esc(d.agentType)}</div></div>
+        <div><div class="s-agent-name">${isAr ? wrapTerms(d.agent) : esc(d.agent)}</div><div class="s-agent-type" style="color:${t.accent}">${isAr ? wrapTerms(d.agentType) : esc(d.agentType)}</div></div>
       </div>
-      <p class="s-body" style="color:${t.sub}">${esc(d.description)}</p>
+      <p class="s-body" style="color:${t.sub}">${isAr ? wrapTerms(d.description) : esc(d.description)}</p>
       <div style="border-top:1px solid ${t.accent}22;padding-top:11px;flex:1">${(d.bullets||[]).map(b=>bul('▸',b,t.accent)).join('')}</div>
     `,3);
   }
@@ -1020,9 +1311,9 @@ function buildSlideHTML(sid, s, t) {
       <div style="flex:1">${(d.routes||[]).map(r=>`
         <div class="s-route">
           <span class="s-route-ico">${r.icon||'•'}</span>
-          <div style="flex:1"><div class="s-route-n">${esc(r.route)}</div><div class="s-route-d" style="color:${t.sub}">${esc(r.detail)}</div></div>
+          <div style="flex:1;min-width:0"><div class="s-route-n">${isAr ? wrapTerms(r.route) : esc(r.route)}</div><div class="s-route-d" style="color:${t.sub}">${isAr ? wrapTerms(r.detail) : esc(r.detail)}</div></div>
         </div>`).join('')}</div>
-      ${d.note?`<div class="s-note" style="background:${t.accent2}14;border:1px solid ${t.accent2}38;color:${t.sub}">⚠ ${esc(d.note)}</div>`:''}
+      ${d.note?`<div class="s-note" style="background:${t.accent2}14;border:1px solid ${t.accent2}38;color:${t.sub}">⚠ ${isAr ? wrapTerms(d.note) : esc(d.note)}</div>`:''}
     `,4);
   }
 
@@ -1031,10 +1322,10 @@ function buildSlideHTML(sid, s, t) {
     const sc=[t.accent,t.accent2,'#ff7070'];
     return wrap(`
       ${tag('🩺',d.headline||'Symptoms')}
-      <div style="margin-bottom:13px"><div style="display:inline-block;padding:5px 14px;font-size:12px;background:${t.accent2}18;color:${t.accent2};border:1px solid ${t.accent2}40;font-family:var(--fm)">⏱ ${esc(d.onset)}</div></div>
+      <div style="margin-bottom:13px"><div style="display:inline-block;padding:5px 14px;font-size:12px;background:${t.accent2}18;color:${t.accent2};border:1px solid ${t.accent2}40;font-family:var(--fm)">⏱ ${isAr ? wrapTerms(d.onset) : esc(d.onset)}</div></div>
       <div style="flex:1;display:flex;flex-direction:column;gap:8px">${(d.stages||[]).map((st,i)=>`
         <div class="s-stage" style="background:${sc[i]||t.accent}0f;border:1px solid ${sc[i]||t.accent}2a">
-          <div class="s-stage-t" style="color:${sc[i]||t.accent}">${esc((st.stage||'').toUpperCase())}</div>
+          <div class="s-stage-t" style="color:${sc[i]||t.accent}">${isAr ? wrapTerms((st.stage||'').toUpperCase()) : esc((st.stage||'').toUpperCase())}</div>
           ${(st.signs||[]).map(sg=>bul('·',sg,sc[i]||t.accent)).join('')}
         </div>`).join('')}</div>
     `,5);
@@ -1044,12 +1335,12 @@ function buildSlideHTML(sid, s, t) {
     const d=s.pathogenesis||{};
     return wrap(`
       ${tag('⚡',d.headline||'Pathogenesis')}
-      <p class="s-body" style="color:${t.sub}">${esc(d.summary)}</p>
-      <div style="padding:7px 12px;background:${t.accent}10;border:1px solid ${t.accent}2a;font-size:11px;color:${t.accent};font-family:var(--fm);margin-bottom:12px;flex-shrink:0;display:flex;align-items:center;gap:8px"><span>🎯</span><span>Target: ${esc(d.targetOrgan)}</span></div>
+      <p class="s-body" style="color:${t.sub}">${isAr ? wrapTerms(d.summary) : esc(d.summary)}</p>
+      <div style="padding:7px 12px;background:${t.accent}10;border:1px solid ${t.accent}2a;font-size:11px;color:${t.accent};font-family:var(--fm);margin-bottom:12px;flex-shrink:0;display:flex;align-items:center;gap:8px"><span>🎯</span><span>Target: ${isAr ? wrapTerms(d.targetOrgan) : esc(d.targetOrgan)}</span></div>
       <div style="flex:1">${(d.steps||[]).map((st,i)=>`
         <div class="s-step">
           <div class="s-step-n" style="background:${t.accent}28;border:1px solid ${t.accent}58;color:${t.accent};flex-shrink:0">${i+1}</div>
-          <span class="s-step-t" style="color:${t.sub};flex:1">${esc(st)}</span>
+          <span class="s-step-t" style="color:${t.sub};flex:1">${isAr ? wrapTerms(st) : esc(st)}</span>
         </div>`).join('')}</div>
     `,6);
   }
@@ -1063,7 +1354,7 @@ function buildSlideHTML(sid, s, t) {
       <div style="flex:1">${(d.methods||[]).map((m,i)=>`
         <div class="s-meth" style="background:${i===0?t.accent+'12':'rgba(255,255,255,.03)'};border:1px solid ${i===0?t.accent+'42':'rgba(255,255,255,.08)'}">
           <div class="s-meth-ico" style="background:${t.accent}20;flex-shrink:0">${mi[i]||'•'}</div>
-          <div style="flex:1"><div class="s-meth-n">${esc(m.name)}</div><div class="s-meth-t" style="color:${t.accent}">${esc(m.type)}</div><div class="s-meth-d">${esc(m.detail)}</div></div>
+          <div style="flex:1;min-width:0"><div class="s-meth-n">${isAr ? wrapTerms(m.name) : esc(m.name)}</div><div class="s-meth-t" style="color:${t.accent}">${isAr ? wrapTerms(m.type) : esc(m.type)}</div><div class="s-meth-d">${isAr ? wrapTerms(m.detail) : esc(m.detail)}</div></div>
         </div>`).join('')}</div>
     `,7);
   }
@@ -1072,10 +1363,10 @@ function buildSlideHTML(sid, s, t) {
     const d=s.treatment||{};
     return wrap(`
       ${tag('💊',d.headline||'Treatment')}
-      <p class="s-body" style="color:${t.sub}">${esc(d.approach)}</p>
+      <p class="s-body" style="color:${t.sub}">${isAr ? wrapTerms(d.approach) : esc(d.approach)}</p>
       <div style="flex:1">${(d.options||[]).map(o=>`
         <div class="s-tx">
-          <div class="s-tx-cat" style="color:${t.accent}">${isAr ? `<span class="s-term">${esc((o.category||'').toUpperCase())}</span>` : esc((o.category||'').toUpperCase())}</div>
+          <div class="s-tx-cat" style="color:${t.accent}">${isAr ? wrapTerms((o.category||'').toUpperCase()) : esc((o.category||'').toUpperCase())}</div>
           ${(o.items||[]).map(it=>bul('+',it,t.accent)).join('')}
         </div>`).join('')}</div>
     `,8);
@@ -1088,8 +1379,8 @@ function buildSlideHTML(sid, s, t) {
       <div class="s-prev-grid">${(d.measures||[]).map(m=>`
         <div class="s-prev-c">
           <span class="s-prev-ico">${m.icon||'•'}</span>
-          <div class="s-prev-n">${esc(m.title)}</div>
-          <div class="s-prev-d" style="color:${t.sub}">${esc(m.detail)}</div>
+          <div class="s-prev-n">${isAr ? wrapTerms(m.title) : esc(m.title)}</div>
+          <div class="s-prev-d" style="color:${t.sub}">${isAr ? wrapTerms(m.detail) : esc(m.detail)}</div>
         </div>`).join('')}</div>
     `,9);
   }
@@ -1101,9 +1392,9 @@ function buildSlideHTML(sid, s, t) {
       <div style="flex:1;overflow:hidden">${(d.facts||[]).map((f,i)=>`
         <div class="s-fact">
           <div class="s-fact-n" style="background:${t.accent}20;color:${t.accent};flex-shrink:0">${String(i+1).padStart(2,'0')}</div>
-          <span class="s-fact-t" style="flex:1">${esc(f)}</span>
+          <span class="s-fact-t" style="flex:1">${isAr ? wrapTerms(f) : esc(f)}</span>
         </div>`).join('')}</div>
-      ${d.mortality?`<div class="s-mort">📊 ${esc(d.mortality)}</div>`:''}
+      ${d.mortality?`<div class="s-mort">📊 ${isAr ? wrapTerms(d.mortality) : esc(d.mortality)}</div>`:''}
       ${d.citation?`<div class="s-cit" style="color:${t.accent}60">— ${esc(d.citation)}</div>`:''}
     `,10);
   }
@@ -1228,7 +1519,7 @@ async function openAITool(tool) {
   title.textContent = titleText;
 
   try {
-    const result = await nvFetch([{ role:'user', content:prompt }], 600);
+    const result = await apiFetch([{ role:'user', content:prompt }], 600);
     State.lastModalResult = result.trim();
 
     if(tool==='hashtags'){
@@ -1334,7 +1625,8 @@ function deleteHistoryItem(id) {
 ══════════════════════════════════════════════════════════════════════════ */
 function updateLangUI() {
   const ar = State.lang==='ar';
-  document.body.setAttribute('dir', ar?'rtl':'ltr');
+  document.documentElement.setAttribute('lang', ar ? 'ar' : 'en');
+  document.body.setAttribute('dir', ar ? 'rtl' : 'ltr');
   document.getElementById('lang-toggle-landing').textContent = ar ? 'English' : 'العربية';
   document.getElementById('lang-toggle-editor').textContent  = ar ? 'EN' : 'AR';
   document.getElementById('hero-badge-text').textContent = ar
