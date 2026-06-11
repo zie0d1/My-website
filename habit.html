@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>عادتي – تتبع عاداتك اليومية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+<style>
+/* ──────────────────────────────────────────────
+   TOKENS & RESET
+────────────────────────────────────────────── */
+:root {
+  --bg:          #FFFFFF;
+  --sf:          #F7F7FC;
+  --sf2:         #EFEFF7;
+  --sf3:         #E2E2EF;
+  --border:      rgba(0,0,0,.08);
+  --border-hi:   rgba(139,120,242,.3);
+  --primary:     #8B78F2;
+  --pri-dim:     rgba(139,120,242,.10);
+  --pri-glow:    rgba(139,120,242,.28);
+  --teal:        #5ECBC9;
+  --success:     #4FCC86;
+  --warn:        #FFC060;
+  --danger:      #FF6E6E;
+  --txt:         #1A1A2E;
+  --txt2:        #5C5C7A;
+  --txt3:        #9898B8;
+  --font:        'IBM Plex Sans Arabic', sans-serif;
+  --r-sm:        10px;
+  --r:           14px;
+  --r-lg:        18px;
+  --r-xl:        24px;
+  --nav-h:       76px;
+  --ease:        cubic-bezier(.4,0,.2,1);
+  --spring:      cubic-bezier(.34,1.56,.64,1);
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { font-size:16px; scroll-behavior:smooth; }
+body {
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--txt);
+  min-height:100vh;
+  direction:rtl;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-thumb { background:var(--sf3); border-radius:4px; }
+
+/* ──────────────────────────────────────────────
+   MATERIAL ICONS
+────────────────────────────────────────────── */
+.ic {
+  font-family:'Material Symbols Rounded';
+  font-weight:normal; font-style:normal; line-height:1;
+  letter-spacing:normal; text-transform:none;
+  display:inline-block; white-space:nowrap;
+  direction:ltr; font-size:24px;
+  font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;
+}
+.ic-out { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; }
+
+/* ──────────────────────────────────────────────
+   LAYOUT SHELL
+────────────────────────────────────────────── */
+#shell {
+  max-width:640px; margin:0 auto;
+  min-height:100vh; position:relative;
+}
+@media(min-width:641px) {
+  #shell { border-left:1px solid var(--border); border-right:1px solid var(--border); }
+}
+
+/* ──────────────────────────────────────────────
+   PAGES
+────────────────────────────────────────────── */
+.page {
+  display:none;
+  padding-bottom:calc(var(--nav-h) + 20px);
+  animation:pgIn .32s var(--ease) both;
+}
+.page.active { display:block; }
+@keyframes pgIn {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ──────────────────────────────────────────────
+   BOTTOM NAVIGATION
+────────────────────────────────────────────── */
+#bnav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:640px; height:var(--nav-h);
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-around;
+  z-index:200;
+}
+.nitem {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:6px 28px 10px; border-radius:var(--r); cursor:pointer;
+  transition:all .25s var(--ease); position:relative; user-select:none;
+  min-width:80px;
+}
+.nitem .ic { font-size:26px; color:var(--txt3); transition:all .25s var(--ease); }
+.nitem .nlabel { font-size:11px; font-weight:700; color:var(--txt3); transition:all .25s var(--ease); }
+.nitem.on .ic { color:var(--primary); }
+.nitem.on .nlabel { color:var(--primary); }
+.nitem.on::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:28px; height:3px; background:var(--primary);
+  border-radius:0 0 4px 4px; transition:width .25s var(--ease);
+}
+
+/* ──────────────────────────────────────────────
+   FAB
+────────────────────────────────────────────── */
+#fab {
+  position:fixed;
+  bottom:calc(var(--nav-h) + 18px);
+  right:max(16px, calc((100vw - 640px)/2 + 16px));
+  width:58px; height:58px; border-radius:17px;
+  background:linear-gradient(135deg, var(--primary) 0%, #6B5BD0 100%);
+  color:#fff; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 28px var(--pri-glow), 0 2px 8px rgba(139,120,242,.2);
+  transition:all .3s var(--spring); z-index:199;
+}
+#fab:hover  { transform:scale(1.1) rotate(8deg); box-shadow:0 10px 36px var(--pri-glow); }
+#fab:active { transform:scale(.93); }
+#fab .ic    { font-size:28px; }
+
+/* ──────────────────────────────────────────────
+   HOME PAGE — HEADER
+────────────────────────────────────────────── */
+.home-head {
+  padding:18px 20px 16px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+}
+.greet-sub { font-size:13px; color:var(--txt2); font-weight:600; margin-bottom:3px; }
+.greet-main {
+  font-size:24px; font-weight:900; line-height:1.2;
+  background:linear-gradient(125deg,var(--txt) 20%, var(--primary) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.date-chip {
+  background:var(--sf2); border-radius:12px; padding:8px 14px;
+  font-size:12px; font-weight:700; color:var(--txt2);
+  border:1px solid var(--border); white-space:nowrap; margin-top:4px;
+}
+
+/* ──────────────────────────────────────────────
+   PROGRESS CARD
+────────────────────────────────────────────── */
+.prog-card {
+  margin:4px 16px 18px;
+  background:linear-gradient(145deg, #F0EEFF 0%, #EAE8FF 100%);
+  border:1px solid var(--border-hi); border-radius:var(--r-xl);
+  padding:22px; position:relative; overflow:hidden;
+  box-shadow:0 4px 24px rgba(139,120,242,.12), inset 0 1px 0 rgba(255,255,255,.8);
+}
+.prog-card::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:220px; height:220px;
+  background:radial-gradient(circle, rgba(139,120,242,.16) 0%, transparent 70%);
+  pointer-events:none;
+}
+.prog-card::after {
+  content:''; position:absolute; bottom:-60px; left:-60px;
+  width:180px; height:180px;
+  background:radial-gradient(circle, rgba(94,203,201,.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+.prog-inner { display:flex; align-items:center; gap:22px; position:relative; z-index:1; }
+.ring-wrap  { position:relative; flex-shrink:0; }
+.prog-ring  { transform:rotate(-90deg); display:block; }
+.ring-bg    { fill:none; stroke:rgba(0,0,0,.07); }
+.ring-fg    { fill:none; stroke:url(#rg); stroke-linecap:round;
+              transition:stroke-dashoffset 1.4s cubic-bezier(.25,.8,.25,1); }
+.ring-center {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-pct  { font-size:20px; font-weight:900; color:var(--txt); line-height:1; }
+.ring-lbl  { font-size:9px; color:var(--txt2); font-weight:700; letter-spacing:.5px; margin-top:1px; }
+
+.prog-info { flex:1; min-width:0; }
+.prog-title { font-size:17px; font-weight:800; color:var(--txt); margin-bottom:3px; }
+.prog-desc  { font-size:13px; color:var(--txt2); margin-bottom:14px; line-height:1.5; }
+.prog-chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:5px 10px; border-radius:20px; font-size:12px; font-weight:700;
+}
+.chip-done { background:rgba(79,204,134,.13); color:var(--success); }
+.chip-left { background:rgba(255,192,96,.13); color:var(--warn); }
+.chip .ic  { font-size:14px; }
+
+/* ──────────────────────────────────────────────
+   SECTION HEADER
+────────────────────────────────────────────── */
+.sec-head {
+  padding:4px 20px 12px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.sec-title { font-size:16px; font-weight:800; color:var(--txt); }
+.sec-badge {
+  font-size:12px; font-weight:700; color:var(--txt3);
+  background:var(--sf2); padding:3px 10px; border-radius:20px;
+}
+
+/* ──────────────────────────────────────────────
+   HABIT CARDS
+────────────────────────────────────────────── */
+.hlist { padding:0 16px; display:flex; flex-direction:column; gap:10px; }
+
+.hcard {
+  background:var(--sf);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:14px 14px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer; user-select:none;
+  transition:all .28s var(--ease);
+  position:relative; overflow:hidden;
+  animation:cardUp .4s var(--ease) both;
+}
+.hcard:hover  { border-color:var(--border-hi); transform:translateY(-2px); box-shadow:0 6px 24px rgba(139,120,242,.12); }
+.hcard:active { transform:scale(.98); }
+.hcard.done   { opacity:.6; }
+.hcard.done .hname { text-decoration:line-through; }
+
+@keyframes cardUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ACCENT BAR */
+.hcard::before {
+  content:''; position:absolute; top:0; right:0; bottom:0; width:3px;
+  border-radius:0 var(--r-lg) var(--r-lg) 0;
+  background:var(--accent-color, var(--primary));
+}
+
+/* CHECKBOX */
+.hchk {
+  width:30px; height:30px; border-radius:9px;
+  border:2.5px solid var(--txt3); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .25s var(--spring); position:relative;
+}
+.hchk.on { border-color:transparent; transform:scale(1.08); }
+.hchk .ic { font-size:18px; color:#fff; opacity:0; transform:scale(.4) rotate(-20deg); transition:all .2s var(--spring); }
+.hchk.on .ic { opacity:1; transform:scale(1) rotate(0deg); }
+
+/* CATEGORY ICON */
+.hico {
+  width:44px; height:44px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.hico .ic { font-size:22px; }
+
+/* HABIT INFO */
+.hinfo { flex:1; min-width:0; }
+.hname { font-size:15px; font-weight:700; color:var(--txt); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hmeta { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--txt3); font-weight:600; }
+.streak-info { display:flex; align-items:center; gap:3px; color:var(--warn); }
+.streak-info .ic { font-size:14px; }
+
+/* MORE BTN */
+.hmore { padding:6px; color:var(--txt3); border-radius:8px; transition:all .2s; display:flex; align-items:center; }
+.hmore:hover { background:var(--sf2); color:var(--txt2); }
+.hmore .ic { font-size:20px; }
+
+/* ──────────────────────────────────────────────
+   CATEGORY COLORS
+────────────────────────────────────────────── */
+[data-cat="health"]       { --c: #4FCC86; }
+[data-cat="learn"]        { --c: #5ECBC9; }
+[data-cat="spiritual"]    { --c: #8B78F2; }
+[data-cat="productivity"] { --c: #FFC060; }
+[data-cat="fitness"]      { --c: #FF6E6E; }
+[data-cat="other"]        { --c: #8888AA; }
+
+.hico[data-cat]  { background:rgba(var(--cr,100,100,200),.12); }
+.hico[data-cat] .ic { color:var(--c,var(--primary)); }
+[data-cat="health"]       .hico, .hico[data-cat="health"]       { background:rgba(79,204,134,.12); }
+[data-cat="learn"]        .hico, .hico[data-cat="learn"]        { background:rgba(94,203,201,.12); }
+[data-cat="spiritual"]    .hico, .hico[data-cat="spiritual"]    { background:rgba(139,120,242,.12); }
+[data-cat="productivity"] .hico, .hico[data-cat="productivity"] { background:rgba(255,192,96,.12); }
+[data-cat="fitness"]      .hico, .hico[data-cat="fitness"]      { background:rgba(255,110,110,.12); }
+[data-cat="other"]        .hico, .hico[data-cat="other"]        { background:rgba(136,136,170,.12); }
+
+/* ──────────────────────────────────────────────
+   EMPTY STATE
+────────────────────────────────────────────── */
+.empty {
+  display:none; text-align:center; padding:52px 32px;
+}
+.empty.on { display:block; }
+.empty-icon {
+  width:88px; height:88px; border-radius:26px; background:var(--sf2);
+  display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
+  border:1px solid var(--border);
+}
+.empty-icon .ic { font-size:42px; color:var(--txt3); }
+.empty-ttl  { font-size:20px; font-weight:800; color:var(--txt); margin-bottom:8px; }
+.empty-desc { font-size:14px; color:var(--txt2); line-height:1.65; max-width:280px; margin:0 auto; }
+
+/* ──────────────────────────────────────────────
+   ADD HABIT PAGE
+────────────────────────────────────────────── */
+.page-head {
+  padding:52px 20px 20px;
+  display:flex; align-items:center; gap:12px;
+}
+.back-btn {
+  width:40px; height:40px; border-radius:12px; background:var(--sf2);
+  border:1px solid var(--border); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s var(--ease); color:var(--txt); flex-shrink:0;
+}
+.back-btn:hover { background:var(--sf3); border-color:var(--border-hi); }
+.back-btn .ic { font-size:22px; }
+.page-ttl { font-size:22px; font-weight:900; color:var(--txt); }
+
+.form-wrap { padding:0 16px 8px; }
+.form-lbl  { font-size:13px; font-weight:700; color:var(--txt2); margin-bottom:10px; }
+.form-row  { margin-bottom:22px; }
+
+/* FLOATING LABEL INPUT */
+.fl-wrap { position:relative; }
+.fl-input {
+  width:100%; background:var(--sf); border:2px solid var(--border);
+  border-radius:var(--r); padding:22px 16px 8px;
+  font-family:var(--font); font-size:16px; font-weight:600; color:var(--txt);
+  outline:none; transition:border-color .25s var(--ease);
+  direction:rtl; -webkit-appearance:none;
+}
+.fl-input:focus { border-color:var(--primary); }
+.fl-input:focus + .fl-lbl,
+.fl-input:not(:placeholder-shown) + .fl-lbl {
+  top:8px; font-size:11px; color:var(--primary); transform:none;
+}
+.fl-lbl {
+  position:absolute; top:50%; right:16px; transform:translateY(-50%);
+  font-size:15px; color:var(--txt3); font-weight:600;
+  pointer-events:none; transition:all .22s var(--ease);
+  font-family:var(--font);
+}
+input[type="time"].fl-input { padding:14px 16px; color:var(--txt2); }
+
+/* CATEGORY GRID */
+.cat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px; }
+.cat-opt {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:14px 8px; border-radius:var(--r); background:var(--sf);
+  border:2px solid transparent; cursor:pointer; transition:all .22s var(--ease);
+  font-size:13px; font-weight:700; color:var(--txt3);
+}
+.cat-opt:hover { background:var(--sf2); }
+.cat-opt.on { border-color:var(--primary); background:var(--pri-dim); color:var(--txt); }
+.cat-opt .ic { font-size:26px; }
+
+/* COLOR PICKER */
+.color-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
+.cdot {
+  width:36px; height:36px; border-radius:50%; cursor:pointer;
+  border:3px solid transparent; transition:all .22s var(--spring);
+  position:relative;
+}
+.cdot.on { border-color:#fff; transform:scale(1.2); }
+.cdot.on::after {
+  content:''; position:absolute; inset:3px;
+  border-radius:50%; border:2px solid rgba(255,255,255,.8);
+}
+
+/* SUBMIT */
+.sub-btn {
+  width:100%; padding:17px; border-radius:var(--r-lg);
+  background:linear-gradient(135deg, var(--primary) 0%, #6B5BD0 100%);
+  color:#fff; border:none; font-family:var(--font);
+  font-size:16px; font-weight:800; cursor:pointer;
+  transition:all .28s var(--spring);
+  box-shadow:0 6px 24px var(--pri-glow); margin-top:4px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.sub-btn:hover  { transform:translateY(-2px); box-shadow:0 10px 32px var(--pri-glow); }
+.sub-btn:active { transform:scale(.97); }
+.sub-btn .ic { font-size:20px; }
+
+/* ──────────────────────────────────────────────
+   CONTEXT MENU (delete habit)
+────────────────────────────────────────────── */
+.ctx-overlay {
+  position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,.5);
+  display:none; align-items:flex-end; justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.ctx-overlay.on { display:flex; }
+.ctx-sheet {
+  width:100%; max-width:640px; background:var(--sf2);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:12px 16px 32px; border-top:1px solid var(--border);
+  animation:sheetUp .28s var(--ease) both;
+}
+@keyframes sheetUp {
+  from { transform:translateY(100%); }
+  to   { transform:translateY(0); }
+}
+.ctx-handle {
+  width:40px; height:4px; background:var(--sf3); border-radius:4px;
+  margin:4px auto 16px;
+}
+.ctx-name { font-size:16px; font-weight:800; color:var(--txt); padding:0 4px 12px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+.ctx-item {
+  display:flex; align-items:center; gap:12px; padding:14px;
+  border-radius:var(--r); cursor:pointer; transition:all .2s var(--ease);
+  font-size:15px; font-weight:700;
+}
+.ctx-item:hover { background:var(--sf3); }
+.ctx-item.del   { color:var(--danger); }
+.ctx-item .ic   { font-size:22px; }
+
+/* ──────────────────────────────────────────────
+   STATS PAGE
+────────────────────────────────────────────── */
+.stats-head { padding:52px 20px 20px; }
+.stats-ttl  { font-size:26px; font-weight:900; color:var(--txt); margin-bottom:3px; }
+.stats-sub  { font-size:14px; color:var(--txt2); }
+
+/* SUMMARY CARDS */
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 16px 16px; }
+.stat-card {
+  background:var(--sf); border-radius:var(--r-lg);
+  padding:18px; border:1px solid var(--border);
+  transition:all .25s var(--ease);
+}
+.stat-card:hover { border-color:var(--border-hi); }
+.stat-ico  {
+  width:38px; height:38px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center; margin-bottom:10px;
+}
+.stat-ico .ic { font-size:20px; }
+.stat-val  { font-size:28px; font-weight:900; color:var(--txt); line-height:1; margin-bottom:4px; }
+.stat-lbl  { font-size:12px; font-weight:600; color:var(--txt2); }
+
+/* CHART CARD */
+.chart-card {
+  margin:0 16px 16px; background:var(--sf);
+  border-radius:var(--r-xl); padding:20px;
+  border:1px solid var(--border);
+}
+.chart-ttl { font-size:16px; font-weight:800; color:var(--txt); margin-bottom:4px; }
+.chart-sub { font-size:12px; color:var(--txt3); margin-bottom:16px; }
+#wChart { display:block; width:100%; }
+
+/* STREAK BARS */
+.slist { padding:0 16px; display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.scard {
+  background:var(--sf); border-radius:var(--r-lg);
+  padding:14px 16px; display:flex; align-items:center;
+  gap:12px; border:1px solid var(--border);
+}
+.sbar-wrap { flex:1; min-width:0; }
+.sbar-top  { display:flex; justify-content:space-between; align-items:center;
+             font-size:13px; font-weight:700; color:var(--txt); margin-bottom:7px; }
+.sbar-streak { display:flex; align-items:center; gap:3px; color:var(--warn); font-size:13px; }
+.sbar-streak .ic { font-size:14px; }
+.sbar-track { height:6px; background:var(--sf3); border-radius:4px; overflow:hidden; }
+.sbar-fill  { height:100%; border-radius:4px; transition:width 1.2s cubic-bezier(.25,.8,.25,1); }
+
+/* MILESTONES */
+.milestones { padding:0 16px 20px; }
+.mil-ttl    { font-size:16px; font-weight:800; color:var(--txt); margin-bottom:12px; }
+.mil-grid   { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.mbadge {
+  background:var(--sf); border-radius:var(--r);
+  padding:18px 10px; text-align:center;
+  border:1px solid var(--border); transition:all .25s var(--ease);
+}
+.mbadge.earned { border-color:rgba(255,192,96,.3); background:rgba(255,192,96,.05); }
+.mbadge .ic    { font-size:32px; color:var(--txt3); display:block; margin-bottom:6px; }
+.mbadge.earned .ic    { color:var(--warn); }
+.mbadge-lbl { font-size:11px; font-weight:700; color:var(--txt3); }
+.mbadge.earned .mbadge-lbl { color:var(--txt2); }
+
+/* ──────────────────────────────────────────────
+   TOAST
+────────────────────────────────────────────── */
+#toast {
+  position:fixed; bottom:calc(var(--nav-h) + 14px); left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:#FFFFFF; color:var(--txt);
+  padding:12px 20px; border-radius:14px;
+  font-size:14px; font-weight:700; opacity:0;
+  transition:all .3s var(--ease); z-index:600;
+  display:flex; align-items:center; gap:8px;
+  box-shadow:0 8px 32px rgba(0,0,0,.15);
+  white-space:nowrap; border:1px solid var(--border);
+  pointer-events:none;
+}
+#toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+#toast .ic { font-size:18px; }
+
+/* ──────────────────────────────────────────────
+   PARTICLES
+────────────────────────────────────────────── */
+.ptcl {
+  position:fixed; pointer-events:none; z-index:700;
+  width:8px; height:8px; border-radius:3px;
+  animation:ptclFly var(--dur,.9s) var(--ease) var(--delay,0s) forwards;
+}
+@keyframes ptclFly {
+  0%  { transform:translate(0,0) rotate(0deg) scale(1); opacity:1; }
+  100%{ transform:translate(var(--dx,0px),var(--dy,-120px)) rotate(var(--rot,360deg)) scale(0); opacity:0; }
+}
+
+/* ──────────────────────────────────────────────
+   SKELETON
+────────────────────────────────────────────── */
+.ske {
+  background:linear-gradient(90deg,var(--sf2) 25%,var(--sf3) 50%,var(--sf2) 75%);
+  background-size:200% 100%; animation:shim 1.6s infinite; border-radius:8px;
+}
+@keyframes shim { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ──────────────────────────────────────────────
+   DIVIDER
+────────────────────────────────────────────── */
+.divider { height:1px; background:var(--border); margin:0 16px 16px; }
+</style>
+</head>
+<body>
+<div id="shell">
+
+<!-- ════════════ HOME PAGE ════════════ -->
+<div class="page active" id="pg-home">
+  <div class="home-head">
+    <div>
+      <div class="greet-sub" id="greetSub">صباح الخير 👋</div>
+      <div class="greet-main">يوم جديد ومنتج!</div>
+    </div>
+    <div class="date-chip" id="dateBadge">الثلاثاء</div>
+  </div>
+
+  <!-- SVG gradient defs shared -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#8B78F2"/>
+        <stop offset="100%" stop-color="#5ECBC9"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Progress Card -->
+  <div class="prog-card">
+    <div class="prog-inner">
+      <div class="ring-wrap">
+        <svg class="prog-ring" width="100" height="100" viewBox="0 0 100 100">
+          <circle class="ring-bg" cx="50" cy="50" r="42" stroke-width="8"/>
+          <circle class="ring-fg" id="ringFg" cx="50" cy="50" r="42" stroke-width="8"
+                  stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-pct" id="ringPct">0%</div>
+          <div class="ring-lbl">مكتمل</div>
+        </div>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title">تقدم اليوم</div>
+        <div class="prog-desc" id="progDesc">أكمل عاداتك اليومية 💪</div>
+        <div class="prog-chips">
+          <div class="chip chip-done"><span class="ic">check_circle</span><span id="cntDone">0</span> مكتملة</div>
+          <div class="chip chip-left"><span class="ic">schedule</span><span id="cntLeft">0</span> متبقية</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Habits Section -->
+  <div class="sec-head">
+    <div class="sec-title">عاداتك اليوم</div>
+    <div class="sec-badge" id="habBadge">٠ عادات</div>
+  </div>
+  <div class="hlist" id="hList"></div>
+  <div class="empty" id="emptyHome">
+    <div class="empty-icon"><span class="ic">add_task</span></div>
+    <div class="empty-ttl">ابدأ رحلتك اليوم! 🚀</div>
+    <div class="empty-desc">أضف أولى عاداتك الإيجابية واجعل كل يوم أفضل من سابقه.</div>
+  </div>
+</div>
+
+<!-- ════════════ ADD PAGE ════════════ -->
+<div class="page" id="pg-add">
+  <div class="page-head">
+    <button class="back-btn" onclick="nav('home')">
+      <span class="ic">arrow_forward</span>
+    </button>
+    <div class="page-ttl">عادة جديدة ✨</div>
+  </div>
+  <div class="form-wrap">
+
+    <!-- Name -->
+    <div class="form-row">
+      <div class="form-lbl">اسم العادة</div>
+      <div class="fl-wrap">
+        <input type="text" class="fl-input" id="hName" placeholder=" " maxlength="50" autocomplete="off">
+        <label class="fl-lbl" for="hName">مثال: قراءة ٣٠ دقيقة</label>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="form-row">
+      <div class="form-lbl">الفئة</div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <!-- Color -->
+    <div class="form-row">
+      <div class="form-lbl">اللون</div>
+      <div class="color-row" id="colorRow"></div>
+    </div>
+
+    <!-- Reminder -->
+    <div class="form-row">
+      <div class="form-lbl">وقت التذكير (اختياري)</div>
+      <div class="fl-wrap">
+        <input type="time" class="fl-input" id="hTime" style="color:var(--txt2);padding:14px 16px;">
+      </div>
+    </div>
+
+    <button class="sub-btn" onclick="addHabit()">
+      <span class="ic">add_circle</span>
+      إضافة العادة
+    </button>
+  </div>
+</div>
+
+<!-- ════════════ STATS PAGE ════════════ -->
+<div class="page" id="pg-stats">
+  <div class="stats-head">
+    <div class="stats-ttl">الإحصائيات 📊</div>
+    <div class="stats-sub">تتبع تقدمك ومسيرتك</div>
+  </div>
+  <div class="stat-grid" id="statGrid"></div>
+  <div class="chart-card">
+    <div class="chart-ttl">أداء آخر ٧ أيام</div>
+    <div class="chart-sub">نسبة إكمال العادات يومياً</div>
+    <canvas id="wChart" height="160"></canvas>
+  </div>
+  <div class="sec-head" style="padding-top:0">
+    <div class="sec-title">سلاسل العادات 🔥</div>
+  </div>
+  <div class="slist" id="sList"></div>
+  <div class="divider"></div>
+  <div class="milestones">
+    <div class="mil-ttl">الإنجازات 🏆</div>
+    <div class="mil-grid" id="milGrid"></div>
+  </div>
+</div>
+
+<!-- ════════════ BOTTOM NAV ════════════ -->
+<nav id="bnav">
+  <div class="nitem on" onclick="nav('home')">
+    <span class="ic">home</span><span class="nlabel">الرئيسية</span>
+  </div>
+  <div class="nitem" onclick="nav('stats')">
+    <span class="ic">bar_chart</span><span class="nlabel">إحصائيات</span>
+  </div>
+</nav>
+
+<!-- FAB -->
+<button id="fab" onclick="nav('add')" title="إضافة عادة">
+  <span class="ic">add</span>
+</button>
+
+<!-- CONTEXT MENU (delete) -->
+<div class="ctx-overlay" id="ctxOverlay" onclick="closeCtx()">
+  <div class="ctx-sheet" onclick="event.stopPropagation()">
+    <div class="ctx-handle"></div>
+    <div class="ctx-name" id="ctxName">اسم العادة</div>
+    <div class="ctx-item del" onclick="deleteHabit()">
+      <span class="ic">delete</span> حذف هذه العادة
+    </div>
+    <div class="ctx-item" onclick="closeCtx()" style="color:var(--txt2)">
+      <span class="ic">close</span> إلغاء
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">
+  <span class="ic" id="toastIc">check_circle</span>
+  <span id="toastTxt">تم!</span>
+</div>
+
+</div><!-- /shell -->
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const CATS = [
+  { id:'health',       name:'صحة',      icon:'favorite',         clr:'#4FCC86' },
+  { id:'learn',        name:'تعلم',     icon:'school',           clr:'#5ECBC9' },
+  { id:'spiritual',    name:'روحانية',  icon:'self_improvement', clr:'#8B78F2' },
+  { id:'productivity', name:'إنتاجية',  icon:'rocket_launch',    clr:'#FFC060' },
+  { id:'fitness',      name:'رياضة',    icon:'fitness_center',   clr:'#FF6E6E' },
+  { id:'other',        name:'أخرى',     icon:'star',             clr:'#8888AA' },
+];
+const COLORS = ['#8B78F2','#4FCC86','#5ECBC9','#FFC060','#FF6E6E','#FF8FCF','#5BA4FF','#FF9A5C'];
+const MILESTONES = [
+  { icon:'local_fire_department', lbl:'٣ أيام',  req:3   },
+  { icon:'bolt',                  lbl:'أسبوع',   req:7   },
+  { icon:'whatshot',              lbl:'أسبوعان', req:14  },
+  { icon:'military_tech',         lbl:'٢١ يوم',  req:21  },
+  { icon:'workspace_premium',     lbl:'شهر',     req:30  },
+  { icon:'emoji_events',          lbl:'١٠٠ يوم', req:100 },
+];
+
+let habits   = JSON.parse(localStorage.getItem('3abdat_v3') || '[]');
+let selCat   = 'health';
+let selClr   = '#8B78F2';
+let ctxHabit = null;
+let curPg    = 'home';
+
+function save() { localStorage.setItem('3abdat_v3', JSON.stringify(habits)); }
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+
+function getStreak(h) {
+  let s = 0, d = new Date();
+  while (true) {
+    const ds = d.toISOString().split('T')[0];
+    if (h.completedDates.includes(ds)) { s++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return s;
+}
+
+function getBestStreak(h) {
+  if (!h.completedDates.length) return 0;
+  const sorted = [...h.completedDates].sort();
+  let best = 1, cur = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const diff = (new Date(sorted[i]) - new Date(sorted[i-1])) / 86400000;
+    cur = diff === 1 ? cur+1 : 1;
+    best = Math.max(best, cur);
+  }
+  return best;
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nitem').forEach(n => n.classList.remove('on'));
+  document.getElementById('pg-' + page).classList.add('active');
+
+  const fab = document.getElementById('fab');
+  if (page === 'home') {
+    document.querySelector('#bnav .nitem:nth-child(1)').classList.add('on');
+    fab.style.display = 'flex'; renderHome();
+  } else if (page === 'stats') {
+    document.querySelector('#bnav .nitem:nth-child(2)').classList.add('on');
+    fab.style.display = 'none'; renderStats();
+  } else if (page === 'add') {
+    fab.style.display = 'none'; renderAdd();
+  }
+  curPg = page;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════
+   HOME
+═══════════════════════════════════════════ */
+function renderHome() {
+  const t     = todayStr();
+  const total = habits.length;
+  const done  = habits.filter(h => h.completedDates.includes(t)).length;
+  const pct   = total ? Math.round((done/total)*100) : 0;
+  const circ  = 2 * Math.PI * 42;
+
+  // Ring
+  const ring = document.getElementById('ringFg');
+  ring.style.strokeDashoffset = circ - (circ * pct / 100);
+  document.getElementById('ringPct').textContent = pct + '%';
+  document.getElementById('cntDone').textContent = done;
+  document.getElementById('cntLeft').textContent = total - done;
+
+  // Motivational desc
+  const descs = [
+    'أكمل عاداتك اليومية 💪',
+    'استمر، أنت تبلي بلاءً حسناً 🌟',
+    'أنت على الطريق الصحيح 🎯',
+    'يوم رائع جداً، أحسنت! 🚀',
+  ];
+  document.getElementById('progDesc').textContent =
+    pct === 100 ? 'مذهل! أكملت كل عاداتك اليوم 🎉🎊' : descs[Math.floor(pct / 25) % 4];
+
+  // Greeting
+  const hr = new Date().getHours();
+  document.getElementById('greetSub').textContent =
+    hr < 6 ? 'الليل دواء 🌙' :
+    hr < 12 ? 'صباح الخير 👋' :
+    hr < 17 ? 'مساء الخير 👋' :
+    hr < 21 ? 'مساء النور ✨' : 'طاب مساؤك 🌙';
+
+  // Date chip
+  const DAYS   = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const now = new Date();
+  document.getElementById('dateBadge').textContent = `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]}`;
+  document.getElementById('habBadge').textContent  = arNum(total) + ' عادة';
+
+  // Habit list
+  const list  = document.getElementById('hList');
+  const empty = document.getElementById('emptyHome');
+  if (!habits.length) { list.innerHTML = ''; empty.classList.add('on'); return; }
+  empty.classList.remove('on');
+
+  list.innerHTML = habits.map((h, i) => {
+    const isDone  = h.completedDates.includes(t);
+    const streak  = getStreak(h);
+    const cat     = CATS.find(c => c.id === h.category) || CATS[5];
+    return `
+    <div class="hcard ${isDone ? 'done' : ''}" id="hc-${h.id}"
+         style="animation-delay:${i*0.055}s; --accent-color:${h.color}"
+         onclick="toggleHabit('${h.id}', event)">
+      <div class="hchk ${isDone ? 'on' : ''}" style="${isDone ? `background:${h.color}` : `border-color:${h.color}`}">
+        <span class="ic">check</span>
+      </div>
+      <div class="hico" data-cat="${h.category}">
+        <span class="ic" style="color:${cat.clr}">${cat.icon}</span>
+      </div>
+      <div class="hinfo">
+        <div class="hname">${esc(h.name)}</div>
+        <div class="hmeta">
+          <span class="streak-info"><span class="ic">local_fire_department</span>${arNum(streak)}</span>
+          <span>${cat.name}</span>
+          ${h.reminder ? `<span>⏰ ${h.reminder}</span>` : ''}
+        </div>
+      </div>
+      <div class="hmore ic-out" onclick="openCtx('${h.id}', event)">
+        <span class="ic">more_vert</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // All-done glow
+  if (pct === 100 && total > 0) {
+    document.querySelector('.prog-card').style.boxShadow =
+      '0 8px 40px rgba(0,0,0,.5), 0 0 60px rgba(139,120,242,.2), inset 0 1px 0 rgba(255,255,255,.04)';
+  } else {
+    document.querySelector('.prog-card').style.boxShadow = '';
+  }
+}
+
+function toggleHabit(id, e) {
+  if (e.target.closest('.hmore')) return;
+  const t = todayStr();
+  const h = habits.find(x => x.id === id);
+  if (!h) return;
+
+  const wasDone = h.completedDates.includes(t);
+  if (wasDone) {
+    h.completedDates = h.completedDates.filter(d => d !== t);
+  } else {
+    h.completedDates.push(t);
+    burst(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2);
+    toast('check_circle', h.name + ' ✓', '#4FCC86');
+  }
+  save();
+  renderHome();
+}
+
+/* ═══════════════════════════════════════════
+   CONTEXT MENU
+═══════════════════════════════════════════ */
+function openCtx(id, e) {
+  e.stopPropagation();
+  ctxHabit = id;
+  const h = habits.find(x => x.id === id);
+  document.getElementById('ctxName').textContent = h ? h.name : '';
+  document.getElementById('ctxOverlay').classList.add('on');
+}
+function closeCtx() {
+  document.getElementById('ctxOverlay').classList.remove('on');
+  ctxHabit = null;
+}
+function deleteHabit() {
+  if (!ctxHabit) return;
+  const h = habits.find(x => x.id === ctxHabit);
+  habits = habits.filter(x => x.id !== ctxHabit);
+  save(); closeCtx();
+  toast('delete', h ? h.name + ' — تم الحذف' : 'تم الحذف', '#FF6E6E');
+  renderHome();
+}
+
+/* ═══════════════════════════════════════════
+   ADD HABIT
+═══════════════════════════════════════════ */
+function renderAdd() {
+  // Categories
+  document.getElementById('catGrid').innerHTML = CATS.map(c => `
+    <div class="cat-opt ${c.id === selCat ? 'on' : ''}" onclick="pickCat('${c.id}', this)">
+      <span class="ic" style="color:${c.clr}">${c.icon}</span>${c.name}
+    </div>`).join('');
+
+  // Colors
+  document.getElementById('colorRow').innerHTML = COLORS.map(c => `
+    <div class="cdot ${c === selClr ? 'on' : ''}" style="background:${c}"
+         onclick="pickClr('${c}', this)"></div>`).join('');
+
+  document.getElementById('hName').value = '';
+  document.getElementById('hTime').value = '';
+}
+
+function pickCat(id, el) {
+  selCat = id;
+  document.querySelectorAll('.cat-opt').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+}
+function pickClr(c, el) {
+  selClr = c;
+  document.querySelectorAll('.cdot').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function addHabit() {
+  const name = document.getElementById('hName').value.trim();
+  if (!name) {
+    document.getElementById('hName').focus();
+    toast('error', 'أدخل اسم العادة أولاً', '#FF6E6E'); return;
+  }
+  const h = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    name, category: selCat, color: selClr,
+    completedDates: [],
+    createdAt: todayStr(),
+    reminder: document.getElementById('hTime').value || null,
+  };
+  habits.unshift(h); save();
+  toast('add_circle', 'تمت إضافة العادة! 🎉', '#4FCC86');
+  setTimeout(() => nav('home'), 700);
+}
+
+/* ═══════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════ */
+function renderStats() {
+  const t      = todayStr();
+  const total  = habits.length;
+  const done   = habits.filter(h => h.completedDates.includes(t)).length;
+  const streaks = habits.map(h => getStreak(h));
+  const maxStr = streaks.length ? Math.max(...streaks) : 0;
+  const totCmp = habits.reduce((a, h) => a + h.completedDates.length, 0);
+
+  // Summary cards
+  document.getElementById('statGrid').innerHTML = [
+    { icon:'format_list_bulleted', bg:'rgba(139,120,242,.13)', ic:'#8B78F2', val:arNum(total),          lbl:'إجمالي العادات' },
+    { icon:'check_circle',         bg:'rgba(79,204,134,.13)',  ic:'#4FCC86', val:`${arNum(done)}/${arNum(total)}`, lbl:'مكتمل اليوم' },
+    { icon:'local_fire_department',bg:'rgba(255,192,96,.13)',  ic:'#FFC060', val:arNum(maxStr),         lbl:'أفضل سلسلة' },
+    { icon:'workspace_premium',    bg:'rgba(255,192,96,.08)',  ic:'#FFD700', val:arNum(totCmp),         lbl:'إجمالي الإنجازات' },
+  ].map(s => `
+    <div class="stat-card">
+      <div class="stat-ico" style="background:${s.bg}">
+        <span class="ic" style="color:${s.ic}">${s.icon}</span>
+      </div>
+      <div class="stat-val">${s.val}</div>
+      <div class="stat-lbl">${s.lbl}</div>
+    </div>`).join('');
+
+  drawChart();
+
+  // Streak bars
+  const sl = document.getElementById('sList');
+  if (!habits.length) {
+    sl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--txt3);font-size:14px">لا توجد عادات بعد</div>';
+  } else {
+    sl.innerHTML = habits.map(h => {
+      const str  = getStreak(h);
+      const best = Math.max(getBestStreak(h), str);
+      const pct  = best ? Math.min(100, (str / best) * 100) : 0;
+      const cat  = CATS.find(c => c.id === h.category) || CATS[5];
+      return `
+      <div class="scard">
+        <div class="hico" data-cat="${h.category}" style="width:40px;height:40px;border-radius:12px;flex-shrink:0">
+          <span class="ic" style="font-size:20px;color:${cat.clr}">${cat.icon}</span>
+        </div>
+        <div class="sbar-wrap">
+          <div class="sbar-top">
+            <span>${esc(h.name)}</span>
+            <span class="sbar-streak"><span class="ic">local_fire_department</span>${arNum(str)}</span>
+          </div>
+          <div class="sbar-track">
+            <div class="sbar-fill" style="width:${pct}%;background:${h.color}"></div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Milestones
+  const maxAll = habits.length ? Math.max(...habits.map(h => getBestStreak(h)), 0) : 0;
+  document.getElementById('milGrid').innerHTML = MILESTONES.map(m => `
+    <div class="mbadge ${maxAll >= m.req ? 'earned' : ''}">
+      <span class="ic">${m.icon}</span>
+      <div class="mbadge-lbl">${m.lbl}</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   WEEKLY CHART (Canvas)
+═══════════════════════════════════════════ */
+function drawChart() {
+  const canvas = document.getElementById('wChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W   = canvas.parentElement.offsetWidth - 40;
+  const H   = 160;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const DAY_AR = ['أح','إث','ثل','أر','خم','جم','سب'];
+  const data   = [];
+  for (let i = 6; i >= 0; i--) {
+    const d  = new Date(); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const done  = habits.filter(h => h.completedDates.includes(ds)).length;
+    const total = habits.length;
+    data.push({ pct: total ? done/total : 0, lbl: DAY_AR[d.getDay()], ds });
+  }
+
+  ctx.clearRect(0, 0, W, H);
+  const bw    = (W - 24) / 7;
+  const maxBH = H - 36;
+  const todayDS = todayStr();
+
+  data.forEach((d, i) => {
+    const x   = 12 + i * bw + bw * .14;
+    const bwn = bw * .72;
+    const bh  = Math.max(d.pct > 0 ? 6 : 0, d.pct * maxBH);
+    const y   = H - 24 - bh;
+    const r   = 5;
+
+    // BG bar
+    ctx.beginPath();
+    rrect(ctx, x, H - 24 - maxBH, bwn, maxBH, r);
+    ctx.fillStyle = d.ds === todayDS ? 'rgba(139,120,242,.10)' : 'rgba(0,0,0,.05)';
+    ctx.fill();
+
+    // Fill bar
+    if (d.pct > 0) {
+      const grad = ctx.createLinearGradient(0, y, 0, H - 24);
+      grad.addColorStop(0, i === data.length-1 ? '#8B78F2' : '#6B5BD0');
+      grad.addColorStop(1, '#5ECBC9');
+      ctx.beginPath();
+      rrect(ctx, x, y, bwn, bh, r);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Glow on today's bar
+      if (d.ds === todayDS) {
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = 'rgba(139,120,242,.5)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // Pct label above bar
+      if (d.pct >= .15) {
+        ctx.fillStyle = 'rgba(30,30,60,.7)';
+        ctx.font = `bold ${10 * dpr / dpr}px 'IBM Plex Sans Arabic', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(Math.round(d.pct*100)+'%', x + bwn/2, y - 5);
+      }
+    }
+
+    // Day label
+    ctx.fillStyle = d.ds === todayDS ? '#8B78F2' : 'rgba(92,92,122,.8)';
+    ctx.font = `700 ${11 * dpr / dpr}px 'IBM Plex Sans Arabic', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(d.lbl, x + bwn/2, H - 7);
+  });
+}
+
+function rrect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w/2, h/2);
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+/* ═══════════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════════ */
+let toastTimer;
+function toast(icon, msg, color='var(--txt)') {
+  const el = document.getElementById('toast');
+  document.getElementById('toastIc').textContent = icon;
+  document.getElementById('toastIc').style.color  = color;
+  document.getElementById('toastTxt').textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('on'), 2600);
+}
+
+function burst(cx, cy) {
+  const CLRS = ['#8B78F2','#4FCC86','#5ECBC9','#FFC060','#FF6E6E','#FF8FCF'];
+  for (let i = 0; i < 14; i++) {
+    const p   = document.createElement('div');
+    const ang = (Math.PI * 2 * i / 14) + (Math.random() * .5 - .25);
+    const r   = 60 + Math.random() * 60;
+    p.className = 'ptcl';
+    p.style.cssText = `
+      left:${cx - 4}px; top:${cy - 4}px;
+      background:${CLRS[i % CLRS.length]};
+      --dx:${Math.cos(ang)*r}px; --dy:${Math.sin(ang)*r - 80}px;
+      --rot:${Math.random()*520 - 260}deg;
+      --dur:${.7 + Math.random()*.5}s;
+      --delay:${Math.random()*.15}s;
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1400);
+  }
+}
+
+function arNum(n) {
+  return String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ═══════════════════════════════════════════
+   INIT — seed demo data if empty
+═══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderHome();
+});
+
+// Redraw chart on resize
+window.addEventListener('resize', () => { if (curPg === 'stats') drawChart(); });
+</script>
+</body>
+</html>
