@@ -5447,8 +5447,72 @@ ${textSlice}`;
                 <input id="customApiEndpointInput" value="${endpoint.replace(/"/g,'&quot;')}" placeholder="https://integrate.api.nvidia.com/v1/chat/completions" style="font-family:var(--mono);font-size:12px">
             </div>
             <button class="btn btn-primary btn-sm" onclick="saveCustomApiSettings()">${isAr ? 'حفظ' : 'Save'}</button>
+            <button class="btn btn-sm" id="customApiTestBtn" onclick="testCustomApiConnection()" style="margin-inline-start:6px">${isAr ? 'تجربة الاتصال' : 'Test connection'}</button>
             <span id="customApiSaveStatus" style="font-size:11px;color:var(--success);margin-inline-start:8px"></span>
+            <div id="customApiTestResult" style="font-size:11px;margin-top:10px;font-family:var(--mono)"></div>
         `;
+    }
+
+    async function testCustomApiConnection() {
+        const isAr = currentLang === 'ar';
+        const btn = $('customApiTestBtn');
+        const resultEl = $('customApiTestResult');
+        const key = $('customApiKeyInput')?.value.trim() || '';
+        const model = $('customApiModelInput')?.value.trim() || '';
+        const endpoint = $('customApiEndpointInput')?.value.trim() || NV_ENDPOINT;
+
+        if (!key) {
+            if (resultEl) { resultEl.style.color = 'var(--danger)'; resultEl.textContent = isAr ? 'أدخل مفتاح API أولاً' : 'Enter an API key first'; }
+            return;
+        }
+        if (btn) { btn.disabled = true; btn.textContent = isAr ? 'جارِ التجربة...' : 'Testing...'; }
+        if (resultEl) { resultEl.style.color = 'var(--text3)'; resultEl.textContent = isAr ? 'جارِ الاتصال...' : 'Connecting...'; }
+
+        const body = JSON.stringify({
+            model: model || NV_MODEL,
+            messages: [{ role:'user', content:'ping' }],
+            max_tokens: 5,
+            temperature: 0
+        });
+        const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+key };
+        const started = Date.now();
+
+        const attempt = async (url) => {
+            const r = await fetch(url, { method:'POST', headers, body });
+            if (!r.ok) {
+                const d = await r.json().catch(()=>({}));
+                throw new Error(d.error?.message || ('HTTP ' + r.status));
+            }
+            const d = await r.json();
+            if (!d.choices?.[0]?.message) throw new Error(isAr ? 'استجابة غير متوقعة' : 'Unexpected response shape');
+            return d;
+        };
+
+        try {
+            let ok = false, lastErr = null;
+            try { await attempt(endpoint); ok = true; }
+            catch(e) {
+                if (e.name !== 'TypeError') { lastErr = e; }
+                else {
+                    for (const makeProxy of CORS_PROXIES) {
+                        try { await attempt(makeProxy(endpoint)); ok = true; break; }
+                        catch(pe) { lastErr = pe; }
+                    }
+                }
+            }
+            const ms = Date.now() - started;
+            if (ok && resultEl) {
+                resultEl.style.color = 'var(--success)';
+                resultEl.textContent = (isAr ? `✓ الاتصال ناجح (${ms}ms)` : `✓ Connected successfully (${ms}ms)`);
+            } else if (resultEl) {
+                resultEl.style.color = 'var(--danger)';
+                resultEl.textContent = (isAr ? '✗ فشل الاتصال: ' : '✗ Connection failed: ') + (lastErr?.message || (isAr ? 'خطأ غير معروف' : 'Unknown error'));
+            }
+        } catch(e) {
+            if (resultEl) { resultEl.style.color = 'var(--danger)'; resultEl.textContent = (isAr ? '✗ فشل الاتصال: ' : '✗ Connection failed: ') + e.message; }
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = isAr ? 'تجربة الاتصال' : 'Test connection'; }
+        }
     }
 
     function toggleCustomApi(checked) {
