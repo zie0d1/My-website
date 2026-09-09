@@ -1629,6 +1629,7 @@
                             API مُهيَّأ مسبقاً — لا حاجة لمفتاح إضافي
                         </div>
                     </div>
+                    <div class="card" id="customApiCard"></div>
                     <div class="card">
                         <div class="card-header"><span class="card-title" data-t="notifications">الإشعارات</span></div>
                         <p style="font-size:12px;color:var(--text3);margin-bottom:12px" data-t="notif_desc">تفعيل إشعارات تذكير المراجعة اليومية للبطاقات</p>
@@ -2871,20 +2872,31 @@ const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
         url => `https://cors-anywhere.herokuapp.com/${url}`,
     ];
 
+    function getActiveApiConfig() {
+        const useCustom = lg('app_customApiEnabled') === '1' && lg('app_customApiKey');
+        if (!useCustom) return { key: NV_API_KEY, model: NV_MODEL, endpoint: NV_ENDPOINT };
+        return {
+            key: lg('app_customApiKey') || NV_API_KEY,
+            model: lg('app_customApiModel') || NV_MODEL,
+            endpoint: lg('app_customApiEndpoint') || NV_ENDPOINT
+        };
+    }
+
     async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=32768, temperature=0.0) {
+        const { key: apiKey, model: apiModel, endpoint: apiEndpoint } = getActiveApiConfig();
         const body = JSON.stringify({
-            model: NV_MODEL,
+            model: apiModel,
             messages:[{role:'system',content:system},{role:'user',content:prompt}],
             max_tokens: maxTokens,
             temperature: temperature,
             top_p: 1.0,
             chat_template_kwargs: { enable_thinking: false }
         });
-        const headers = {'Content-Type':'application/json','Authorization':'Bearer '+NV_API_KEY};
+        const headers = {'Content-Type':'application/json','Authorization':'Bearer '+apiKey};
 
         // 1. Try direct call first
         try {
-            const r = await fetch(NV_ENDPOINT, {method:'POST', headers, body});
+            const r = await fetch(apiEndpoint, {method:'POST', headers, body});
             if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
             const d = await r.json().catch(()=>({}));
             // Real API error (not CORS) — throw immediately
@@ -2898,7 +2910,7 @@ const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
         let lastErr = null;
         for (const makeProxy of CORS_PROXIES) {
             try {
-                const proxyUrl = makeProxy(NV_ENDPOINT);
+                const proxyUrl = makeProxy(apiEndpoint);
                 const r = await fetch(proxyUrl, {method:'POST', headers, body});
                 if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
                 const d = await r.json();
@@ -5404,7 +5416,62 @@ ${textSlice}`;
     }
 
     // ── SETTINGS ───────────────────────────────────
+    function renderCustomApiSettings() {
+        const card = $('customApiCard');
+        if (!card) return;
+        const isAr = currentLang === 'ar';
+        const enabled = lg('app_customApiEnabled') === '1';
+        const key = lg('app_customApiKey') || '';
+        const model = lg('app_customApiModel') || '';
+        const endpoint = lg('app_customApiEndpoint') || '';
+        card.innerHTML = `
+            <div class="card-header"><span class="card-title" style="display:flex;align-items:center;gap:8px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M6 12h.01"/><path d="M10 8h8M10 12h8M10 16h8"/></svg>
+                ${isAr ? 'API يدوي (إضافي)' : 'Manual API (secondary)'}
+            </span></div>
+            <p style="font-size:11px;color:var(--text3);margin-bottom:12px;font-family:var(--mono)">${isAr ? 'أدخل مفتاح ونموذج خاصين بك ليُستخدَما بدلاً من API الافتراضي' : 'Enter your own key & model to use instead of the default API'}</p>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);margin-bottom:12px;cursor:pointer">
+                <input type="checkbox" id="customApiEnabled" ${enabled ? 'checked' : ''} onchange="toggleCustomApi(this.checked)">
+                ${isAr ? 'استخدام API اليدوي' : 'Use manual API'}
+            </label>
+            <div class="input-group" style="margin-bottom:8px">
+                <label style="font-size:11px">${isAr ? 'مفتاح API' : 'API Key'}</label>
+                <input id="customApiKeyInput" type="password" value="${key.replace(/"/g,'&quot;')}" placeholder="nvapi-..." style="font-family:var(--mono);font-size:12px">
+            </div>
+            <div class="input-group" style="margin-bottom:8px">
+                <label style="font-size:11px">${isAr ? 'اسم النموذج' : 'Model name'}</label>
+                <input id="customApiModelInput" value="${model.replace(/"/g,'&quot;')}" placeholder="deepseek-ai/deepseek-v4-flash-0731" style="font-family:var(--mono);font-size:12px">
+            </div>
+            <div class="input-group" style="margin-bottom:12px">
+                <label style="font-size:11px">${isAr ? 'رابط Endpoint (اختياري)' : 'Endpoint URL (optional)'}</label>
+                <input id="customApiEndpointInput" value="${endpoint.replace(/"/g,'&quot;')}" placeholder="https://integrate.api.nvidia.com/v1/chat/completions" style="font-family:var(--mono);font-size:12px">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveCustomApiSettings()">${isAr ? 'حفظ' : 'Save'}</button>
+            <span id="customApiSaveStatus" style="font-size:11px;color:var(--success);margin-inline-start:8px"></span>
+        `;
+    }
+
+    function toggleCustomApi(checked) {
+        ls('app_customApiEnabled', checked ? '1' : '0');
+    }
+
+    function saveCustomApiSettings() {
+        const key = $('customApiKeyInput')?.value.trim() || '';
+        const model = $('customApiModelInput')?.value.trim() || '';
+        const endpoint = $('customApiEndpointInput')?.value.trim() || '';
+        ls('app_customApiKey', key);
+        ls('app_customApiModel', model);
+        ls('app_customApiEndpoint', endpoint);
+        const isAr = currentLang === 'ar';
+        const statusEl = $('customApiSaveStatus');
+        if (statusEl) {
+            statusEl.textContent = isAr ? 'تم الحفظ ✓' : 'Saved ✓';
+            setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 2000);
+        }
+    }
+
     function renderSettings() {
+        renderCustomApiSettings();
         const notifEl = $('notifStatus');
         if (!notifEl) return;
         if (!('Notification' in window)) { notifEl.textContent='Not supported'; return; }
@@ -6092,23 +6159,24 @@ ${text}`;
         const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
 
         try {
+            const { key: apiKey, model: apiModel, endpoint: apiEndpoint } = getActiveApiConfig();
             const body = JSON.stringify({
-                model: NV_MODEL,
+                model: apiModel,
                 messages: [{ role:'system', content: system }, ...historyForAPI],
                 max_tokens: 1000,
                 temperature: 0.5
             });
-            const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+NV_API_KEY };
+            const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+apiKey };
             let responseText = '';
             try {
-                const r = await fetch(NV_ENDPOINT, { method:'POST', headers, body });
+                const r = await fetch(apiEndpoint, { method:'POST', headers, body });
                 if (r.ok) { const d = await r.json(); responseText = d.choices[0].message.content; }
                 else throw new Error('HTTP ' + r.status);
             } catch(e) {
                 if (e.name !== 'TypeError') throw e;
                 for (const makeProxy of CORS_PROXIES) {
                     try {
-                        const r = await fetch(makeProxy(NV_ENDPOINT), { method:'POST', headers, body });
+                        const r = await fetch(makeProxy(apiEndpoint), { method:'POST', headers, body });
                         if (!r.ok) throw new Error('HTTP ' + r.status);
                         const d = await r.json();
                         const parsed = d.contents ? JSON.parse(d.contents) : d;
