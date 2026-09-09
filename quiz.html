@@ -2900,7 +2900,7 @@ const NV_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
             if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
             const d = await r.json().catch(()=>({}));
             // Real API error (not CORS) — throw immediately
-            throw new Error(d.error?.message || ('HTTP '+r.status));
+            throw new Error(d.error?.message || d.detail || d.message || ('HTTP '+r.status));
         } catch(directErr) {
             // Only continue to proxy if it's a network/CORS TypeError
             if (directErr.name !== 'TypeError') throw directErr;
@@ -5481,7 +5481,8 @@ ${textSlice}`;
             const r = await fetch(url, { method:'POST', headers, body });
             if (!r.ok) {
                 const d = await r.json().catch(()=>({}));
-                throw new Error(d.error?.message || ('HTTP ' + r.status));
+                const msg = d.error?.message || d.detail || d.message || (typeof d === 'string' ? d : null);
+                throw new Error((msg ? msg + ' ' : '') + '(HTTP ' + r.status + ')');
             }
             const d = await r.json();
             if (!d.choices?.[0]?.message) throw new Error(isAr ? 'استجابة غير متوقعة' : 'Unexpected response shape');
