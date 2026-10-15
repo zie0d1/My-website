@@ -1423,7 +1423,7 @@
                     <p class="page-subtitle" data-t="gen_pdf_subtitle">استخرج النصوص وحوّلها إلى أسئلة باستخدام الذكاء الاصطناعي</p>
                     <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleDrop(event)">
                         <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
-                        <div class="drop-hint">PDF · 25 pages max · يمكن رفع عدة ملفات / Multiple PDFs supported</div>
+                        <div class="drop-hint">PDF · يمكن رفع عدة ملفات واختيار نطاق الصفحات / Multiple PDFs · choose page range</div>
                     </div>
                     <input type="file" id="pdfInput" accept=".pdf" class="hidden" multiple onchange="addPDFs(this.files)">
                     <div id="filePillList" style="margin-bottom:8px"></div>
@@ -2404,14 +2404,25 @@
         if (!_pdfFiles.length) { list.innerHTML = ''; show($('dropZone')); return; }
         hide($('dropZone'));
 
+        const isArP = currentLang === 'ar';
         const pills = _pdfFiles.map((f, i) => `
+            <div>
             <div class="file-pill">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <span class="file-pill-name" title="${esc(f.name)}">${esc(f.name)}</span>
-                <span class="file-pill-meta">${f.pages}p · ${(f.text.length/1000).toFixed(1)}k</span>
+                <span class="file-pill-meta">${f.to - f.from + 1}/${f.pages}p · ${(f.text.length/1000).toFixed(1)}k</span>
                 <button class="btn btn-sm btn-ghost" onclick="removePDF(${i})" style="padding:2px 6px;flex-shrink:0">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
+            </div>
+            ${f.pages > 1 ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 10px 2px;font-size:11px;color:var(--text3);font-family:var(--mono)">
+                <span>${isArP ? 'الصفحات من' : 'Pages'}</span>
+                <input type="number" min="1" max="${f.pages}" value="${f.from}" onchange="setPDFRange(${i}, this.value, ${f.to})" style="width:64px;padding:4px 6px;font-size:12px;font-family:var(--mono)">
+                <span>${isArP ? 'إلى' : 'to'}</span>
+                <input type="number" min="1" max="${f.pages}" value="${f.to}" onchange="setPDFRange(${i}, ${f.from}, this.value)" style="width:64px;padding:4px 6px;font-size:12px;font-family:var(--mono)">
+                <span>/ ${f.pages}</span>
+                <button class="btn btn-sm btn-ghost" onclick="setPDFRange(${i}, 1, ${f.pages})" style="font-size:10px;padding:2px 8px">${isArP ? 'الكل' : 'All'}</button>
+            </div>` : ''}
             </div>`).join('');
 
         const footer = `
@@ -2438,22 +2449,19 @@
             try {
                 const ab = await file.arrayBuffer();
                 const doc = await pdfjsLib.getDocument({data:ab}).promise;
-                let txt = '';
-                for (let i=1; i<=Math.min(doc.numPages,25); i++) {
+                const pageTexts = [];
+                for (let i=1; i<=Math.min(doc.numPages,300); i++) {
                     const page = await doc.getPage(i);
                     const tc = await page.getTextContent();
-                    txt += tc.items.map(it=>it.str).join(' ') + '\n';
+                    pageTexts.push(tc.items.map(it=>it.str).join(' '));
                 }
-                _pdfFiles.push({name:file.name, text:txt.trim(), pages:doc.numPages});
-                toast(file.name+' — '+doc.numPages+'p');
+                const total = pageTexts.length;
+                _pdfFiles.push({name:file.name, pageTexts, pages:total, from:1, to:total, text:pageTexts.join('\n').trim()});
+                toast(file.name+' — '+total+'p');
             } catch(e) { alertModal(t('error')+': '+e.message+' ('+file.name+')'); }
         }
         $('pdfInput').value = '';
-        // Rebuild combined text
-        pdfText = _pdfFiles.map(f=>f.text).join('\n\n---\n\n').trim();
-        pdfFile = _pdfFiles.map(f=>f.name.replace(/\.pdf$/i,'')).join(' + ');
-        renderFilePills();
-        ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+        syncPdfText();
         // restore drop zone title
         $('dropZone') && ($('dropZone').querySelector('.drop-title').textContent = t('drop_zone_title'));
         if (pdfText) track('pdf_uploaded', { file_count: _pdfFiles.length, total_pages: _pdfFiles.reduce((s,f)=>s+f.pages,0), total_chars: pdfText.length });
@@ -2461,11 +2469,27 @@
 
     function removePDF(idx) {
         _pdfFiles.splice(idx, 1);
+        syncPdfText();
+        if (!_pdfFiles.length) show($('dropZone'));
+    }
+
+    // Rebuild combined text from each file's selected page range
+    function syncPdfText() {
         pdfText = _pdfFiles.map(f=>f.text).join('\n\n---\n\n').trim();
         pdfFile = _pdfFiles.map(f=>f.name.replace(/\.pdf$/i,'')).join(' + ');
         renderFilePills();
-        if (!_pdfFiles.length) show($('dropZone'));
         ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+    }
+
+    function setPDFRange(idx, from, to) {
+        const f = _pdfFiles[idx];
+        if (!f) return;
+        from = Math.max(1, Math.min(f.pages, parseInt(from) || 1));
+        to   = Math.max(1, Math.min(f.pages, parseInt(to)   || f.pages));
+        if (to < from) to = from;
+        f.from = from; f.to = to;
+        f.text = f.pageTexts.slice(from - 1, to).join('\n').trim();
+        syncPdfText();
     }
 
     // Keep backward compat for single-file drop
