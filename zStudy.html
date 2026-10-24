@@ -14,7 +14,7 @@
     <title>zStudy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1141,6 +1141,10 @@
             #sumAIPanel .sai-input-row { padding: 8px 10px 10px; }
             #sumAIPanel .sai-input { font-size: 14px; padding: 10px 12px; }
             body.sai-body-lock { overflow: hidden; }
+            #sumAIPanel .sai-input-row { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+        }
+        @supports (height: 1dvh) {
+            @media (max-width: 640px) { #sumAIPanel { height: 70dvh !important; max-height: 70dvh; } }
         }
 
         /* ── CARD FOCUS SETTINGS ── */
@@ -1317,6 +1321,256 @@
             display:flex; flex-direction:column; align-items:center;
         }
         .tool-full-inner { width:100%; max-width:700px; }
+    
+        /* ═══════════ APPLE-STYLE MINIMAL ═══════════ */
+        :root {
+            --bg:#f5f5f7; --surface:#ffffff; --surface2:#f5f5f7; --surface3:#e8e8ed;
+            --border:rgba(0,0,0,.08); --border-hover:rgba(0,0,0,.18);
+            --text:#1d1d1f; --text2:#424245; --text3:#6e6e73; --text4:#a1a1a6;
+            --accent:#0071e3; --accent-light:#e8f1fc; --accent-dark:#0058b0; --accent-subtle:rgba(0,113,227,.08);
+            --radius:12px; --radius-sm:8px; --radius-lg:18px; --radius-xl:24px;
+            --shadow-sm:none; --shadow:0 2px 12px rgba(0,0,0,.06); --shadow-lg:0 8px 30px rgba(0,0,0,.10);
+            --shadow-xl:0 20px 50px rgba(0,0,0,.14); --shadow-accent:none;
+            --shadow-modal:0 24px 60px rgba(0,0,0,.22);
+            --transition:200ms cubic-bezier(.25,.1,.25,1);
+            --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Inter','IBM Plex Sans Arabic',system-ui,sans-serif;
+            --mono:ui-monospace,'SF Mono','JetBrains Mono',monospace;
+        }
+        [data-theme="dark"] {
+            --bg:#000000; --surface:#1c1c1e; --surface2:#2c2c2e; --surface3:#3a3a3c;
+            --border:rgba(255,255,255,.10); --border-hover:rgba(255,255,255,.22);
+            --text:#f5f5f7; --text2:#d2d2d7; --text3:#98989d; --text4:#636366;
+            --accent:#0a84ff; --accent-light:rgba(10,132,255,.16); --accent-dark:#409cff; --accent-subtle:rgba(10,132,255,.12);
+            --shadow:0 2px 12px rgba(0,0,0,.5); --shadow-lg:0 8px 30px rgba(0,0,0,.6);
+        }
+        body { background:var(--bg); font-weight:400; letter-spacing:-0.011em; -webkit-font-smoothing:antialiased; }
+        .topbar { background:rgba(245,245,247,.72); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-bottom:.5px solid var(--border); height:52px; }
+        [data-theme="dark"] .topbar { background:rgba(0,0,0,.72); }
+        .topbar-logo { font-size:18px; font-weight:600; letter-spacing:-0.03em; background:none; -webkit-text-fill-color:var(--text); color:var(--text); }
+        [data-theme="dark"] .topbar-logo { background:none; -webkit-text-fill-color:var(--text); }
+        .topbar-btn { border:none; background:transparent; box-shadow:none; border-radius:var(--radius-full); }
+        .topbar-btn:hover { background:var(--surface3); color:var(--accent); transform:none; box-shadow:none; }
+        .topbar-back { border:none; background:var(--surface3); color:var(--accent); font-family:var(--sans); font-size:12px; border-radius:var(--radius-full); }
+        .sidebar { background:var(--surface); border-inline-start:.5px solid var(--border); padding:12px 10px; gap:2px; }
+        .sidebar-item { border-radius:10px; font-weight:500; }
+        .sidebar-item:hover { background:var(--surface2); box-shadow:none; }
+        .sidebar-item.active { background:var(--accent-light); color:var(--accent); font-weight:600; box-shadow:none; }
+        .sidebar-section, .section-label, .card-settings-label { font-family:var(--sans); text-transform:none; letter-spacing:0; font-size:12px; font-weight:600; color:var(--text3); }
+        .page-title { font-size:32px; font-weight:700; letter-spacing:-0.04em; line-height:1.1; }
+        .page-subtitle { color:var(--text3); font-size:15px; }
+        .card, .subject-card, .summary-card, .deck-item, .history-item, .card-settings-panel, .sum-section {
+            background:var(--surface); border:none; border-radius:var(--radius-lg); box-shadow:none;
+        }
+        .subject-card:hover, .summary-card:hover, .deck-item:hover, .history-item:hover { box-shadow:var(--shadow-lg); transform:scale(1.01); border:none; }
+        .btn { background:var(--surface3); border:none; color:var(--text); box-shadow:none; border-radius:var(--radius-full); font-weight:500; padding-inline:16px; }
+        .btn:hover { background:var(--border-hover); transform:none; }
+        .btn-primary, .panel-add-btn { background:var(--accent); color:#fff; border:none; box-shadow:none; border-radius:var(--radius-full); }
+        .btn-primary:hover, .panel-add-btn:hover { background:var(--accent-dark); transform:none; box-shadow:none; }
+        .btn-danger { background:rgba(255,59,48,.12); color:#ff3b30; }
+        .btn-success { background:rgba(52,199,89,.14); color:#248a3d; }
+        input, select, textarea { background:var(--surface2); border:1px solid transparent; border-radius:var(--radius); }
+        [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background:var(--surface2); }
+        input:focus, select:focus, textarea:focus { background:var(--surface); border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-subtle); }
+        .chip, .focus-chip, .card-count-chip, .sai-chip { font-family:var(--sans); background:var(--surface3); border:none; color:var(--text2); border-radius:var(--radius-full); font-weight:500; }
+        .chip.active, .focus-chip.active, .card-count-chip.active { background:var(--accent); color:#fff; box-shadow:none; }
+        .modal-box, .creation-modal { background:var(--surface); border:none; border-radius:var(--radius-xl); box-shadow:var(--shadow-modal); }
+        .modal-overlay, .creation-modal-overlay { backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+        .option-item { border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface); }
+        .progress-bar { background:var(--surface3); border-radius:var(--radius-full); }
+        .progress-fill, .mcq-bar-fill { background:var(--accent); border-radius:var(--radius-full); }
+        .flashcard, .fc-card-zone { border-radius:var(--radius-xl); }
+        .drop-zone, .cm-dropzone { background:var(--surface); border:1.5px dashed var(--border-hover); border-radius:var(--radius-xl); }
+        .toast { background:rgba(29,29,31,.92); color:#fff; border-radius:var(--radius-full); backdrop-filter:blur(12px); box-shadow:var(--shadow-lg); font-weight:500; }
+        .sum-section-head { background:transparent; border-bottom:.5px solid var(--border); }
+        .sum-callout { border-radius:var(--radius-lg); font-weight:500; }
+        .sai-header, .sai-composer { background:var(--surface); }
+        .sai-msg-user { background:var(--accent); color:#fff; border:none; border-radius:20px 20px 6px 20px; }
+        .sai-input { border-radius:var(--radius-full) 0 0 var(--radius-full); background:var(--surface2); border-color:transparent; }
+        .sai-send { border-radius:0 var(--radius-full) var(--radius-full) 0; background:var(--accent); border-color:var(--accent); }
+        [dir="rtl"] .sai-input { border-radius:0 var(--radius-full) var(--radius-full) 0; }
+        [dir="rtl"] .sai-send { border-radius:var(--radius-full) 0 0 var(--radius-full); }
+        /* ═══ My Cards + card study ═══ */
+        .dk-stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin:8px 0 16px; }
+        .dk-stat { background:var(--surface); border-radius:var(--radius-lg); padding:14px 8px; text-align:center; }
+        .dk-stat b { display:block; font-size:24px; font-weight:700; letter-spacing:-0.03em; }
+        .dk-stat span { font-size:11px; color:var(--text3); }
+        .dk-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:12px; align-items:start; }
+        .dk { background:var(--surface); border-radius:var(--radius-xl); padding:18px 16px 14px; }
+        .dk.open { grid-column:1 / -1; }
+        .dk-top { display:flex; align-items:center; gap:4px; }
+        .dk-name { flex:1; min-width:0; font-size:17px; font-weight:600; letter-spacing:-0.02em; line-height:1.4; overflow-wrap:anywhere; }
+        .dk-meta { font-size:12px; color:var(--text3); margin:2px 0 12px; }
+        .dk-bar { display:flex; height:8px; border-radius:99px; overflow:hidden; background:var(--surface3); }
+        .dk-bar i { display:block; height:100%; }
+        .dk-bar .m, .dk-legend b.m { background:#34c759; }
+        .dk-bar .l, .dk-legend b.l { background:#ff9f0a; }
+        .dk-legend { display:flex; gap:14px; flex-wrap:wrap; font-size:11px; color:var(--text3); margin:8px 0 14px; }
+        .dk-legend b { display:inline-block; width:8px; height:8px; border-radius:50%; margin-inline-end:5px; }
+        .dk-legend b.n { background:var(--surface3); border:1px solid var(--border-hover); box-sizing:border-box; }
+        .dk-actions { display:flex; gap:8px; }
+        .dk-actions .btn { height:40px; justify-content:center; font-weight:600; }
+        .dk-body { display:none; margin-top:14px; padding-top:14px; border-top:.5px solid var(--border); }
+        .dk.open .dk-body { display:block; }
+        .dk-search { margin-bottom:10px; width:100%; }
+        .dk-list { max-height:420px; overflow-y:auto; border-radius:14px; background:var(--surface2); }
+        .dk-card { display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border-bottom:.5px solid var(--border); }
+        .dk-card:last-child { border-bottom:none; }
+        .dk-card-main { flex:1; min-width:0; }
+        .dk-q { font-size:14px; font-weight:600; line-height:1.6; }
+        .dk-a { font-size:13px; color:var(--text3); line-height:1.6; margin-top:2px; }
+        .dk-card-side { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:0 0 auto; }
+        .dk-st { font-size:11px; font-weight:600; padding:2px 9px; border-radius:99px; background:var(--surface3); color:var(--text3); white-space:nowrap; }
+        .dk-st.m { background:rgba(52,199,89,.15); color:#248a3d; }
+        .dk-st.l { background:rgba(255,159,10,.16); color:#b25000; }
+        .dk-card-btns { display:flex; }
+        .dk-add { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+        .dk-add input { flex:1; min-width:140px; }
+        .fc3d { perspective:1400px; cursor:pointer; margin:6px 0 14px; -webkit-tap-highlight-color:transparent; }
+        .fc3d-inner { display:grid; min-height:min(52vh, 340px); transform-style:preserve-3d; transition:transform .55s cubic-bezier(.2,.8,.2,1); }
+        .fc3d.flipped .fc3d-inner { transform:rotateY(180deg); }
+        .fc3d-face { grid-area:1 / 1; backface-visibility:hidden; -webkit-backface-visibility:hidden; position:relative; background:var(--surface); border-radius:28px; padding:48px 24px 40px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; box-shadow:var(--shadow-lg); }
+        .fc3d-face.back { transform:rotateY(180deg); background:var(--accent); color:#fff; }
+        .fc3d-label { position:absolute; top:18px; inset-inline-start:22px; font-size:12px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; color:var(--text3); }
+        .fc3d-face.back .fc3d-label { color:rgba(255,255,255,.7); }
+        .fc3d-text { font-size:22px; font-weight:600; line-height:1.65; letter-spacing:-0.01em; white-space:pre-wrap; word-break:break-word; }
+        .fc3d-hint { position:absolute; bottom:16px; font-size:12px; color:var(--text4); }
+        .fc-status { position:absolute; top:14px; inset-inline-end:16px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:99px; }
+        .fc-status.new { background:var(--accent-light); color:var(--accent); }
+        .fc-status.due { background:rgba(255,59,48,.12); color:#ff3b30; }
+        .fc-status.learn { background:rgba(255,159,10,.15); color:#b25000; }
+        .fc-actions { position:sticky; bottom:0; z-index:15; padding:8px 0 calc(12px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(to top, var(--bg) 70%, transparent); }
+        .fc-show { width:100%; height:52px; justify-content:center; font-size:16px; font-weight:600; }
+        #fContent .rating-btns { grid-template-columns:repeat(4, 1fr); gap:8px; margin:0; }
+        #fContent .rating-btn { height:62px; border:none; border-radius:16px; font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:transform var(--transition); }
+        #fContent .rating-btn:active { transform:scale(.96); }
+        #fContent .rating-btn .rb-time { font-size:11px; opacity:.75; font-weight:500; margin-top:3px; }
+        #fContent .rating-btn.again { background:rgba(255,59,48,.13); color:#d70015; }
+        #fContent .rating-btn.hard { background:rgba(255,159,10,.16); color:#b25000; }
+        #fContent .rating-btn.good { background:rgba(52,199,89,.15); color:#248a3d; }
+        #fContent .rating-btn.easy { background:var(--accent-light); color:var(--accent); }
+        .fc-done { text-align:center; padding:30px 4px 0; }
+        .fc-done h2 { font-size:24px; letter-spacing:-0.03em; margin-bottom:4px; }
+        .fc-done p { color:var(--text3); font-size:14px; margin-bottom:20px; }
+        .fc-done-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:22px; }
+        .fc-done-tile { background:var(--surface); border-radius:var(--radius-lg); padding:14px 4px; }
+        .fc-done-tile b { display:block; font-size:22px; font-weight:700; }
+        .fc-done-tile span { font-size:11px; color:var(--text3); }
+        @media (max-width:640px) { .dk-stats { grid-template-columns:repeat(2, 1fr); } .dk-grid { grid-template-columns:1fr; } .fc3d-text { font-size:20px; } }
+        /* ═══ Summaries library + viewer ═══ */
+        .sl-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 10px; }
+        .sl-search { position:relative; flex:1; min-width:180px; }
+        .sl-search svg { position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); color:var(--text3); pointer-events:none; }
+        .sl-search input { padding-inline-start:36px; margin:0; width:100%; }
+        .sl-count { font-size:12px; color:var(--text3); margin:0 2px 12px; min-height:14px; }
+        .sc-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; }
+        .sc { position:relative; background:var(--surface); border-radius:var(--radius-xl); padding:20px 16px 14px; cursor:pointer; overflow:hidden; transition:box-shadow var(--transition), transform var(--transition); }
+        .sc:hover { box-shadow:var(--shadow-lg); transform:translateY(-2px); }
+        .sc-stripe { position:absolute; top:0; inset-inline:0; height:4px; }
+        .sc-top { display:flex; align-items:flex-start; gap:8px; }
+        .sc-title { flex:1; min-width:0; font-size:16px; font-weight:600; letter-spacing:-0.02em; line-height:1.4; overflow-wrap:anywhere; }
+        .sc-pin { border:none; background:transparent; font-size:19px; color:var(--text4); cursor:pointer; padding:0 2px; line-height:1; }
+        .sc-pin.on { color:#ff9f0a; }
+        .sc-meta { font-size:12px; color:var(--text3); margin:4px 0 10px; display:flex; gap:6px; flex-wrap:wrap; }
+        .sc-prev { font-size:13px; color:var(--text2); line-height:1.7; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:14px; }
+        .sc-actions { display:flex; gap:6px; }
+        .sc-actions .btn { height:34px; justify-content:center; }
+        .sc-ico { width:36px; padding:0 !important; flex:0 0 auto; }
+        .sl-empty { text-align:center; padding:44px 20px; background:var(--surface); border-radius:var(--radius-xl); margin-top:6px; }
+        .sv-progress { height:3px; flex-shrink:0; }
+        #svProg { height:100%; width:0; background:var(--accent); transition:width 80ms linear; }
+        .sv-toc { display:flex; gap:8px; overflow-x:auto; padding:8px 14px; background:var(--surface); border-bottom:.5px solid var(--border); flex-shrink:0; scrollbar-width:none; }
+        .sv-toc:empty { display:none; }
+        .sv-toc::-webkit-scrollbar { display:none; }
+        .svchip { flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; border:none; background:var(--surface3); color:var(--text2); border-radius:999px; padding:6px 12px; font:inherit; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; }
+        .svchip i { width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+        .svchip.on { background:var(--accent); color:#fff; }
+        @media (max-width:640px) { .sv-fs { display:none !important; } .sc-grid { grid-template-columns:1fr; } }
+        /* ═══ MCQ quiz UI ═══ */
+        .quiz-stat { background:var(--surface); padding:6px 12px; border-radius:var(--radius-full); font-size:13px; }
+        .qdots { display:flex; gap:6px; overflow-x:auto; padding:6px 2px 10px; margin-bottom:6px; scrollbar-width:none; }
+        .qdots::-webkit-scrollbar { display:none; }
+        .qdot { position:relative; flex:0 0 auto; width:30px; height:30px; border-radius:50%; border:none; background:var(--surface3); color:var(--text2); font:inherit; font-size:12px; font-weight:600; cursor:pointer; transition:all var(--transition); }
+        .qdot.ok { background:#34c759; color:#fff; }
+        .qdot.bad { background:#ff3b30; color:#fff; }
+        .qdot.cur { outline:2px solid var(--accent); outline-offset:2px; }
+        .qdot.flag::after { content:''; position:absolute; top:-1px; inset-inline-end:-1px; width:9px; height:9px; border-radius:50%; background:#ff9f0a; border:2px solid var(--bg); }
+        .q-card { background:var(--surface); border-radius:var(--radius-xl); padding:20px 18px; margin-bottom:12px; }
+        .q-eyebrow { display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:600; color:var(--accent); letter-spacing:.3px; margin-bottom:10px; }
+        .q-flag { border:none; background:var(--surface2); color:var(--text3); border-radius:var(--radius-full); padding:5px 12px; font:inherit; font-size:12px; font-weight:500; cursor:pointer; }
+        .q-flag.on { background:rgba(255,159,10,.16); color:#c76a00; }
+        #qContent .question-text { font-size:18px; font-weight:600; line-height:1.7; letter-spacing:-0.01em; margin-bottom:16px; }
+        #qContent .options-list { display:flex; flex-direction:column; gap:10px; }
+        #qContent .option-item { display:flex; align-items:flex-start; gap:12px; padding:14px; border:1.5px solid var(--border); border-radius:16px; background:var(--surface); cursor:pointer; transition:all var(--transition); line-height:1.6; }
+        #qContent .option-item:hover:not(.locked) { border-color:var(--accent); background:var(--accent-subtle); transform:none; }
+        #qContent .option-item:active:not(.locked) { transform:scale(.985); }
+        #qContent .opt-letter { flex:0 0 auto; width:28px; height:28px; border-radius:50%; background:var(--surface3); color:var(--text2); display:grid; place-items:center; font-size:12px; font-weight:700; }
+        #qContent .opt-text { flex:1; min-width:0; unicode-bidi:plaintext; text-align:start; }
+        #qContent .opt-mark { flex:0 0 auto; font-weight:700; }
+        #qContent .option-item.correct { border-color:#34c759; background:rgba(52,199,89,.10); }
+        #qContent .option-item.correct .opt-letter { background:#34c759; color:#fff; }
+        #qContent .option-item.correct .opt-mark { color:#34c759; }
+        #qContent .option-item.wrong { border-color:#ff3b30; background:rgba(255,59,48,.08); }
+        #qContent .option-item.wrong .opt-letter { background:#ff3b30; color:#fff; }
+        #qContent .option-item.wrong .opt-mark { color:#ff3b30; }
+        #qContent .option-item.locked:not(.correct):not(.wrong) { opacity:.55; }
+        .conf-wrap { margin-top:16px; padding-top:14px; border-top:.5px solid var(--border); }
+        .conf-title { font-size:12px; color:var(--text3); margin-bottom:8px; }
+        .conf-title span { opacity:.7; }
+        .conf-done { margin-top:14px; font-size:12px; color:var(--text3); }
+        .conf-done b { color:var(--text2); font-weight:600; }
+        #qContent .confidence-chip { border-radius:var(--radius-full); font-family:var(--sans); }
+        #qContent .explanation-box { border:none; border-radius:var(--radius-lg); padding:16px; margin-bottom:12px; line-height:1.75; font-size:14px; }
+        .exp-head { display:flex; align-items:center; gap:8px; font-size:15px; margin-bottom:6px; }
+        .exp-ico { width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; color:#fff; background:currentColor; }
+        .exp-ico { color:inherit; }
+        .explanation-box.correct .exp-ico { background:#34c759; color:#fff; }
+        .explanation-box.wrong .exp-ico { background:#ff3b30; color:#fff; }
+        .exp-time { margin-inline-start:auto; font-size:12px; opacity:.7; }
+        .exp-ans { margin-bottom:6px; }
+        .exp-body { color:var(--text2); }
+        .exp-ai { margin-top:12px; }
+        .exp-ai-out { font-size:13px; line-height:1.8; margin-top:10px; color:var(--text2); }
+        .q-footer { position:sticky; bottom:0; z-index:15; display:flex; gap:10px; padding:10px 0 calc(12px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(to top, var(--bg) 70%, transparent); }
+        .q-footer .btn { height:46px; justify-content:center; gap:6px; font-size:15px; font-weight:600; }
+        .q-footer .btn:disabled { opacity:.4; }
+        .q-footer .btn.pulse { animation:qpulse 1.6s ease-in-out 2; }
+        @keyframes qpulse { 50% { box-shadow:0 0 0 6px var(--accent-subtle); } }
+        [dir="rtl"] .flip-rtl { transform:scaleX(-1); }
+        .gen-step { background:var(--surface); border-radius:var(--radius-xl); padding:18px 18px 8px; margin-bottom:14px; }
+        .gen-step-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+        .gen-step-num { width:26px; height:26px; border-radius:50%; background:var(--surface3); color:var(--text2); display:grid; place-items:center; font-size:13px; font-weight:600; flex-shrink:0; transition:all var(--transition); }
+        .gen-step.done .gen-step-num { background:#34c759; color:#fff; font-size:0; }
+        .gen-step.done .gen-step-num::after { content:'✓'; font-size:14px; }
+        .gen-step-title { font-size:17px; font-weight:600; letter-spacing:-0.02em; }
+        .gen-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:13px 0; border-top:.5px solid var(--border); }
+        .gen-lbl { font-size:14px; font-weight:500; color:var(--text); }
+        .seg { display:inline-flex; background:var(--surface3); border-radius:10px; padding:2px; gap:2px; }
+        .seg-btn { border:none; background:transparent; padding:7px 16px; border-radius:8px; font:inherit; font-size:13px; font-weight:500; color:var(--text2); cursor:pointer; transition:all var(--transition); }
+        .seg-btn.active { background:var(--surface); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,.14); }
+        [data-theme="dark"] .seg-btn.active { background:#636366; color:#fff; }
+        .gen-adv { border-top:.5px solid var(--border); padding:13px 0; }
+        .gen-adv summary { cursor:pointer; font-size:14px; font-weight:500; color:var(--accent); list-style:none; }
+        .gen-adv summary::-webkit-details-marker { display:none; }
+        .gen-char { font-size:12px; color:var(--text3); margin:6px 2px 10px; min-height:14px; }
+        .gen-banner { display:flex; align-items:center; justify-content:space-between; gap:10px; background:rgba(255,159,10,.14); color:#b25000; border-radius:var(--radius-lg); padding:12px 14px; margin-bottom:14px; font-size:13px; font-weight:500; }
+        [data-theme="dark"] .gen-banner { color:#ffb340; }
+        .gen-actions { position:sticky; bottom:0; z-index:20; padding:10px 0 calc(12px + env(safe-area-inset-bottom, 0px)); margin-top:6px; background:linear-gradient(to top, var(--bg) 72%, transparent); }
+        .gen-actions .gen-strip { background:transparent; padding:0 2px 8px; margin:0; }
+        .gen-actions-row { display:flex; gap:10px; }
+        .gen-actions-row .btn { height:48px; justify-content:center; font-size:15px; font-weight:600; gap:8px; }
+        .gen-actions-row .btn:disabled { opacity:.45; }
+        #panel-gen .drop-zone { padding:34px 16px; display:flex; flex-direction:column; align-items:center; margin-bottom:10px; }
+        #panel-gen .file-pill-list { border:none; background:var(--surface2); border-radius:14px; }
+        #panel-gen .file-pill { background:transparent; border-bottom:.5px solid var(--border); }
+        #panel-gen .file-pill-name { font-family:var(--sans); font-size:13px; font-weight:500; }
+        #panel-gen textarea { width:100%; }
+        .gen-paste { margin-bottom:14px; background:var(--surface); border-radius:var(--radius-lg); padding:12px 14px; }
+        .gen-paste summary { cursor:pointer; font-size:13px; font-weight:600; color:var(--accent); list-style:none; }
+        .gen-paste summary::-webkit-details-marker { display:none; }
+        .gen-paste textarea { margin-top:10px; width:100%; }
+        .gen-strip { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:12px; color:var(--text3); padding:10px 14px; background:var(--surface); border-radius:var(--radius-lg); margin-bottom:14px; }
+        .gen-strip b { color:var(--text); font-weight:600; }
+        ::-webkit-scrollbar-thumb { background:var(--border-hover); }
     </style>
 </head>
 <body>
@@ -1421,16 +1675,46 @@
                 <div class="panel" id="panel-gen">
                     <h1 class="page-title" data-t="gen_pdf_title">توليد من PDF</h1>
                     <p class="page-subtitle" data-t="gen_pdf_subtitle">استخرج النصوص وحوّلها إلى أسئلة باستخدام الذكاء الاصطناعي</p>
-                    <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleDrop(event)">
-                        <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
-                        <div class="drop-hint">PDF · يمكن رفع عدة ملفات واختيار نطاق الصفحات / Multiple PDFs · choose page range</div>
+
+                    <div class="gen-banner hidden" id="genApiBanner">
+                        <span data-t="x_no_api">أضف مفتاح API لتبدأ التوليد</span>
+                        <button class="btn btn-primary btn-sm" onclick="switchPanel('settings')" data-t="x_go_settings">فتح الإعدادات</button>
                     </div>
-                    <input type="file" id="pdfInput" accept=".pdf" class="hidden" multiple onchange="addPDFs(this.files)">
-                    <div id="filePillList" style="margin-bottom:8px"></div>
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label data-t="q_count">عدد الأسئلة</label>
-                            <div class="chip-row" id="qCountChips" style="margin-top:4px">
+
+                    <!-- Step 1: source -->
+                    <section class="gen-step" id="genStep1">
+                        <div class="gen-step-head">
+                            <span class="gen-step-num">1</span>
+                            <span class="gen-step-title" data-t="x_step_source">المصدر</span>
+                            <div class="seg" id="srcSeg" style="margin-inline-start:auto">
+                                <button type="button" class="seg-btn active" data-val="pdf" onclick="setGenSource('pdf')" data-t="x_src_pdf">ملف PDF</button>
+                                <button type="button" class="seg-btn" data-val="text" onclick="setGenSource('text')" data-t="x_src_text">نص</button>
+                            </div>
+                        </div>
+                        <div id="genSrcPdf">
+                            <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'" ondragleave="event.preventDefault();this.style.borderColor='';this.style.background=''" ondrop="handleDrop(event)">
+                                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <div class="drop-title" data-t="drop_zone_title">انقر هنا أو اسحب ملف PDF</div>
+                                <div class="drop-hint" data-t="x_drop_hint">PDF · يمكن رفع عدة ملفات واختيار نطاق الصفحات</div>
+                            </div>
+                            <input type="file" id="pdfInput" accept=".pdf" class="hidden" multiple onchange="addPDFs(this.files)">
+                            <div id="filePillList"></div>
+                        </div>
+                        <div id="genSrcText" class="hidden">
+                            <textarea id="genPasteText" rows="7" data-t="x_q_paste_ph" placeholder="الصق النص هنا (50 حرفاً على الأقل)..." oninput="onGenPaste(this.value)"></textarea>
+                            <div class="gen-char" id="genPasteCount"></div>
+                        </div>
+                    </section>
+
+                    <!-- Step 2: settings -->
+                    <section class="gen-step" id="genStep2">
+                        <div class="gen-step-head">
+                            <span class="gen-step-num">2</span>
+                            <span class="gen-step-title" data-t="x_step_setup">الإعدادات</span>
+                        </div>
+                        <div class="gen-row">
+                            <span class="gen-lbl" data-t="q_count">عدد الأسئلة</span>
+                            <div class="chip-row" id="qCountChips" style="margin:0">
                                 <span class="chip" data-val="10" onclick="setQCount(this)">10</span>
                                 <span class="chip active" data-val="15" onclick="setQCount(this)">15</span>
                                 <span class="chip" data-val="20" onclick="setQCount(this)">20</span>
@@ -1440,32 +1724,66 @@
                             </div>
                             <input type="hidden" id="qCount" value="15">
                         </div>
-                        <div class="input-group"><label data-t="difficulty">الصعوبة</label><select id="diffSel" onchange="ls('app_diff',this.value)"><option value="سهل" data-t="easy">سهل</option><option value="متوسط" selected data-t="medium">متوسط</option><option value="صعب" data-t="hard">صعب</option></select></div>
-                        <div class="input-group"><label data-t="language">اللغة</label><select id="langSel" onchange="ls('app_lang_sel',this.value)"><option value="عربي" selected data-t="arabic">عربي</option><option value="English">English</option></select></div>
-                    </div>
-                    <div class="input-row">
-                        <div class="input-group"><label data-t="quiz_name">اسم الاختبار</label><input id="quizNameInput" placeholder="مثلاً اختبار الفصل الأول" value="" oninput="ls('app_quizName',this.value)"></div>
-                    </div>
+                        <div class="gen-row">
+                            <span class="gen-lbl" data-t="difficulty">الصعوبة</span>
+                            <div class="seg" id="diffSeg">
+                                <button type="button" class="seg-btn" data-val="سهل" onclick="setGenSeg('diffSel',this)" data-t="easy">سهل</button>
+                                <button type="button" class="seg-btn active" data-val="متوسط" onclick="setGenSeg('diffSel',this)" data-t="medium">متوسط</button>
+                                <button type="button" class="seg-btn" data-val="صعب" onclick="setGenSeg('diffSel',this)" data-t="hard">صعب</button>
+                            </div>
+                            <select id="diffSel" class="hidden" onchange="ls('app_diff',this.value);updateGenStrip()"><option value="سهل" data-t="easy">سهل</option><option value="متوسط" selected data-t="medium">متوسط</option><option value="صعب" data-t="hard">صعب</option></select>
+                        </div>
+                        <div class="gen-row">
+                            <span class="gen-lbl" data-t="language">اللغة</span>
+                            <div class="seg" id="langSeg">
+                                <button type="button" class="seg-btn active" data-val="عربي" onclick="setGenSeg('langSel',this)" data-t="arabic">عربي</button>
+                                <button type="button" class="seg-btn" data-val="English" onclick="setGenSeg('langSel',this)">English</button>
+                            </div>
+                            <select id="langSel" class="hidden" onchange="ls('app_lang_sel',this.value);updateGenStrip()"><option value="عربي" selected data-t="arabic">عربي</option><option value="English">English</option></select>
+                        </div>
+                        <div class="gen-row" style="flex-direction:column;align-items:flex-start">
+                            <span class="gen-lbl" data-t="x_q_style">نمط الأسئلة</span>
+                            <div class="chip-row" id="qStyleChips" style="margin:0">
+                                <span class="chip active" data-val="mixed" onclick="setQStyle(this)" data-t="x_qs_mixed">متنوع</span>
+                                <span class="chip" data-val="recall" onclick="setQStyle(this)" data-t="x_qs_recall">حفظ واسترجاع</span>
+                                <span class="chip" data-val="clinical" onclick="setQStyle(this)" data-t="x_qs_clinical">حالات سريرية</span>
+                                <span class="chip" data-val="application" onclick="setQStyle(this)" data-t="x_qs_application">تطبيق وتحليل</span>
+                            </div>
+                        </div>
+                        <div class="gen-row" style="flex-direction:column;align-items:stretch">
+                            <span class="gen-lbl" data-t="quiz_name">اسم الاختبار</span>
+                            <input id="quizNameInput" data-t="x_quiz_name_ph" placeholder="مثلاً اختبار الفصل الأول" value="" oninput="ls('app_quizName',this.value)">
+                        </div>
+                        <details class="gen-adv">
+                            <summary data-t="x_adv">خيارات متقدمة</summary>
+                            <label class="gen-lbl" data-t="x_q_note" style="display:block;margin:10px 0 6px">تعليمات إضافية للـ AI (اختياري)</label>
+                            <textarea id="genExtraNote" rows="2" data-t="x_q_note_ph" placeholder="مثلاً: ركّز على الأدوية والجرعات، تجنّب أسئلة التاريخ..." oninput="ls('app_genNote',this.value)"></textarea>
+                        </details>
+                    </section>
 
                     <!-- AI Status -->
                     <div id="aiStatus" class="hidden" style="margin-bottom:14px">
-                        <div style="background:var(--surface2);border:1px solid var(--border);padding:14px;display:flex;align-items:center;gap:10px">
+                        <div style="background:var(--surface);border-radius:var(--radius-lg);padding:14px;display:flex;align-items:center;gap:10px">
                             <div id="aiSpinner" style="width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
-                            <span id="aiStatusText" style="font-family:var(--mono);font-size:12px;color:var(--text3)"></span>
+                            <span id="aiStatusText" style="font-size:13px;color:var(--text3)"></span>
                         </div>
                     </div>
-                    <div class="btn-group">
-                        <button class="btn btn-primary" id="btnGenMCQ" disabled onclick="nvidiaMCQ()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
-                            <span data-t="gen_mcq_btn">توليد MCQ</span>
-                        </button>
-                        <button class="btn" id="btnGenCards" disabled onclick="nvidiaCards()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                            <span data-t="gen_cards_btn">توليد بطاقات</span>
-                        </button>
 
+                    <!-- Sticky action bar -->
+                    <div class="gen-actions">
+                        <div class="gen-strip" id="genStrip"></div>
+                        <div class="gen-actions-row">
+                            <button class="btn btn-primary" id="btnGenMCQ" disabled onclick="nvidiaMCQ()" style="flex:2">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
+                                <span data-t="gen_mcq_btn">توليد MCQ</span>
+                            </button>
+                            <button class="btn" id="btnGenCards" disabled onclick="nvidiaCards()" style="flex:1">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                                <span data-t="gen_cards_btn">توليد بطاقات</span>
+                            </button>
+                        </div>
                     </div>
-                    <div id="groqStatus" class="hidden card" style="font-family:var(--mono);font-size:12px;text-align:center"></div>
+                    <div id="groqStatus" class="hidden card" style="font-size:13px;text-align:center"></div>
                 </div>
 
                 <!-- TODO / LECTURES PANEL -->
@@ -1484,7 +1802,7 @@
                                 <input type="number" id="lecCountInput" min="1" max="60" value="12" style="max-width:120px">
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="applyLecCount()">تطبيق</button>
+                        <button class="btn btn-primary btn-sm" onclick="applyLecCount()" data-t="x_apply">تطبيق</button>
                     </div>
                     <!-- Overall progress bar -->
                     <div id="todoOverallProgress" style="margin-bottom:20px"></div>
@@ -1505,9 +1823,9 @@
                 <div class="panel" id="panel-summary">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
                         <h1 class="page-title" data-t="summary_library_title" style="margin-bottom:0">الملخصات</h1>
-                        <button class="panel-add-btn" onclick="openSummaryModal()" title="ملخص جديد">
+                        <button class="panel-add-btn" onclick="openSummaryModal()">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            <span>ملخص جديد</span>
+                            <span data-t="x_new_summary">ملخص جديد</span>
                         </button>
                     </div>
                     <p class="page-subtitle" data-t="summary_lib_subtitle">ملخصات ذكية من ملفات PDF أو نص مباشر</p>
@@ -1527,9 +1845,9 @@
                         <button id="sumTabText" onclick="switchSumTab('text')"></button>
                         <div id="summaryAiStatus"><span id="summaryAiStatusText"></span><div id="summaryProgressBar"><div id="summaryProgressFill"></div></div></div>
                         <div id="summaryLengthChips">
-                            <span class="chip" data-length="short" onclick="setSummaryLength(this)">Short</span>
-                            <span class="chip active" data-length="medium" onclick="setSummaryLength(this)">Middle</span>
-                            <span class="chip" data-length="long" onclick="setSummaryLength(this)">Long</span>
+                            <span class="chip" data-length="short" onclick="setSummaryLength(this)" data-t="x_len_short">Short</span>
+                            <span class="chip active" data-length="medium" onclick="setSummaryLength(this)" data-t="x_len_medium">Middle</span>
+                            <span class="chip" data-length="long" onclick="setSummaryLength(this)" data-t="x_len_long">Long</span>
                         </div>
                         <div id="summaryLengthHint"></div>
                         <button id="btnGenSummary" onclick="nvidiaSummary()">إنشاء</button>
@@ -1550,7 +1868,7 @@
                                 </button>
                                 <button class="btn btn-sm btn-primary" onclick="downloadCurrentSummaryDirect()" title="تحميل الملخص">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    <span>تحميل</span>
+                                    <span data-t="x_download">تحميل</span>
                                 </button>
                             </div>
                         </div>
@@ -1558,18 +1876,18 @@
                     </div>
 
                     <!-- Saved Summaries Library -->
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-                        <div class="section-label" style="margin-bottom:0" data-t="summary_library_title">المكتبة المحفوظة</div>
-                        <div style="display:flex;gap:6px">
-                            <button class="btn btn-sm" onclick="exportSummaryLib()" data-t="export">تصدير</button>
-                            <button class="btn btn-sm" onclick="document.getElementById('summarySearchWrap').classList.toggle('hidden')">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            </button>
+                    <div class="sl-toolbar">
+                        <div class="sl-search">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input id="summarySearch" data-t="x_search_summaries" placeholder="ابحث في الملخصات..." oninput="renderSummaryLib()">
                         </div>
+                        <div class="seg" id="sumSortSeg">
+                            <button type="button" class="seg-btn active" data-val="new" onclick="setSumSort('new')" data-t="x_sort_new">الأحدث</button>
+                            <button type="button" class="seg-btn" data-val="az" onclick="setSumSort('az')" data-t="x_sort_az">الاسم</button>
+                        </div>
+                        <button class="btn btn-sm" onclick="exportSummaryLib()" data-t="export">تصدير</button>
                     </div>
-                    <div id="summarySearchWrap" class="hidden" style="margin-bottom:10px">
-                        <input id="summarySearch" placeholder="ابحث في الملخصات..." oninput="renderSummaryLib()" style="margin-bottom:0">
-                    </div>
+                    <div class="sl-count" id="summaryLibCount"></div>
                     <div id="summaryLibList"></div>
                 </div>
 
@@ -1600,7 +1918,7 @@
                     <p class="page-subtitle" data-t="error_bank_subtitle">الأسئلة التي أخطأت فيها — راجعها لتتقن المادة</p>
                     <button class="btn btn-primary btn-full" style="margin-bottom:14px" onclick="reviewAllErrors()" data-t="review_all_errors">مراجعة جميع الأخطاء</button>
                     <div class="chip-row" id="errSort"></div>
-                    <input id="errSearch" placeholder="Search..." style="margin-bottom:10px" oninput="renderErrors()">
+                    <input id="errSearch" data-t="x_search" placeholder="Search..." style="margin-bottom:10px" oninput="renderErrors()">
                     <div id="errList"></div>
                     <div class="btn-group" style="margin-top:14px">
                         <button class="btn btn-sm" onclick="exportErrors()" data-t="export">تصدير</button>
@@ -1635,31 +1953,30 @@
                         <div class="card-header">
                             <span class="card-title" style="display:flex;align-items:center;gap:8px">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                                إعدادات توليد البطاقات
+                                <span data-t="x_card_settings_title">إعدادات توليد البطاقات</span>
                             </span>
                         </div>
-                        <p style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:var(--mono)">تُطبَّق عند توليد البطاقات من PDF — يمكن اختيار أكثر من نوع تركيز</p>
+                        <p style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:var(--mono)" data-t="x_card_settings_hint">تُطبَّق عند توليد البطاقات من PDF — يمكن اختيار أكثر من نوع تركيز</p>
 
-                        <div class="card-settings-label" style="margin-bottom:8px">نوع التركيز — يمكن تحديد أكثر من واحد</div>
+                        <div class="card-settings-label" style="margin-bottom:8px" data-t="x_focus_label">نوع التركيز — يمكن تحديد أكثر من واحد</div>
                         <div class="card-focus-row" id="focusChips">
-                            <span class="focus-chip active" data-focus="general" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> General</span>
-                            <span class="focus-chip" data-focus="definition" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Definitions</span>
-                            <span class="focus-chip" data-focus="enumeration" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6" stroke-width="3"/><line x1="3" y1="12" x2="3.01" y2="12" stroke-width="3"/><line x1="3" y1="18" x2="3.01" y2="18" stroke-width="3"/></svg> Enumerations</span>
-                            <span class="focus-chip" data-focus="concept" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg> Concepts</span>
-                            <span class="focus-chip" data-focus="mechanism" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> Mechanisms</span>
-                            <span class="focus-chip" data-focus="comparison" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Comparisons</span>
-                            <span class="focus-chip" data-focus="formula" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg> Formulas</span>
-                            <span class="focus-chip" data-focus="clinical" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Clinical / Cases</span>
+                            <span class="focus-chip active" data-focus="general" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> <span data-t="x_f_general">General</span></span>
+                            <span class="focus-chip" data-focus="definition" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> <span data-t="x_f_definition">Definitions</span></span>
+                            <span class="focus-chip" data-focus="enumeration" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6" stroke-width="3"/><line x1="3" y1="12" x2="3.01" y2="12" stroke-width="3"/><line x1="3" y1="18" x2="3.01" y2="18" stroke-width="3"/></svg> <span data-t="x_f_enumeration">Enumerations</span></span>
+                            <span class="focus-chip" data-focus="concept" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg> <span data-t="x_f_concept">Concepts</span></span>
+                            <span class="focus-chip" data-focus="mechanism" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> <span data-t="x_f_mechanism">Mechanisms</span></span>
+                            <span class="focus-chip" data-focus="comparison" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> <span data-t="x_f_comparison">Comparisons</span></span>
+                            <span class="focus-chip" data-focus="formula" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg> <span data-t="x_f_formula">Formulas</span></span>
+                            <span class="focus-chip" data-focus="clinical" onclick="toggleFocusChip(this)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> <span data-t="x_f_clinical">Clinical / Cases</span></span>
                         </div>
 
-                        <div class="card-settings-label" style="margin-top:16px;margin-bottom:8px">عدد البطاقات — Card Count</div>
+                        <div class="card-settings-label" style="margin-top:16px;margin-bottom:8px" data-t="x_card_count">عدد البطاقات</div>
 
                         <!-- Auto Card toggle -->
                         <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);background:var(--surface2);margin-bottom:10px">
                             <div>
-                                <div style="font-size:12px;font-weight:600;color:var(--text)">Auto Card</div>
-                                <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px">AI decides the ideal card count to cover the whole PDF</div>
-                                <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px">الذكاء الاصطناعي يقرر العدد المناسب لتغطية كامل الـ PDF</div>
+                                <div style="font-size:12px;font-weight:600;color:var(--text)" data-t="x_auto_card">Auto Card</div>
+                                <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px" data-t="x_auto_card_hint">AI decides the ideal card count to cover the whole PDF</div>
                             </div>
                             <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
                                 <input type="checkbox" id="autoCardToggle" style="opacity:0;width:0;height:0" onchange="toggleAutoCard(this)">
@@ -1678,8 +1995,8 @@
                         </div>
                         </div>
 
-                        <div class="card-settings-label" style="margin-top:16px;margin-bottom:6px">ملاحظة إضافية للـ AI (اختياري)</div>
-                        <input id="cardExtraNote" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px;margin-bottom:0">
+                        <div class="card-settings-label" style="margin-top:16px;margin-bottom:6px" data-t="x_card_note_label">ملاحظة إضافية للـ AI (اختياري)</div>
+                        <input id="cardExtraNote" data-t="x_card_note_ph" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px;margin-bottom:0">
                         <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:6px" id="focusActiveLabel">التركيز الحالي: General</div>
                     </div>
                 </div>
@@ -1912,7 +2229,23 @@
             decks_subtitle:'مجموعات البطاقات التعليمية للمراجعة المتباعدة',
             add_deck:'إضافة مجموعة', deck_name:'اسم المجموعة', add_from_json:'+ إضافة من JSON',
             create:'إنشاء', history_title:'السجل', history_subtitle:'سجل اختباراتك السابقة',
-            review_last:'مراجعة', import_json:'استيراد JSON', start:'بدء', export:'تصدير',
+            review_last:'مراجعة',
+            x_new_summary:'ملخص جديد', x_download:'تحميل', x_search_summaries:'ابحث في الملخصات...',
+            x_quiz_name_ph:'مثلاً: اختبار الفصل الأول', x_search:'بحث...',
+            x_card_note_ph:'مثلاً: ركّز على المضاعفات فقط، تجاهل التاريخ...', x_card_note_label:'ملاحظة إضافية للـ AI (اختياري)',
+            x_card_settings_title:'إعدادات توليد البطاقات',
+            x_card_settings_hint:'تُطبَّق عند توليد البطاقات من PDF — يمكن اختيار أكثر من نوع تركيز',
+            x_focus_label:'نوع التركيز — يمكن تحديد أكثر من واحد', x_card_count:'عدد البطاقات',
+            x_auto_card:'بطاقات تلقائية', x_auto_card_hint:'الذكاء الاصطناعي يقرر العدد المناسب لتغطية كامل الـ PDF',
+            x_apply:'تطبيق', x_drop_hint:'PDF · يمكن رفع عدة ملفات واختيار نطاق الصفحات',
+            x_len_short:'قصير', x_len_medium:'متوسط', x_len_long:'طويل',
+            x_f_general:'عام', x_f_definition:'تعريفات', x_f_enumeration:'تعدادات', x_f_concept:'مفاهيم',
+            x_f_mechanism:'آليات', x_f_comparison:'مقارنات', x_f_formula:'معادلات', x_f_clinical:'حالات سريرية',
+            x_q_style:'نمط الأسئلة', x_qs_mixed:'متنوع', x_qs_recall:'حفظ واسترجاع', x_qs_clinical:'حالات سريرية', x_qs_application:'تطبيق وتحليل',
+            x_q_note:'تعليمات إضافية للـ AI (اختياري)', x_q_note_ph:'مثلاً: ركّز على الأدوية والجرعات، تجنّب أسئلة التاريخ...',
+            x_q_paste:'أو الصق نصاً مباشرة بدل PDF', x_q_paste_ph:'الصق النص هنا (50 حرفاً على الأقل)...',
+            x_step_source:'المصدر', x_step_setup:'الإعدادات', x_src_pdf:'ملف PDF', x_src_text:'نص',
+            x_adv:'خيارات متقدمة', x_sort_new:'الأحدث', x_sort_az:'الاسم', x_q_word:'السؤال', x_flag:'تعليم', x_prev:'السابق', x_next:'التالي', x_finish:'إنهاء الاختبار', x_optional:'اختياري', x_no_api:'أضف مفتاح API لتبدأ التوليد', x_go_settings:'فتح الإعدادات', import_json:'استيراد JSON', start:'بدء', export:'تصدير',
             clear_all:'مسح الكل', error_bank_title:'بنك الأخطاء',
             error_bank_subtitle:'الأسئلة التي أخطأت فيها — راجعها لتتقن المادة',
             review_all_errors:'مراجعة جميع الأخطاء', stats_title:'الإحصاءات',
@@ -1945,7 +2278,7 @@
             weekly_activity:'النشاط الأسبوعي', topic_breakdown:'أداء المصادر',
             time_per_q:'وقت/سؤال', avg_time:'متوسط الوقت',
             due_cards_banner:'لديك بطاقات مستحقة للمراجعة — انقر للدراسة',
-            explain_groq:'اشرح مع Groq', summary_saved:'تم حفظ الملخص',
+            explain_groq:'اشرح بالذكاء الاصطناعي', summary_saved:'تم حفظ الملخص',
             no_summaries:'لا توجد ملخصات محفوظة', view:'عرض',
             summary_library_title:'الملخصات', summary_lib_subtitle:'ملخصات ذكية من ملفات PDF',
             sum_style_label:'نوع الملخص', sum_detailed:'مفصّل', sum_bullets:'نقاط',
@@ -1983,7 +2316,23 @@
             decks_subtitle:'Flashcard decks for spaced repetition review',
             add_deck:'Add Deck', deck_name:'Deck Name', add_from_json:'+ Add from JSON',
             create:'Create', history_title:'History', history_subtitle:'Your past quiz records',
-            review_last:'Review', import_json:'Import JSON', start:'Start', export:'Export',
+            review_last:'Review',
+            x_new_summary:'New Summary', x_download:'Download', x_search_summaries:'Search summaries...',
+            x_quiz_name_ph:'e.g. Chapter 1 quiz', x_search:'Search...',
+            x_card_note_ph:'e.g. focus on complications only, ignore history...', x_card_note_label:'Extra note for the AI (optional)',
+            x_card_settings_title:'Card Generation Settings',
+            x_card_settings_hint:'Applied when generating cards from a PDF — you can pick more than one focus type',
+            x_focus_label:'Focus type — you can select more than one', x_card_count:'Card Count',
+            x_auto_card:'Auto Card', x_auto_card_hint:'AI decides the ideal card count to cover the whole PDF',
+            x_apply:'Apply', x_drop_hint:'PDF · upload multiple files and choose a page range',
+            x_len_short:'Short', x_len_medium:'Medium', x_len_long:'Long',
+            x_f_general:'General', x_f_definition:'Definitions', x_f_enumeration:'Enumerations', x_f_concept:'Concepts',
+            x_f_mechanism:'Mechanisms', x_f_comparison:'Comparisons', x_f_formula:'Formulas', x_f_clinical:'Clinical / Cases',
+            x_q_style:'Question style', x_qs_mixed:'Mixed', x_qs_recall:'Recall', x_qs_clinical:'Clinical cases', x_qs_application:'Application',
+            x_q_note:'Extra instructions for the AI (optional)', x_q_note_ph:'e.g. focus on drugs and doses, avoid history questions...',
+            x_q_paste:'Or paste text directly instead of a PDF', x_q_paste_ph:'Paste your text here (at least 50 characters)...',
+            x_step_source:'Source', x_step_setup:'Settings', x_src_pdf:'PDF file', x_src_text:'Text',
+            x_adv:'Advanced options', x_sort_new:'Newest', x_sort_az:'A–Z', x_q_word:'Question', x_flag:'Flag', x_prev:'Previous', x_next:'Next', x_finish:'Finish quiz', x_optional:'optional', x_no_api:'Add an API key to start generating', x_go_settings:'Open Settings', import_json:'Import JSON', start:'Start', export:'Export',
             clear_all:'Clear All', error_bank_title:'Error Bank',
             error_bank_subtitle:'Questions you got wrong — review them to master the material',
             review_all_errors:'Review All Errors', stats_title:'Statistics',
@@ -2016,7 +2365,7 @@
             weekly_activity:'Weekly Activity', topic_breakdown:'Source Performance',
             time_per_q:'Time/Question', avg_time:'Avg Time',
             due_cards_banner:'You have cards due for review — click to study',
-            explain_groq:'Explain with Groq', summary_saved:'Summary saved',
+            explain_groq:'Explain with AI', summary_saved:'Summary saved',
             no_summaries:'No saved summaries', view:'View',
             summary_library_title:'Summaries', summary_lib_subtitle:'AI-powered smart summaries from PDF files',
             sum_style_label:'Summary Type', sum_detailed:'Detailed', sum_bullets:'Bullets',
@@ -2038,7 +2387,7 @@
         const activePanel = document.querySelector('.panel.active');
         if (activePanel) {
             const id = activePanel.id.replace('panel-','');
-            const r = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress};
+            const r = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummaryLib};
             if (r[id]) r[id]();
         }
         toast(t('saved') + ' — ' + (currentLang==='ar'?'العربية':'English'));
@@ -2052,6 +2401,7 @@
             else if (el.tagName === 'OPTION') el.textContent = TR[currentLang][key];
             else el.textContent = TR[currentLang][key];
         });
+        try { refreshFocusLabel(); updateGenStrip(); } catch(e) {}
     }
 
     // ── COLOR PALETTE ──────────────────────────────
@@ -2477,8 +2827,10 @@
     function syncPdfText() {
         pdfText = _pdfFiles.map(f=>f.text).join('\n\n---\n\n').trim();
         pdfFile = _pdfFiles.map(f=>f.name.replace(/\.pdf$/i,'')).join(' + ');
+        if (_genSrc === 'text') { const pv = (($('genPasteText') && $('genPasteText').value) || '').trim(); pdfText = pv.length >= 50 ? pv : ''; pdfFile = pdfText ? (currentLang==='ar' ? 'نص ملصوق' : 'Pasted text') : ''; }
         renderFilePills();
         ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+        updateGenStrip();
     }
 
     function setPDFRange(idx, from, to) {
@@ -2506,6 +2858,7 @@
         if ($('groqStatus')) hide($('groqStatus'));
         ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled=true; });
         $('pdfInput').value='';
+        updateGenStrip();
     }
 
     function handleDrop(e) {
@@ -2522,6 +2875,7 @@
         el.classList.add('active');
         $('qCount').value = el.dataset.val;
         ls('app_qCount', el.dataset.val);
+        updateGenStrip();
     }
 
     // ── Smart text chunking for long PDFs ───────────────────────────────
@@ -2552,6 +2906,67 @@
         return items.length ? items : null;
     }
 
+    // ── Question-generation page helpers ─────────────────────────────
+    let _genStyle = 'mixed';
+    let _genSrc = 'pdf';
+    function setGenSource(mode) {
+        _genSrc = mode;
+        document.querySelectorAll('#srcSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === mode));
+        $('genSrcPdf').classList.toggle('hidden', mode !== 'pdf');
+        $('genSrcText').classList.toggle('hidden', mode !== 'text');
+        if (mode === 'text') onGenPaste(($('genPasteText') && $('genPasteText').value) || '');
+        else syncPdfText();
+    }
+    function setGenSeg(selId, btn) {
+        const sel = $(selId); if (!sel) return;
+        sel.value = btn.dataset.val;
+        sel.dispatchEvent(new Event('change'));
+    }
+    function setQStyle(el) {
+        document.querySelectorAll('#qStyleChips .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _genStyle = el.dataset.val;
+        ls('app_qStyle', _genStyle);
+    }
+    function genStyleBlock() {
+        const g = {
+            recall: 'Prefer direct recall: definitions, names, values, lists and classifications stated in the text.',
+            clinical: 'Write most questions as short clinical/case scenarios (signalment, history, findings) that end in a precise question answerable from the text.',
+            application: 'Prefer application and reasoning: why/how questions, cause-effect chains, and choosing the correct action or interpretation based on the text.'
+        }[_genStyle] || '';
+        const note = (($('genExtraNote') && $('genExtraNote').value) || '').trim();
+        let out = '';
+        if (g) out += '\n\nSTYLE: ' + g;
+        if (note) out += '\n\nUSER INSTRUCTIONS (follow strictly; they override the defaults if they conflict): ' + note.slice(0, 600);
+        return out;
+    }
+    function onGenPaste(v) {
+        if (_genSrc !== 'text') return;
+        const txt = (v || '').trim();
+        pdfText = txt.length >= 50 ? txt : '';
+        pdfFile = pdfText ? (currentLang === 'ar' ? 'نص ملصوق' : 'Pasted text') : '';
+        const c = $('genPasteCount');
+        if (c) c.textContent = txt ? txt.length.toLocaleString() + (currentLang === 'ar' ? ' حرف' : ' characters') + (txt.length < 50 ? (currentLang === 'ar' ? ' — الحد الأدنى 50' : ' — minimum 50') : '') : '';
+        ['btnGenMCQ','btnGenCards'].forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
+        updateGenStrip();
+    }
+    function updateGenStrip() {
+        const el = $('genStrip'); if (!el) return;
+        const isAr = currentLang === 'ar';
+        [['diffSel','diffSeg'],['langSel','langSeg']].forEach(([a, b]) => {
+            const sel = $(a); if (!sel) return;
+            document.querySelectorAll('#' + b + ' .seg-btn').forEach(x => x.classList.toggle('active', x.dataset.val === sel.value));
+        });
+        const st1 = $('genStep1'); if (st1) st1.classList.toggle('done', !!pdfText);
+        try { const bn = $('genApiBanner'); if (bn) bn.classList.toggle('hidden', getApiList().length > 0); } catch (e) {}
+        const words = pdfText ? pdfText.split(/\s+/).filter(Boolean).length : 0;
+        const count = ($('qCount') && $('qCount').value) || '15';
+        const diff = ($('diffSel') && $('diffSel').selectedOptions[0]) ? $('diffSel').selectedOptions[0].textContent : '';
+        const lang = ($('langSel') && $('langSel').selectedOptions[0]) ? $('langSel').selectedOptions[0].textContent : '';
+        if (!words) { el.innerHTML = '<span>' + (isAr ? 'ارفع ملف PDF أو الصق نصاً للبدء' : 'Upload a PDF or paste text to start') + '</span>'; return; }
+        el.innerHTML = `<span>📄 <b>${words.toLocaleString()}</b> ${isAr ? 'كلمة' : 'words'}</span><span>·</span><span><b>${count}</b> ${isAr ? 'سؤال' : 'questions'}</span><span>·</span><span>${diff}</span><span>·</span><span>${lang}</span>`;
+    }
+
     function buildMCQP(text, count, lang, diff) {
         count = count || $('qCount').value || 10;
         lang  = lang  || $('langSel').value || 'English';
@@ -2565,7 +2980,7 @@
 
         return `You are a rigorous medical/academic exam writer. Generate exactly ${count} high-quality MCQ questions in ${lang} from the text below.
 
-DIFFICULTY: ${diff.toUpperCase()} — ${diffGuide}
+DIFFICULTY: ${diff.toUpperCase()} — ${diffGuide}${genStyleBlock()}
 
 ═══ QUESTION CONSTRUCTION RULES ═══
 
@@ -2831,58 +3246,74 @@ ${text}`;
         url => `https://cors-anywhere.herokuapp.com/${url}`,
     ];
 
-    function getActiveApiConfig() {
-        const key = (lg('app_apiKey') || '').trim();
-        if (!key) throw new Error(currentLang === 'ar'
-            ? 'أضف مفتاح API أولاً من الإعدادات'
-            : 'Add your API key in Settings first');
-        const p = API_PROVIDERS[lg('app_apiProvider')] || API_PROVIDERS.deepseek;
-        return {
-            key,
-            model: (lg('app_apiModel') || '').trim() || p.models[0],
-            endpoint: p.endpoint,
-            extra: p.extra,
-            maxOut: p.maxOut
-        };
-    }
-
-    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=32768, temperature=0.0) {
-        const { key: apiKey, model: apiModel, endpoint: apiEndpoint, extra: apiExtra, maxOut: apiMaxOut } = getActiveApiConfig();
-        const body = JSON.stringify({
-            model: apiModel,
-            messages:[{role:'system',content:system},{role:'user',content:prompt}],
-            max_tokens: Math.min(maxTokens, apiMaxOut),
-            temperature: temperature,
-            ...apiExtra
-        });
-        const headers = {'Content-Type':'application/json','Authorization':'Bearer '+apiKey};
-
-        // 1. Try direct call first
-        try {
-            const r = await fetch(apiEndpoint, {method:'POST', headers, body});
-            if (r.ok) { const d=await r.json(); return d.choices[0].message.content; }
-            const d = await r.json().catch(()=>({}));
-            // Real API error (not CORS) — throw immediately
-            throw new Error(d.error?.message || d.detail || d.message || ('HTTP '+r.status));
-        } catch(directErr) {
-            // Only continue to proxy if it's a network/CORS TypeError
-            if (directErr.name !== 'TypeError') throw directErr;
+    // ── Multiple API accounts (saved list + automatic fallback) ──────────
+    function getApiList() {
+        let list = [];
+        try { list = JSON.parse(lg('app_apiList') || '[]'); } catch { list = []; }
+        if (!Array.isArray(list)) list = [];
+        const legacy = (lg('app_apiKey') || '').trim();
+        if (!list.length && legacy) {   // migrate the old single key
+            list = [{ id: 'api_' + Date.now(), provider: API_PROVIDERS[lg('app_apiProvider')] ? lg('app_apiProvider') : 'deepseek', model: (lg('app_apiModel') || '').trim(), key: legacy, label: '' }];
+            ls('app_apiList', JSON.stringify(list)); ls('app_apiActive', list[0].id);
         }
+        if (legacy) ls('app_apiKey', '');
+        return list;
+    }
+    function saveApiList(list) { ls('app_apiList', JSON.stringify(list)); }
 
-        // 2. Try CORS proxies in sequence
+    function getApiConfigs() {
+        const list = getApiList().filter(a => a && a.key);
+        if (!list.length) throw new Error(currentLang === 'ar' ? 'أضف مفتاح API أولاً من الإعدادات' : 'Add your API key in Settings first');
+        const activeId = lg('app_apiActive');
+        let ordered = [...list.filter(a => a.id === activeId), ...list.filter(a => a.id !== activeId)];
+        if (lg('app_apiFallback') === '0') ordered = ordered.slice(0, 1);
+        return ordered.map(a => {
+            const p = API_PROVIDERS[a.provider] || API_PROVIDERS.deepseek;
+            return { id: a.id, name: a.label || p.name, key: a.key.trim(), model: (a.model || '').trim() || p.models[0], endpoint: p.endpoint, extra: p.extra, maxOut: p.maxOut };
+        });
+    }
+    function getActiveApiConfig() { return getApiConfigs()[0]; }
+
+    async function _callApiOnce(cfg, messages, maxTokens, temperature) {
+        const body = JSON.stringify({ model: cfg.model, messages, max_tokens: Math.min(maxTokens, cfg.maxOut), temperature, ...cfg.extra });
+        const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key };
+        try {
+            const r = await fetch(cfg.endpoint, { method: 'POST', headers, body });
+            if (r.ok) { const d = await r.json(); return d.choices[0].message.content; }
+            const d = await r.json().catch(() => ({}));
+            throw new Error(d.error?.message || d.detail || d.message || ('HTTP ' + r.status));
+        } catch (directErr) {
+            if (directErr.name !== 'TypeError') throw directErr;   // real API error, not CORS
+        }
         let lastErr = null;
         for (const makeProxy of CORS_PROXIES) {
             try {
-                const proxyUrl = makeProxy(apiEndpoint);
-                const r = await fetch(proxyUrl, {method:'POST', headers, body});
-                if (!r.ok) { const d=await r.json().catch(()=>({})); throw new Error(d.error?.message||('HTTP '+r.status)); }
+                const r = await fetch(makeProxy(cfg.endpoint), { method: 'POST', headers, body });
+                if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error?.message || ('HTTP ' + r.status)); }
                 const d = await r.json();
-                // allorigins wraps in {contents:...}
                 const parsed = d.contents ? JSON.parse(d.contents) : d;
                 return parsed.choices[0].message.content;
-            } catch(e) { lastErr = e; }
+            } catch (e) { lastErr = e; }
         }
-        throw new Error('Network error — check your connection. ' + (lastErr?.message||''));
+        throw new Error('Network error — check your connection. ' + (lastErr?.message || ''));
+    }
+
+    // Tries the active API first, then the others (if auto-switch is on)
+    async function apiChatMessages(messages, maxTokens = 32768, temperature = 0.0) {
+        const cfgs = getApiConfigs();
+        let lastErr = null;
+        for (let i = 0; i < cfgs.length; i++) {
+            try { return await _callApiOnce(cfgs[i], messages, maxTokens, temperature); }
+            catch (e) {
+                lastErr = e;
+                if (i < cfgs.length - 1) toast((currentLang === 'ar' ? 'تعذّر ' : 'Failed: ') + cfgs[i].name + (currentLang === 'ar' ? ' — جاري التبديل إلى ' : ' — switching to ') + cfgs[i + 1].name);
+            }
+        }
+        throw lastErr;
+    }
+
+    async function nvidiaChat(prompt, system='You are a helpful AI. Output exactly as requested.', maxTokens=32768, temperature=0.0) {
+        return apiChatMessages([{ role: 'system', content: system }, { role: 'user', content: prompt }], maxTokens, temperature);
     }
 
     function parseJSON(t) {
@@ -2927,17 +3358,21 @@ ${text}`;
     let _currentSummaryResult = '', _currentSummaryData = null, sumCurrentTab = 'pdf';
     let _summaryLength = 'medium'; // 'short' | 'medium' | 'long'
 
+    function sumLenHint(len) {
+        const ar = currentLang === 'ar';
+        const h = {
+            short:  ar ? 'نظرة سريعة — 2–3 أقسام، النقاط الأساسية فقط، بدون جداول' : 'Brief overview — 2–3 sections, key points only, no tables',
+            medium: ar ? 'ملخص متوازن — 4–6 أقسام مع النقاط والمصطلحات المهمة' : 'Balanced summary — 4–6 sections with key points and terms',
+            long:   ar ? 'تغطية كاملة — 8–14 قسماً، جداول متعددة، نقاط غنية، 12–20 مصطلحاً' : 'Full deep-dive — 8–14 sections, multiple tables, rich bullet points, 12–20 key terms'
+        };
+        return h[len] || '';
+    }
     function setSummaryLength(el) {
         document.querySelectorAll('#summaryLengthChips .chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         _summaryLength = el.dataset.length;
-        const hints = {
-            short: 'Brief overview — 2–3 sections, key points only, no tables',
-            medium: 'Balanced summary — 4–6 sections with key points and terms',
-            long: 'Full deep-dive — 8–14 sections, multiple tables, rich bullet points, 12–20 key terms'
-        };
         const hintEl = document.getElementById('summaryLengthHint');
-        if (hintEl) hintEl.textContent = hints[_summaryLength] || '';
+        if (hintEl) hintEl.textContent = sumLenHint(_summaryLength);
     }
     const SUM_COLORS = {
         blue:   { hex:'#3b82f6', bg:'#dbeafe', border:'#93c5fd' },
@@ -3043,7 +3478,7 @@ ${text}`;
         $('btnGenSummary').disabled = true;
         $('summaryPdfInput').value = '';
         $('summaryNameInput').value = '';
-        _currentSummaryResult = ''; _currentSummaryData = null;
+        _currentSummaryResult = ''; _currentSummaryData = null; _currentSummaryId = null;
     }
 
     function handleSummaryDrop(e) {
@@ -3117,7 +3552,7 @@ ${text}`;
         summaryCurrentStyle = 'structured';
         $('btnGenSummary').disabled = true;
         show($('summaryAiStatus'));
-        _currentSummaryData = null; _currentSummaryResult = '';
+        _currentSummaryData = null; _currentSummaryResult = ''; _currentSummaryId = null;
 
         const lang = $('summaryLangSel').value;
         const isAr = currentLang === 'ar';
@@ -3180,10 +3615,11 @@ ${truncatedSource}`;
             _currentSummaryData = JSON.parse(cleanJSON(raw));
 
             renderStructuredSummary(_currentSummaryData, $('summaryResultBox'));
+            try { autoSaveCurrentSummary(); } catch (saveErr) { console.warn('auto-save failed', saveErr); }
             show($('summaryResultArea'));
             hide($('summaryAiStatus'));
             track('summary_generated', { style: summaryCurrentStyle, source_type: sumCurrentTab, language: lang, chunks: 1, subject: getCurrentSubject()?.name || 'none' });
-            toast(isAr ? 'تم التوليد بنجاح ✓' : 'Summary generated! ✓');
+            toast(isAr ? 'تم التوليد والحفظ تلقائياً ✓' : 'Generated & saved automatically ✓');
 
         } catch(e) {
             // If JSON parse fails, show raw
@@ -3191,7 +3627,7 @@ ${truncatedSource}`;
                 $('summaryResultBox').innerHTML = `
                     <div style="padding:10px 14px;background:var(--warning-bg);border:1px solid var(--warning);color:var(--warning);font-family:var(--mono);font-size:11px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
-                        JSON parse failed — showing raw output
+                        ${currentLang==='ar' ? 'فشل تحليل JSON — عرض النص الخام' : 'JSON parse failed — showing raw output'}
                     </div>
                     <div style="white-space:pre-wrap;font-size:13px;line-height:1.9;color:var(--text2);unicode-bidi:plaintext;text-align:start">${esc(_currentSummaryResult)}</div>`;
                 show($('summaryResultArea'));
@@ -3325,8 +3761,44 @@ ${truncatedSource}`;
     }
 
     // ── Save / copy result ────────────────────────────────────────────────
+    let _currentSummaryId = null;
+    function autoSaveCurrentSummary() {
+        if (!_currentSummaryData || !_currentSummaryResult) return;
+        const isAr = currentLang === 'ar';
+        const lib = getSummaryLib();
+        const base = (($('summaryNameInput') && $('summaryNameInput').value) || '').trim()
+            || (_currentSummaryData.title || '').trim()
+            || (summaryPdfFile || '').replace(/\.pdf$/i, '')
+            || ((isAr ? 'ملخص ' : 'Summary ') + new Date().toLocaleDateString());
+        let name = base, n = 2;
+        while (lib.some(x => x.name === name)) name = base + ' (' + (n++) + ')';
+        const entry = {
+            id: Date.now(), name,
+            text: _currentSummaryResult,
+            structured: _currentSummaryData,
+            style: 'structured',
+            date: new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US'),
+            dateISO: new Date().toISOString(),
+            chat: []
+        };
+        lib.unshift(entry);
+        saveSummaryLibData(lib);
+        _currentSummaryId = entry.id;
+        renderSummaryLib();
+    }
+
     function saveCurrentSummary() {
         if (!_currentSummaryResult) return;
+        if (_currentSummaryId) {
+            const lib = getSummaryLib();
+            const i = lib.findIndex(x => x.id === _currentSummaryId);
+            if (i >= 0) {
+                const nm = ($('summaryNameInput').value || '').trim();
+                if (nm) lib[i].name = nm;
+                saveSummaryLibData(lib); renderSummaryLib(); toast(t('summary_saved'));
+                return;
+            }
+        }
         const name = $('summaryNameInput').value.trim() || summaryPdfFile || ('ملخص ' + new Date().toLocaleDateString());
         saveSummaryToLib(name, _currentSummaryResult, _currentSummaryData);
         renderSummaryLib();
@@ -3386,83 +3858,119 @@ ${truncatedSource}`;
     }
 
     // ── Library rendering ─────────────────────────────────────────────────
+    // ── Viewer: section chips, reading progress, text size ──
+    function svInit() {
+        const sc = $('summaryViewScroll'), cont = $('summaryViewContent'), toc = $('svToc'), prog = $('svProg');
+        if (!sc || !cont) return;
+        const secs = [...cont.querySelectorAll('.sum-section')];
+        if (toc) {
+            if (secs.length > 1) {
+                toc.innerHTML = secs.map((el, i) => {
+                    const h = (el.querySelector('.sum-section-title')?.textContent || '').trim();
+                    const col = el.querySelector('.sum-section-stripe')?.style.background || 'var(--accent)';
+                    return h ? `<button class="svchip" data-i="${i}" onclick="svJump(${i})"><i style="background:${col}"></i>${esc(h)}</button>` : '';
+                }).join('');
+            } else toc.style.display = 'none';
+        }
+        let lastAct = -1;
+        const top = el => el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop;
+        sc.addEventListener('scroll', () => {
+            const max = sc.scrollHeight - sc.clientHeight;
+            if (prog) prog.style.width = (max > 0 ? sc.scrollTop / max * 100 : 0) + '%';
+            let act = 0;
+            secs.forEach((el, i) => { if (top(el) <= sc.scrollTop + 90) act = i; });
+            if (act !== lastAct && toc) {
+                lastAct = act;
+                toc.querySelectorAll('.svchip').forEach(c => {
+                    const on = +c.dataset.i === act;
+                    c.classList.toggle('on', on);
+                    if (on && c.scrollIntoView) c.scrollIntoView({ inline: 'center', block: 'nearest' });
+                });
+            }
+        }, { passive: true });
+        svApplyFont();
+        sc.dispatchEvent(new Event('scroll'));
+    }
+    function svJump(i) {
+        const sc = $('summaryViewScroll');
+        const el = document.querySelectorAll('#summaryViewContent .sum-section')[i];
+        if (!sc || !el) return;
+        const y = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 12;
+        sc.scrollTo({ top: y, behavior: 'smooth' });
+    }
+    function svFont(d) {
+        const steps = [0.9, 1, 1.1, 1.2, 1.35];
+        let i = steps.indexOf(parseFloat(lg('app_sumFont') || '1')); if (i < 0) i = 1;
+        i = Math.max(0, Math.min(steps.length - 1, i + d));
+        ls('app_sumFont', steps[i]); svApplyFont();
+    }
+    function svApplyFont() { const c = $('summaryViewContent'); if (c) c.style.zoom = lg('app_sumFont') || '1'; }
+
+    function setSumSort(m) { ls('app_sumSort', m); renderSummaryLib(); }
+    function togglePinSummary(id) {
+        const lib = getSummaryLib(); const i = lib.findIndex(x => x.id === id); if (i < 0) return;
+        lib[i].pinned = !lib[i].pinned; saveSummaryLibData(lib); renderSummaryLib();
+    }
+    function renameSummary(id) {
+        const lib = getSummaryLib(); const i = lib.findIndex(x => x.id === id); if (i < 0) return;
+        const nm = prompt(currentLang === 'ar' ? 'الاسم الجديد' : 'New name', lib[i].name);
+        if (nm && nm.trim()) { lib[i].name = nm.trim(); saveSummaryLibData(lib); renderSummaryLib(); }
+    }
+
     function renderSummaryLib() {
         const el = $('summaryLibList');
         if (!el) return;
-        let lib = getSummaryLib();
-        const srch = ($('summarySearch')?.value||'').toLowerCase();
+        const isAr = currentLang === 'ar';
+        const full = getSummaryLib();
+        let lib = [...full];
+        const srch = ($('summarySearch')?.value || '').toLowerCase();
         if (srch) lib = lib.filter(s =>
             s.name.toLowerCase().includes(srch) ||
-            (s.text||'').toLowerCase().includes(srch) ||
-            (s.structured?.title||'').toLowerCase().includes(srch)
+            (s.text || '').toLowerCase().includes(srch) ||
+            (s.structured?.title || '').toLowerCase().includes(srch)
         );
+        const sort = lg('app_sumSort') || 'new';
+        document.querySelectorAll('#sumSortSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === sort));
+        lib.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (sort === 'az' ? a.name.localeCompare(b.name) : (b.id - a.id)));
+        const cnt = $('summaryLibCount');
+        if (cnt) cnt.textContent = full.length ? (srch ? `${lib.length} / ${full.length}` : full.length) + ' ' + (isAr ? 'ملخص' : (full.length === 1 ? 'summary' : 'summaries')) : '';
+
         if (!lib.length) {
-            el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);margin-top:10px">
-                <div style="font-size:40px;margin-bottom:12px;opacity:0.3">📄</div>
-                <div style="font-size:15px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('no_summaries')}</div>
-                <div style="font-size:12px;color:var(--text4)">${currentLang==='ar'?'ارفع ملف PDF لتوليد أول ملخص ذكي لك.':'Upload a PDF to generate your first smart summary.'}</div>
+            el.innerHTML = `<div class="sl-empty">
+                <div style="font-size:44px;margin-bottom:10px;opacity:.35">📄</div>
+                <div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:4px">${full.length ? (isAr ? 'لا توجد نتائج' : 'No results') : t('no_summaries')}</div>
+                <div style="font-size:13px;color:var(--text3);margin-bottom:16px">${full.length ? (isAr ? 'جرّب كلمة بحث ثانية.' : 'Try a different search.') : (isAr ? 'ارفع ملف PDF أو الصق نصاً لتوليد أول ملخص ذكي.' : 'Upload a PDF or paste text to generate your first smart summary.')}</div>
+                ${full.length ? '' : `<button class="btn btn-primary" onclick="openSummaryModal()">+ ${isAr ? 'ملخص جديد' : 'New Summary'}</button>`}
             </div>`;
             return;
         }
-        el.innerHTML = lib.map(s => {
+        const ico = d => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+        el.innerHTML = '<div class="sc-grid">' + lib.map(s => {
             const isStr = s.style === 'structured' && s.structured;
-            const secs  = isStr ? (s.structured.sections||[]) : [];
-            const badge = `<span class="summary-card-badge${isStr?' structured':''}">
-                ${isStr ? 'JSON' : (s.style||'plain')}
-            </span>`;
-
-            // Colored section dots for structured cards
-            const dots = isStr && secs.length ? `
-                <div class="summary-card-dots">
-                    <span style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-inline-start:4px">${secs.length} ${currentLang==='ar'?'أقسام':'sections'}</span>
-                    ${secs.map((sec,i)=>{
-                        const c = resolveColor(sec.color,i);
-                        return `<div class="summary-card-dot" style="background:${c.hex}" title="${esc(sec.heading||'')}"></div>`;
-                    }).join('')}
-                </div>` : '';
-
-            const preview = isStr
-                ? (s.structured.summary_line || secs.map(s=>s.heading).join(' · ') || s.name)
-                : (s.text||'').slice(0,180);
-
-            return `<div class="summary-card" onclick="viewSummary(${s.id})">
-                <div class="summary-card-header">
-                    <div class="summary-card-icon" style="${isStr?'background:var(--accent-light)':''}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="${isStr?'var(--accent)':'currentColor'}" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                    </div>
-                    <div style="flex:1;min-width:0">
-                        <div class="summary-card-name">${esc(s.name)}</div>
-                        <div class="summary-card-meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                            <span>${s.date}</span>
-                            ${badge}
-                            ${isStr?`<span>${secs.length} ${currentLang==='ar'?'قسم':'sections'} · ${(s.structured.key_terms||[]).length} ${currentLang==='ar'?'مصطلح':'terms'}</span>`:''}
-                        </div>
-                    </div>
+            const secs = isStr ? (s.structured.sections || []) : [];
+            const colors = secs.map((sec, i) => resolveColor(sec.color, i).hex);
+            const stripe = colors.length > 1 ? `linear-gradient(90deg, ${colors.join(',')})` : (colors[0] || 'var(--accent)');
+            const preview = isStr ? (s.structured.summary_line || secs.map(x => x.heading).join(' · ') || s.name) : (s.text || '').slice(0, 160);
+            const meta = [s.date];
+            if (isStr) meta.push(`${secs.length} ${isAr ? 'قسم' : 'sections'}`, `${(s.structured.key_terms || []).length} ${isAr ? 'مصطلح' : 'terms'}`);
+            if (s.chat && s.chat.length) meta.push(`💬 ${Math.ceil(s.chat.length / 2)}`);
+            return `<div class="sc" onclick="viewSummary(${s.id})">
+                <div class="sc-stripe" style="background:${stripe}"></div>
+                <div class="sc-top">
+                    <div class="sc-title" dir="auto">${esc(s.name)}</div>
+                    <button class="sc-pin${s.pinned ? ' on' : ''}" onclick="event.stopPropagation();togglePinSummary(${s.id})" title="${isAr ? 'تثبيت' : 'Pin'}">${s.pinned ? '★' : '☆'}</button>
                 </div>
-                <div class="summary-card-preview">${esc(preview)}</div>
-                ${dots}
-                <div class="summary-card-actions" onclick="event.stopPropagation()">
-                    <button class="btn btn-sm btn-primary" onclick="viewSummary(${s.id})" style="flex:1">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        ${currentLang==='ar'?'عرض':'View'}
-                    </button>
-                    <button class="btn btn-sm" onclick="downloadSummaryAsPDF(${s.id})" title="${currentLang==='ar'?'تحميل PDF':'Download PDF'}">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    </button>
-                    <button class="btn btn-sm" onclick="copySummaryById(${s.id})" title="${t('copy')}">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="delSummary(${s.id})">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                    </button>
+                <div class="sc-meta">${meta.map(m => `<span>${m}</span>`).join('<span>·</span>')}</div>
+                <div class="sc-prev" dir="auto">${esc(preview)}</div>
+                <div class="sc-actions" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-primary" onclick="viewSummary(${s.id})" style="flex:1">${isAr ? 'عرض' : 'View'}</button>
+                    <button class="btn btn-sm sc-ico" onclick="downloadSummaryAsPDF(${s.id})" title="PDF">${ico('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')}</button>
+                    <button class="btn btn-sm sc-ico" onclick="copySummaryById(${s.id})" title="${t('copy')}">${ico('<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>')}</button>
+                    <button class="btn btn-sm sc-ico" onclick="renameSummary(${s.id})" title="${isAr ? 'إعادة تسمية' : 'Rename'}">${ico('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</button>
+                    <button class="btn btn-sm btn-danger sc-ico" onclick="delSummary(${s.id})" title="${isAr ? 'حذف' : 'Delete'}">${ico('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>')}</button>
                 </div>
             </div>`;
-        }).join('');
+        }).join('') + '</div>';
     }
 
     // ── View summary (full modal or inline) ───────────────────────────────
@@ -3476,33 +3984,37 @@ ${truncatedSource}`;
             if (!overlay) {
                 overlay = document.createElement('div');
                 overlay.id = 'summaryViewOverlay';
-                overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;overflow:hidden';
+                overlay.style.cssText = 'position:fixed;inset:0;height:100dvh;background:var(--bg);z-index:500;display:flex;flex-direction:column;overflow:hidden';
                 document.body.appendChild(overlay);
             }
             overlay.innerHTML = `
                 <!-- Overlay topbar -->
-                <div style="display:flex;align-items:center;gap:8px;padding:0 16px;height:48px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;min-width:0">
+                <div class="sv-top" style="display:flex;align-items:center;gap:8px;padding:0 16px;height:48px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;min-width:0">
                     <button class="btn btn-sm" onclick="document.getElementById('summaryViewOverlay').remove();closeSumAI()" style="flex-shrink:0;gap:6px">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                        ${currentLang==='ar'?'رجوع':'Back'}
+                        <span class="sv-lbl">${currentLang==='ar'?'رجوع':'Back'}</span>
                     </button>
                     <div style="flex:1;min-width:0;overflow:hidden">
                         <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">${esc(s.name)}</div>
-                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px">${s.date}</div>
+                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.date}</div>
                     </div>
                     <button class="btn btn-sm" onclick="copySummaryById(${id})" style="flex-shrink:0">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        ${currentLang==='ar'?'نسخ':'Copy'}
+                        <span class="sv-lbl">${currentLang==='ar'?'نسخ':'Copy'}</span>
                     </button>
                     <button class="btn btn-sm" onclick="downloadSummaryAsPDF(${id})" style="flex-shrink:0;gap:6px" title="${currentLang==='ar'?'تحميل PDF':'Download PDF'}">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        PDF
+                        <span class="sv-lbl">PDF</span>
                     </button>
+                    <button class="btn btn-sm sv-fs" onclick="svFont(-1)" style="flex-shrink:0;padding:4px 9px" title="A−">A−</button>
+                    <button class="btn btn-sm sv-fs" onclick="svFont(1)" style="flex-shrink:0;padding:4px 9px" title="A+">A+</button>
                     <button id="sumAIToggleBtn" class="btn btn-sm" onclick="toggleSumAISide()" style="flex-shrink:0;gap:6px">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                         AI
                     </button>
                 </div>
+                <div class="sv-progress"><div id="svProg"></div></div>
+                <div class="sv-toc" id="svToc"></div>
 
                 <!-- Body: summary content + AI panel side by side -->
                 <div id="summaryViewBody" style="display:flex;flex:1;overflow:hidden;min-height:0">
@@ -3528,7 +4040,10 @@ ${truncatedSource}`;
                                 <div class="sai-header-title">${currentLang==='ar'?'مساعد الملخص':'Summary AI'}</div>
                                 <div class="sai-header-sub">zStudy AI · ${currentLang==='ar'?'جاهز':'ready'}</div>
                             </div>
-                            <button class="sai-header-close" onclick="toggleSumAISide()" title="Close">
+                            <button class="sai-header-close" onclick="clearSumAIChat()" title="${currentLang==='ar'?'مسح المحادثة':'Clear chat'}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                            </button>
+                            <button class="sai-header-close" onclick="toggleSumAISide()" title="${currentLang==='ar'?'إغلاق':'Close'}">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                             </button>
                         </div>
@@ -3574,22 +4089,16 @@ ${truncatedSource}`;
                 <style>
                     @media (max-width: 640px) {
                         #summaryViewBody { flex-direction: column !important; }
-                        #summaryViewScroll { flex: 0 0 auto; max-height: 38vh; padding: 14px !important; overflow-y: auto; }
-                        #sumAIPanel {
-                            flex: 1 1 auto !important;
-                            width: 100% !important;
-                            height: auto !important;
-                            max-height: none !important;
-                            transform: none !important;
-                            border-left: none !important; border-right: none !important;
-                            border-top: 2px solid var(--accent);
-                        }
-                        #sumAIPanel .sai-messages { flex: 1; overflow-y: auto; }
+                        #summaryViewScroll { flex: 1 1 auto !important; max-height: none !important; padding: 14px 12px 96px !important; -webkit-overflow-scrolling: touch; }
+                        #summaryViewOverlay .sv-top { padding: 0 8px !important; gap: 6px !important; }
+                        #summaryViewOverlay .sv-lbl { display: none; }
                     }
                 </style>`;
             // Store current summary data for AI context
             window._sumAIContext = s;
             renderStructuredSummary(s.structured, overlay.querySelector('#summaryViewContent'));
+            restoreSumAIChat(s.chat);
+            svInit();
         } else {
             window._sumAIContext = s; // set context even for plain summaries
             modal(
@@ -4576,61 +5085,81 @@ ${textSlice}`;
         updateScore();
     }
 
+    function optText(o) { return String(o).replace(/^\s*(?:[A-Ea-e]|[أبجدهـ])\s*[\.\)\-:]\s+/, ''); }
+
     function renderQ() {
         if (!Qs.length) return;
-        const q = Qs[qi];
-        const answered = Ans[qi].selected !== null;
-        const conf = Ans[qi].confidence;
-        const L = currentLang==='ar'?['أ','ب','ج','د']:['A','B','C','D'];
+        const q = Qs[qi], A = Ans[qi];
+        const answered = A.selected !== null;
+        const conf = A.confidence;
+        const isAr = currentLang === 'ar';
+        const L = isAr ? ['أ','ب','ج','د','هـ'] : ['A','B','C','D','E'];
+        const chev = d => `<svg class="flip-rtl" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="${d === 'l' ? '15 18 9 12 15 6' : '9 18 15 12 9 6'}"/></svg>`;
 
-        const opts = q.options.map((o,i) => {
-            let cls='option-item';
-            if (answered) { cls+=' locked'; if (i===q.correct) cls+=' correct'; else if (i===Ans[qi].selected) cls+=' wrong'; }
-            return `<div class="${cls}" onclick="selOpt(${i})"><span class="opt-letter">${L[i]}</span><span>${esc(o)}</span></div>`;
+        const opts = q.options.map((o, i) => {
+            let cls = 'option-item', mark = '';
+            if (answered) {
+                cls += ' locked';
+                if (i === q.correct) { cls += ' correct'; mark = '✓'; }
+                else if (i === A.selected) { cls += ' wrong'; mark = '✗'; }
+            }
+            return `<div class="${cls}" onclick="selOpt(${i})"><span class="opt-letter">${L[i] || (i + 1)}</span><span class="opt-text">${esc(optText(o))}</span><span class="opt-mark">${mark}</span></div>`;
         }).join('');
 
-        // Confidence chips — shown BELOW options
-        const confChips = !answered ? `
-            <div class="confidence-row" style="margin-top:12px">
-                <span class="confidence-label">${t('confidence_label')}</span>
-                <span class="confidence-chip guessing${conf==='guessing'?' active':''}" onclick="setConf('guessing',this)">${t('guessing')}</span>
-                <span class="confidence-chip not-sure${conf==='not-sure'?' active':''}" onclick="setConf('not-sure',this)">${t('not_sure')}</span>
-                <span class="confidence-chip sure${conf==='sure'?' active':''}" onclick="setConf('sure',this)">${t('sure')}</span>
-            </div>` : `
-            <div class="confidence-row" style="margin-top:8px">
-                <span class="confidence-label">${t('confidence_label')}</span>
-                <span style="font-size:11px;font-family:var(--mono);padding:5px 12px;border:1px solid var(--border);color:var(--text3)">
-                    ${conf ? (conf==='guessing'?t('guessing'):conf==='not-sure'?t('not_sure'):t('sure')) : '—'}
-                </span>
-            </div>`;
+        const confLabel = c => c === 'guessing' ? t('guessing') : c === 'not-sure' ? t('not_sure') : t('sure');
+        const confBlock = !answered ? `
+            <div class="conf-wrap">
+                <div class="conf-title">${t('confidence_label')} <span>(${t('x_optional')})</span></div>
+                <div class="confidence-row">
+                    <span class="confidence-chip guessing${conf==='guessing'?' active':''}" onclick="setConf('guessing',this)">${t('guessing')}</span>
+                    <span class="confidence-chip not-sure${conf==='not-sure'?' active':''}" onclick="setConf('not-sure',this)">${t('not_sure')}</span>
+                    <span class="confidence-chip sure${conf==='sure'?' active':''}" onclick="setConf('sure',this)">${t('sure')}</span>
+                </div>
+            </div>` : (conf ? `<div class="conf-done">${t('confidence_label')} <b>${confLabel(conf)}</b></div>` : '');
 
         let exp = '';
         if (answered) {
-            const ok = Ans[qi].selected === q.correct;
-            const timeLabel = Ans[qi].timeMs > 0 ? ` · ${(Ans[qi].timeMs/1000).toFixed(1)}s` : '';
-            exp = `<div class="explanation-box ${ok?'correct':'wrong'}" id="expBox${qi}">
-                <strong>${ok?t('correct'):t('wrong')}</strong>${!ok?`<br>${t('correct')}: ${L[q.correct]} — ${esc(q.options[q.correct])}`:''}${q.explanation?`<br>${esc(q.explanation)}`:''}
-                <div style="font-size:10px;font-family:var(--mono);margin-top:6px;opacity:0.7">${timeLabel}</div>
-                <div style="margin-top:10px;border-top:1px solid currentColor;padding-top:10px;opacity:0.8">
-                    <button class="btn btn-sm" style="font-size:10px;opacity:0.9" onclick="groqExplainQ(${qi})">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
-                        ${t('explain_groq')}</button>
-                    <div id="groqExp${qi}" style="font-size:12px;line-height:1.7;margin-top:8px;display:none"></div>
-                </div>
+            const ok = A.selected === q.correct;
+            const timeLabel = A.timeMs > 0 ? (A.timeMs / 1000).toFixed(1) + 's' : '';
+            exp = `<div class="explanation-box ${ok ? 'correct' : 'wrong'}" id="expBox${qi}">
+                <div class="exp-head"><span class="exp-ico">${ok ? '✓' : '✗'}</span><strong>${ok ? t('correct') : t('wrong')}</strong><span class="exp-time">${timeLabel}</span></div>
+                ${!ok ? `<div class="exp-ans">${t('correct')}: <b>${L[q.correct]}</b> — ${esc(optText(q.options[q.correct]))}</div>` : ''}
+                ${q.explanation ? `<div class="exp-body">${esc(q.explanation)}</div>` : ''}
+                <button class="btn btn-sm exp-ai" onclick="groqExplainQ(${qi})">✦ ${t('explain_groq')}</button>
+                <div id="groqExp${qi}" class="exp-ai-out" style="display:none"></div>
             </div>`;
         }
 
-        $('qCounter').textContent = (qi+1)+' / '+Qs.length;
+        const dots = Qs.map((_, i) => {
+            const a = Ans[i];
+            let c = 'qdot';
+            if (i === qi) c += ' cur';
+            if (a.selected !== null) c += a.selected === Qs[i].correct ? ' ok' : ' bad';
+            if (a.flagged) c += ' flag';
+            return `<button class="${c}" onclick="goQ(${i})">${i + 1}</button>`;
+        }).join('');
+
+        const last = qi === Qs.length - 1;
+        $('qCounter').textContent = (qi + 1) + ' / ' + Qs.length;
         $('qContent').innerHTML = `
-            <div class="question-text">${esc(q.question)}</div>
-            <div class="options-list">${opts}</div>
-            ${confChips}
+            <div class="qdots" id="qdots">${dots}</div>
+            <div class="q-card">
+                <div class="q-eyebrow">
+                    <span>${t('x_q_word')} ${qi + 1}</span>
+                    <button class="q-flag${A.flagged ? ' on' : ''}" onclick="toggleFlag()">⚑ ${t('x_flag')}</button>
+                </div>
+                <div class="question-text">${esc(q.question)}</div>
+                <div class="options-list">${opts}</div>
+                ${confBlock}
+            </div>
             ${exp}
-            <div style="display:flex;gap:6px;justify-content:space-between;flex-wrap:wrap;margin-top:12px">
-                <button class="btn btn-sm" onclick="prevQ()">←</button>
-                <button class="btn btn-sm btn-primary" onclick="nextQ()">→</button>
+            <div class="q-footer">
+                <button class="btn" onclick="prevQ()" ${qi === 0 ? 'disabled' : ''}>${chev('l')}<span>${t('x_prev')}</span></button>
+                <button class="btn btn-primary${answered ? ' pulse' : ''}" onclick="nextQ()" style="flex:1"><span>${last ? t('x_finish') : t('x_next')}</span>${last ? '' : chev('r')}</button>
             </div>`;
-        $('qProg').style.width = (Qs.length?(qi+1)/Qs.length*100:0)+'%';
+        $('qProg').style.width = (Qs.length ? (qi + 1) / Qs.length * 100 : 0) + '%';
+        const cur = document.querySelector('#qdots .qdot.cur');
+        if (cur && cur.scrollIntoView) cur.scrollIntoView({ inline: 'center', block: 'nearest' });
     }
 
     function setConf(conf, el) {
@@ -4671,12 +5200,33 @@ ${textSlice}`;
         qStartTime = Date.now(); // reset for next question
     }
 
-    function prevQ() { if (qi>0) { qi--; qStartTime=Date.now(); renderQ(); updateScore(); } }
-
+    function _qTop() { try { window.scrollTo(0, 0); const m = document.querySelector('main'); if (m) m.scrollTop = 0; } catch (e) {} }
+    function goQ(i) { if (i < 0 || i >= Qs.length) return; qi = i; qStartTime = Date.now(); renderQ(); updateScore(); _qTop(); }
+    function prevQ() { if (qi > 0) goQ(qi - 1); }
     function nextQ() {
-        if (qi<Qs.length-1) { qi++; qStartTime=Date.now(); renderQ(); updateScore(); }
-        else finishMCQ();
+        if (qi < Qs.length - 1) { goQ(qi + 1); return; }
+        const un = Ans.filter(a => a.selected === null).length;
+        if (un && !confirm(currentLang === 'ar' ? `بقي ${un} سؤال بدون إجابة. إنهاء الاختبار؟` : `${un} question(s) unanswered. Finish the quiz?`)) return;
+        finishMCQ();
     }
+    function toggleFlag() { Ans[qi].flagged = !Ans[qi].flagged; renderQ(); }
+
+    document.addEventListener('keydown', e => {
+        const qa = $('quizArea');
+        if (!qLive || !qa || !qa.classList.contains('active')) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.target.closest && e.target.closest('input,textarea,select,[contenteditable]')) return;
+        const k = e.key.toLowerCase();
+        const map = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4 };
+        const rtl = document.documentElement.dir === 'rtl';
+        if (k in map) { if (map[k] < Qs[qi].options.length) selOpt(map[k]); }
+        else if (k === 'enter') { if (Ans[qi].selected !== null) nextQ(); }
+        else if (k === 'arrowright') { rtl ? prevQ() : nextQ(); }
+        else if (k === 'arrowleft') { rtl ? nextQ() : prevQ(); }
+        else if (k === 'f') toggleFlag();
+        else return;
+        e.preventDefault();
+    });
 
     function updateScore() {
         const a = Ans.filter(x=>x.selected!==null).length;
@@ -4712,19 +5262,25 @@ ${textSlice}`;
               </button>`
             : '';
 
+        const msg = pct >= 90 ? (currentLang==='ar' ? 'ممتاز! 🔥' : 'Outstanding! 🔥') : pct >= 70 ? (currentLang==='ar' ? 'أداء جيد 👏' : 'Well done 👏') : pct >= 50 ? (currentLang==='ar' ? 'مقبول — راجع أخطاءك' : 'Not bad — review your mistakes') : (currentLang==='ar' ? 'تحتاج مراجعة أكثر' : 'Needs more review');
+        const flaggedN = Ans.filter(a => a.flagged).length;
+        const tile = (v, label, color) => `<div style="padding:12px 6px;background:var(--surface2);border-radius:14px"><div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:${color}">${v}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${label}</div></div>`;
         modal(
             `<div style="text-align:center">
-                <div style="font-size:44px;font-weight:700;color:${col};margin-bottom:6px">${pct}%</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0">
-                    <div style="padding:10px;border:1px solid var(--border)"><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--success)">${c}</div><div style="font-size:10px;color:var(--text3)">${t('correct')}</div></div>
-                    <div style="padding:10px;border:1px solid var(--border)"><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--danger)">${total-c}</div><div style="font-size:10px;color:var(--text3)">${t('wrong')}</div></div>
-                    <div style="padding:10px;border:1px solid var(--border)"><div style="font-family:var(--mono);font-size:14px;font-weight:700">${(avgTime/1000).toFixed(1)}s</div><div style="font-size:10px;color:var(--text3)">${t('avg_time')}</div></div>
+                <div style="position:relative;width:132px;height:132px;margin:4px auto 10px">
+                    <svg viewBox="0 0 120 120" width="132" height="132" style="transform:rotate(-90deg)"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface3)" stroke-width="9"/><circle cx="60" cy="60" r="52" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="${(326.7 * (1 - pct / 100)).toFixed(1)}"/></svg>
+                    <div style="position:absolute;inset:0;display:grid;place-items:center;font-size:32px;font-weight:700;letter-spacing:-0.03em;color:${col}">${pct}%</div>
                 </div>
-                ${confidenceStats ? `<div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-align:start;border-top:1px solid var(--border);padding-top:10px;margin-top:6px">
+                <div style="font-size:16px;font-weight:600;margin-bottom:14px">${msg}</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+                    ${tile(c, t('correct'), 'var(--success)')}${tile(total - c, t('wrong'), 'var(--danger)')}${tile((avgTime / 1000).toFixed(1) + 's', t('avg_time'), 'var(--text)')}
+                </div>
+                ${flaggedN ? `<div style="font-size:12px;color:var(--warning);margin-bottom:8px">⚑ ${flaggedN} ${currentLang==='ar' ? 'سؤال معلَّم للمراجعة' : 'flagged for review'}</div>` : ''}
+                ${confidenceStats ? `<div style="font-size:12px;color:var(--text3);text-align:start;border-top:.5px solid var(--border);padding-top:10px;margin-top:6px;line-height:1.8">
                     ${confidenceStats.sure.count>0?`${t('sure')}: ${confidenceStats.sure.pct}% (${confidenceStats.sure.count})<br>`:''}
                     ${confidenceStats['not-sure'].count>0?`${t('not_sure')}: ${confidenceStats['not-sure'].pct}% (${confidenceStats['not-sure'].count})<br>`:''}
                     ${confidenceStats.guessing.count>0?`${t('guessing')}: ${confidenceStats.guessing.pct}% (${confidenceStats.guessing.count})`:''}
-                </div>`:''}</div>`,
+                </div>` : ''}</div>`,
             `${analysisBtn}<button class="btn btn-primary" onclick="closeModal();switchPanel('history')">${t('history')}</button><button class="btn" onclick="closeModal()">${t('exit')}</button>`
         );
         qLive = false;
@@ -4949,53 +5505,101 @@ ${textSlice}`;
     function saveSM(s) { ls(subKey('sm2_states'), JSON.stringify(s)); }
 
     function renderDecks() {
-        const decks=getDecks(), st=getSM(), now=Date.now();
-        if (!decks.length) { 
-            $('decksList').innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);margin-top:10px">
-                <div style="font-size:40px;margin-bottom:12px;opacity:0.3">🗂️</div>
-                <div style="font-size:15px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('no_decks')}</div>
-                <div style="font-size:12px;color:var(--text4)">${currentLang==='ar'?'لم يتم إنشاء أي مجموعات بطاقات لهذه المادة بعد.':'No card decks have been created for this subject yet.'}</div>
-            </div>`; 
-            return; 
+        const decks = getDecks(), st = getSM(), now = Date.now();
+        const isAr = currentLang === 'ar';
+        if (!decks.length) {
+            $('decksList').innerHTML = `<div class="sl-empty">
+                <div style="font-size:44px;margin-bottom:10px;opacity:.35">🗂️</div>
+                <div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('no_decks')}</div>
+                <div style="font-size:13px;color:var(--text3);margin-bottom:16px">${isAr ? 'ولّد بطاقات من ملف PDF لتظهر هنا.' : 'Generate cards from a PDF and they will show up here.'}</div>
+                <button class="btn btn-primary" onclick="switchPanel('gen')">${isAr ? 'توليد بطاقات' : 'Generate cards'}</button>
+            </div>`;
+            return;
         }
-        $('decksList').innerHTML = decks.map((d,di) => {
-            let due=0, rev=0, mastered=0;
-            d.cards.forEach((_,ci) => {
-                const s=st[`deck_${di}_${ci}`];
-                if (s) { rev++; if (s.nextReview<=now) due++; if (s.reps>=3&&s.ef>=2.3) mastered++; }
+        let tot = 0, dueT = 0, mastT = 0;
+        const info = decks.map((d, di) => {
+            let nw = 0, learn = 0, mast = 0, due = 0;
+            d.cards.forEach((_, ci) => {
+                const x = st[`deck_${di}_${ci}`];
+                if (!x) nw++;
+                else { if (x.nextReview <= now) due++; if (x.reps >= 3 && x.ef >= 2.3) mast++; else learn++; }
             });
-            return `<div class="deck-item" id="dk${di}">
-                <div class="deck-head" onclick="toggleDeck(${di})">
-                    <span class="deck-name">${esc(d.name)}</span>
-                    <span class="deck-badge">${d.cards.length} ${t('cards')}</span>
-                    ${due>0?`<span class="deck-badge due">${due} ${t('due_now')}</span>`:''}
-                    ${mastered>0?`<span class="deck-badge" style="color:var(--success);border-color:var(--success)">${mastered} ${currentLang==='ar'?'متقن':'mastered'}</span>`:''}
-                    <button class="btn btn-sm" onclick="event.stopPropagation();renameDeck(${di})" title="Rename" style="padding:3px 8px">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
-                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();reviewDeck(${di})">${t('review_last')}</button>
-                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delDeck(${di})" style="padding:4px;border-radius:var(--radius)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            tot += d.cards.length; dueT += due; mastT += mast;
+            return { nw, learn, mast, due };
+        });
+        const stats = `<div class="dk-stats">
+            <div class="dk-stat"><b>${decks.length}</b><span>${isAr ? 'مجموعات' : 'Decks'}</span></div>
+            <div class="dk-stat"><b>${tot}</b><span>${isAr ? 'بطاقات' : 'Cards'}</span></div>
+            <div class="dk-stat"><b style="color:${dueT ? '#ff3b30' : 'inherit'}">${dueT}</b><span>${isAr ? 'مستحقة الآن' : 'Due now'}</span></div>
+            <div class="dk-stat"><b style="color:#34c759">${tot ? Math.round(mastT / tot * 100) : 0}%</b><span>${isAr ? 'متقنة' : 'Mastered'}</span></div>
+        </div>`;
+        const ico = d => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+        $('decksList').innerHTML = stats + '<div class="dk-grid">' + decks.map((d, di) => {
+            const n = d.cards.length, f = info[di];
+            const pm = n ? f.mast / n * 100 : 0, pl = n ? f.learn / n * 100 : 0;
+            const go = f.due + f.nw;
+            const rows = d.cards.map((c, ci) => {
+                const x = st[`deck_${di}_${ci}`];
+                const k = !x ? 'n' : (x.reps >= 3 && x.ef >= 2.3) ? 'm' : 'l';
+                const lab = !x ? (isAr ? 'جديدة' : 'New') : k === 'm' ? (isAr ? 'متقنة' : 'Mastered') : (isAr ? 'قيد التعلم' : 'Learning');
+                const iv = x ? Math.round(x.interval / 86400000) : 0;
+                return `<div class="dk-card">
+                    <div class="dk-card-main"><div class="dk-q" dir="auto">${esc(c.question)}</div><div class="dk-a" dir="auto">${esc(c.answer)}</div></div>
+                    <div class="dk-card-side"><span class="dk-st ${k}">${lab}${x && iv ? ' · ' + iv + (isAr ? 'ي' : 'd') : ''}</span>
+                        <div class="dk-card-btns">
+                            <button class="btn btn-sm btn-ghost" onclick="editCard(${di},${ci})" title="${isAr ? 'تعديل' : 'Edit'}">${ico('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</button>
+                            <button class="btn btn-sm btn-ghost" onclick="delCard(${di},${ci})" title="${isAr ? 'حذف' : 'Delete'}">${ico('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>')}</button>
+                        </div></div>
+                </div>`;
+            }).join('');
+            return `<div class="dk" id="dk${di}">
+                <div class="dk-top">
+                    <div class="dk-name" dir="auto">${esc(d.name)}</div>
+                    <button class="btn btn-sm btn-ghost sc-ico" onclick="renameDeck(${di})" title="${isAr ? 'إعادة تسمية' : 'Rename'}">${ico('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</button>
+                    <button class="btn btn-sm btn-ghost sc-ico" onclick="delDeck(${di})" title="${isAr ? 'حذف' : 'Delete'}" style="color:var(--danger)">${ico('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>')}</button>
                 </div>
-                <div class="deck-body">
-                    ${d.cards.map((c,ci)=>{
-                        const s=st[`deck_${di}_${ci}`];
-                        const interval = s?Math.round(s.interval/86400000):0;
-                        const ef = s?s.ef.toFixed(1):'—';
-                        return `<div style="display:flex;gap:6px;padding:6px;font-size:12px;border-bottom:1px solid var(--border)">
-                            <span style="flex:1;unicode-bidi:plaintext;text-align:start">${esc(c.question)}</span>
-                            <span style="color:var(--text3);unicode-bidi:plaintext;text-align:start">${esc(c.answer)}</span>
-                            <span style="font-family:var(--mono);font-size:10px;color:var(--text4);white-space:nowrap">${s?`${interval}d·ef${ef}`:'new'}</span>
-                            <button class="btn btn-sm btn-ghost" onclick="delCard(${di},${ci})">X</button>
-                        </div>`;
-                    }).join('')}
-                    <div style="display:flex;gap:6px;margin-top:10px">
-                        <input id="nq${di}" placeholder="Q" style="flex:1;font-size:12px">
-                        <input id="na${di}" placeholder="A" style="flex:1;font-size:12px">
-                        <button class="btn btn-sm" onclick="addCard(${di})">+</button>
+                <div class="dk-meta">${n} ${t('cards')}${f.due ? ` · <b style="color:#ff3b30">${f.due} ${t('due_now')}</b>` : ''}</div>
+                <div class="dk-bar"><i class="m" style="width:${pm}%"></i><i class="l" style="width:${pl}%"></i></div>
+                <div class="dk-legend"><span><b class="m"></b>${f.mast} ${isAr ? 'متقنة' : 'mastered'}</span><span><b class="l"></b>${f.learn} ${isAr ? 'قيد التعلم' : 'learning'}</span><span><b class="n"></b>${f.nw} ${isAr ? 'جديدة' : 'new'}</span></div>
+                <div class="dk-actions">
+                    <button class="btn btn-primary" onclick="reviewDeck(${di})" style="flex:1">${go ? (isAr ? 'ابدأ المراجعة' : 'Study') + ' (' + go + ')' : (isAr ? 'لا شيء مستحق' : 'All caught up')}</button>
+                    <button class="btn" onclick="reviewDeck(${di}, true)">${isAr ? 'الكل' : 'All'}</button>
+                    <button class="btn" onclick="toggleDeck(${di})">${isAr ? 'تصفح' : 'Browse'}</button>
+                </div>
+                <div class="dk-body">
+                    <input class="dk-search" placeholder="${isAr ? 'ابحث في البطاقات...' : 'Search cards...'}" oninput="filterDeckCards(${di}, this.value)">
+                    <div class="dk-list" id="dkList${di}">${rows}</div>
+                    <div class="dk-add">
+                        <input id="nq${di}" placeholder="${isAr ? 'السؤال' : 'Question'}">
+                        <input id="na${di}" placeholder="${isAr ? 'الإجابة' : 'Answer'}">
+                        <button class="btn btn-primary btn-sm" onclick="addCard(${di})">+ ${isAr ? 'إضافة' : 'Add'}</button>
                     </div>
                 </div>
             </div>`;
-        }).join('');
+        }).join('') + '</div>';
+    }
+
+    function filterDeckCards(di, v) {
+        const q = (v || '').trim().toLowerCase();
+        document.querySelectorAll('#dkList' + di + ' .dk-card').forEach(r => { r.style.display = !q || r.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+    }
+    function editCard(di, ci) {
+        const decks = getDecks(); const c = decks[di] && decks[di].cards[ci]; if (!c) return;
+        const isAr = currentLang === 'ar';
+        modal(
+            `<div class="modal-title">${isAr ? 'تعديل البطاقة' : 'Edit card'}</div>
+             <div class="input-group" style="margin-bottom:10px"><label>${isAr ? 'السؤال' : 'Question'}</label><textarea id="ecQ" rows="3">${esc(c.question)}</textarea></div>
+             <div class="input-group"><label>${isAr ? 'الإجابة' : 'Answer'}</label><textarea id="ecA" rows="3">${esc(c.answer)}</textarea></div>`,
+            `<button class="btn btn-primary" onclick="saveEditCard(${di},${ci})">${t('save')}</button><button class="btn" onclick="closeModal()">${t('cancel')}</button>`
+        );
+    }
+    function saveEditCard(di, ci) {
+        const q = ($('ecQ').value || '').trim(), a = ($('ecA').value || '').trim();
+        if (!q || !a) return;
+        const decks = getDecks(); if (!decks[di] || !decks[di].cards[ci]) return;
+        decks[di].cards[ci].question = q; decks[di].cards[ci].answer = a;
+        saveDecks(decks); closeModal(); renderDecks();
+        const el = $('dk' + di); if (el) el.classList.add('open');
     }
 
     function toggleDeck(di) { $('dk'+di).classList.toggle('open'); }
@@ -5071,94 +5675,136 @@ ${textSlice}`;
     // ── FLASH REVIEW (SM-2 Anki Algorithm) ──────────
     let fCards = [], fci = 0, fFlipped = false, fDeckName = '';
 
-    function reviewDeck(di) {
-        const decks=getDecks();
+    let fStats = { again: 0, hard: 0, good: 0, easy: 0 }, fRequeue = {}, fStart = 0, fDeckIdx = 0;
+
+    function reviewDeck(di, all) {
+        const decks = getDecks();
         if (!decks[di]) return;
-        fDeckName=decks[di].name;
-        const st=getSM(), now=Date.now();
-        const all=decks[di].cards.map((c,ci)=>({...c, id:`deck_${di}_${ci}`}));
-        const due=all.filter(c=>{const s=st[c.id]; return s&&s.nextReview<=now;});
-        const fresh=all.filter(c=>!st[c.id]);
-        fCards=[...due,...fresh];
+        fDeckName = decks[di].name; fDeckIdx = di;
+        const st = getSM(), now = Date.now();
+        const allC = decks[di].cards.map((c, ci) => ({ ...c, id: `deck_${di}_${ci}` }));
+        const due = allC.filter(c => { const x = st[c.id]; return x && x.nextReview <= now; });
+        const fresh = allC.filter(c => !st[c.id]);
+        fCards = all === true ? allC : [...due, ...fresh];
         if (!fCards.length) { alertModal(t('no_due')); return; }
-        fci=0; fFlipped=false;
-        document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-        const fp=$('flashArea'); fp.classList.add('active'); show(fp);
+        fci = 0; fFlipped = false; fStats = { again: 0, hard: 0, good: 0, easy: 0 }; fRequeue = {}; fStart = Date.now();
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        const fp = $('flashArea'); fp.classList.add('active'); show(fp);
         track('flashcard_review_started', { deck_name: fDeckName, due_count: due.length, fresh_count: fresh.length, total_cards: fCards.length, subject: getCurrentSubject()?.name || 'none' });
         renderFC();
     }
 
+    // SM-2 (Anki-style) — pure function so we can preview the next interval on the buttons
+    function srsNext(s0, r) {
+        const s = { ef: s0 && s0.ef != null ? s0.ef : 2.5, reps: s0 && s0.reps != null ? s0.reps : 0, interval: s0 && s0.interval != null ? s0.interval : 0, nextReview: 0 };
+        if (r === 'again') { s.interval = 60000; s.ef = Math.max(1.3, s.ef - 0.2); s.reps = 0; }
+        else if (r === 'hard') { s.interval = Math.max(300000, s.interval * 1.2); s.ef = Math.max(1.3, s.ef - 0.15); }
+        else if (r === 'good') {
+            if (s.reps === 0) s.interval = 600000;
+            else if (s.reps === 1) s.interval = 86400000;
+            else s.interval = Math.round(s.interval * s.ef);
+            s.reps++;
+        } else if (r === 'easy') {
+            if (s.reps === 0) s.interval = 345600000;
+            else if (s.reps === 1) s.interval = 604800000;
+            else s.interval = Math.round(s.interval * (s.ef * 1.3));
+            s.ef = Math.min(2.5 + 0.15, s.ef + 0.15);
+            s.reps++;
+        }
+        return s;
+    }
+    function fmtIv(ms) {
+        const ar = currentLang === 'ar', m = ms / 60000;
+        if (m < 60) return Math.max(1, Math.round(m)) + (ar ? 'د' : 'm');
+        const h = m / 60; if (h < 24) return Math.round(h) + (ar ? 'س' : 'h');
+        const d = h / 24; if (d < 30) return Math.round(d) + (ar ? 'ي' : 'd');
+        return Math.round(d / 30) + (ar ? 'ش' : 'mo');
+    }
+
     function renderFC() {
         if (!fCards.length) return;
-        const c=fCards[fci];
-        const st=getSM(), s=st[c.id];
-        $('flashLabel').textContent=fDeckName;
-        $('fCounter').textContent=(fci+1)+' / '+fCards.length;
-        $('fProg').style.width=((fci+1)/fCards.length*100)+'%';
-        const nextInfo = s ? `${Math.round(s.interval/60000)}m · ef ${s.ef.toFixed(1)} · ${s.reps} reps` : 'new card';
+        const c = fCards[fci], st = getSM(), x = st[c.id], isAr = currentLang === 'ar';
+        $('flashLabel').textContent = fDeckName;
+        $('fCounter').textContent = (fci + 1) + ' / ' + fCards.length;
+        $('fProg').style.width = (fci / fCards.length * 100) + '%';
+        const status = !x ? { k: 'new', l: isAr ? 'جديدة' : 'New' } : (x.nextReview <= Date.now() ? { k: 'due', l: isAr ? 'مستحقة' : 'Due' } : { k: 'learn', l: isAr ? 'قيد التعلم' : 'Learning' });
+        const lbl = { again: isAr ? 'مجدداً' : 'Again', hard: isAr ? 'صعب' : 'Hard', good: isAr ? 'جيد' : 'Good', easy: isAr ? 'سهل' : 'Easy' };
+        const btns = ['again', 'hard', 'good', 'easy'].map((r, i) => `<button class="rating-btn ${r}" onclick="rateCard('${r}')">${lbl[r]}<span class="rb-time">${fmtIv(srsNext(x, r).interval)}</span></button>`).join('');
         $('fContent').innerHTML = `
-            <div class="flashcard ${fFlipped?'flipped':''}" id="fcCard" onclick="flipCard()" style="min-height:160px">
-                <div class="fc-face fc-front"><div class="fc-text">${esc(c.question)}</div><div class="fc-hint">${fFlipped?'':'▼ '+(currentLang==='ar'?'انقر للكشف':'tap to reveal')}</div></div>
-                <div class="fc-face fc-back"><div class="fc-text">${esc(c.answer)}</div></div>
+            <div class="fc3d${fFlipped ? ' flipped' : ''}" id="fcCard" onclick="flipCard()">
+                <div class="fc3d-inner">
+                    <div class="fc3d-face front">
+                        <span class="fc-status ${status.k}">${status.l}</span>
+                        <div class="fc3d-label">${isAr ? 'السؤال' : 'Question'}</div>
+                        <div class="fc3d-text" dir="auto">${esc(c.question)}</div>
+                        <div class="fc3d-hint">${isAr ? 'انقر للكشف' : 'Tap to reveal'}</div>
+                    </div>
+                    <div class="fc3d-face back">
+                        <div class="fc3d-label">${isAr ? 'الإجابة' : 'Answer'}</div>
+                        <div class="fc3d-text" dir="auto">${esc(c.answer)}</div>
+                    </div>
+                </div>
             </div>
-            <div style="font-size:10px;font-family:var(--mono);color:var(--text4);text-align:center;margin:6px 0 8px">${nextInfo}</div>
-            <div class="rating-btns" id="ratingBtns" style="display:${fFlipped?'flex':'none'}">
-                <button class="rating-btn again" onclick="rateCard('again')">${currentLang==='ar'?'مجدداً':'Again'}<span class="rb-time">&lt;1m</span></button>
-                <button class="rating-btn hard"  onclick="rateCard('hard')">${currentLang==='ar'?'صعب':'Hard'}<span class="rb-time">~5m</span></button>
-                <button class="rating-btn good"  onclick="rateCard('good')">${currentLang==='ar'?'جيد':'Good'}<span class="rb-time">1d+</span></button>
-                <button class="rating-btn easy"  onclick="rateCard('easy')">${currentLang==='ar'?'سهل':'Easy'}<span class="rb-time">4d+</span></button>
+            <div class="fc-actions">
+                <button class="btn btn-primary fc-show" id="fcShow" onclick="flipCard()" style="display:${fFlipped ? 'none' : 'flex'}">${isAr ? 'إظهار الإجابة' : 'Show answer'}</button>
+                <div class="rating-btns" id="ratingBtns" style="display:${fFlipped ? 'grid' : 'none'}">${btns}</div>
             </div>`;
     }
 
     function flipCard() {
-        fFlipped=!fFlipped;
+        fFlipped = !fFlipped;
         $('fcCard')?.classList.toggle('flipped', fFlipped);
-        const rb=$('ratingBtns');
-        if (rb) rb.style.display=fFlipped?'flex':'none';
-        // hide hint on front when flipped
-        const hint=$('fcCard')?.querySelector('.fc-hint');
-        if (hint) hint.style.opacity = fFlipped ? '0' : '1';
+        const rb = $('ratingBtns'), sh = $('fcShow');
+        if (rb) rb.style.display = fFlipped ? 'grid' : 'none';
+        if (sh) sh.style.display = fFlipped ? 'none' : 'flex';
     }
 
-    // SM-2 Algorithm (faithful Anki implementation)
     function rateCard(r) {
-        const st=getSM();
-        let s=st[fCards[fci].id]||{ef:2.5, reps:0, interval:0, nextReview:0};
-        const now=Date.now();
-        if (r==='again') {
-            s.interval=60000; // 1 min
-            s.ef=Math.max(1.3, s.ef-0.2);
-            s.reps=0;
-        } else if (r==='hard') {
-            s.interval=Math.max(300000, s.interval*1.2); // min 5 min
-            s.ef=Math.max(1.3, s.ef-0.15);
-        } else if (r==='good') {
-            if (s.reps===0) s.interval=600000;       // 10 min
-            else if (s.reps===1) s.interval=86400000; // 1 day
-            else s.interval=Math.round(s.interval*s.ef);
-            s.reps++;
-        } else if (r==='easy') {
-            if (s.reps===0) s.interval=345600000;    // 4 days
-            else if (s.reps===1) s.interval=604800000; // 7 days
-            else s.interval=Math.round(s.interval*(s.ef*1.3));
-            s.ef=Math.min(2.5+0.15, s.ef+0.15);
-            s.reps++;
-        }
-        s.nextReview=now+s.interval;
-        st[fCards[fci].id]=s;
-        saveSM(st);
+        const st = getSM(), c = fCards[fci];
+        const x = srsNext(st[c.id], r);
+        x.nextReview = Date.now() + x.interval;
+        st[c.id] = x; saveSM(st);
+        fStats[r]++;
         track('flashcard_rated', { rating: r, deck_name: fDeckName, card_index: fci + 1, total_cards: fCards.length });
-        fci++;
-        fFlipped=false;
-        if (fci>=fCards.length) {
+        if (r === 'again' && (fRequeue[c.id] || 0) < 2) { fRequeue[c.id] = (fRequeue[c.id] || 0) + 1; fCards.push(c); }
+        fci++; fFlipped = false;
+        if (fci >= fCards.length) {
             track('flashcard_review_completed', { deck_name: fDeckName, cards_reviewed: fCards.length, subject: getCurrentSubject()?.name || 'none' });
-            exitFlash(); updateDueBadge(); return;
+            showFCDone(); updateDueBadge(); return;
         }
         renderFC();
     }
 
+    function showFCDone() {
+        const isAr = currentLang === 'ar';
+        const secs = Math.round((Date.now() - fStart) / 1000);
+        const total = fStats.again + fStats.hard + fStats.good + fStats.easy;
+        $('fProg').style.width = '100%';
+        $('fCounter').textContent = total + ' ✓';
+        const tile = (n, l, c) => `<div class="fc-done-tile"><b style="color:${c}">${n}</b><span>${l}</span></div>`;
+        $('fContent').innerHTML = `<div class="fc-done">
+            <div style="font-size:54px;margin-bottom:6px">🎉</div>
+            <h2>${isAr ? 'أنهيت الجلسة!' : 'Session complete!'}</h2>
+            <p>${total} ${isAr ? 'مراجعة' : 'reviews'} · ${Math.floor(secs / 60)}${isAr ? 'د' : 'm'} ${secs % 60}${isAr ? 'ث' : 's'}</p>
+            <div class="fc-done-grid">${tile(fStats.again, isAr ? 'مجدداً' : 'Again', '#ff3b30')}${tile(fStats.hard, isAr ? 'صعب' : 'Hard', '#ff9f0a')}${tile(fStats.good, isAr ? 'جيد' : 'Good', '#34c759')}${tile(fStats.easy, isAr ? 'سهل' : 'Easy', 'var(--accent)')}</div>
+            <div class="fc-actions"><button class="btn btn-primary fc-show" onclick="exitFlash()">${isAr ? 'تم' : 'Done'}</button></div>
+        </div>`;
+    }
+
+    document.addEventListener('keydown', e => {
+        const fa = $('flashArea');
+        if (!fa || !fa.classList.contains('active')) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.target.closest && e.target.closest('input,textarea,select,[contenteditable]')) return;
+        const done = fci >= fCards.length;
+        if (e.key === 'Escape') { exitFlash(); return; }
+        if (done) return;
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!fFlipped) flipCard(); }
+        else if (fFlipped && ['1', '2', '3', '4'].includes(e.key)) rateCard(['again', 'hard', 'good', 'easy'][+e.key - 1]);
+    });
+
     function exitFlash() {
-        const fp=$('flashArea'); fp.classList.remove('active'); hide(fp);
+        const fp = $('flashArea'); fp.classList.remove('active'); hide(fp);
         switchPanel('decks');
         updateDueBadge();
     }
@@ -5383,34 +6029,59 @@ ${textSlice}`;
         const card = $('customApiCard');
         if (!card) return;
         const isAr = currentLang === 'ar';
-        const provId = API_PROVIDERS[lg('app_apiProvider')] ? lg('app_apiProvider') : 'deepseek';
-        const prov = API_PROVIDERS[provId];
-        const model = lg('app_apiModel') || prov.models[0];
-        const key = lg('app_apiKey') || '';
+        const esc = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const list = getApiList();
+        const activeId = list.some(a => a.id === lg('app_apiActive')) ? lg('app_apiActive') : (list[0] ? list[0].id : '');
+        const fb = lg('app_apiFallback') !== '0';
+        const prov = API_PROVIDERS.deepseek;
         const st = 'font-family:var(--mono);font-size:12px';
+        const mask = k => k.length > 10 ? k.slice(0, 4) + '••••' + k.slice(-4) : '••••';
+        const rows = list.map(a => {
+            const p = API_PROVIDERS[a.provider] || API_PROVIDERS.deepseek;
+            const on = a.id === activeId;
+            return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);background:${on ? 'var(--accent-light)' : 'var(--surface2)'};margin-bottom:8px">
+                <input type="radio" name="apiActiveRadio" ${on ? 'checked' : ''} onchange="setActiveApi('${a.id}')" style="width:auto;flex-shrink:0;accent-color:var(--accent)">
+                <div style="flex:1;min-width:0">
+                    <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.label || p.name)} <span style="font-weight:400;color:var(--text3)">· ${esc(a.model || p.models[0])}</span></div>
+                    <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${mask(a.key)} <span id="apiRowRes_${a.id}"></span></div>
+                </div>
+                <button class="btn btn-sm" onclick="testSavedApi('${a.id}')">${isAr ? 'تجربة' : 'Test'}</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteApi('${a.id}')">✕</button>
+            </div>`;
+        }).join('');
         card.innerHTML = `
             <div class="card-header"><span class="card-title">${isAr ? 'الذكاء الاصطناعي (API)' : 'AI (API)'}</span>
-                <span id="apiActiveBadge" style="font-size:11px;font-family:var(--mono);color:${key ? 'var(--success)' : 'var(--danger)'}">${key ? (isAr ? '✓ مفعّل' : '✓ Active') : (isAr ? 'غير مفعّل' : 'Not set')}</span></div>
+                <span id="apiActiveBadge" style="font-size:11px;font-family:var(--mono);color:${list.length ? 'var(--success)' : 'var(--danger)'}">${list.length ? '✓ ' + list.length + (isAr ? ' مفتاح' : (list.length > 1 ? ' keys' : ' key')) : (isAr ? 'غير مفعّل' : 'Not set')}</span></div>
+            ${list.length ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px">${isAr ? 'اختر الـ API الفعّال (الدائرة):' : 'Pick the active API (radio):'}</div>${rows}
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);margin:6px 0 14px;cursor:pointer">
+                <input type="checkbox" id="apiFallbackChk" ${fb ? 'checked' : ''} onchange="ls('app_apiFallback', this.checked ? '1' : '0')" style="width:auto;accent-color:var(--accent)">
+                ${isAr ? 'التبديل التلقائي للـ API التالي إذا فشل الحالي' : 'Auto-switch to the next API if the current one fails'}
+            </label>` : ''}
+            <div style="font-size:12px;font-weight:600;margin-bottom:8px">${isAr ? 'إضافة API جديد' : 'Add a new API'}</div>
             <div class="input-group" style="margin-bottom:10px">
-                <label style="font-size:11px">${isAr ? '1) اختر المزوّد' : '1) Choose provider'}</label>
+                <label style="font-size:11px">${isAr ? '1) المزوّد' : '1) Provider'}</label>
                 <select id="apiProviderSel" onchange="onApiProviderChange()" style="${st}">
-                    ${Object.entries(API_PROVIDERS).map(([id,p]) => `<option value="${id}" ${id===provId?'selected':''}>${p.name}</option>`).join('')}
+                    ${Object.entries(API_PROVIDERS).map(([id, p]) => `<option value="${id}">${p.name}</option>`).join('')}
                 </select>
             </div>
             <div class="input-group" style="margin-bottom:10px">
-                <label style="font-size:11px">${isAr ? '2) اختر الموديل (أو اكتب اسمه)' : '2) Choose model (or type its name)'}</label>
-                <input id="apiModelInput" list="apiModelList" value="${model.replace(/"/g,'&quot;')}" style="${st}">
+                <label style="font-size:11px">${isAr ? '2) الموديل (أو اكتب اسمه)' : '2) Model (or type its name)'}</label>
+                <input id="apiModelInput" list="apiModelList" value="${prov.models[0]}" style="${st}">
                 <datalist id="apiModelList">${prov.models.map(m => `<option value="${m}">`).join('')}</datalist>
             </div>
-            <div class="input-group" style="margin-bottom:12px">
-                <label style="font-size:11px">${isAr ? '3) الصق مفتاح API' : '3) Paste your API key'}</label>
-                <input id="apiKeyInput" type="password" autocomplete="off" value="${key.replace(/"/g,'&quot;')}" placeholder="${prov.keyHint}" style="${st}">
+            <div class="input-group" style="margin-bottom:10px">
+                <label style="font-size:11px">${isAr ? '3) مفتاح API' : '3) API key'}</label>
+                <input id="apiKeyInput" type="password" autocomplete="off" placeholder="${prov.keyHint}" style="${st}">
             </div>
-            <button class="btn btn-primary btn-sm" onclick="saveApiSettings()">${isAr ? 'حفظ' : 'Save'}</button>
+            <div class="input-group" style="margin-bottom:12px">
+                <label style="font-size:11px">${isAr ? 'اسم مخصص (اختياري)' : 'Custom name (optional)'}</label>
+                <input id="apiLabelInput" placeholder="${isAr ? 'مثلاً: حسابي الثاني' : 'e.g. My second account'}" style="${st}">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addApiFromForm()">${isAr ? '+ إضافة' : '+ Add'}</button>
             <button class="btn btn-sm" id="apiTestBtn" onclick="testApiConnection()" style="margin-inline-start:6px">${isAr ? 'تجربة الاتصال' : 'Test connection'}</button>
             <span id="apiSaveStatus" style="font-size:11px;color:var(--success);margin-inline-start:8px"></span>
             <div id="apiTestResult" style="font-size:11px;margin-top:10px;font-family:var(--mono)"></div>
-            <p style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.7">${isAr ? 'المفتاح يُحفظ في متصفحك فقط على هذا الجهاز.' : 'Your key is stored only in this browser on this device.'}</p>
+            <p style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.7">${isAr ? 'المفاتيح تُحفظ في متصفحك فقط على هذا الجهاز.' : 'Your keys are stored only in this browser on this device.'}</p>
         `;
     }
 
@@ -5421,20 +6092,42 @@ ${textSlice}`;
         $('apiKeyInput').placeholder = prov.keyHint;
     }
 
-    function saveApiSettings() {
+    function addApiFromForm() {
         const isAr = currentLang === 'ar';
+        const key = $('apiKeyInput').value.trim();
+        const st = $('apiSaveStatus');
+        if (!key) { if (st) { st.style.color = 'var(--danger)'; st.textContent = isAr ? 'الصق مفتاح API أولاً' : 'Paste an API key first'; } return; }
         const provId = $('apiProviderSel').value;
-        ls('app_apiProvider', provId);
-        ls('app_apiModel', $('apiModelInput').value.trim() || API_PROVIDERS[provId].models[0]);
-        ls('app_apiKey', $('apiKeyInput').value.trim());
-        const badge = $('apiActiveBadge');
-        if (badge) {
-            const has = !!lg('app_apiKey');
-            badge.textContent = has ? (isAr ? '✓ مفعّل' : '✓ Active') : (isAr ? 'غير مفعّل' : 'Not set');
-            badge.style.color = has ? 'var(--success)' : 'var(--danger)';
-        }
-        const el = $('apiSaveStatus');
-        if (el) { el.textContent = isAr ? 'تم الحفظ ✓' : 'Saved ✓'; setTimeout(() => { el.textContent = ''; }, 2000); }
+        const list = getApiList();
+        if (list.some(a => a.key === key && a.provider === provId)) { toast(isAr ? 'هذا المفتاح مضاف مسبقاً' : 'This key is already added'); return; }
+        const item = { id: 'api_' + Date.now(), provider: provId, model: $('apiModelInput').value.trim() || API_PROVIDERS[provId].models[0], key, label: $('apiLabelInput').value.trim() };
+        list.push(item); saveApiList(list);
+        if (list.length === 1 || !lg('app_apiActive')) ls('app_apiActive', item.id);
+        renderCustomApiSettings();
+        toast(isAr ? 'تمت الإضافة ✓' : 'Added ✓');
+        updateGenStrip();
+    }
+    function setActiveApi(id) { ls('app_apiActive', id); renderCustomApiSettings(); toast(currentLang === 'ar' ? 'تم تفعيل هذا الـ API ✓' : 'API activated ✓'); }
+    function deleteApi(id) {
+        const isAr = currentLang === 'ar';
+        if (!confirm(isAr ? 'حذف هذا الـ API؟' : 'Delete this API?')) return;
+        const list = getApiList().filter(a => a.id !== id);
+        saveApiList(list);
+        if (lg('app_apiActive') === id) ls('app_apiActive', list[0] ? list[0].id : '');
+        renderCustomApiSettings();
+        updateGenStrip();
+    }
+    async function testSavedApi(id) {
+        const isAr = currentLang === 'ar';
+        const a = getApiList().find(x => x.id === id); if (!a) return;
+        const p = API_PROVIDERS[a.provider] || API_PROVIDERS.deepseek;
+        const el = $('apiRowRes_' + id);
+        if (el) { el.style.color = 'var(--text3)'; el.textContent = isAr ? '… جارٍ' : '… testing'; }
+        const t0 = Date.now();
+        try {
+            await _callApiOnce({ key: a.key, model: a.model || p.models[0], endpoint: p.endpoint, extra: p.extra, maxOut: p.maxOut }, [{ role: 'user', content: 'ping' }], 5, 0);
+            if (el) { el.style.color = 'var(--success)'; el.textContent = '✓ ' + (Date.now() - t0) + 'ms'; }
+        } catch (e) { if (el) { el.style.color = 'var(--danger)'; el.textContent = '✗ ' + String(e.message || '').slice(0, 60); } }
     }
 
     async function testApiConnection() {
@@ -5576,6 +6269,9 @@ ${textSlice}`;
         $('diffSel').value=lg('app_diff')||'متوسط';
         $('langSel').value=lg('app_lang_sel')||'عربي';
         if ($('quizNameInput') && lg('app_quizName')) $('quizNameInput').value=lg('app_quizName');
+        if ($('genExtraNote') && lg('app_genNote')) $('genExtraNote').value = lg('app_genNote');
+        { const sv = lg('app_qStyle'); if (sv) { _genStyle = sv; document.querySelectorAll('#qStyleChips .chip').forEach(c => c.classList.toggle('active', c.dataset.val === sv)); } }
+        updateGenStrip();
         if ($('summaryNameInput') && lg('app_sumName')) $('summaryNameInput').value=lg('app_sumName');
         if ($('summaryLangSel') && lg('app_sumLang')) $('summaryLangSel').value=lg('app_sumLang');
 
@@ -5667,11 +6363,18 @@ ${textSlice}`;
         }
         ls('app_card_focuses', JSON.stringify([..._activeFocuses]));
         const lbl = document.getElementById('focusActiveLabel');
-        if (lbl) lbl.textContent = 'التركيز الحالي: ' + [..._activeFocuses].join(' · ');
+        refreshFocusLabel();
     }
 
     // Legacy single-select kept as alias (not used in new UI)
     function setFocusChip(el) { toggleFocusChip(el); }
+
+    function refreshFocusLabel() {
+        const lbl = document.getElementById('focusActiveLabel');
+        if (!lbl) return;
+        const names = [..._activeFocuses].map(f => t('x_f_' + f));
+        lbl.textContent = (currentLang === 'ar' ? 'التركيز الحالي: ' : 'Current focus: ') + names.join(' · ');
+    }
 
     let _autoCard = false;
 
@@ -5722,7 +6425,7 @@ ${textSlice}`;
             if (el) { el.checked = true; toggleAutoCard(el); }
         }
         const lbl = document.getElementById('focusActiveLabel');
-        if (lbl) lbl.textContent = 'التركيز الحالي: ' + [..._activeFocuses].join(' · ');
+        refreshFocusLabel();
     }
 
     const CARDS_SYSTEM = `You are a precision flashcard generator. Your absolute rules:
@@ -5988,7 +6691,7 @@ ${text}`;
             panel.classList.toggle('sai-open', !isOpen);
             document.body.classList.toggle('sai-body-lock', !isOpen);
             if (btn) btn.innerHTML = isOpen ? ICON_CHAT : ICON_CLOSE;
-            if (!isOpen) setTimeout(() => document.getElementById('sumAIInput')?.focus(), 280);
+            if (!isOpen) { _bindSumVV(); _sumAIFitViewport(); }
         } else {
             const isOpen = panel.style.width !== '0px' && panel.style.width !== '';
             panel.style.width    = isOpen ? '0px' : 'min(400px, 42vw)';
@@ -6000,7 +6703,54 @@ ${text}`;
 
     function closeSumAI() {
         _sumAIChatHistory = [];
+        _sumAIChatLog = [];
         window._sumAIContext = null;
+        document.body.classList.remove('sai-body-lock');
+    }
+
+    // Keep the mobile drawer above the on-screen keyboard
+    function _sumAIFitViewport() {
+        const p = document.getElementById('sumAIPanel');
+        const vv = window.visualViewport;
+        if (!p || !vv || window.innerWidth > 640) return;
+        const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+        p.style.setProperty('bottom', kb + 'px', 'important');
+        p.style.setProperty('height', Math.round(Math.min(window.innerHeight * 0.7, vv.height - 56)) + 'px', 'important');
+        p.style.setProperty('max-height', 'none', 'important');
+    }
+    function _bindSumVV() {
+        if (window._sumVVBound || !window.visualViewport) return;
+        window._sumVVBound = true;
+        window.visualViewport.addEventListener('resize', _sumAIFitViewport);
+        window.visualViewport.addEventListener('scroll', _sumAIFitViewport);
+    }
+
+    // ── Persist AI chat (questions + answers) inside each saved summary ──
+    let _sumAIChatLog = [];
+    function persistSumAIChat() {
+        const ctx = window._sumAIContext;
+        if (!ctx || !ctx.id) return;
+        try {
+            const lib = getSummaryLib();
+            const i = lib.findIndex(x => x.id === ctx.id);
+            if (i < 0) return;
+            lib[i].chat = _sumAIChatLog.slice(-60);
+            saveSummaryLibData(lib);
+        } catch (e) { console.warn('chat save failed', e); }
+    }
+    function restoreSumAIChat(chat) {
+        _sumAIChatLog = []; _sumAIChatHistory = [];
+        if (!Array.isArray(chat) || !chat.length) return;
+        chat.forEach(m => _appendSumAIMsg(m.text, m.role === 'user' ? 'user' : 'ai', true));
+        _sumAIChatLog = chat.map(m => ({ role: m.role, text: m.text }));
+        _sumAIChatHistory = chat.slice(-8).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
+    }
+    function clearSumAIChat() {
+        _sumAIChatLog = []; _sumAIChatHistory = [];
+        persistSumAIChat();
+        const msgs = document.getElementById('sumAIMessages');
+        if (msgs) { const first = msgs.querySelector('.sai-msg-group'); msgs.innerHTML = ''; if (first) msgs.appendChild(first); }
+        toast(currentLang === 'ar' ? 'تم مسح المحادثة' : 'Chat cleared');
     }
 
     function sumAIQuick(type) {
@@ -6105,7 +6855,7 @@ ${text}`;
         return html;
     }
 
-    function _appendSumAIMsg(text, role) {
+    function _appendSumAIMsg(text, role, noLog) {
         const msgs = document.getElementById('sumAIMessages');
         if (!msgs) return;
 
@@ -6136,6 +6886,7 @@ ${text}`;
 
         msgs.appendChild(group);
         msgs.scrollTop = msgs.scrollHeight;
+        if (!noLog) { _sumAIChatLog.push({ role: role === 'user' ? 'user' : 'ai', text }); persistSumAIChat(); }
         return group;
     }
 
@@ -6168,36 +6919,12 @@ ${text}`;
         const system = systemOverride || `You are a helpful study assistant. The user is reading a summary titled "${ctx?.name||'Summary'}". Here is the content:\n---\n${summaryText.slice(0,3000)}\n---\nAnswer concisely and helpfully. Match the user's language.`;
 
         try {
-            const { key: apiKey, model: apiModel, endpoint: apiEndpoint, extra: apiExtra, maxOut: apiMaxOut } = getActiveApiConfig();
-            const body = JSON.stringify({
-                model: apiModel,
-                messages: [{ role:'system', content: system }, ...historyForAPI],
-                max_tokens: 1000,
-                temperature: 0.5,
-                ...apiExtra
-            });
-            const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+apiKey };
-            let responseText = '';
-            try {
-                const r = await fetch(apiEndpoint, { method:'POST', headers, body });
-                if (r.ok) { const d = await r.json(); responseText = d.choices[0].message.content; }
-                else throw new Error('HTTP ' + r.status);
-            } catch(e) {
-                if (e.name !== 'TypeError') throw e;
-                for (const makeProxy of CORS_PROXIES) {
-                    try {
-                        const r = await fetch(makeProxy(apiEndpoint), { method:'POST', headers, body });
-                        if (!r.ok) throw new Error('HTTP ' + r.status);
-                        const d = await r.json();
-                        const parsed = d.contents ? JSON.parse(d.contents) : d;
-                        responseText = parsed.choices[0].message.content;
-                        break;
-                    } catch(pe) { /* try next */ }
-                }
-            }
+            const responseText = await apiChatMessages([{ role: 'system', content: system }, ...historyForAPI], 1000, 0.5);
             if (!responseText) throw new Error('No response');
 
             _sumAIChatHistory.push({ role: 'assistant', content: responseText });
+            _sumAIChatLog.push({ role: 'ai', text: responseText });
+            persistSumAIChat();
             // Replace typing indicator with real content
             typingGroup.innerHTML = `
                 <div class="sai-msg-label">
@@ -6213,7 +6940,7 @@ ${text}`;
                     <div class="sai-msg-label-dot">
                         <svg viewBox="0 0 100 100" fill="none"><path d="M50 28 L70 39 L70 61 L50 72 L30 61 L30 39 Z" fill="var(--danger)"/></svg>
                     </div>
-                    <span class="sai-msg-label-name" style="color:var(--danger)">Error</span>
+                    <span class="sai-msg-label-name" style="color:var(--danger)">${currentLang==='ar'?'خطأ':'Error'}</span>
                 </div>
                 <div class="sai-msg-ai" style="color:var(--danger)">${e.message}</div>`;
         }
@@ -6375,7 +7102,7 @@ ${text}`;
                             ondrop="event.preventDefault();this.classList.remove('dragover');cmSumHandleFile(event.dataTransfer.files[0])">
                             <div class="cm-dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
                             <div class="cm-dropzone-title">${isAr ? 'انقر هنا أو اسحب ملف PDF' : 'Click or drop PDF here'}</div>
-                            <div class="cm-dropzone-hint">PDF · 25 pages max</div>
+                            <div class="cm-dropzone-hint">${isAr ? 'PDF · 25 صفحة كحد أقصى' : 'PDF · 25 pages max'}</div>
                         </div>
                         <div class="cm-file-pill" id="cmSumFilePill" style="display:none">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -6414,18 +7141,18 @@ ${text}`;
                         <div class="cm-chips" id="cmSumLengthChips">
                             <span class="chip" data-length="short" onclick="cmSumSetLength(this)" style="display:flex;align-items:center;gap:5px">
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="13" y2="12"/></svg>
-                                Short
+                                ${isAr ? 'قصير' : 'Short'}
                             </span>
                             <span class="chip active" data-length="medium" onclick="cmSumSetLength(this)" style="display:flex;align-items:center;gap:5px">
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="11" y2="18"/></svg>
-                                Middle
+                                ${isAr ? 'متوسط' : 'Medium'}
                             </span>
                             <span class="chip" data-length="long" onclick="cmSumSetLength(this)" style="display:flex;align-items:center;gap:5px">
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                                Long
+                                ${isAr ? 'طويل' : 'Long'}
                             </span>
                         </div>
-                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono)" id="cmSumLengthHint">Balanced summary — 4–6 sections with key points and terms</div>
+                        <div style="font-size:10px;color:var(--text4);font-family:var(--mono)" id="cmSumLengthHint">${sumLenHint('medium')}</div>
                     </div>
                 </div>
 
@@ -6488,8 +7215,7 @@ ${text}`;
         el.classList.add('active');
         _sumModalLength = el.dataset.length;
         // Sync to existing length chips
-        const hints = { short: 'Concise summary — 2–3 sections with core points', medium: 'Balanced summary — 4–6 sections with key points and terms', long: 'Detailed summary — 7+ sections with full coverage' };
-        document.getElementById('cmSumLengthHint').textContent = hints[_sumModalLength] || '';
+        document.getElementById('cmSumLengthHint').textContent = sumLenHint(_sumModalLength);
         // Sync existing chips
         document.querySelectorAll('#summaryLengthChips .chip').forEach(c => {
             c.classList.toggle('active', c.dataset.length === _sumModalLength);
@@ -6541,7 +7267,7 @@ ${text}`;
                 <div class="cm-loading">
                     <div class="cm-loading-spinner"></div>
                     <div class="cm-loading-title">${currentLang === 'ar' ? 'جاري إنشاء الملخص...' : 'Generating summary...'}</div>
-                    <div class="cm-loading-sub" id="cmSumLoadingStatus">جاري استخراج النص من PDF...</div>
+                    <div class="cm-loading-sub" id="cmSumLoadingStatus">${currentLang === 'ar' ? 'جاري استخراج النص من PDF...' : 'Extracting text from PDF...'}</div>
                     <div class="cm-loading-bar-wrap"><div class="cm-loading-bar" id="cmSumLoadingBar"></div></div>
                 </div>`;
             footer.style.display = 'none';
