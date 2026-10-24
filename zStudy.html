@@ -1389,6 +1389,182 @@
         .sai-send { border-radius:0 var(--radius-full) var(--radius-full) 0; background:var(--accent); border-color:var(--accent); }
         [dir="rtl"] .sai-input { border-radius:0 var(--radius-full) var(--radius-full) 0; }
         [dir="rtl"] .sai-send { border-radius:var(--radius-full) 0 0 var(--radius-full); }
+        /* ═══ Loader · Summary modal · How-to ═══ */
+        #mcqLoadingScreen { background:rgba(245,245,247,.80) !important; backdrop-filter:blur(26px) saturate(180%); -webkit-backdrop-filter:blur(26px) saturate(180%); }
+        [data-theme="dark"] #mcqLoadingScreen { background:rgba(0,0,0,.74) !important; }
+        .mcq-loading-wrap { background:var(--surface); border-radius:28px; box-shadow:var(--shadow-xl); width:min(400px, calc(100% - 32px)) !important; height:auto !important; max-height:92dvh; margin:auto; padding:30px 22px 22px !important; position:absolute !important; inset:50% auto auto 50%; transform:translate(-50%, -50%); }
+        [dir="rtl"] .mcq-loading-wrap { inset:50% 50% auto auto; transform:translate(50%, -50%); }
+        .mcq-spinner-ring { width:44px; height:44px; border-width:4px; border-color:var(--surface3); border-top-color:var(--accent); box-shadow:none; margin-bottom:20px; }
+        .mcq-loading-title { font-size:20px; font-weight:700; letter-spacing:-0.03em; }
+        .mcq-loading-sub { font-family:var(--sans); font-size:13px; color:var(--text3); margin-bottom:20px; }
+        .mcq-step { border:none !important; border-radius:14px; padding:10px 12px; box-shadow:none !important; background:transparent; }
+        .mcq-step.active { background:var(--surface2) !important; }
+        .mcq-step-num { font-family:var(--sans); border-radius:50%; width:26px; height:26px; display:grid; place-items:center; font-size:11px; }
+        .mcq-step-label { font-size:14px; }
+        .mcq-bar-outer { height:6px; border-radius:99px; background:var(--surface3); overflow:hidden; }
+        .mcq-bar-fill { background:var(--accent) !important; border-radius:99px; transition:width .5s ease; }
+        .mcq-loading-pct { font-family:var(--sans); font-size:12px; color:var(--text3); margin-top:8px; }
+        .mcq-loading-time { font-size:12px; color:var(--text4); font-variant-numeric:tabular-nums; margin-top:2px; }
+        .mcq-tip { min-height:40px; margin-top:14px; padding:10px 14px; background:var(--surface2); border-radius:14px; font-size:12.5px; line-height:1.7; color:var(--text2); transition:opacity .25s; width:100%; }
+        .mcq-cancel-btn { border:none !important; background:var(--surface3) !important; color:var(--text2) !important; border-radius:99px !important; padding:10px 26px !important; font:inherit; font-weight:600; cursor:pointer; margin-top:14px; }
+        .creation-modal-overlay { backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); background:rgba(0,0,0,.35) !important; }
+        .creation-modal { border-radius:28px !important; background:var(--surface) !important; border:none !important; box-shadow:var(--shadow-modal) !important; }
+        .cm-header { border-bottom:.5px solid var(--border); }
+        .cm-header-icon { background:var(--accent) !important; color:#fff !important; border-radius:12px !important; border:none !important; }
+        .cm-header-title { font-size:17px !important; font-weight:700 !important; letter-spacing:-0.02em; }
+        .cm-header-sub, .cm-loading-sub { font-family:var(--sans) !important; }
+        .cm-close { border:none !important; background:var(--surface3) !important; border-radius:50% !important; color:var(--text2) !important; }
+        .cm-section-label { font-family:var(--sans) !important; text-transform:none !important; letter-spacing:0 !important; font-size:12px !important; font-weight:600 !important; color:var(--text3) !important; }
+        .cm-tabs, .cm-chips { display:inline-flex !important; background:var(--surface3); border-radius:10px; padding:2px; gap:2px; border:none !important; }
+        .cm-tab { border:none !important; background:transparent !important; border-radius:8px !important; padding:7px 16px; font:inherit; font-size:13px; font-weight:500; color:var(--text2) !important; }
+        .cm-tab.active { background:var(--surface) !important; color:var(--text) !important; box-shadow:0 1px 3px rgba(0,0,0,.14); }
+        .cm-chips .chip { background:transparent !important; color:var(--text2) !important; border-radius:8px !important; box-shadow:none !important; padding:6px 14px; }
+        .cm-chips .chip.active { background:var(--surface) !important; color:var(--text) !important; box-shadow:0 1px 3px rgba(0,0,0,.14) !important; }
+        .cm-dropzone { border:1.5px dashed var(--border-hover) !important; border-radius:20px !important; background:var(--surface2) !important; }
+        .cm-dropzone:hover, .cm-dropzone.dragover { border-color:var(--accent) !important; background:var(--accent-subtle) !important; }
+        .cm-file-pill { background:var(--surface2) !important; border:none !important; border-radius:14px !important; }
+        .cm-footer { border-top:.5px solid var(--border); padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
+        .cm-footer .btn { height:42px; padding:0 22px; border-radius:99px; }
+        #cmSumLengthHint { font-family:var(--sans) !important; font-size:12px !important; color:var(--text3) !important; }
+        .cm-loading-spinner { border-color:var(--surface3) !important; border-top-color:var(--accent) !important; }
+        .cm-loading-title { font-size:18px; font-weight:700; letter-spacing:-0.02em; }
+        .cm-loading-bar-wrap { height:6px !important; border-radius:99px !important; background:var(--surface3) !important; overflow:hidden; }
+        .cm-loading-bar { background:var(--accent) !important; border-radius:99px; transition:width .5s ease; }
+        .cm-loading-time { font-size:12px; color:var(--text4); margin-top:10px; font-variant-numeric:tabular-nums; text-align:center; }
+        @keyframes sheetUp { from { transform:translateY(100%); } to { transform:none; } }
+        @media (max-width:640px) {
+            .creation-modal-overlay { align-items:flex-end !important; padding:0 !important; }
+            .creation-modal { width:100% !important; max-width:none !important; border-radius:28px 28px 0 0 !important; max-height:92dvh; animation:sheetUp .35s cubic-bezier(.2,.8,.2,1); }
+        }
+        .ht-hero { background:var(--accent); color:#fff; border-radius:var(--radius-xl); padding:22px; margin:8px 0 6px; }
+        .ht-hero-t { font-size:20px; font-weight:700; letter-spacing:-0.03em; }
+        .ht-steps { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin:16px 0; }
+        .ht-step { background:rgba(255,255,255,.18); border-radius:16px; padding:12px; font-size:13px; font-weight:500; line-height:1.5; }
+        .ht-step b { display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:#fff; color:var(--accent); margin-bottom:8px; font-size:13px; }
+        .ht-cta { background:#fff !important; color:var(--accent) !important; font-weight:600; height:42px; padding:0 24px; }
+        .ht-h { font-size:13px; font-weight:600; color:var(--text3); margin:24px 6px 8px; }
+        .ht-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; }
+        .ht-card { background:var(--surface); border-radius:var(--radius-lg); padding:16px; cursor:pointer; transition:box-shadow var(--transition), transform var(--transition); }
+        .ht-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-2px); }
+        .ht-ico { width:38px; height:38px; border-radius:11px; display:grid; place-items:center; font-size:18px; color:#fff; margin-bottom:10px; }
+        .ht-card h3 { font-size:15px; font-weight:600; margin:0 0 4px; letter-spacing:-0.01em; }
+        .ht-card p { font-size:13px; color:var(--text3); line-height:1.75; margin:0; }
+        .ht-table { background:var(--surface); border-radius:var(--radius-lg); overflow:hidden; }
+        .ht-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px; border-bottom:.5px solid var(--border); font-size:13px; }
+        .ht-row:last-child { border-bottom:none; }
+        .ht-kbd { display:inline-block; min-width:24px; text-align:center; padding:2px 8px; border-radius:7px; background:var(--surface3); font-family:var(--mono); font-size:12px; }
+        .ht-faq details { background:var(--surface); border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:8px; }
+        .ht-faq summary { cursor:pointer; font-size:14px; font-weight:600; list-style:none; }
+        .ht-faq summary::-webkit-details-marker { display:none; }
+        .ht-faq p { font-size:13px; color:var(--text2); line-height:1.8; margin:10px 0 2px; }
+        @media (max-width:480px) { .ht-steps { grid-template-columns:1fr; } }
+        /* ═══ Subjects dashboard ═══ */
+        #panel-dashboard .subjects-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; }
+        .sj { position:relative; background:var(--surface); border-radius:var(--radius-xl); padding:20px 16px 16px; cursor:pointer; overflow:hidden; transition:box-shadow var(--transition), transform var(--transition); }
+        .sj:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
+        .sj-bar { position:absolute; top:0; inset-inline:0; height:4px; }
+        .sj-top { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+        .sj-icon { width:46px; height:46px; border-radius:14px; display:grid; place-items:center; color:#fff; flex:0 0 auto; }
+        .sj-name { font-size:17px; font-weight:600; letter-spacing:-0.02em; line-height:1.35; overflow-wrap:anywhere; }
+        .sj-sub { font-size:12px; color:var(--text3); margin-top:1px; }
+        .sj-menu { display:flex; gap:2px; align-self:flex-start; }
+        .sj-menu button { border:none; background:transparent; color:var(--text4); width:30px; height:30px; border-radius:50%; cursor:pointer; display:grid; place-items:center; }
+        .sj-menu button:hover { background:var(--surface3); color:var(--text); }
+        .sj-stats { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:14px; }
+        .sj-stat { background:var(--surface2); border-radius:12px; padding:9px 6px; text-align:center; }
+        .sj-stat b { display:block; font-size:17px; font-weight:700; letter-spacing:-0.02em; }
+        .sj-stat span { font-size:11px; color:var(--text3); }
+        .sj-stat.due b { color:#ff3b30; }
+        .sj-prog-track { height:6px; border-radius:99px; background:var(--surface3); overflow:hidden; }
+        .sj-prog-fill { height:100%; border-radius:99px; transition:width 500ms ease; }
+        .sj-prog-label { display:flex; justify-content:space-between; font-size:11px; color:var(--text3); margin-top:6px; }
+        .sj-add { border:1.5px dashed var(--border-hover); border-radius:var(--radius-xl); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:190px; cursor:pointer; color:var(--text3); font-size:14px; font-weight:500; transition:all var(--transition); }
+        .sj-add:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-subtle); }
+        .sj-add i { font-style:normal; width:44px; height:44px; border-radius:50%; background:var(--surface3); display:grid; place-items:center; font-size:24px; font-weight:300; }
+        .due-alert { display:flex; align-items:center; gap:10px; background:rgba(255,59,48,.10); color:#d70015; border:none; border-radius:var(--radius-lg); padding:13px 16px; margin-bottom:14px; font-size:14px; font-weight:500; cursor:pointer; }
+        [data-theme="dark"] .due-alert { color:#ff6961; }
+        .color-grid { display:grid; grid-template-columns:repeat(6, 1fr); gap:12px; padding:4px 2px; }
+        .color-swatch { aspect-ratio:1; border-radius:50%; cursor:pointer; border:none; transition:transform var(--transition); }
+        .color-swatch:hover { transform:scale(1.08); }
+        .color-swatch.selected { outline:2.5px solid var(--text); outline-offset:3px; }
+        @media (max-width:640px) { #panel-dashboard .subjects-grid { grid-template-columns:1fr; } }
+        /* ═══ Stats + Progress polish ═══ */
+        .stat-grid { grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; }
+        .stat-cell { background:var(--surface); border:none; border-radius:var(--radius-lg); padding:16px 10px; box-shadow:none; text-align:center; }
+        .stat-cell:hover { transform:none; box-shadow:var(--shadow); }
+        .stat-cell .stat-val { font-family:var(--sans); font-size:26px; letter-spacing:-0.03em; }
+        .stat-cell .stat-lbl { font-family:var(--sans); font-size:12px; margin-top:4px; }
+        .prog-bar-label, .prog-bar-val { font-family:var(--sans); }
+        .prog-bar-label { font-size:12px; }
+        .prog-bar-track { height:10px; background:var(--surface3); }
+        .prog-bar-item { gap:10px; }
+        #statsContent .card, #progressContent .card { border-radius:var(--radius-xl); padding:18px; }
+        #statsContent .card-title, #progressContent .card-title { font-size:15px; font-weight:600; letter-spacing:-0.02em; }
+        /* ═══ Error bank ═══ */
+        .er-group { margin-bottom:18px; }
+        .er-group-head { display:flex; align-items:center; gap:8px; margin:0 4px 8px; font-size:13px; font-weight:600; color:var(--text3); }
+        .er-group-head span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .er-group-head b { background:rgba(255,59,48,.12); color:#ff3b30; border-radius:99px; padding:1px 9px; font-size:12px; }
+        .er-card { background:var(--surface); border-radius:var(--radius-lg); padding:14px 16px 8px; margin-bottom:8px; }
+        .er-head { display:flex; gap:10px; align-items:flex-start; }
+        .er-q { flex:1; min-width:0; font-size:15px; font-weight:600; line-height:1.65; margin-bottom:10px; }
+        .er-count { flex:0 0 auto; font-size:12px; font-weight:700; padding:2px 10px; border-radius:99px; background:var(--surface3); color:var(--text3); }
+        .er-count.warm { background:rgba(255,159,10,.16); color:#b25000; }
+        .er-count.hot { background:rgba(255,59,48,.14); color:#ff3b30; }
+        .er-ans { display:flex; gap:10px; align-items:flex-start; border-radius:12px; padding:9px 12px; margin-bottom:6px; font-size:13px; line-height:1.6; }
+        .er-ans b { flex:0 0 auto; }
+        .er-ans.wrong { background:rgba(255,59,48,.09); color:#d70015; }
+        .er-ans.right { background:rgba(52,199,89,.11); color:#248a3d; }
+        [data-theme="dark"] .er-ans.wrong { color:#ff6961; }
+        [data-theme="dark"] .er-ans.right { color:#30d158; }
+        .er-exp { margin:6px 2px 2px; font-size:13px; }
+        .er-exp summary { cursor:pointer; color:var(--accent); font-weight:500; list-style:none; }
+        .er-exp summary::-webkit-details-marker { display:none; }
+        .er-exp div { color:var(--text2); line-height:1.8; margin-top:6px; }
+        .er-foot { display:flex; align-items:center; justify-content:space-between; font-size:11px; color:var(--text4); margin-top:2px; }
+        /* ═══ History · Lectures · Settings ═══ */
+        .set-title { font-size:13px; font-weight:600; color:var(--text3); margin:24px 6px 8px; }
+        .set-card { padding:4px 16px; }
+        .set-danger { background:rgba(255,59,48,.08) !important; }
+        .hs-spark { background:var(--surface); border-radius:var(--radius-lg); padding:12px 14px; margin-bottom:12px; }
+        .hs-spark-t { font-size:12px; color:var(--text3); margin-bottom:6px; }
+        .hs-item { display:flex; align-items:center; gap:14px; background:var(--surface); border-radius:var(--radius-lg); padding:12px 14px; margin-bottom:8px; cursor:pointer; transition:box-shadow var(--transition), transform var(--transition); }
+        .hs-item:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+        .hs-ring { position:relative; width:48px; height:48px; flex:0 0 auto; }
+        .hs-ring b { position:absolute; inset:0; display:grid; place-items:center; font-size:13px; font-weight:700; }
+        .hs-main { flex:1; min-width:0; }
+        .hs-name { font-size:15px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .hs-meta { font-size:12px; color:var(--text3); margin-top:2px; }
+        .lec-hero { display:flex; align-items:center; gap:18px; background:var(--surface); border-radius:var(--radius-xl); padding:18px; margin:8px 0 14px; }
+        .lec-ring { position:relative; width:96px; height:96px; flex:0 0 auto; }
+        .lec-ring b { position:absolute; inset:0; display:grid; place-items:center; font-size:22px; font-weight:700; letter-spacing:-0.03em; }
+        .lec-hero-stats { flex:1; display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+        .lec-hs b { display:block; font-size:19px; font-weight:700; letter-spacing:-0.02em; }
+        .lec-hs span { font-size:11px; color:var(--text3); }
+        .lec-count { display:inline-flex; align-items:center; gap:2px; background:var(--surface); border-radius:var(--radius-full); padding:3px; }
+        .lec-count button { width:30px; height:30px; border-radius:50%; border:none; background:var(--surface3); font-size:17px; cursor:pointer; color:var(--text); line-height:1; }
+        .lec-count input { width:46px; text-align:center; border:none !important; background:transparent !important; padding:0; margin:0; font-weight:600; box-shadow:none !important; }
+        .lec-list { display:flex; flex-direction:column; gap:8px; }
+        .lec-row { display:flex; align-items:center; gap:12px; background:var(--surface); border-radius:var(--radius-lg); padding:10px 12px; border-inline-start:4px solid transparent; }
+        .lec-row.done { border-inline-start-color:#34c759; }
+        .lec-row.in-progress { border-inline-start-color:var(--accent); }
+        .lec-num { width:30px; height:30px; border-radius:50%; background:var(--surface3); display:grid; place-items:center; font-size:12px; font-weight:700; flex:0 0 auto; }
+        .lec-row.done .lec-num { background:#34c759; color:#fff; }
+        .lec-row.in-progress .lec-num { background:var(--accent); color:#fff; }
+        .lec-main { flex:1; min-width:0; }
+        .lec-name { width:100%; border:none !important; background:transparent !important; padding:2px 0 !important; margin:0; font-size:14px; font-weight:600; border-radius:0 !important; box-shadow:none !important; }
+        .lec-name:focus { border-bottom:1.5px solid var(--accent) !important; }
+        .lec-sub { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--text3); font-family:var(--mono); margin-top:2px; }
+        .lec-timer-btn { border:none; background:var(--surface3); border-radius:99px; padding:2px 10px; font:inherit; font-size:11px; cursor:pointer; color:var(--text2); }
+        .lec-timer-btn.running { background:rgba(255,59,48,.14); color:#ff3b30; }
+        .lec-seg .seg-btn { padding:6px 9px; font-size:12px; white-space:nowrap; }
+        @media (max-width:640px) {
+            .lec-row { flex-wrap:wrap; }
+            .lec-seg { width:100%; }
+            .lec-seg .seg-btn { flex:1; padding:7px 4px; }
+            .lec-hero { gap:12px; padding:14px; }
+            .lec-ring, .lec-ring svg { width:80px; height:80px; }
+        }
         /* ═══ My Cards + card study ═══ */
         .dk-stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin:8px 0 16px; }
         .dk-stat { background:var(--surface); border-radius:var(--radius-lg); padding:14px 8px; text-align:center; }
@@ -1667,6 +1843,7 @@
 
                 <!-- DASHBOARD PANEL -->
                 <div class="panel active" id="panel-dashboard">
+                    <div id="dashHead"></div>
                     <div id="dashboardDueBanner"></div>
                     <div class="subjects-grid" id="subjectsGrid"></div>
                 </div>
@@ -1789,26 +1966,24 @@
                 <!-- TODO / LECTURES PANEL -->
                 <div class="panel" id="panel-todo">
                     <h1 class="page-title" data-t="todo_title">قائمة المحاضرات</h1>
-                    <p class="page-subtitle" data-t="todo_subtitle">اضغط على المحاضرة للتبديل بين: لم يبدأ → جاري → مكتمل</p>
-
-                    <!-- Set lecture count -->
-                    <div class="card" style="margin-bottom:16px">
-                        <div class="card-header">
-                            <span class="card-title" data-t="todo_set_count">حدد عدد المحاضرات</span>
+                    <p class="page-subtitle" data-t="x_todo_sub">تتبّع كل محاضرة وسجّل وقت دراستك</p>
+                    <div id="todoOverallProgress"></div>
+                    <div class="sl-toolbar">
+                        <div class="seg" id="lecFilter">
+                            <button type="button" class="seg-btn active" data-val="all" onclick="setLecFilter('all')" data-t="x_filter_all">الكل</button>
+                            <button type="button" class="seg-btn" data-val="in-progress" onclick="setLecFilter('in-progress')" data-t="status_in_progress">جاري</button>
+                            <button type="button" class="seg-btn" data-val="not-started" onclick="setLecFilter('not-started')" data-t="status_not_started">لم يبدأ</button>
+                            <button type="button" class="seg-btn" data-val="done" onclick="setLecFilter('done')" data-t="status_done">تم</button>
                         </div>
-                        <div class="input-row" style="margin-bottom:10px">
-                            <div class="input-group">
-                                <label data-t="lec_count">عدد المحاضرات</label>
-                                <input type="number" id="lecCountInput" min="1" max="60" value="12" style="max-width:120px">
-                            </div>
+                        <div class="lec-count" style="margin-inline-start:auto">
+                            <button type="button" onclick="stepLecCount(-1)">−</button>
+                            <input type="number" id="lecCountInput" min="1" max="60" value="12" onchange="applyLecCount()">
+                            <button type="button" onclick="stepLecCount(1)">+</button>
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="applyLecCount()" data-t="x_apply">تطبيق</button>
                     </div>
-                    <!-- Overall progress bar -->
-                    <div id="todoOverallProgress" style="margin-bottom:20px"></div>
-                    <!-- Lecture grid -->
-                    <div class="lec-grid" id="lecGrid"></div>
+                    <div class="lec-list" id="lecGrid"></div>
                 </div>
+
 
                 <!-- PROGRESS PANEL -->
                 <div class="panel" id="panel-progress">
@@ -1902,29 +2077,45 @@
                 <div class="panel" id="panel-history">
                     <h1 class="page-title" data-t="history_title">السجل</h1>
                     <p class="page-subtitle" data-t="history_subtitle">سجل اختباراتك السابقة</p>
-                    <div class="btn-group">
-                        <button class="btn btn-primary" onclick="replayLast()" data-t="review_last">مراجعة آخر اختبار</button>
+                    <div id="histStats"></div>
+                    <div class="sl-toolbar">
+                        <div class="seg" id="histSort"></div>
+                        <button class="btn btn-primary btn-sm" onclick="replayLast()" data-t="review_last" style="margin-inline-start:auto">مراجعة آخر اختبار</button>
+                        <button class="btn btn-sm" onclick="exportHistory()" data-t="export">تصدير</button>
                     </div>
-                    <div class="chip-row" id="histSort"></div>
                     <div id="histList"></div>
                     <div class="btn-group" style="margin-top:14px">
                         <button class="btn btn-danger btn-sm" onclick="clearHistory()" data-t="clear_all">مسح الكل</button>
                     </div>
                 </div>
 
+
                 <!-- ERRORS PANEL -->
                 <div class="panel" id="panel-errors">
                     <h1 class="page-title" data-t="error_bank_title">بنك الأخطاء</h1>
                     <p class="page-subtitle" data-t="error_bank_subtitle">الأسئلة التي أخطأت فيها — راجعها لتتقن المادة</p>
-                    <button class="btn btn-primary btn-full" style="margin-bottom:14px" onclick="reviewAllErrors()" data-t="review_all_errors">مراجعة جميع الأخطاء</button>
-                    <div class="chip-row" id="errSort"></div>
-                    <input id="errSearch" data-t="x_search" placeholder="Search..." style="margin-bottom:10px" oninput="renderErrors()">
+                    <div id="errStats"></div>
+                    <div style="display:flex;gap:8px;margin-bottom:12px">
+                        <button class="btn btn-primary" style="flex:1;height:46px;justify-content:center;font-weight:600" onclick="reviewAllErrors()" data-t="review_all_errors">مراجعة جميع الأخطاء</button>
+                        <button class="btn" style="height:46px" onclick="reviewAllErrors(2)" id="errRepeatBtn"></button>
+                    </div>
+                    <div class="sl-toolbar" style="margin-bottom:6px">
+                        <div class="sl-search">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input id="errSearch" data-t="x_search" placeholder="Search..." oninput="renderErrors()">
+                        </div>
+                    </div>
+                    <div class="sl-toolbar" style="margin-top:0">
+                        <div class="seg" id="errSort"></div>
+                        <div class="seg" id="errFilter"></div>
+                    </div>
                     <div id="errList"></div>
                     <div class="btn-group" style="margin-top:14px">
                         <button class="btn btn-sm" onclick="exportErrors()" data-t="export">تصدير</button>
                         <button class="btn btn-danger btn-sm" onclick="clearErrors()" data-t="clear_all">مسح الكل</button>
                     </div>
                 </div>
+
 
                 <!-- STATS PANEL -->
                 <div class="panel" id="panel-stats">
@@ -1937,17 +2128,22 @@
                 <div class="panel" id="panel-settings">
                     <h1 class="page-title" data-t="settings_title">الإعدادات</h1>
                     <p class="page-subtitle" data-t="settings_subtitle">إعدادات التطبيق ومفاتيح API</p>
+                    <div class="set-title" data-t="x_set_appearance">المظهر واللغة</div>
+                    <div class="card set-card">
+                        <div class="gen-row" style="border-top:none"><span class="gen-lbl" data-t="x_theme">المظهر</span>
+                            <div class="seg" id="themeSeg"><button type="button" class="seg-btn" data-val="light" onclick="setThemeMode('light')" data-t="x_light">فاتح</button><button type="button" class="seg-btn" data-val="dark" onclick="setThemeMode('dark')" data-t="x_dark">داكن</button></div></div>
+                        <div class="gen-row"><span class="gen-lbl" data-t="language">اللغة</span>
+                            <div class="seg" id="appLangSeg"><button type="button" class="seg-btn" data-val="ar" onclick="setLangMode('ar')" data-t="arabic">عربي</button><button type="button" class="seg-btn" data-val="en" onclick="setLangMode('en')">English</button></div></div>
+                    </div>
+                    <div class="set-title" data-t="x_set_ai">الذكاء الاصطناعي</div>
                     <div class="card" id="customApiCard"></div>
+                    <div class="set-title" data-t="notifications">الإشعارات</div>
                     <div class="card">
-                        <div class="card-header"><span class="card-title" data-t="notifications">الإشعارات</span></div>
                         <p style="font-size:12px;color:var(--text3);margin-bottom:12px" data-t="notif_desc">تفعيل إشعارات تذكير المراجعة اليومية للبطاقات</p>
                         <div id="notifStatus" style="font-size:12px;font-family:var(--mono);margin-bottom:10px;color:var(--text3)"></div>
                         <button class="btn btn-primary btn-sm" onclick="requestNotifPermission()" data-t="enable_notif">تفعيل الإشعارات</button>
                     </div>
-                    <div class="card" style="border-color:var(--danger);background:var(--danger-bg)">
-                        <p style="font-size:12px;color:var(--danger);margin-bottom:8px" data-t="danger_zone_warning">مسح جميع البيانات المحلية. لا يمكن التراجع.</p>
-                        <button class="btn btn-danger btn-sm" onclick="clearAllData()" data-t="clear_all_data">مسح كل البيانات المحلية</button>
-                    </div>
+                    <div class="set-title" data-t="x_set_study">الدراسة</div>
                     <!-- CARD GENERATION SETTINGS -->
                     <div class="card">
                         <div class="card-header">
@@ -1999,105 +2195,28 @@
                         <input id="cardExtraNote" data-t="x_card_note_ph" placeholder="e.g. focus on complications only, ignore history..." style="font-size:12px;margin-bottom:0">
                         <div style="font-size:10px;color:var(--text4);font-family:var(--mono);margin-top:6px" id="focusActiveLabel">التركيز الحالي: General</div>
                     </div>
+                    <div class="set-title" data-t="x_set_data">البيانات</div>
+                    <div class="card">
+                        <p style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7" data-t="x_backup_hint">تشمل الملخصات والبطاقات والسجل والتقدم. مفاتيح API لا تُصدَّر.</p>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap">
+                            <button class="btn btn-primary btn-sm" onclick="exportAllData()" data-t="x_export_all">تصدير نسخة احتياطية</button>
+                            <button class="btn btn-sm" onclick="document.getElementById('importAllInput').click()" data-t="x_import_all">استيراد نسخة</button>
+                            <input type="file" id="importAllInput" accept=".json,application/json" class="hidden" onchange="importAllData(this)">
+                        </div>
+                    </div>
+                    <div class="card set-danger">
+                        <p style="font-size:12px;color:var(--danger);margin-bottom:10px" data-t="danger_zone_warning">مسح جميع البيانات المحلية. لا يمكن التراجع.</p>
+                        <button class="btn btn-danger btn-sm" onclick="clearAllData()" data-t="clear_all_data">مسح كل البيانات المحلية</button>
+                    </div>
                 </div>
 
                 <!-- HOW IT WORKS PANEL -->
                 <div class="panel" id="panel-howto">
                     <h1 class="page-title" data-t="howto_title">كيف تعمل zStudy</h1>
                     <p class="page-subtitle" data-t="howto_subtitle">دليل شامل لجميع الميزات</p>
-
-                    <!-- Step 1 -->
-                    <div class="card" style="margin-bottom:14px;border-inline-start:4px solid var(--accent)">
-                        <div class="card-header" style="margin-bottom:10px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
-                                <span style="width:28px;height:28px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">1</span>
-                                <span data-t="howto_step1_title">إنشاء مادة دراسية — Create a Subject</span>
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step1_body">من الصفحة الرئيسية، انقر على <b>+ إضافة مادة جديدة</b> لإنشاء مادة. اختر اسماً ولوناً مميزاً. كل مادة تملك فضاءها المستقل من الأسئلة والبطاقات والملخصات. From the dashboard, click <b>+ Add New Subject</b> to create a subject. Each subject has its own isolated space for questions, cards, and summaries.</p>
-                    </div>
-
-                    <!-- Step 2 -->
-                    <div class="card" style="margin-bottom:14px;border-inline-start:4px solid var(--success)">
-                        <div class="card-header" style="margin-bottom:10px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
-                                <span style="width:28px;height:28px;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">2</span>
-                                <span data-t="howto_step2_title">رفع ملف PDF — Upload PDF</span>
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step2_body">انتقل إلى تبويب <b>توليد من PDF</b> واسحب ملف PDF أو انقر لاختياره. يمكنك رفع عدة ملفات PDF وسيتم دمج نصوصها تلقائياً. يدعم حتى 25 صفحة لكل ملف. Go to <b>Generate from PDF</b>, drag & drop or click to upload. Multiple PDFs can be combined. Up to 25 pages per file are extracted.</p>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="card" style="margin-bottom:14px;border-inline-start:4px solid var(--warning)">
-                        <div class="card-header" style="margin-bottom:10px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
-                                <span style="width:28px;height:28px;background:var(--warning);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">3</span>
-                                <span data-t="howto_step3_title">توليد أسئلة MCQ — Generate MCQ</span>
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step3_body">بعد رفع PDF، اضبط عدد الأسئلة (10-30) ومستوى الصعوبة واللغة، ثم انقر <b>توليد MCQ</b>. سيبدأ الاختبار تلقائياً مع تتبع النتيجة والوقت ومستوى الثقة. After uploading, set question count (10–30), difficulty, and language, then click <b>Generate MCQ</b>. The quiz starts automatically with score, timer, and confidence tracking.</p>
-                    </div>
-
-                    <!-- Step 4 -->
-                    <div class="card" style="margin-bottom:14px;border-inline-start:4px solid var(--accent)">
-                        <div class="card-header" style="margin-bottom:10px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
-                                <span style="width:28px;height:28px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">4</span>
-                                <span data-t="howto_step4_title">البطاقات التعليمية — Flashcards</span>
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step4_body">انقر <b>توليد بطاقات</b> لإنشاء بطاقات تعليمية من PDF. تُحفظ في <b>بطاقاتي</b> وتستخدم نظام المراجعة المتباعدة (SM-2). انقر على البطاقة للكشف عن الإجابة وقيّم مستوى تذكرك. Click <b>Generate Cards</b> to create flashcards from the PDF. They're saved in <b>My Cards</b> using the SM-2 spaced repetition algorithm. Flip cards and rate your recall.</p>
-                    </div>
-
-                    <!-- Step 5 -->
-                    <div class="card" style="margin-bottom:14px;border-inline-start:4px solid #8b5cf6">
-                        <div class="card-header" style="margin-bottom:10px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
-                                <span style="width:28px;height:28px;background:#8b5cf6;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">5</span>
-                                <span data-t="howto_step5_title">مساعد AI للملخصات — Summary AI</span>
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step5_body">في تبويب <b>الملخصات</b>، ارفع PDF أو الصق نصاً لتوليد ملخص منظم بالذكاء الاصطناعي. عند عرض الملخص، انقر <b>AI</b> لفتح مساعد <b>zStudy AI</b> الذي يجيب على أسئلتك عن المحتوى. In <b>Summaries</b>, upload a PDF or paste text to generate a structured AI summary. When viewing a summary, click <b>AI</b> to open <b>zStudy AI</b> — it answers your questions about the content.</p>
-                    </div>
-
-                    <!-- Step 6 -->
-                    <div class="card" style="margin-bottom:14px;border-inline-start:4px solid var(--danger)">
-                        <div class="card-header" style="margin-bottom:10px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
-                                <span style="width:28px;height:28px;background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">6</span>
-                                <span data-t="howto_step6_title">السجل وبنك الأخطاء — History & Error Bank</span>
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step6_body"><b>السجل</b> يحفظ جميع اختباراتك السابقة مع النتائج. <b>بنك الأخطاء</b> يجمع الأسئلة التي أخطأت بها تلقائياً لمراجعتها لاحقاً. <b>History</b> saves all past quizzes with scores. <b>Error Bank</b> automatically collects wrong answers for targeted review.</p>
-                    </div>
-
-                    <!-- Step 7 -->
-                    <div class="card" style="margin-bottom:14px;border-inline-start:4px solid var(--success)">
-                        <div class="card-header" style="margin-bottom:10px">
-                            <span class="card-title" style="display:flex;align-items:center;gap:10px">
-                                <span style="width:28px;height:28px;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0">7</span>
-                                <span data-t="howto_step7_title">المحاضرات والتقدم — Lectures & Progress</span>
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--text2);line-height:1.8" data-t="howto_step7_body">تبويب <b>المحاضرات</b> يتيح تتبع تقدمك في كل محاضرة مع مؤقت وقت مدمج. تبويب <b>التقدم</b> يعرض رسوماً بيانية للإتمام وتوزيع الوقت. <b>Lectures</b> lets you track progress per lecture with a built-in timer. <b>Progress</b> shows completion charts and time distribution graphs.</p>
-                    </div>
-
-                    <!-- Tips -->
-                    <div class="card" style="background:var(--accent-light);border-color:var(--accent);margin-bottom:14px">
-                        <div class="card-title" style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                            <span data-t="howto_tips_title">نصائح سريعة — Quick Tips</span>
-                        </div>
-                        <div style="font-size:12px;color:var(--text2);line-height:2;font-family:var(--mono)" data-t="howto_tips_body">
-                            — زر اللغة لتغيير اللغة بين العربية والإنجليزية / Use the language button to switch AR ↔ EN<br>
-                            — زر المظهر لتغيير الوضع الليلي والنهاري / Use the theme button for dark/light mode<br>
-                            — يمكن دمج عدة PDFs لسؤال أوسع / Combine multiple PDFs for broader questions<br>
-                            — مستوى الثقة يساعدك تقييم معرفتك / Confidence level tracks how well you really know it<br>
-                            — كل البيانات محفوظة محلياً على جهازك / All data is stored locally on your device
-                        </div>
-                    </div>
+                    <div id="howtoContent"></div>
                 </div>
+
 
                 <!-- QUIZ AREA -->
                 <!-- MCQ LOADING SCREEN -->
@@ -2139,6 +2258,8 @@
                             <div class="mcq-bar-fill" id="mcqLoadBar"></div>
                         </div>
                         <div class="mcq-loading-pct" id="mcqLoadPct">0%</div>
+                        <div class="mcq-loading-time" id="mcqLoadTime">0:00</div>
+                        <div class="mcq-tip" id="mcqTip"></div>
 
                         <button class="mcq-cancel-btn" onclick="cancelMCQLoad()" id="mcqCancelBtn">—</button>
                     </div>
@@ -2245,7 +2366,11 @@
             x_q_note:'تعليمات إضافية للـ AI (اختياري)', x_q_note_ph:'مثلاً: ركّز على الأدوية والجرعات، تجنّب أسئلة التاريخ...',
             x_q_paste:'أو الصق نصاً مباشرة بدل PDF', x_q_paste_ph:'الصق النص هنا (50 حرفاً على الأقل)...',
             x_step_source:'المصدر', x_step_setup:'الإعدادات', x_src_pdf:'ملف PDF', x_src_text:'نص',
-            x_adv:'خيارات متقدمة', x_sort_new:'الأحدث', x_sort_az:'الاسم', x_q_word:'السؤال', x_flag:'تعليم', x_prev:'السابق', x_next:'التالي', x_finish:'إنهاء الاختبار', x_optional:'اختياري', x_no_api:'أضف مفتاح API لتبدأ التوليد', x_go_settings:'فتح الإعدادات', import_json:'استيراد JSON', start:'بدء', export:'تصدير',
+            x_adv:'خيارات متقدمة', x_sort_new:'الأحدث', x_sort_az:'الاسم',
+            x_set_appearance:'المظهر واللغة', x_set_ai:'الذكاء الاصطناعي', x_set_study:'الدراسة', x_set_data:'البيانات',
+            x_theme:'المظهر', x_light:'فاتح', x_dark:'داكن', x_export_all:'تصدير نسخة احتياطية', x_import_all:'استيراد نسخة',
+            x_backup_hint:'تشمل الملخصات والبطاقات والسجل والتقدم. مفاتيح API لا تُصدَّر.',
+            x_todo_sub:'تتبّع كل محاضرة وسجّل وقت دراستك', x_filter_all:'الكل', x_lec_time:'وقت الدراسة', x_hist_trend:'آخر النتائج', x_q_word:'السؤال', x_flag:'تعليم', x_prev:'السابق', x_next:'التالي', x_finish:'إنهاء الاختبار', x_optional:'اختياري', x_no_api:'أضف مفتاح API لتبدأ التوليد', x_go_settings:'فتح الإعدادات', import_json:'استيراد JSON', start:'بدء', export:'تصدير',
             clear_all:'مسح الكل', error_bank_title:'بنك الأخطاء',
             error_bank_subtitle:'الأسئلة التي أخطأت فيها — راجعها لتتقن المادة',
             review_all_errors:'مراجعة جميع الأخطاء', stats_title:'الإحصاءات',
@@ -2332,7 +2457,11 @@
             x_q_note:'Extra instructions for the AI (optional)', x_q_note_ph:'e.g. focus on drugs and doses, avoid history questions...',
             x_q_paste:'Or paste text directly instead of a PDF', x_q_paste_ph:'Paste your text here (at least 50 characters)...',
             x_step_source:'Source', x_step_setup:'Settings', x_src_pdf:'PDF file', x_src_text:'Text',
-            x_adv:'Advanced options', x_sort_new:'Newest', x_sort_az:'A–Z', x_q_word:'Question', x_flag:'Flag', x_prev:'Previous', x_next:'Next', x_finish:'Finish quiz', x_optional:'optional', x_no_api:'Add an API key to start generating', x_go_settings:'Open Settings', import_json:'Import JSON', start:'Start', export:'Export',
+            x_adv:'Advanced options', x_sort_new:'Newest', x_sort_az:'A–Z',
+            x_set_appearance:'Appearance & language', x_set_ai:'Artificial intelligence', x_set_study:'Study', x_set_data:'Data',
+            x_theme:'Theme', x_light:'Light', x_dark:'Dark', x_export_all:'Export backup', x_import_all:'Import backup',
+            x_backup_hint:'Includes summaries, cards, history and progress. API keys are not exported.',
+            x_todo_sub:'Track each lecture and log your study time', x_filter_all:'All', x_lec_time:'Study time', x_hist_trend:'Recent scores', x_q_word:'Question', x_flag:'Flag', x_prev:'Previous', x_next:'Next', x_finish:'Finish quiz', x_optional:'optional', x_no_api:'Add an API key to start generating', x_go_settings:'Open Settings', import_json:'Import JSON', start:'Start', export:'Export',
             clear_all:'Clear All', error_bank_title:'Error Bank',
             error_bank_subtitle:'Questions you got wrong — review them to master the material',
             review_all_errors:'Review All Errors', stats_title:'Statistics',
@@ -2387,7 +2516,7 @@
         const activePanel = document.querySelector('.panel.active');
         if (activePanel) {
             const id = activePanel.id.replace('panel-','');
-            const r = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummaryLib};
+            const r = {howto:renderHowto, dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:renderSettings, todo:renderTodo, progress:renderProgress, summary:renderSummaryLib};
             if (r[id]) r[id]();
         }
         toast(t('saved') + ' — ' + (currentLang==='ar'?'العربية':'English'));
@@ -2496,7 +2625,7 @@
         if (si) si.classList.add('active');
         hide($('quizArea'));
         hide($('flashArea'));
-        const renders = {dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:()=>{renderSettings();setTimeout(initCardSettings,50);}, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib()};
+        const renders = {howto:renderHowto, dashboard:renderDashboard, decks:renderDecks, history:renderHistory, errors:renderErrors, stats:renderStats, settings:()=>{renderSettings();setTimeout(initCardSettings,50);}, todo:renderTodo, progress:renderProgress, summary:()=>renderSummaryLib()};
         if (renders[panelId]) renders[panelId]();
         window.scrollTo({top:0, behavior:'smooth'});
         closeMobileMenu();
@@ -2506,94 +2635,80 @@
     function renderDashboard() {
         const subs = getSubjects();
         const grid = $('subjectsGrid');
-        // Due cards banner
+        const isAr = currentLang === 'ar';
+        const now = Date.now();
+
+        // per-subject data (one pass)
+        let totCards = 0, totDue = 0, scoreSum = 0, scoreN = 0;
+        const data = subs.map(s => {
+            const decks = lj(s.id + '__flash_decks') || [];
+            const hist = lj(s.id + '__quiz_history') || [];
+            const sm = lj(s.id + '__sm2_states') || {};
+            const lecs = lj(s.id + '__lec_todo') || [];
+            const cardCount = decks.reduce((a, d) => a + (d.cards ? d.cards.length : 0), 0);
+            let due = 0;
+            decks.forEach((d, di) => (d.cards || []).forEach((_, ci) => { const st = sm[`deck_${di}_${ci}`]; if (st && st.nextReview <= now) due++; }));
+            const avg = hist.length ? Math.round(hist.reduce((a, e) => a + (e.score || 0), 0) / hist.length) : null;
+            hist.forEach(e => { scoreSum += e.score || 0; scoreN++; });
+            totCards += cardCount; totDue += due;
+            const lecDone = lecs.filter(l => l.status === 'done').length;
+            return { s, cardCount, due, hist, avg, lecTotal: lecs.length, lecDone, lecInProg: lecs.filter(l => l.status === 'in-progress').length };
+        });
+
+        // header + overall stats
+        const head = $('dashHead');
+        if (head) head.innerHTML = `<h1 class="page-title">${isAr ? 'موادي' : 'My Subjects'}</h1>
+            <p class="page-subtitle">${isAr ? 'اختر مادة لتبدأ الدراسة' : 'Pick a subject to start studying'}</p>
+            ${subs.length ? `<div class="dk-stats">
+                <div class="dk-stat"><b>${subs.length}</b><span>${isAr ? 'مواد' : 'Subjects'}</span></div>
+                <div class="dk-stat"><b>${totCards}</b><span>${isAr ? 'بطاقات' : 'Cards'}</span></div>
+                <div class="dk-stat"><b style="color:${totDue ? '#ff3b30' : 'inherit'}">${totDue}</b><span>${isAr ? 'مستحقة الآن' : 'Due now'}</span></div>
+                <div class="dk-stat"><b style="color:#34c759">${scoreN ? Math.round(scoreSum / scoreN) + '%' : '—'}</b><span>${isAr ? 'متوسط الدرجات' : 'Avg score'}</span></div>
+            </div>` : ''}`;
+
+        // due banner
         const banner = $('dashboardDueBanner');
         if (banner) {
-            const allDue = getAllSubjectsDue();
-            if (allDue > 0) {
-                banner.innerHTML = `<div class="due-alert" onclick="gotoFirstDueSubject()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                    <span>${allDue} ${t('due_now')} — ${t('due_cards_banner')}</span>
-                </div>`;
-            } else {
-                banner.innerHTML = '';
-            }
+            banner.innerHTML = totDue > 0 ? `<div class="due-alert" onclick="gotoFirstDueSubject()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span>${totDue} ${t('due_now')} — ${t('due_cards_banner')}</span></div>` : '';
         }
+
         if (!subs.length) {
-            grid.innerHTML = `<div style="text-align:center;padding:80px 20px;color:var(--text3);grid-column:1/-1;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.05)">
-                <div style="width:80px;height:80px;background:linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);color:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 8px 24px rgba(79,70,229,.25)">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            grid.innerHTML = `<div class="sl-empty" style="grid-column:1/-1;padding:60px 20px">
+                <div style="width:76px;height:76px;background:var(--accent);color:#fff;border-radius:22px;display:grid;place-items:center;margin:0 auto 20px">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                 </div>
-                <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px">${currentLang==='ar'?'ابدأ رحلتك الدراسية':'Start Your Study Journey'}</div>
-                <div style="font-size:14px;color:var(--text3);margin-bottom:28px;max-width:320px;line-height:1.7">${currentLang==='ar'?'أضف مادتك الأولى وابدأ التعلم بالذكاء الاصطناعي بطريقة منظمة وأنيقة':'Add your first subject and start learning with AI in a structured and elegant way'}</div>
-                <button class="btn btn-primary" onclick="showAddSubjectModal()" style="padding:14px 36px;font-size:15px;font-weight:600;border-radius:12px;box-shadow:0 6px 20px var(--shadow-accent)">${t('add_subject')}</button>
+                <div style="font-size:21px;font-weight:700;letter-spacing:-0.03em;margin-bottom:8px">${isAr ? 'ابدأ رحلتك الدراسية' : 'Start your study journey'}</div>
+                <div style="font-size:14px;color:var(--text3);margin:0 auto 24px;max-width:320px;line-height:1.7">${isAr ? 'أضف مادتك الأولى وابدأ التعلم بالذكاء الاصطناعي: ملخصات وأسئلة وبطاقات.' : 'Add your first subject and start learning with AI: summaries, questions and flashcards.'}</div>
+                <button class="btn btn-primary" onclick="showAddSubjectModal()" style="height:46px;padding:0 30px;font-size:15px;font-weight:600">${t('add_subject')}</button>
             </div>`;
             return;
         }
-        grid.innerHTML = subs.map((s, idx) => {
-            const info = COLOR_PALETTE.find(c => c.base===s.color) || COLOR_PALETTE[0];
-            const decks = lj(s.id+'__flash_decks') || [];
-            const hist = lj(s.id+'__quiz_history') || [];
-            const sm = lj(s.id+'__sm2_states') || {};
-            const now = Date.now();
-            const cardCount = decks.reduce((a,d) => a+(d.cards?d.cards.length:0), 0);
-            let dueCount = 0;
-            decks.forEach((d,di) => d.cards.forEach((_,ci) => {
-                const st = sm[`deck_${di}_${ci}`];
-                if (st && st.nextReview <= now) dueCount++;
-            }));
-            // Calculate progress — based on lecture completion
-            const lecs = lj(s.id+'__lec_todo') || [];
-            const lecTotal = lecs.length;
-            const lecDone = lecs.filter(l => l.status === 'done').length;
-            const lecInProg = lecs.filter(l => l.status === 'in-progress').length;
-            const progressPct = lecTotal > 0 ? Math.min(100, Math.round((lecDone / lecTotal) * 100)) : 0;
-            return `<div class="subject-card" onclick="enterSubject('${s.id}')">
-                <div class="sc-actions">
-                    <button class="sc-delete" onclick="event.stopPropagation();deleteSubject('${s.id}')">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                    <button class="sc-edit" onclick="event.stopPropagation();editSubjectName('${s.id}')" title="${currentLang==='ar'?'تعديل':'Edit'}">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
-                </div>
-                <div class="sc-color" style="background:${s.color}">
-                    <div class="sc-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+
+        const ico = d => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+        grid.innerHTML = data.map(({ s, cardCount, due, hist, avg, lecTotal, lecDone, lecInProg }) => {
+            const pct = lecTotal ? Math.min(100, Math.round(lecDone / lecTotal * 100)) : 0;
+            const sub = hist[0] ? (isAr ? 'آخر اختبار ' : 'Last quiz ') + hist[0].date : (isAr ? 'مادة جديدة' : 'New subject');
+            return `<div class="sj" onclick="enterSubject('${s.id}')">
+                <div class="sj-bar" style="background:${s.color}"></div>
+                <div class="sj-top">
+                    <div class="sj-icon" style="background:${s.color}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+                    <div style="min-width:0;flex:1"><div class="sj-name" dir="auto">${esc(s.name)}</div><div class="sj-sub">${sub}</div></div>
+                    <div class="sj-menu">
+                        <button onclick="event.stopPropagation();editSubjectName('${s.id}')" title="${isAr ? 'تعديل' : 'Edit'}">${ico('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</button>
+                        <button onclick="event.stopPropagation();deleteSubject('${s.id}')" title="${isAr ? 'حذف' : 'Delete'}">${ico('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>')}</button>
                     </div>
-                    <div class="sc-label">${info.label}</div>
                 </div>
-                <div class="sc-body">
-                    <div class="sc-name">${esc(s.name)}</div>
-                    <div class="sc-stats">
-                        <div class="sc-stat">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                            <span>${cardCount}</span>
-                        </div>
-                        <div class="sc-stat">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <span>${hist.length}</span>
-                        </div>
-                        ${dueCount>0?`<div class="sc-stat due">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                            <span>${dueCount} ${t('due_now')}</span>
-                        </div>`:''}
-                    </div>
-                    ${lecTotal > 0 ? `<div class="sc-progress">
-                        <div class="sc-progress-track">
-                            <div class="sc-progress-fill" style="width:${progressPct}%;background:${progressPct >= 70 ? 'var(--success)' : progressPct >= 40 ? 'var(--warning)' : 'var(--accent)'}"></div>
-                        </div>
-                        <div class="sc-progress-label">
-                            <span>${currentLang==='ar'?'المحاضرات':'Lectures'} ${lecDone}/${lecTotal}${lecInProg>0?' · '+lecInProg+(currentLang==='ar'?' جاري':' in progress'):''}</span>
-                            <span>${progressPct}%</span>
-                        </div>
-                    </div>` : ''}
+                <div class="sj-stats">
+                    <div class="sj-stat"><b>${cardCount}</b><span>${isAr ? 'بطاقات' : 'Cards'}</span></div>
+                    <div class="sj-stat"><b>${hist.length}</b><span>${isAr ? 'اختبارات' : 'Quizzes'}</span></div>
+                    ${due > 0 ? `<div class="sj-stat due"><b>${due}</b><span>${t('due_now')}</span></div>` : `<div class="sj-stat"><b>${avg === null ? '—' : avg + '%'}</b><span>${isAr ? 'المتوسط' : 'Average'}</span></div>`}
                 </div>
+                ${lecTotal > 0 ? `<div class="sj-prog-track"><div class="sj-prog-fill" style="width:${pct}%;background:${pct >= 70 ? '#34c759' : pct >= 40 ? '#ff9f0a' : s.color}"></div></div>
+                    <div class="sj-prog-label"><span>${isAr ? 'المحاضرات' : 'Lectures'} ${lecDone}/${lecTotal}${lecInProg > 0 ? ' · ' + lecInProg + (isAr ? ' جاري' : ' in progress') : ''}</span><span>${pct}%</span></div>` : `<div class="sj-prog-label" style="margin-top:0"><span>${isAr ? 'لم تُضف محاضرات بعد' : 'No lectures added yet'}</span></div>`}
             </div>`;
-        }).join('') + `<div class="add-subject-card" onclick="showAddSubjectModal()">
-            <div class="add-icon">+</div>
-            <div class="add-label">${t('add_subject')}</div>
-        </div>`;
+        }).join('') + `<div class="sj-add" onclick="showAddSubjectModal()"><i>+</i><span>${t('add_subject')}</span></div>`;
     }
 
     function getAllSubjectsDue() {
@@ -3065,9 +3180,29 @@ ${text}`;
 
     function _L(isAr) { return isAr ? MCQ_LABELS.ar : MCQ_LABELS.en; }
 
-    function showMCQLoader(isAr) {
+    const CARD_LABELS = {
+        ar: {
+            titles:  ['تجهيز النص', 'إرسال للذكاء الاصطناعي', 'كتابة البطاقات', 'حفظ المجموعة'],
+            steps:   ['تجهيز النص', 'إرسال النص كاملاً', 'صياغة البطاقات', 'حفظ المجموعة'],
+            init:    'جاري الإعداد…', sub: 'يتم تحليل المحتوى',
+            ready:   '✓ جاهز', readySub: 'أُضيفت البطاقات إلى مجموعتك', cancel: 'إلغاء',
+        },
+        en: {
+            titles:  ['Preparing Text', 'Sending to AI', 'Writing Cards', 'Saving Deck'],
+            steps:   ['Prepare text', 'Send full text', 'Craft flashcards', 'Save deck'],
+            init:    'Preparing…', sub: 'Analyzing content',
+            ready:   '✓ Ready', readySub: 'Cards added to your deck', cancel: 'Cancel',
+        }
+    };
+    const GEN_TIPS = {
+        ar: ['كل ما كان النص أنظف، كانت الأسئلة أدق.', 'علّم الأسئلة الصعبة بـ ⚑ لتراجعها لاحقاً.', 'تقدر تضيف تعليمات للـ AI مثل "ركّز على الأدوية".', 'الأخطاء تنحفظ تلقائياً في بنك الأخطاء.', 'أضف أكثر من API حتى يتبدّل تلقائياً إذا فشل أحدها.', 'التكرار المتباعد يثبّت المعلومة أسرع من إعادة القراءة.'],
+        en: ['Cleaner text gives sharper questions.', 'Flag hard questions with ⚑ to review them later.', 'Add instructions for the AI, e.g. "focus on drugs and doses".', 'Mistakes are saved automatically in the Error Bank.', 'Add more than one API so it switches automatically if one fails.', 'Spaced repetition locks facts in faster than re-reading.']
+    };
+    let _mcqTimers = {};
+
+    function showMCQLoader(isAr, kind) {
         _mcqCancelled = false;
-        const L = _L(isAr);
+        const L = kind === 'cards' ? (isAr ? CARD_LABELS.ar : CARD_LABELS.en) : _L(isAr);
         const screen = document.getElementById('mcqLoadingScreen');
         screen.style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -3075,25 +3210,50 @@ ${text}`;
         document.getElementById('mcqLoadTitle').textContent = L.init;
         document.getElementById('mcqLoadSub').textContent   = L.sub;
         document.getElementById('mcqCancelBtn').textContent = L.cancel;
-
-        L.steps.forEach((s, i) => {
-            const el = document.getElementById('mcqStepLabel' + i);
-            if (el) el.textContent = s;
-        });
-
-        [0,1,2,3].forEach(i => {
-            const el = document.getElementById('mcqStep' + i);
-            if (el) el.classList.remove('active', 'done');
-        });
-
+        L.steps.forEach((st, i) => { const el = document.getElementById('mcqStepLabel' + i); if (el) el.textContent = st; });
+        [0,1,2,3].forEach(i => { const el = document.getElementById('mcqStep' + i); if (el) el.classList.remove('active', 'done'); });
         mcqLoaderProgress(0);
+
+        // elapsed clock + rotating tips
+        clearInterval(_mcqTimers.clock); clearInterval(_mcqTimers.tip);
+        const t0 = Date.now(), te = document.getElementById('mcqLoadTime');
+        if (te) { te.textContent = '0:00'; _mcqTimers.clock = setInterval(() => { const sec = Math.floor((Date.now() - t0) / 1000); te.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }, 1000); }
+        const tips = GEN_TIPS[isAr ? 'ar' : 'en'], tipEl = document.getElementById('mcqTip');
+        let ti = Math.floor(Math.random() * tips.length);
+        const showTip = () => { if (!tipEl) return; tipEl.style.opacity = 0; setTimeout(() => { tipEl.textContent = '💡 ' + tips[ti % tips.length]; tipEl.style.opacity = 1; ti++; }, 250); };
+        showTip(); _mcqTimers.tip = setInterval(showTip, 7000);
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     function hideMCQLoader() {
+        mcqCreepStop();
+        clearInterval(_mcqTimers.clock); clearInterval(_mcqTimers.tip);
         const screen = document.getElementById('mcqLoadingScreen');
         if (screen) screen.style.display = 'none';
         document.body.style.overflow = '';
+    }
+
+    // Smoothly advance the bar while the (long) AI request is in flight
+    function mcqCreep(from, to) {
+        mcqCreepStop();
+        let pr = from; mcqLoaderProgress(pr);
+        _mcqTimers.creep = setInterval(() => { pr += (to - pr) * 0.035; mcqLoaderProgress(pr); }, 500);
+    }
+    function mcqCreepStop() { clearInterval(_mcqTimers.creep); }
+    function genSub(msg) { const e = document.getElementById('mcqLoadSub'); if (e) e.textContent = msg; }
+    function cardsLoaderNaming() {
+        mcqCreepStop();
+        const LC = currentLang === 'ar' ? CARD_LABELS.ar : CARD_LABELS.en;
+        mcqLoaderStep(2, 'done'); mcqLoaderStep(3, 'active');
+        document.getElementById('mcqLoadTitle').textContent = LC.titles[3];
+        genSub(''); mcqLoaderProgress(90);
+    }
+    async function cardsLoaderDone(n) {
+        const LC = currentLang === 'ar' ? CARD_LABELS.ar : CARD_LABELS.en;
+        mcqLoaderStep(3, 'done'); mcqLoaderProgress(100);
+        document.getElementById('mcqLoadTitle').textContent = LC.ready;
+        genSub(n + ' ' + (currentLang === 'ar' ? 'بطاقة' : 'cards'));
+        await new Promise(r => setTimeout(r, 750));
     }
 
     function mcqLoaderStep(stepIdx, state) {
@@ -3126,6 +3286,7 @@ ${text}`;
         const L     = _L(isAr);
 
         showMCQLoader(isAr);
+        genSub(count + ' ' + (isAr ? 'سؤال' : 'questions') + ' · ' + diff);
 
         try {
             // ── Step 0: prepare ───────────────────────────────────────────
@@ -3144,8 +3305,10 @@ ${text}`;
             mcqLoaderStep(2, 'active');
             document.getElementById('mcqLoadTitle').textContent = L.titles[2];
             mcqLoaderProgress(30);
+            mcqCreep(30, 78);
 
             const results = await mcqForChunk(pdfText, count, lang, diff);
+            mcqCreepStop();
             if (_mcqCancelled) return;
 
             // ── Step 2: validate + deduplicate ────────────────────────────
@@ -4842,71 +5005,72 @@ ${textSlice}`;
 
 
 
+    let _lecFilter = 'all', _lecRun = {};
+    function setLecFilter(v) { _lecFilter = v; renderTodo(); }
+    function stepLecCount(d) {
+        const inp = $('lecCountInput'); if (!inp) return;
+        const n = Math.max(1, Math.min(60, (parseInt(inp.value) || getTodo().length || 12) + d));
+        inp.value = n; applyLecCount();
+    }
     function applyLecCount() {
-        const n = parseInt($('lecCountInput')?.value) || 12;
+        const n = Math.max(1, Math.min(60, parseInt($('lecCountInput')?.value) || 12));
         const existing = getTodo();
-        const newList = [];
-        for (let i=0; i<n; i++) {
-            const ex = existing[i];
-            newList.push(ex ? {...ex} : {name:'', status:'not-started', timeMs:0, running:false});
-        }
-        saveTodo(newList);
-        renderTodo();
-        toast(t('saved'));
+        const doApply = () => {
+            const list = [];
+            for (let i = 0; i < n; i++) { const ex = existing[i]; list.push(ex ? { ...ex } : { name: '', status: 'not-started', timeMs: 0, running: false }); }
+            saveTodo(list); renderTodo();
+        };
+        const removed = existing.slice(n).filter(l => l.status !== 'not-started' || l.name || l.timeMs);
+        if (removed.length) {
+            confirmModal((currentLang === 'ar' ? `سيتم حذف ${removed.length} محاضرة فيها تقدّم. متابعة؟` : `${removed.length} lecture(s) with progress will be removed. Continue?`), doApply);
+            $('lecCountInput').value = existing.length;
+        } else doApply();
     }
 
     function renderTodo() {
-        const lecs = getTodo();
-        const n = lecs.length;
-        if ($('lecCountInput') && n>0) $('lecCountInput').value = n;
-        // Overall progress
+        const lecs = getTodo(), n = lecs.length, isAr = currentLang === 'ar';
+        if ($('lecCountInput') && n > 0) $('lecCountInput').value = n;
+        document.querySelectorAll('#lecFilter .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === _lecFilter));
+        const attr = v => esc(v).replace(/"/g, '&quot;');
         const op = $('todoOverallProgress');
-        if (op) {
-            if (!n) { op.innerHTML=''; }
-            else {
-                const done = lecs.filter(l=>l.status==='done').length;
-                const inProg = lecs.filter(l=>l.status==='in-progress').length;
-                const pct = Math.round(done/n*100);
-                op.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-                    <span style="font-size:13px;font-weight:600">${t('overall_progress')}</span>
-                    <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${pct>=70?'var(--success)':pct>=40?'var(--warning)':'var(--accent)'}">${pct}%</span>
-                    <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${done}/${n} ${t('status_done')} · ${inProg} ${t('status_in_progress')}</span>
-                </div>
-                <div class="lec-progress-overall"><div class="lec-progress-fill" style="width:${pct}%"></div></div>`;
-            }
-        }
-        // Compact pill grid
         const grid = $('lecGrid');
-        if (!grid) return;
-        if (!n) { 
-            grid.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);margin-top:10px;grid-column:1/-1">
-                <div style="font-size:40px;margin-bottom:12px;opacity:0.3">📚</div>
-                <div style="font-size:15px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('todo_set_count')}</div>
-                <div style="font-size:12px;color:var(--text4)">${currentLang==='ar'?'حدد عدد المحاضرات للبدء في تتبع تقدمك.':'Set the number of lectures to start tracking your progress.'}</div>
-            </div>`; 
-            return; 
+        if (!n) {
+            if (op) op.innerHTML = '';
+            if (grid) grid.innerHTML = `<div class="sl-empty">
+                <div style="font-size:44px;margin-bottom:10px;opacity:.35">📚</div>
+                <div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('todo_set_count')}</div>
+                <div style="font-size:13px;color:var(--text3);margin-bottom:16px">${isAr ? 'حدد عدد المحاضرات للبدء في تتبع تقدمك.' : 'Set the number of lectures to start tracking your progress.'}</div>
+                <button class="btn btn-primary" onclick="stepLecCount(0)">${isAr ? 'ابدأ بـ 12 محاضرة' : 'Start with 12 lectures'}</button>
+            </div>`;
+            return;
         }
-
-        // Render compact pills: clicking cycles status
-        grid.innerHTML = lecs.map((lec, i) => {
-            const isDone = lec.status === 'done';
-            const isProgress = lec.status === 'in-progress';
-            const label = lec.name ? lec.name.slice(0, 18) + (lec.name.length > 18 ? '…' : '') : `Lec ${i+1}`;
-            const bg = isDone ? 'var(--success)' : isProgress ? 'var(--accent)' : 'var(--surface)';
-            const color = isDone || isProgress ? '#fff' : 'var(--text2)';
-            const border = isDone ? 'var(--success)' : isProgress ? 'var(--accent)' : 'var(--border)';
-            const checkmark = isDone
-                ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`
-                : isProgress
-                ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
-                : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"><rect x="3" y="3" width="18" height="18"/></svg>`;
-            return `<div title="${esc(lec.name||('Lec '+(i+1)))}" onclick="cycleLecStatus(${i})"
-                style="display:flex;align-items:center;gap:7px;padding:8px 12px;background:${bg};border:1px solid ${border};color:${color};cursor:pointer;transition:all 150ms ease;user-select:none;font-size:12px;font-weight:600;font-family:var(--mono)">
-                ${checkmark}
-                <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Lec ${i+1}</span>
-                ${lec.name ? `<span style="font-size:10px;opacity:0.75;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px">${esc(label)}</span>` : ''}
+        const done = lecs.filter(l => l.status === 'done').length;
+        const inProg = lecs.filter(l => l.status === 'in-progress').length;
+        const pct = Math.round(done / n * 100);
+        const totalMs = lecs.reduce((a, l) => a + (l.timeMs || 0), 0);
+        const C = 2 * Math.PI * 42;
+        if (op) op.innerHTML = `<div class="lec-hero">
+            <div class="lec-ring"><svg viewBox="0 0 96 96" width="96" height="96" style="transform:rotate(-90deg)"><circle cx="48" cy="48" r="42" fill="none" stroke="var(--surface3)" stroke-width="9"/><circle cx="48" cy="48" r="42" fill="none" stroke="#34c759" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - pct / 100)).toFixed(1)}"/></svg><b>${pct}%</b></div>
+            <div class="lec-hero-stats">
+                <div class="lec-hs"><b style="color:#34c759">${done}<small style="color:var(--text3);font-weight:500"> / ${n}</small></b><span>${t('status_done')}</span></div>
+                <div class="lec-hs"><b style="color:var(--accent)">${inProg}</b><span>${t('status_in_progress')}</span></div>
+                <div class="lec-hs"><b>${n - done - inProg}</b><span>${t('status_not_started')}</span></div>
+                <div class="lec-hs"><b>${totalMs ? fmtMs(totalMs) : '—'}</b><span>${t('x_lec_time')}</span></div>
+            </div></div>`;
+        const seg = (i, cur) => [['not-started', '○', t('status_not_started')], ['in-progress', '◔', t('status_in_progress')], ['done', '✓', t('status_done')]]
+            .map(([v, ic, lb]) => `<button type="button" class="seg-btn${cur === v ? ' active' : ''}" onclick="setLecStatus(${i},'${v}')">${ic} ${lb}</button>`).join('');
+        const rows = lecs.map((lec, i) => ({ lec, i })).filter(({ lec }) => _lecFilter === 'all' || lec.status === _lecFilter).map(({ lec, i }) => {
+            const running = !!_lecTimers[i];
+            return `<div class="lec-row ${lec.status}" id="lecCard${i}">
+                <div class="lec-num">${i + 1}</div>
+                <div class="lec-main">
+                    <input class="lec-name" value="${attr(lec.name || '')}" placeholder="${isAr ? 'محاضرة ' : 'Lecture '}${i + 1}" onchange="updateLecName(${i}, this.value)">
+                    <div class="lec-sub"><span id="lecTimer${i}">${fmtMs(lec.timeMs || 0)}</span><button class="lec-timer-btn${running ? ' running' : ''}" onclick="toggleLecTimer(${i})">${running ? '■ ' + t('stop_timer') : '▶ ' + t('start_timer')}</button></div>
+                </div>
+                <div class="seg lec-seg">${seg(i, lec.status)}</div>
             </div>`;
         }).join('');
+        if (grid) grid.innerHTML = rows || `<div class="sl-empty" style="padding:30px">${isAr ? 'لا توجد محاضرات بهذه الحالة' : 'No lectures in this state'}</div>`;
     }
 
     function cycleLecStatus(idx) {
@@ -4934,8 +5098,9 @@ ${textSlice}`;
     }
 
     function setLecStatus(idx, status) {
+        if (!getTodo()[idx]) return;
+        if (status === 'done' && _lecTimers[idx]) toggleLecTimer(idx);   // stop timer when finished
         const lecs = getTodo();
-        if (!lecs[idx]) return;
         lecs[idx].status = status;
         saveTodo(lecs);
         renderTodo();
@@ -4943,36 +5108,25 @@ ${textSlice}`;
 
     function toggleLecTimer(idx) {
         if (_lecTimers[idx]) {
-            // Stop timer
-            clearInterval(_lecTimers[idx]);
-            delete _lecTimers[idx];
+            clearInterval(_lecTimers[idx]); delete _lecTimers[idx];
             const lecs = getTodo();
-            if (lecs[idx]) {
-                saveTodo(lecs); // save final time on stop
-            }
-            const btn = document.querySelector(`#lecCard${idx} .lec-timer-btn`);
-            if (btn) { btn.textContent=t('start_timer'); btn.classList.remove('running'); }
+            if (lecs[idx] && _lecRun[idx]) lecs[idx].timeMs = _lecRun[idx].base + (Date.now() - _lecRun[idx].start);
+            saveTodo(lecs); delete _lecRun[idx];
         } else {
-            // Start timer
-            const startMs = Date.now();
+            Object.keys(_lecTimers).forEach(k => toggleLecTimer(+k));   // one timer at a time
             const lecs = getTodo();
-            const baseMs = lecs[idx]?.timeMs || 0;
-            let _saveThrottle = 0;
+            if (!lecs[idx]) return;
+            _lecRun[idx] = { start: Date.now(), base: lecs[idx].timeMs || 0 };
+            if (lecs[idx].status === 'not-started') { lecs[idx].status = 'in-progress'; saveTodo(lecs); }
+            let last = Date.now();
             _lecTimers[idx] = setInterval(() => {
-                const elapsed = Date.now() - startMs;
-                const total = baseMs + elapsed;
-                const d = $(`lecTimer${idx}`);
-                if (d) d.textContent = fmtMs(total);
-                // Only persist every 10s to avoid hammering localStorage
-                if (Date.now() - _saveThrottle > 10000) {
-                    _saveThrottle = Date.now();
-                    const ls2 = getTodo();
-                    if (ls2[idx]) { ls2[idx].timeMs = total; saveTodo(ls2); }
-                }
+                const r = _lecRun[idx]; if (!r) return;
+                const total = r.base + (Date.now() - r.start);
+                const d = $('lecTimer' + idx); if (d) d.textContent = fmtMs(total);
+                if (Date.now() - last > 10000) { last = Date.now(); const l2 = getTodo(); if (l2[idx]) { l2[idx].timeMs = total; saveTodo(l2); } }
             }, 1000);
-            const btn = document.querySelector(`#lecCard${idx} .lec-timer-btn`);
-            if (btn) { btn.textContent=t('stop_timer'); btn.classList.add('running'); }
         }
+        renderTodo();
     }
 
     // ── PROGRESS RENDER ────────────────────────────
@@ -5371,13 +5525,65 @@ ${textSlice}`;
         if (ex) {
             ex.wrongCount = (ex.wrongCount||1)+1;
             ex.lastWrong = new Date().toLocaleString(currentLang==='ar'?'ar-EG':'en-US');
+            ex.lastTs = Date.now();
             if (confidence) ex.lastConfidence = confidence;
         } else {
             eb.push({question:q.question, options:q.options, correct:q.correct, explanation:q.explanation,
-                wrongIdx:wi, wrongCount:1, lastWrong:new Date().toLocaleString(currentLang==='ar'?'ar-EG':'en-US'),
+                wrongIdx:wi, wrongCount:1, lastTs:Date.now(), lastWrong:new Date().toLocaleString(currentLang==='ar'?'ar-EG':'en-US'),
                 source:qSource||'Unknown', confidence});
         }
         saveEB(eb);
+    }
+
+    // ── HOW IT WORKS ──────────────────────────────
+    function renderHowto() {
+        const el = $('howtoContent'); if (!el) return;
+        const ar = currentLang === 'ar';
+        const T = (a, e) => ar ? a : e;
+        const feats = [
+            ['gen', '#5856d6', '✦', T('توليد الأسئلة', 'Generate questions'), T('ولّد أسئلة MCQ من PDF أو نص تلصقه. اختر النمط والصعوبة واللغة، وأضف تعليماتك للـ AI.', 'Create MCQs from a PDF or pasted text. Pick style, difficulty and language, and add your own instructions.')],
+            ['decks', '#ff9f0a', '▤', T('البطاقات التعليمية', 'Flashcards'), T('بطاقات بنظام التكرار المتباعد: تصفّح، عدّل، وراجع المستحق فقط أو كل البطاقات.', 'Spaced-repetition cards: browse, edit, and study what is due or everything.')],
+            ['summary', '#34c759', '☰', T('الملخصات الذكية', 'Smart summaries'), T('ملخص منظم يُحفظ تلقائياً، مع مساعد AI تسأله عن الملخص وتبقى محادثتك محفوظة.', 'A structured summary that saves itself, plus an AI assistant whose chat is saved with it.')],
+            ['errors', '#ff3b30', '✗', T('بنك الأخطاء', 'Error bank'), T('أي سؤال تخطئ فيه ينحفظ تلقائياً. راجع المتكرر منها أولاً.', 'Every question you miss is saved automatically. Review the repeated ones first.')],
+            ['history', '#0071e3', '↗', T('السجل والإحصاءات', 'History & stats'), T('تابع درجاتك ومنحنى تطورك، وأعد أي اختبار بضغطة.', 'Track your scores and trend, and replay any quiz in one tap.')],
+            ['todo', '#af52de', '◔', T('المحاضرات', 'Lectures'), T('حدّد حالة كل محاضرة وسجّل وقت دراستها بمؤقت مدمج.', 'Set each lecture’s status and log study time with a built-in timer.')],
+            ['settings', '#8e8e93', '⚙', T('الإعدادات والنسخ الاحتياطي', 'Settings & backup'), T('أضف أكثر من API مع تبديل تلقائي، وبدّل المظهر واللغة، وصدّر نسخة احتياطية.', 'Add several APIs with auto-switch, change theme and language, and export a backup.')]
+        ];
+        const kb = (k) => `<span class="ht-kbd">${k}</span>`;
+        const rows = [
+            [T('اختيار إجابة', 'Choose an answer'), kb('1–4') + ' ' + kb('A–D')],
+            [T('السؤال التالي', 'Next question'), kb('Enter') + ' ' + kb('→')],
+            [T('تعليم سؤال للمراجعة', 'Flag a question'), kb('F')],
+            [T('كشف إجابة البطاقة', 'Reveal flashcard answer'), kb('Space')],
+            [T('تقييم البطاقة', 'Rate a flashcard'), kb('1') + ' ' + kb('2') + ' ' + kb('3') + ' ' + kb('4')],
+            [T('الخروج من المراجعة', 'Exit review'), kb('Esc')]
+        ];
+        const faq = [
+            [T('كيف أضيف مفتاح API؟', 'How do I add an API key?'), T('من الإعدادات ← الذكاء الاصطناعي: اختر المزوّد، الصق المفتاح، ثم اضغط "إضافة". تقدر تضيف أكثر من مفتاح، والتطبيق يبدّل للتالي إذا فشل الحالي.', 'Settings → AI: pick a provider, paste the key, then tap “Add”. You can add several keys; the app switches to the next one if the current one fails.')],
+            [T('التوليد يفشل أو يتأخر؟', 'Generation fails or is slow?'), T('جرّب زر "تجربة" بجانب المفتاح للتأكد أنه يعمل، وقلّل عدد الأسئلة أو حجم النص. الملفات الكبيرة تحتاج وقتاً أطول.', 'Use the “Test” button next to your key to check it works, and try fewer questions or a shorter text. Large files take longer.')],
+            [T('أين تنحفظ بياناتي؟', 'Where is my data stored?'), T('كل شيء محفوظ داخل متصفحك على هذا الجهاز فقط. صدّر نسخة احتياطية من الإعدادات بين فترة وأخرى، خصوصاً قبل مسح بيانات المتصفح.', 'Everything is stored in your browser on this device only. Export a backup from Settings now and then, especially before clearing browser data.')],
+            [T('هل الملخص ينحفظ تلقائياً؟', 'Are summaries saved automatically?'), T('نعم، بمجرد ما يكتمل التوليد ينحفظ بالمكتبة، وأسئلتك للمساعد تنحفظ معه.', 'Yes — as soon as generation finishes it is saved to your library, and your assistant chat is saved with it.')]
+        ];
+        el.innerHTML = `
+            <div class="ht-hero">
+                <div class="ht-hero-t">${T('ابدأ بثلاث خطوات', 'Get started in three steps')}</div>
+                <div class="ht-steps">
+                    <div class="ht-step"><b>1</b>${T('أضف مادة', 'Add a subject')}</div>
+                    <div class="ht-step"><b>2</b>${T('ارفع PDF أو الصق نصاً', 'Upload a PDF or paste text')}</div>
+                    <div class="ht-step"><b>3</b>${T('ولّد وادرس', 'Generate & study')}</div>
+                </div>
+                <button class="btn ht-cta" onclick="switchPanel('dashboard')">${T('ابدأ الآن', 'Start now')}</button>
+            </div>
+            <div class="ht-h">${T('الميزات', 'Features')}</div>
+            <div class="ht-grid">${feats.map(([id, col, ic, title, desc]) => `
+                <div class="ht-card" onclick="switchPanel('${id}')">
+                    <div class="ht-ico" style="background:${col}">${ic}</div>
+                    <h3>${title}</h3><p>${desc}</p>
+                </div>`).join('')}</div>
+            <div class="ht-h">${T('اختصارات لوحة المفاتيح', 'Keyboard shortcuts')}</div>
+            <div class="ht-table">${rows.map(([a, b]) => `<div class="ht-row"><span>${a}</span><span>${b}</span></div>`).join('')}</div>
+            <div class="ht-h">${T('أسئلة شائعة', 'FAQ')}</div>
+            <div class="ht-faq">${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>`;
     }
 
     // ── HISTORY ────────────────────────────────────
@@ -5389,37 +5595,64 @@ ${textSlice}`;
         ls(subKey('quiz_history'), JSON.stringify(h.slice(0,50)));
     }
 
+    let _histSort = 0;
     function renderHistory() {
-        let data = getHist();
-        const sortLabels = currentLang==='ar'?['الأحدث','الأعلى','الأدنى']:['Latest','Highest','Lowest'];
-        $('histSort').innerHTML = sortLabels.map((l,i) =>
-            `<span class="chip${i===0?' active':''}" onclick="sortHist(${i})">${l}</span>`).join('');
-        if (!data.length) { 
-            $('histList').innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);margin-top:10px">
-                <div style="font-size:40px;margin-bottom:12px;opacity:0.3">📊</div>
-                <div style="font-size:15px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('no_history')}</div>
-                <div style="font-size:12px;color:var(--text4)">${currentLang==='ar'?'أنهِ اختبارك الأول لترى نتائجك هنا.':'Finish your first quiz to see your results here.'}</div>
-            </div>`; 
-            return; 
+        const isAr = currentLang === 'ar';
+        const raw = getHist();
+        const labels = isAr ? ['الأحدث', 'الأعلى', 'الأدنى'] : ['Latest', 'Highest', 'Lowest'];
+        $('histSort').innerHTML = labels.map((l, i) => `<button type="button" class="seg-btn${i === _histSort ? ' active' : ''}" onclick="sortHist(${i})">${l}</button>`).join('');
+        const statsEl = $('histStats');
+        if (!raw.length) {
+            if (statsEl) statsEl.innerHTML = '';
+            $('histList').innerHTML = `<div class="sl-empty">
+                <div style="font-size:44px;margin-bottom:10px;opacity:.35">📊</div>
+                <div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('no_history')}</div>
+                <div style="font-size:13px;color:var(--text3);margin-bottom:16px">${isAr ? 'أنهِ اختبارك الأول لترى نتائجك هنا.' : 'Finish your first quiz to see your results here.'}</div>
+                <button class="btn btn-primary" onclick="switchPanel('gen')">${isAr ? 'توليد أسئلة' : 'Generate questions'}</button>
+            </div>`;
+            return;
         }
+        // stats + trend (chronological, last 12)
+        const scores = raw.map(e => e.score || 0);
+        const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+        const best = Math.max(...scores);
+        const totalQ = raw.reduce((a, e) => a + (e.qCount || 0), 0);
+        const trend = raw.slice(0, 12).reverse().map(e => e.score || 0);
+        let spark = '';
+        if (trend.length > 1) {
+            const W = 300, H = 44, step = W / (trend.length - 1);
+            const pts = trend.map((v, i) => `${(i * step).toFixed(1)},${(H - 4 - v / 100 * (H - 8)).toFixed(1)}`).join(' ');
+            spark = `<div class="hs-spark"><div class="hs-spark-t">${t('x_hist_trend')}</div>
+                <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" width="100%" height="48"><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div>`;
+        }
+        if (statsEl) statsEl.innerHTML = `<div class="dk-stats">
+            <div class="dk-stat"><b>${raw.length}</b><span>${isAr ? 'اختبارات' : 'Quizzes'}</span></div>
+            <div class="dk-stat"><b>${avg}%</b><span>${isAr ? 'المتوسط' : 'Average'}</span></div>
+            <div class="dk-stat"><b style="color:#34c759">${best}%</b><span>${isAr ? 'الأفضل' : 'Best'}</span></div>
+            <div class="dk-stat"><b>${totalQ}</b><span>${isAr ? 'سؤال' : 'Questions'}</span></div>
+        </div>${spark}`;
+
+        const data = [...raw];
+        if (_histSort === 1) data.sort((a, b) => b.score - a.score);
+        else if (_histSort === 2) data.sort((a, b) => a.score - b.score);
         $('histList').innerHTML = data.map(e => {
-            const col = e.score>=70?'var(--success)':e.score>=50?'var(--warning)':'var(--danger)';
-            return `<div class="history-item">
-                <span class="history-name">${esc(e.name)}</span>
-                <span class="history-meta">${e.date} · ${e.qCount} Q${e.elapsed?' · '+e.elapsed:''}</span>
-                <span class="history-score" style="color:${col}">${e.score}%</span>
-                <button class="btn btn-sm" onclick="replayEntry(${e.id})">&gt;</button>
-            </div>
-            <div class="history-bar" style="background:${col};width:${e.score}%"></div>`;
+            const col = e.score >= 70 ? '#34c759' : e.score >= 50 ? '#ff9f0a' : '#ff3b30';
+            const C = 2 * Math.PI * 20;
+            return `<div class="hs-item" onclick="replayEntry(${e.id})">
+                <div class="hs-ring"><svg viewBox="0 0 48 48" width="48" height="48" style="transform:rotate(-90deg)"><circle cx="24" cy="24" r="20" fill="none" stroke="var(--surface3)" stroke-width="5"/><circle cx="24" cy="24" r="20" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - (e.score || 0) / 100)).toFixed(1)}"/></svg><b style="color:${col}">${e.score}</b></div>
+                <div class="hs-main"><div class="hs-name" dir="auto">${esc(e.name)}</div><div class="hs-meta">${e.date} · ${e.qCount} ${isAr ? 'سؤال' : 'Q'}${e.elapsed ? ' · ' + e.elapsed : ''}</div></div>
+                <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();delHist(${e.id})" title="${isAr ? 'حذف' : 'Delete'}" style="color:var(--danger)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+                <svg class="flip-rtl" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text4)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>`;
         }).join('');
     }
 
-    function sortHist(type) {
-        const data = getHist();
-        if (type===1) data.sort((a,b)=>b.score-a.score);
-        else if (type===2) data.sort((a,b)=>a.score-b.score);
-        ls(subKey('quiz_history'), JSON.stringify(data));
-        renderHistory();
+    function sortHist(type) { _histSort = type; renderHistory(); }
+    function delHist(id) {
+        confirmModal((currentLang === 'ar' ? 'حذف هذا الاختبار من السجل' : 'Delete this quiz from history') + '?', () => {
+            ls(subKey('quiz_history'), JSON.stringify(getHist().filter(x => x.id !== id)));
+            renderHistory();
+        });
     }
 
     function replayLast() { const h=getHist(); if (!h.length) { alertModal(t('no_quiz')); return; } startQuiz(h[0].questions, h[0].name); }
@@ -5429,64 +5662,71 @@ ${textSlice}`;
     function startFromHistImport() { const qs=parseJSON($('histImpInput').value.trim()); if (!qs) { alertModal(t('json_invalid')); return; } startQuiz(qs.filter(q=>q.question&&Array.isArray(q.options)),'Import'); }
 
     // ── ERRORS RENDER ──────────────────────────────
+    let _errSort = 0, _errFilter = 0;
     function renderErrors() {
-        let data = getEB();
-        const srch = ($('errSearch')?.value||'').toLowerCase();
-        if (srch) data = data.filter(e => e.question?.toLowerCase().includes(srch));
-        const sortLabels = currentLang==='ar'?['الأكثر','الأحدث']:['Most','Recent'];
-        $('errSort').innerHTML = sortLabels.map((l,i) =>
-            `<span class="chip${i===0?' active':''}" onclick="sortErrors(${i})">${l}</span>`).join('');
-        if (!data.length) { 
-            $('errList').innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);margin-top:10px">
-                <div style="font-size:40px;margin-bottom:12px;opacity:0.3">🎯</div>
-                <div style="font-size:15px;font-weight:600;color:var(--text2);margin-bottom:4px">${t('no_errors')}</div>
-                <div style="font-size:12px;color:var(--text4)">${currentLang==='ar'?'الأسئلة التي تخطئ بها ستظهر هنا تلقائياً للمراجعة.':'Questions you get wrong will automatically appear here for review.'}</div>
-            </div>`; 
-            return; 
+        const isAr = currentLang === 'ar';
+        const raw = getEB();
+        const L = isAr ? ['أ', 'ب', 'ج', 'د', 'هـ'] : ['A', 'B', 'C', 'D', 'E'];
+        // controls
+        const sortLabels = isAr ? ['الأكثر خطأً', 'الأحدث'] : ['Most missed', 'Recent'];
+        $('errSort').innerHTML = sortLabels.map((l, i) => `<button type="button" class="seg-btn${i === _errSort ? ' active' : ''}" onclick="sortErrors(${i})">${l}</button>`).join('');
+        const filtLabels = isAr ? ['الكل', 'المتكررة'] : ['All', 'Repeated'];
+        $('errFilter').innerHTML = filtLabels.map((l, i) => `<button type="button" class="seg-btn${i === _errFilter ? ' active' : ''}" onclick="setErrFilter(${i})">${l}</button>`).join('');
+        // stats
+        const repeated = raw.filter(e => (e.wrongCount || 1) >= 2).length;
+        const sources = new Set(raw.map(e => e.source || 'Unknown')).size;
+        const maxRep = raw.reduce((m, e) => Math.max(m, e.wrongCount || 1), 0);
+        const st = $('errStats');
+        if (st) st.innerHTML = raw.length ? `<div class="dk-stats">
+            <div class="dk-stat"><b style="color:#ff3b30">${raw.length}</b><span>${isAr ? 'أخطاء' : 'Mistakes'}</span></div>
+            <div class="dk-stat"><b style="color:#ff9f0a">${repeated}</b><span>${isAr ? 'متكررة' : 'Repeated'}</span></div>
+            <div class="dk-stat"><b>${sources}</b><span>${isAr ? 'مصادر' : 'Sources'}</span></div>
+            <div class="dk-stat"><b>×${maxRep}</b><span>${isAr ? 'أكثر تكرار' : 'Max repeats'}</span></div>
+        </div>` : '';
+        const rb = $('errRepeatBtn'); if (rb) { rb.textContent = (isAr ? 'المتكررة فقط' : 'Repeated only') + (repeated ? ' (' + repeated + ')' : ''); rb.style.display = repeated ? '' : 'none'; }
+
+        // filter + search (keep raw index for safe deletion)
+        const srch = ($('errSearch')?.value || '').toLowerCase();
+        let items = raw.map((e, idx) => ({ e, idx }));
+        if (srch) items = items.filter(({ e }) => (e.question || '').toLowerCase().includes(srch));
+        if (_errFilter === 1) items = items.filter(({ e }) => (e.wrongCount || 1) >= 2);
+        if (_errSort === 0) items.sort((a, b) => (b.e.wrongCount || 1) - (a.e.wrongCount || 1));
+        else items.sort((a, b) => (b.e.lastTs || 0) - (a.e.lastTs || 0) || b.idx - a.idx);
+
+        if (!items.length) {
+            $('errList').innerHTML = `<div class="sl-empty">
+                <div style="font-size:44px;margin-bottom:10px;opacity:.35">🎯</div>
+                <div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:4px">${raw.length ? (isAr ? 'لا توجد نتائج' : 'No results') : t('no_errors')}</div>
+                <div style="font-size:13px;color:var(--text3)">${raw.length ? (isAr ? 'جرّب تغيير البحث أو الفلتر.' : 'Try changing the search or filter.') : (isAr ? 'الأسئلة التي تخطئ بها ستظهر هنا تلقائياً للمراجعة.' : 'Questions you get wrong will automatically appear here for review.')}</div>
+            </div>`;
+            return;
         }
-
-        // Group by source/lecture
         const groups = {};
-        data.forEach(e => {
-            const src = e.source || 'Unknown';
-            if (!groups[src]) groups[src] = [];
-            groups[src].push(e);
-        });
-
-        const L = currentLang==='ar'?['أ','ب','ج','د']:['A','B','C','D'];
-        $('errList').innerHTML = Object.entries(groups).map(([src, items]) => `
-            <div style="margin-bottom:18px">
-                <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);margin-bottom:6px">
-                    <span style="font-size:11px;font-weight:600;font-family:var(--mono);color:var(--text2);flex:1">${esc(src)}</span>
-                    <span style="font-size:10px;color:var(--danger);font-family:var(--mono);font-weight:700">${items.length} ${t('wrong')}</span>
-                </div>
-                ${items.map(e => {
-                    const key=e.question?.slice(0,80);
-                    return `<div style="border:1px solid var(--border);border-top:none;padding:12px;background:var(--surface);margin-bottom:2px">
-                        <div style="display:flex;align-items:flex-start;gap:8px">
-                            <div style="flex:1">
-                                <div style="font-size:13px;font-weight:500;unicode-bidi:plaintext;text-align:start;margin-bottom:6px">${esc(e.question)}</div>
-                              <div style="font-size:11px;color:var(--danger);font-family:var(--mono);display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ${L[e.wrongIdx]}) ${esc(e.options?.[e.wrongIdx]||'')}</div>
-1696                                    <div style="font-size:11px;color:var(--success);font-family:var(--mono);display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> ${L[e.correct]}) ${esc(e.options?.[e.correct]||'')}</div>                              ${e.explanation?`<div style="font-size:11px;color:var(--text3);margin-top:4px;unicode-bidi:plaintext">${esc(e.explanation)}</div>`:''}
-                            </div>
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-                                <span style="font-family:var(--mono);font-size:10px;color:${e.wrongCount>=3?'var(--danger)':e.wrongCount>=2?'var(--warning)':'var(--text4)'};font-weight:700;display:flex;align-items:center;gap:2px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${e.wrongCount}</span>
-                                <button class="btn btn-danger btn-sm" onclick="delError('${esc(key)}')" style="padding:4px;border-radius:var(--radius)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
-                            </div>
-                        </div>
+        items.forEach(it => { const src = it.e.source || 'Unknown'; (groups[src] = groups[src] || []).push(it); });
+        $('errList').innerHTML = Object.entries(groups).map(([src, list]) => `
+            <div class="er-group">
+                <div class="er-group-head"><span>${esc(src)}</span><b>${list.length}</b></div>
+                ${list.map(({ e, idx }) => {
+                    const n = e.wrongCount || 1;
+                    const cls = n >= 3 ? 'hot' : n >= 2 ? 'warm' : '';
+                    const wrongTxt = e.options && e.options[e.wrongIdx] != null ? `${L[e.wrongIdx] || ''}) ${esc(e.options[e.wrongIdx])}` : '';
+                    const rightTxt = e.options && e.options[e.correct] != null ? `${L[e.correct] || ''}) ${esc(e.options[e.correct])}` : '';
+                    return `<div class="er-card">
+                        <div class="er-head"><div class="er-q" dir="auto">${esc(e.question)}</div><span class="er-count ${cls}">×${n}</span></div>
+                        ${wrongTxt ? `<div class="er-ans wrong"><b>✗</b><span dir="auto">${wrongTxt}</span></div>` : ''}
+                        ${rightTxt ? `<div class="er-ans right"><b>✓</b><span dir="auto">${rightTxt}</span></div>` : ''}
+                        ${e.explanation ? `<details class="er-exp"><summary>${isAr ? 'الشرح' : 'Explanation'}</summary><div dir="auto">${esc(e.explanation)}</div></details>` : ''}
+                        <div class="er-foot"><span>${esc(e.lastWrong || '')}</span><button class="btn btn-sm btn-ghost" onclick="delErrorAt(${idx})" title="${isAr ? 'حذف' : 'Delete'}" style="color:var(--danger)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div>
                     </div>`;
                 }).join('')}
             </div>`).join('');
     }
 
-    function sortErrors(type) {
-        const data = getEB();
-        if (type===0) data.sort((a,b)=>b.wrongCount-a.wrongCount);
-        else data.sort((a,b)=>new Date(b.lastWrong)-new Date(a.lastWrong));
-        saveEB(data); renderErrors();
-    }
+    function sortErrors(v) { _errSort = v; renderErrors(); }
+    function setErrFilter(v) { _errFilter = v; renderErrors(); }
+    function delErrorAt(idx) { const eb = getEB(); if (idx < 0 || idx >= eb.length) return; eb.splice(idx, 1); saveEB(eb); renderErrors(); }
 
-    function reviewAllErrors() { const eb=getEB().sort((a,b)=>b.wrongCount-a.wrongCount); if (!eb.length) { alertModal(t('no_errors')); return; } track('error_bank_reviewed', { error_count: eb.length, subject: getCurrentSubject()?.name || 'none' }); startQuiz(eb, t('error_bank')); }
+    function reviewAllErrors(min) { const eb=getEB().filter(e=>(e.wrongCount||1)>=(typeof min==='number'?min:1)).sort((a,b)=>b.wrongCount-a.wrongCount); if (!eb.length) { alertModal(t('no_errors')); return; } track('error_bank_reviewed', { error_count: eb.length, subject: getCurrentSubject()?.name || 'none' }); startQuiz(eb, t('error_bank')); }
     function delError(key) { saveEB(getEB().filter(e=>e.question?.slice(0,80)!==key)); renderErrors(); }
     function exportErrors() { downloadJSON(getEB(),'errors'); }
     function clearErrors() { confirmModal(t('clear_all')+'?', ()=>{ localStorage.removeItem(subKey('error_bank')); renderErrors(); }); }
@@ -6173,8 +6413,43 @@ ${textSlice}`;
         }
     }
 
+    // ── Settings helpers ──
+    const _NO_EXPORT = ['app_apiList', 'app_apiActive', 'app_apiKey'];
+    function syncSettingsSegs() {
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.querySelectorAll('#themeSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === (dark ? 'dark' : 'light')));
+        document.querySelectorAll('#appLangSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === currentLang));
+    }
+    function setThemeMode(m) {
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if ((m === 'dark') !== dark) toggleTheme();
+        syncSettingsSegs();
+    }
+    function setLangMode(m) { if (currentLang !== m) toggleLang(); syncSettingsSegs(); }
+    function exportAllData() {
+        const o = {};
+        for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!_NO_EXPORT.includes(k)) o[k] = localStorage.getItem(k); }
+        downloadJSON({ app: 'zstudy', version: 1, exported: new Date().toISOString(), data: o }, 'zstudy-backup');
+    }
+    function importAllData(inp) {
+        const f = inp.files && inp.files[0]; if (!f) return;
+        const r = new FileReader();
+        r.onload = () => {
+            try {
+                const j = JSON.parse(r.result); const d = j.data || j;
+                if (!d || typeof d !== 'object') throw new Error('bad');
+                confirmModal(currentLang === 'ar' ? 'سيتم استبدال بياناتك الحالية بالنسخة الاحتياطية. متابعة؟' : 'Your current data will be replaced by the backup. Continue?', () => {
+                    Object.entries(d).forEach(([k, v]) => { if (typeof v === 'string' && !_NO_EXPORT.includes(k)) localStorage.setItem(k, v); });
+                    location.reload();
+                });
+            } catch (e) { alertModal(t('json_invalid')); }
+        };
+        r.readAsText(f); inp.value = '';
+    }
+
     function renderSettings() {
         renderCustomApiSettings();
+        syncSettingsSegs();
         const notifEl = $('notifStatus');
         if (!notifEl) return;
         if (!('Notification' in window)) { notifEl.textContent='Not supported'; return; }
@@ -6238,6 +6513,7 @@ ${textSlice}`;
         const dark=root.getAttribute('data-theme')==='dark';
         root.setAttribute('data-theme', dark?'light':'dark');
         ls('app_theme', dark?'light':'dark');
+        try { syncSettingsSegs(); } catch (e) {}
         track('theme_toggled', { new_theme: dark ? 'light' : 'dark' });
         const themeIcon=$('themeIcon');
         if (themeIcon) {
@@ -6586,6 +6862,16 @@ ${text}`;
         btns.forEach(id => { if ($(id)) $(id).disabled = true; });
 
         try {
+            {
+                const isArC = currentLang === 'ar', LC = isArC ? CARD_LABELS.ar : CARD_LABELS.en;
+                showMCQLoader(isArC, 'cards');
+                mcqLoaderStep(0, 'active'); document.getElementById('mcqLoadTitle').textContent = LC.titles[0]; mcqLoaderProgress(6);
+                await new Promise(r => setTimeout(r, 150));
+                mcqLoaderStep(0, 'done'); mcqLoaderStep(1, 'active'); mcqLoaderProgress(14);
+                mcqLoaderStep(1, 'done'); mcqLoaderStep(2, 'active');
+                document.getElementById('mcqLoadTitle').textContent = LC.titles[2];
+                mcqCreep(20, 80);
+            }
             const lang          = document.getElementById('langSel')?.value || 'عربي';
             const activeFocuses = [..._activeFocuses];
 
@@ -6594,7 +6880,7 @@ ${text}`;
             if (_autoCard) {
                 // ── AUTO MODE: for each focus type, extract ALL from the text ──
                 const totalCalls = activeFocuses.length;
-                setAIStatus(currentLang === 'ar'
+                genSub(currentLang === 'ar'
                     ? `استخراج ${activeFocuses.length} نوع…`
                     : `Extracting ${activeFocuses.length} type(s)…`);
 
@@ -6608,7 +6894,7 @@ ${text}`;
                         )
                         .then(raw => {
                             done++;
-                            if (totalCalls > 1) setAIStatus(currentLang === 'ar'
+                            if (totalCalls > 1) genSub(currentLang === 'ar'
                                 ? `${done}/${totalCalls} اكتمل…`
                                 : `${done}/${totalCalls} done…`);
                             return extractCardsJson(raw) || [];
@@ -6627,9 +6913,10 @@ ${text}`;
                     return true;
                 });
 
+                if (_mcqCancelled) return;
                 if (!merged.length) throw new Error('No cards extracted');
 
-                setAIStatus(currentLang==='ar'?'توليد اسم المجموعة…':'Naming deck…');
+                cardsLoaderNaming();
                 const userTyped  = $('quizNameInput').value.trim();
                 const focusLabel = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
                 const autoName   = userTyped || await aiDeckName(merged) || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
@@ -6637,22 +6924,23 @@ ${text}`;
                 decks.push({ name: autoName + focusLabel, cards: merged });
                 saveDecks(decks);
 
-                setAIStatus(merged.length + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+                await cardsLoaderDone(merged.length);
                 track('cards_generated', { card_count: merged.length, mode: 'auto', focuses: activeFocuses.join(','), subject: getCurrentSubject()?.name || 'none' });
-                setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
+                hideMCQLoader(); switchPanel('decks');
 
             } else {
                 // ── MANUAL MODE: single call ──────────────────────────────
                 const count = _cardCount || 20;
 
-                setAIStatus(currentLang === 'ar' ? 'جاري توليد البطاقات…' : 'Generating cards…');
+                genSub(count + ' ' + (currentLang === 'ar' ? 'بطاقة مطلوبة' : 'cards requested'));
                 const raw = await nvidiaChat(buildCardsPromptWithFocus(chunks[0], count), CARDS_SYSTEM, 8000, 0.2);
                 const cards = extractCardsJson(raw) || [];
                 const merged = cards.filter(c => c.question && c.answer).slice(0, count);
 
+                if (_mcqCancelled) return;
                 if (!merged.length) throw new Error('No valid cards generated');
 
-                setAIStatus(currentLang==='ar'?'توليد اسم المجموعة…':'Naming deck…');
+                cardsLoaderNaming();
                 const userTyped2  = $('quizNameInput').value.trim();
                 const deckName    = userTyped2 || await aiDeckName(merged) || pdfFile || `Deck ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} #${getDecks().length+1}`;
                 const focusLabel  = _getFocusLabel() ? ` [${_getFocusLabel()}]` : '';
@@ -6660,14 +6948,16 @@ ${text}`;
                 decks.push({ name: deckName + focusLabel, cards: merged });
                 saveDecks(decks);
 
-                setAIStatus(merged.length + '/' + count + ' ' + (currentLang==='ar'?'بطاقة أُضيفت':'cards added'), true);
+                await cardsLoaderDone(merged.length);
                 track('cards_generated', { card_count: merged.length, mode: 'manual', target_count: count, subject: getCurrentSubject()?.name || 'none' });
-                setTimeout(()=>{ setAIStatus(''); switchPanel('decks'); }, 800);
+                hideMCQLoader(); switchPanel('decks');
             }
 
         } catch(e) {
+            hideMCQLoader();
+            switchPanel('gen');
             setAIStatus(e.message, false, true);
-            setTimeout(()=>setAIStatus(''), 4000);
+            setTimeout(()=>setAIStatus(''), 5000);
         } finally {
             btns.forEach(id => { if ($(id)) $(id).disabled = !pdfText; });
         }
@@ -7177,6 +7467,7 @@ ${text}`;
     }
 
     function closeSummaryModal() {
+        clearInterval(window._cmSumTimer);
         document.getElementById('sumCreationModal')?.remove();
         _sumModalFile = null;
     }
@@ -7269,8 +7560,12 @@ ${text}`;
                     <div class="cm-loading-title">${currentLang === 'ar' ? 'جاري إنشاء الملخص...' : 'Generating summary...'}</div>
                     <div class="cm-loading-sub" id="cmSumLoadingStatus">${currentLang === 'ar' ? 'جاري استخراج النص من PDF...' : 'Extracting text from PDF...'}</div>
                     <div class="cm-loading-bar-wrap"><div class="cm-loading-bar" id="cmSumLoadingBar"></div></div>
+                    <div class="cm-loading-time" id="cmSumTime">0:00</div>
                 </div>`;
             footer.style.display = 'none';
+            clearInterval(window._cmSumTimer);
+            const _t0 = Date.now();
+            window._cmSumTimer = setInterval(() => { const te = document.getElementById('cmSumTime'); if (!te) return; const sec = Math.floor((Date.now() - _t0) / 1000); te.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }, 1000);
         }
 
         // Hook into status updates
