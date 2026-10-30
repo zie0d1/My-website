@@ -65,6 +65,12 @@
             --shadow-modal: 0 32px 64px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
         }
 
+        /* ── SHARE ── */
+        .share-box { width:100%; resize:none; direction:ltr; text-align:left; font-family:var(--mono); font-size:11px; line-height:1.5; padding:10px; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface2); color:var(--text); }
+        .share-note { font-size:12px; color:var(--text3); margin-top:8px; line-height:1.6; }
+        .share-warn { font-size:12px; color:var(--warning); margin-top:8px; line-height:1.6; }
+        @media (max-width:480px) { .share-lbl { display:none; } }
+
         /* ── RESET & BASE ── */
         * { margin:0; padding:0; box-sizing:border-box; }
         html { font-size:16px; scroll-behavior:smooth; }
@@ -2224,6 +2230,7 @@
                         <span class="quiz-stat" id="qCounter" style="font-weight:600">1 / 1</span>
                         <span class="quiz-stat" id="qScore" style="color:var(--success)">0/0</span>
                         <span class="quiz-stat" id="quizTimer" style="margin-inline-end:auto">0m 0s</span>
+                        <button class="btn btn-sm" onclick="shareCurrentQuiz()" aria-label="مشاركة" title="مشاركة برابط"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span class="share-lbl" data-t="x_share">مشاركة</span></button>
                         <button class="btn btn-danger btn-sm" onclick="finishMCQ()" data-t="end">إنهاء</button>
                     </div>
                     <div class="progress-bar"><div class="progress-fill" id="qProg" style="width:0%"></div></div>
@@ -2312,7 +2319,7 @@
             x_card_settings_hint:'تُطبَّق عند توليد البطاقات من PDF — يمكن اختيار أكثر من نوع تركيز',
             x_focus_label:'نوع التركيز — يمكن تحديد أكثر من واحد', x_card_count:'عدد البطاقات',
             x_auto_card:'بطاقات تلقائية', x_auto_card_hint:'الذكاء الاصطناعي يقرر العدد المناسب لتغطية كامل الـ PDF',
-            x_apply:'تطبيق', x_drop_hint:'PDF · يمكن رفع عدة ملفات واختيار نطاق الصفحات',
+            x_apply:'تطبيق', x_share:'مشاركة', x_drop_hint:'PDF · يمكن رفع عدة ملفات واختيار نطاق الصفحات',
                         x_f_general:'عام', x_f_definition:'تعريفات', x_f_enumeration:'تعدادات', x_f_concept:'مفاهيم',
             x_f_mechanism:'آليات', x_f_comparison:'مقارنات', x_f_formula:'معادلات', x_f_clinical:'حالات سريرية',
             x_q_style:'نمط الأسئلة', x_qs_mixed:'متنوع', x_qs_recall:'حفظ واسترجاع', x_qs_clinical:'حالات سريرية', x_qs_application:'تطبيق وتحليل',
@@ -2455,7 +2462,7 @@
             x_card_settings_hint:'Applied when generating cards from a PDF — you can pick more than one focus type',
             x_focus_label:'Focus type — you can select more than one', x_card_count:'Card Count',
             x_auto_card:'Auto Card', x_auto_card_hint:'AI decides the ideal card count to cover the whole PDF',
-            x_apply:'Apply', x_drop_hint:'PDF · upload multiple files and choose a page range',
+            x_apply:'Apply', x_share:'Share', x_drop_hint:'PDF · upload multiple files and choose a page range',
                         x_f_general:'General', x_f_definition:'Definitions', x_f_enumeration:'Enumerations', x_f_concept:'Concepts',
             x_f_mechanism:'Mechanisms', x_f_comparison:'Comparisons', x_f_formula:'Formulas', x_f_clinical:'Clinical / Cases',
             x_q_style:'Question style', x_qs_mixed:'Mixed', x_qs_recall:'Recall', x_qs_clinical:'Clinical cases', x_qs_application:'Application',
@@ -5878,7 +5885,7 @@ Write 3–4 short sentences: (1) why the correct answer is right, (2) ${wrongPic
                 <div class="rs-sec-h">${isAr ? 'الدقة حسب مستوى الثقة' : 'Accuracy by confidence'}</div>
                 <div class="rs-conf">${confRows}</div>
             </div>` : ''}`,
-            `${analysisBtn}<button class="btn btn-primary" onclick="closeModal();switchPanel('history')">${t('history')}</button><button class="btn" onclick="closeModal()">${t('exit')}</button>`
+            `${analysisBtn}<button class="btn" onclick="closeModal();shareCurrentQuiz()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> ${t('x_share')}</button><button class="btn btn-primary" onclick="closeModal();switchPanel('history')">${t('history')}</button><button class="btn" onclick="closeModal()">${t('exit')}</button>`
         );
         const _rsBox = document.querySelector('#modalOverlay .modal-box'); if (_rsBox) _rsBox.classList.add('rs-box');
         qLive = false;
@@ -6050,6 +6057,7 @@ Rules: rely only on the questions and explanations provided; never invent facts.
             return `<div class="hs-item" onclick="replayEntry(${e.id})">
                 <div class="hs-ring"><svg viewBox="0 0 48 48" width="48" height="48" style="transform:rotate(-90deg)"><circle cx="24" cy="24" r="20" fill="none" stroke="var(--surface3)" stroke-width="5"/><circle cx="24" cy="24" r="20" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - (e.score || 0) / 100)).toFixed(1)}"/></svg><b style="color:${col}">${e.score}</b></div>
                 <div class="hs-main"><div class="hs-name" dir="auto">${esc(e.name)}</div><div class="hs-meta">${e.date} · ${e.qCount} ${isAr ? 'سؤال' : 'Q'}${e.elapsed ? ' · ' + e.elapsed : ''}</div></div>
+                <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();shareHist(${e.id})" title="${isAr ? 'مشاركة برابط' : 'Share link'}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
                 <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();delHist(${e.id})" title="${isAr ? 'حذف' : 'Delete'}" style="color:var(--danger)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
                 <svg class="flip-rtl" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text4)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </div>`;
@@ -7452,7 +7460,146 @@ ${text}
         }
     }
 
+    // ══════════════════════════════════════════════════════════════════════
+    // ── SHARE MCQ VIA LINK ────────────────────────────────────────────────
+    // The quiz is compressed and stored inside the URL hash (#share=...).
+    // The hash never goes to a server, so no backend is needed.
+    // ══════════════════════════════════════════════════════════════════════
+    const SHARE_PREFIX = '#share=';
+
+    function _bytesToB64url(bytes) {
+        let s = '';
+        for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+        return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function _b64urlToBytes(str) {
+        str = str.replace(/-/g, '+').replace(/_/g, '/');
+        while (str.length % 4) str += '=';
+        const bin = atob(str), out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+    }
+    async function _deflate(bytes) {
+        const cs = new CompressionStream('deflate-raw');
+        const w = cs.writable.getWriter(); w.write(bytes); w.close();
+        return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+    }
+    async function _inflate(bytes) {
+        const ds = new DecompressionStream('deflate-raw');
+        const w = ds.writable.getWriter(); w.write(bytes).catch(() => {}); w.close().catch(() => {});
+        const r = ds.readable.getReader(), chunks = []; let total = 0;
+        for (;;) {
+            const { done, value } = await r.read();
+            if (done) break;
+            total += value.length;
+            if (total > 5e6) { try { r.cancel(); } catch (_) {} throw new Error('too large'); }
+            chunks.push(value);
+        }
+        const out = new Uint8Array(total); let o = 0;
+        for (const c of chunks) { out.set(c, o); o += c.length; }
+        return out;
+    }
+
+    async function encodeShare(name, questions) {
+        const payload = { n: String(name || 'MCQ').slice(0, 120), q: questions.map(q => [q.question, q.options, q.correct, q.explanation || '']) };
+        const bytes = new TextEncoder().encode(JSON.stringify(payload));
+        if (window.CompressionStream) { try { return '2.' + _bytesToB64url(await _deflate(bytes)); } catch (e) {} }
+        return '1.' + _bytesToB64url(bytes);
+    }
+
+    async function decodeShare(code) {
+        const ver = code.slice(0, 2);
+        if (ver !== '1.' && ver !== '2.') throw new Error('bad version');
+        let bytes = _b64urlToBytes(code.slice(2));
+        if (ver === '2.') {
+            if (!window.DecompressionStream) throw new Error('unsupported browser');
+            bytes = await _inflate(bytes);
+        }
+        const p = JSON.parse(new TextDecoder().decode(bytes));
+        const questions = (Array.isArray(p.q) ? p.q : []).slice(0, 300).map(a => ({
+            question: String(a[0] || ''),
+            options: (Array.isArray(a[1]) ? a[1] : []).slice(0, 8).map(String),
+            correct: Number(a[2]),
+            explanation: String(a[3] || '')
+        })).filter(q => q.question && q.options.length >= 2 && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < q.options.length);
+        return { name: String(p.n || 'MCQ').slice(0, 120), questions };
+    }
+
+    async function shareQuiz(questions, name) {
+        const isAr = currentLang === 'ar';
+        const valid = (questions || []).filter(q => q && q.question && Array.isArray(q.options) && q.correct !== undefined);
+        if (!valid.length) { alertModal(isAr ? 'لا توجد أسئلة لمشاركتها.' : 'There are no questions to share.'); return; }
+        let code;
+        try { code = await encodeShare(name, valid); }
+        catch (e) { alertModal(isAr ? 'تعذّر إنشاء الرابط.' : 'Could not create the link.'); return; }
+        const url = location.href.split('#')[0] + SHARE_PREFIX + code;
+        window._shareUrl = url; window._shareName = name;
+
+        const notes = [];
+        if (location.protocol === 'file:')
+            notes.push(isAr ? 'التطبيق مفتوح كملف على جهازك، لذلك الرابط لن يعمل عند الآخرين إلا بعد رفع zStudy على موقع أو استضافة.'
+                            : 'The app is open as a local file, so this link will only work for others once zStudy is hosted online.');
+        if (url.length > 6000)
+            notes.push(isAr ? 'الرابط طويل؛ بعض تطبيقات المراسلة قد تقصّه. إذا حدث ذلك قلّل عدد الأسئلة.'
+                            : 'This link is long; some messaging apps may cut it off. If that happens, share fewer questions.');
+
+        modal(
+            `<div style="font-size:16px;font-weight:700;margin-bottom:4px">${isAr ? 'رابط مشاركة الاختبار' : 'Quiz share link'}</div>
+             <div dir="auto" style="font-size:13px;color:var(--text3);margin-bottom:10px">${esc(name || 'MCQ')} · ${valid.length} ${isAr ? 'سؤال' : 'Q'}</div>
+             <textarea id="shareUrlBox" class="share-box" rows="4" readonly onclick="this.select()"></textarea>
+             <div class="share-note">${isAr ? 'من يفتح الرابط يحصل على الأسئلة والإجابات الصحيحة والشرح فقط، بدون نتائجك.' : 'Anyone who opens the link gets the questions, correct answers and explanations only, not your results.'}</div>
+             ${notes.map(n => `<div class="share-warn">${n}</div>`).join('')}`,
+            `<button class="btn btn-primary" onclick="copyShareUrl()">${isAr ? 'نسخ الرابط' : 'Copy link'}</button>`
+            + (navigator.share ? `<button class="btn" onclick="nativeShareUrl()">${isAr ? 'مشاركة…' : 'Share…'}</button>` : '')
+            + `<button class="btn" onclick="closeModal()">${isAr ? 'إغلاق' : 'Close'}</button>`
+        );
+        $('shareUrlBox').value = url;
+        track('quiz_shared', { question_count: valid.length, link_length: url.length });
+    }
+
+    async function copyShareUrl() {
+        const isAr = currentLang === 'ar', url = window._shareUrl || '';
+        let ok = false;
+        try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
+        if (!ok) { try { const ta = $('shareUrlBox'); ta.focus(); ta.select(); ok = document.execCommand('copy'); } catch (e) {} }
+        toast(ok ? (isAr ? 'تم نسخ الرابط' : 'Link copied') : (isAr ? 'حدّد الرابط وانسخه يدوياً' : 'Select the link and copy it manually'));
+    }
+
+    async function nativeShareUrl() {
+        try { await navigator.share({ title: window._shareName || 'zStudy', text: window._shareName || 'zStudy', url: window._shareUrl }); }
+        catch (e) { /* user cancelled */ }
+    }
+
+    function shareCurrentQuiz() { shareQuiz(Qs, qSource); }
+    function shareHist(id) { const e = getHist().find(x => x.id === id); if (e) shareQuiz(e.questions, e.name); }
+
+    async function handleSharedHash() {
+        const h = location.hash;
+        if (!h.startsWith(SHARE_PREFIX)) return;
+        const isAr = currentLang === 'ar';
+        try {
+            const data = await decodeShare(h.slice(SHARE_PREFIX.length));
+            if (!data.questions.length) throw new Error('empty');
+            history.replaceState(null, '', location.pathname + location.search);
+            window._sharedQuiz = data;
+            track('shared_quiz_opened', { question_count: data.questions.length });
+            modal(
+                `<div style="font-size:16px;font-weight:700;margin-bottom:8px">${isAr ? 'اختبار تمت مشاركته معك' : 'A quiz was shared with you'}</div>
+                 <div dir="auto" style="font-weight:600;color:var(--accent)">${esc(data.name)}</div>
+                 <div style="font-size:13px;color:var(--text3);margin-top:4px">${data.questions.length} ${isAr ? 'سؤال' : 'questions'}</div>`,
+                `<button class="btn btn-primary" onclick="closeModal();startSharedQuiz()">${isAr ? 'ابدأ الاختبار' : 'Start quiz'}</button><button class="btn" onclick="closeModal()">${isAr ? 'إلغاء' : 'Cancel'}</button>`
+            );
+        } catch (e) {
+            history.replaceState(null, '', location.pathname + location.search);
+            alertModal(isAr ? 'رابط المشاركة غير صالح أو تالف.' : 'This share link is invalid or damaged.');
+        }
+    }
+    function startSharedQuiz() { const s = window._sharedQuiz; if (s) startQuiz(s.questions, s.name); }
+    window.addEventListener('hashchange', handleSharedHash);
+
+
     init();
+    handleSharedHash();
 </script>
 </body>
 </html>
