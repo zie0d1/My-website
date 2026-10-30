@@ -7466,6 +7466,44 @@ ${text}
     // The hash never goes to a server, so no backend is needed.
     // ══════════════════════════════════════════════════════════════════════
     const SHARE_PREFIX = '#share=';
+    const BIN_PREFIX = '#bin=';
+    const JSONBIN_ACCESS_KEY = '$2a$10$6rTaI7E0DjXx1ohWg57C2edeFTBUv98ecH2Xr7M67bB0wz3NlKTVK';
+    const JSONBIN_API = 'https://api.jsonbin.io/v3/b';
+
+    // Upload full quiz (nothing cut) to a public JSONBin and return the short bin id
+    async function uploadQuizBin(name, questions) {
+        const payload = { n: String(name || 'MCQ').slice(0, 120), q: questions.map(q => [q.question, q.options, q.correct, q.explanation || '']) };
+        const r = await fetch(JSONBIN_API, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Access-Key': JSONBIN_ACCESS_KEY,
+                'X-Bin-Private': 'false',
+                'X-Bin-Name': String(name || 'MCQ').slice(0, 60)
+            },
+            body: JSON.stringify(payload)
+        });
+        if (!r.ok) throw new Error('upload ' + r.status);
+        const j = await r.json();
+        const id = j && j.metadata && j.metadata.id;
+        if (!id) throw new Error('no id');
+        return id;
+    }
+    async function fetchQuizBin(id) {
+        if (!/^[a-f0-9]{20,30}$/i.test(id)) throw new Error('bad id');
+        const r = await fetch(JSONBIN_API + '/' + id + '/latest', { headers: { 'X-Bin-Meta': 'false' } });
+        if (!r.ok) throw new Error('fetch ' + r.status);
+        return await r.json();
+    }
+    function _normalizeShared(p) {
+        const questions = (Array.isArray(p.q) ? p.q : []).slice(0, 300).map(a => ({
+            question: String(a[0] || ''),
+            options: (Array.isArray(a[1]) ? a[1] : []).slice(0, 8).map(String),
+            correct: Number(a[2]),
+            explanation: String(a[3] || '')
+        })).filter(q => q.question && q.options.length >= 2 && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < q.options.length);
+        return { name: String(p.n || 'MCQ').slice(0, 120), questions };
+    }
 
     function _bytesToB64url(bytes) {
         let s = '';
@@ -7529,13 +7567,19 @@ ${text}
         const isAr = currentLang === 'ar';
         const valid = (questions || []).filter(q => q && q.question && Array.isArray(q.options) && q.correct !== undefined);
         if (!valid.length) { alertModal(isAr ? 'لا توجد أسئلة لمشاركتها.' : 'There are no questions to share.'); return; }
-        let code;
-        try { code = await encodeShare(name, valid); }
-        catch (e) { alertModal(isAr ? 'تعذّر إنشاء الرابط.' : 'Could not create the link.'); return; }
-        const url = location.href.split('#')[0] + SHARE_PREFIX + code;
+        const base = location.href.split('#')[0];
+        const notes = [];
+        let url = '';
+        toast(isAr ? 'جاري إنشاء الرابط القصير…' : 'Creating short link…');
+        try { url = base + BIN_PREFIX + await uploadQuizBin(name, valid); }
+        catch (e) {
+            try { url = base + SHARE_PREFIX + await encodeShare(name, valid); }
+            catch (e2) { alertModal(isAr ? 'تعذّر إنشاء الرابط.' : 'Could not create the link.'); return; }
+            notes.push(isAr ? 'تعذّر إنشاء رابط قصير (تحقق من الإنترنت)، تم إنشاء الرابط الطويل بدلاً منه.'
+                            : 'Short link failed (check connection); a long link was created instead.');
+        }
         window._shareUrl = url; window._shareName = name;
 
-        const notes = [];
         if (location.protocol === 'file:')
             notes.push(isAr ? 'التطبيق مفتوح كملف على جهازك، لذلك الرابط لن يعمل عند الآخرين إلا بعد رفع zStudy على موقع أو استضافة.'
                             : 'The app is open as a local file, so this link will only work for others once zStudy is hosted online.');
@@ -7575,10 +7619,12 @@ ${text}
 
     async function handleSharedHash() {
         const h = location.hash;
-        if (!h.startsWith(SHARE_PREFIX)) return;
+        if (!h.startsWith(SHARE_PREFIX) && !h.startsWith(BIN_PREFIX)) return;
         const isAr = currentLang === 'ar';
         try {
-            const data = await decodeShare(h.slice(SHARE_PREFIX.length));
+            const data = h.startsWith(BIN_PREFIX)
+                ? _normalizeShared(await fetchQuizBin(h.slice(BIN_PREFIX.length)))
+                : await decodeShare(h.slice(SHARE_PREFIX.length));
             if (!data.questions.length) throw new Error('empty');
             history.replaceState(null, '', location.pathname + location.search);
             window._sharedQuiz = data;
